@@ -1,26 +1,31 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
-import jakarta.persistence.Entity;
-import org.springframework.data.annotation.Id;
-
+import jakarta.persistence.*;
+import jakarta.persistence.Id;
 import java.time.LocalDate;
 
 @Entity
 public class User {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private  String firstName;
-    private  String LastName;
+    private  String lastName;
     private  String email;
     private  String password;
-    private UserEstate userEstate;
     private LocalDate DayRegistrer;
+
+    @Enumerated(EnumType.STRING)
     private  UserType userType;
+
+    @Enumerated(EnumType.STRING)
+    private UserEstate userEstate;
 
     public User() {}
     public User(String firstName, String lastName, String email, String password,UserType userType,UserEstate userEstate) {
         this.firstName = firstName;
-        this.LastName = lastName;
+        this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.DayRegistrer = LocalDate.now();
@@ -37,11 +42,11 @@ public class User {
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        LastName = lastName;
+        lastName = lastName;
     }
 
     public String getEmail() {
