@@ -6,47 +6,56 @@ import java.time.LocalDate;
 
 @Entity
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private  String firstName;
-    private  String lastName;
-    private  String email;
-    private  String password;
-    private LocalDate DayRegistrer;
-
-    @Enumerated(EnumType.STRING)
-    private  UserType userType;
+    private String nombre;
+    private String apellido;
+    private String email;
+    private String contrasena;
+    private LocalDate fechaRegistro;
 
     @Enumerated(EnumType.STRING)
     private UserEstate userEstate;
 
+    @Enumerated(EnumType.STRING)
+    private UserType userType;
+
+    @OneToOne(mappedBy = "usuario")
+    private Feriante feriante;
+
     public User() {}
-    public User(String firstName, String lastName, String email, String password,UserType userType,UserEstate userEstate) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+
+    public User(String nombre, String apellido, String email, String contrasena, UserType userType, UserEstate userEstate) {
+        this.nombre = nombre;
+        this.apellido = apellido;
         this.email = email;
-        this.password = password;
-        this.DayRegistrer = LocalDate.now();
-        this.userEstate=userEstate;
-        this.userType=userType;
+        this.contrasena = contrasena;
+        this.fechaRegistro = LocalDate.now();
+        this.userEstate = userEstate;
+        this.userType = userType;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public int getId() {
+        return id;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public String getNombre() {
+        return nombre;
     }
 
-    public String getLastName() {
-        return lastName;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public void setLastName(String lastName) {
-        lastName = lastName;
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
     }
 
     public String getEmail() {
@@ -57,20 +66,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public String getContrasena() {
+        return contrasena;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public LocalDate getDayRegistrer() {
-        return DayRegistrer;
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
     }
 
     public UserEstate getUserEstate() {
@@ -79,6 +80,10 @@ public class User {
 
     public void setUserEstate(UserEstate userEstate) {
         this.userEstate = userEstate;
+    }
+
+    public LocalDate getFechaRegistro() {
+        return fechaRegistro;
     }
 
     public UserType getUserType() {

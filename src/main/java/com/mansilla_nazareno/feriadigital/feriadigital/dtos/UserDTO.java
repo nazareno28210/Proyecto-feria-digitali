@@ -8,10 +8,10 @@ import java.time.LocalDate;
 
 public class UserDTO {
     private int id;
-    private  String firstName;
-    private  String lastName;
+    private  String nombre;
+    private  String apellido;
     private  String email;
-    private  String password;
+    private  String contrasena;
     private UserEstate userEstate;
     private LocalDate DayRegistrer;
     private UserType userType;
@@ -19,12 +19,12 @@ public class UserDTO {
     public UserDTO(){}
     public UserDTO(User user) {
         this.id= user.getId();
-        this.firstName =user.getFirstName();
-        this.lastName = user.getLastName();
+        this.nombre =user.getNombre();
+        this.apellido = user.getApellido();
         this.email = user.getEmail();
-        this.password = user.getPassword();
+        this.contrasena = user.getContrasena();
         this.userEstate = user.getUserEstate();
-        this.DayRegistrer = user.getDayRegistrer();
+        this.DayRegistrer = user.getFechaRegistro();
         this.userType=user.getUserType();
     }
 
