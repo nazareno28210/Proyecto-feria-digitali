@@ -34,18 +34,6 @@ public class FeriaDigitalApplication {
 				}
 
 				if (ferianteRepository.findAll().isEmpty()) {
-						Feriante feriante2 = new Feriante(
-								"Emprendimiento Tierra del Fuego",
-								"Venta de productos artesanales locales",
-								"2964-555123",
-								"contacto@tierrafueguina.com",
-								LocalDate.now(),
-								UserEstate.ACTIVO,
-								UserType.FERIANTE
-						);
-						ferianteRepository.save(feriante2);
-				}
-				if (ferianteRepository.findAll().isEmpty()) {
 					User francisco = new User(
 							"Francisco",
 							"García",
@@ -56,12 +44,17 @@ public class FeriaDigitalApplication {
 					);
 					userRepository.save(francisco);
 
-					Feriante ferianteFrancisco = new Feriante("Emprendimiento de Francisco",);
-
-
-					ferianteRepository.save(ferianteFrancisco);
+					Feriante ferianteFransico = new Feriante(
+							"Emprendimiento Francisco",
+							"Venta de artesanías de madera",
+							"2964-555999",
+							"contactofrancisco@gmail.com",
+							LocalDate.now(),
+							UserEstate.ACTIVO,
+							francisco
+					);
+					ferianteRepository.save(ferianteFransico);
 				}
-
 			};
 		}
 }

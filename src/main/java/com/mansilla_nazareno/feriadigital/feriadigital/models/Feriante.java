@@ -18,9 +18,6 @@ public class Feriante {
     private LocalDate fechaRegistro;
 
     @Enumerated(EnumType.STRING)
-    private UserType userType;
-
-    @Enumerated(EnumType.STRING)
     private UserEstate userEstate;
 
     @OneToOne
@@ -29,14 +26,15 @@ public class Feriante {
 
     public Feriante() {}
 
-    public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento, LocalDate fechaRegistro, UserEstate userEstate, UserType userType) {
+    public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento,
+                    LocalDate fechaRegistro, UserEstate userEstate, User usuario) {
         this.nombreEmprendimiento = nombreEmprendimiento;
         this.descripcion = descripcion;
         this.telefono = telefono;
         this.emailEmprendimiento = emailEmprendimiento;
         this.fechaRegistro =  LocalDate.now();
         this.userEstate = userEstate;
-        this.userType = UserType.FERIANTE;
+        this.usuario = usuario;
     }
 
     public int getId() {
@@ -91,7 +89,18 @@ public class Feriante {
         this.userEstate = userEstate;
     }
 
+    public User getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(User usuario) {
+        this.usuario = usuario;
+    }
+
     public UserType getUserType() {
-        return userType;
+        if (this.usuario != null) {
+            return this.usuario.getUserType();
+        }
+        return null;
     }
 }
