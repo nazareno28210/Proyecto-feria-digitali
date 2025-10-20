@@ -13,12 +13,9 @@ public class AdministradorDeFeria {
     @JoinColumn(name = "fk_id_usuario", referencedColumnName = "id")
     private Usuario usuario;
 
-    private String telefono;
 
     public AdministradorDeFeria(){}
-    public AdministradorDeFeria(String telefono){
-        this.telefono=telefono;
-    }
+
 
     public int getId() {
         return id;

@@ -8,6 +8,7 @@ import java.util.Set;
 @Entity
 public class Producto {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nombre;
     private String Descripcion;

@@ -7,11 +7,12 @@ import java.util.List;
 @Entity
 public class Stand {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nombre;
     private String descripcion;
     @ManyToOne
-    @JoinColumn(name = "feria_id")
+    @JoinColumn(name = "feria_id", referencedColumnName = "id")
     private Feria feria; // cada stand pertenece a una feria
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -24,5 +25,9 @@ public class Stand {
 
     public void setProductos(List<Producto> productos) {
         this.productos = productos;
+    }
+
+    public void setFeria(Feria feria) {
+        this.feria = feria;
     }
 }

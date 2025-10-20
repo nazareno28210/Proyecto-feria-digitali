@@ -10,6 +10,8 @@ public class Feria {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+
     private String nombre;
     private LocalDate fechaInicio;
     private LocalDate fechaFinal;
