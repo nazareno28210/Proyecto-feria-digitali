@@ -1,31 +1,62 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos;
 
-import com.mansilla_nazareno.feriadigital.feriadigital.models.User;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.UserEstate;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.UserType;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
 
 import java.time.LocalDate;
 
-public class UserDTO {
+public class UsuarioDTO {
     private int id;
     private  String nombre;
     private  String apellido;
     private  String email;
     private  String contrasena;
-    private UserEstate userEstate;
+    private EstadoUsuario estadoUsuario;
     private LocalDate DayRegistrer;
-    private UserType userType;
+    private TipoUsuario tipoUsuario;
 
-    public UserDTO(){}
-    public UserDTO(User user) {
-        this.id= user.getId();
-        this.nombre =user.getNombre();
-        this.apellido = user.getApellido();
-        this.email = user.getEmail();
-        this.contrasena = user.getContrasena();
-        this.userEstate = user.getUserEstate();
-        this.DayRegistrer = user.getFechaRegistro();
-        this.userType=user.getUserType();
+    public UsuarioDTO(){}
+    public UsuarioDTO(Usuario usuario) {
+        this.id= usuario.getId();
+        this.nombre = usuario.getNombre();
+        this.apellido = usuario.getApellido();
+        this.email = usuario.getEmail();
+        this.contrasena = usuario.getContrasena();
+        this.estadoUsuario = usuario.getEstadoUsuario();
+        this.DayRegistrer = usuario.getFechaRegistro();
+        this.tipoUsuario = usuario.getTipoUsuario();
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getContrasena() {
+        return contrasena;
+    }
+
+    public EstadoUsuario getEstadoUsuario() {
+        return estadoUsuario;
+    }
+
+    public LocalDate getDayRegistrer() {
+        return DayRegistrer;
+    }
+
+    public TipoUsuario getTipoUsuario() {
+        return tipoUsuario;
+    }
 }

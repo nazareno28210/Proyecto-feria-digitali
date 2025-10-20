@@ -1,8 +1,8 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers;
 
-
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UserDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UserRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,26 +10,27 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-
 @RestController
 @RequestMapping("/api")
-public class UserController {
+public class UsuarioController {
 
-    private UserRepository userRepository;
+    private UsuarioRepository usuarioRepository;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UsuarioController(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
-    @GetMapping("/users")
-    public List<UserDTO> getaccounts(){
-        return userRepository.findAll().stream().map(user -> new UserDTO(user)).collect(toList());
+    @GetMapping("/usuarios")
+    public List<UsuarioDTO> getUsuarios(){
+        return usuarioRepository.findAll()
+                .stream()
+                .map(usuario-> new UsuarioDTO(usuario))
+                .toList();
     }
-    @RequestMapping("/users/{id}")
-    public UserDTO getUserDTO(@PathVariable Integer id){
-        return userRepository.findById(id)
-                .map(UserDTO::new)
+    @RequestMapping("/usuario/{id}")
+    public UsuarioDTO getUsuarioDTO(@PathVariable Integer id){
+        return usuarioRepository.findById(id)
+                .map(UsuarioDTO::new)
                 .orElse(null);
 
     }

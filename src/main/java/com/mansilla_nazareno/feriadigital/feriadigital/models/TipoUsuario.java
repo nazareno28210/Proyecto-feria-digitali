@@ -1,6 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
-public enum UserType {
+public enum TipoUsuario {
     NORMAL,
     FERIANTE,
     ADMINISTRADOR

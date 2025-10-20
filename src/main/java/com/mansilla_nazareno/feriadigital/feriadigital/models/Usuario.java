@@ -5,7 +5,7 @@ import jakarta.persistence.Id;
 import java.time.LocalDate;
 
 @Entity
-public class User {
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,24 +18,24 @@ public class User {
     private LocalDate fechaRegistro;
 
     @Enumerated(EnumType.STRING)
-    private UserEstate userEstate;
+    private EstadoUsuario estadoUsuario;
 
     @Enumerated(EnumType.STRING)
-    private UserType userType;
+    private TipoUsuario tipoUsuario;
 
     @OneToOne(mappedBy = "usuario")
     private Feriante feriante;
 
-    public User() {}
+    public Usuario() {}
 
-    public User(String nombre, String apellido, String email, String contrasena, UserType userType, UserEstate userEstate) {
+    public Usuario(String nombre, String apellido, String email, String contrasena, EstadoUsuario estadoUsuario) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.contrasena = contrasena;
         this.fechaRegistro = LocalDate.now();
-        this.userEstate = userEstate;
-        this.userType = userType;
+        this.estadoUsuario = estadoUsuario;
+        this.tipoUsuario = TipoUsuario.NORMAL;
     }
 
     public int getId() {
@@ -74,23 +74,23 @@ public class User {
         this.contrasena = contrasena;
     }
 
-    public UserEstate getUserEstate() {
-        return userEstate;
+    public EstadoUsuario getEstadoUsuario() {
+        return estadoUsuario;
     }
 
-    public void setUserEstate(UserEstate userEstate) {
-        this.userEstate = userEstate;
+    public void setUserEstate(EstadoUsuario estadoUsuario) {
+        this.estadoUsuario = estadoUsuario;
     }
 
     public LocalDate getFechaRegistro() {
         return fechaRegistro;
     }
 
-    public UserType getUserType() {
-        return userType;
+    public TipoUsuario getTipoUsuario() {
+        return tipoUsuario;
     }
 
-    public void setUserType(UserType userType) {
-        this.userType = userType;
+    public void setTipoUsuario(TipoUsuario tipoUsuario) {
+        this.tipoUsuario = tipoUsuario;
     }
 }

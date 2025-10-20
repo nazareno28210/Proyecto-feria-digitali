@@ -18,23 +18,22 @@ public class Feriante {
     private LocalDate fechaRegistro;
 
     @Enumerated(EnumType.STRING)
-    private UserEstate userEstate;
+    private EstadoUsuario estadoUsuario;
 
     @OneToOne
     @JoinColumn(name = "fk_id_usuario", referencedColumnName = "id")
-    private User usuario;
+    private Usuario usuario;
 
     public Feriante() {}
 
     public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento,
-                    LocalDate fechaRegistro, UserEstate userEstate, User usuario) {
+             EstadoUsuario estadoUsuario) {
         this.nombreEmprendimiento = nombreEmprendimiento;
         this.descripcion = descripcion;
         this.telefono = telefono;
         this.emailEmprendimiento = emailEmprendimiento;
         this.fechaRegistro =  LocalDate.now();
-        this.userEstate = userEstate;
-        this.usuario = usuario;
+        this.estadoUsuario = estadoUsuario;
     }
 
     public int getId() {
@@ -77,29 +76,27 @@ public class Feriante {
         return fechaRegistro;
     }
 
-    public void setFechaRegistro(LocalDate fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
+
+    public EstadoUsuario getUserEstate() {
+        return estadoUsuario;
     }
 
-    public UserEstate getUserEstate() {
-        return userEstate;
+    public void setUserEstate(EstadoUsuario estadoUsuario) {
+        this.estadoUsuario = estadoUsuario;
     }
 
-    public void setUserEstate(UserEstate userEstate) {
-        this.userEstate = userEstate;
-    }
-
-    public User getUsuario() {
+    public Usuario getUsuario() {
         return usuario;
     }
 
-    public void setUsuario(User usuario) {
+    public void setUsuario(Usuario usuario) {
+        usuario.setTipoUsuario(TipoUsuario.FERIANTE);
         this.usuario = usuario;
     }
 
-    public UserType getUserType() {
+    public TipoUsuario getTipoUsuario() {
         if (this.usuario != null) {
-            return this.usuario.getUserType();
+            return this.usuario.getTipoUsuario();
         }
         return null;
     }

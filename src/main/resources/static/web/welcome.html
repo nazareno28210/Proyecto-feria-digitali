@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bienvenido • FeriaDigital</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      background: linear-gradient(180deg,#eef2ff 0%, #ffffff 100%);
+      display: flex;
+      min-height: 100vh;
+      align-items: center;
+      justify-content: center;
+    }
+    .wrap {
+      text-align: center;
+      background: white;
+      padding: 36px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(11,30,80,0.08);
+      width: 480px;
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p.lead { margin: 0 0 16px; color: #374151; font-size: 15px; }
+    .name {
+      display: inline-block;
+      font-weight: 700;
+      font-size: 18px;
+      background: linear-gradient(90deg,#0b72ff,#6c5ce7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 18px;
+    }
+    button {
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #0b72ff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .hint { color:#6b7280; margin-top:12px; font-size:13px; }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <h1 id="greet">¡Bienvenido!</h1>
+    <div class="name" id="displayName">Cargando...</div>
+    <p class="lead" id="subtitle">Gracias por ingresar a FeriaDigital.</p>
+
+    <div>
+      <button id="logoutBtn">Cerrar sesión</button>
+    </div>
+
+    <div class="hint" id="hintText"></div>
+  </div>
+
+  <script>
+    // Intentamos leer el nombre desde sessionStorage
+    const storedName = sessionStorage.getItem('feria_user_name');
+
+    function sanitize(str) {
+      // elimina etiquetas para evitar XSS simple
+      return String(str).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    if (storedName && storedName.trim().length > 0) {
+      document.getElementById('displayName').textContent = sanitize(storedName);
+      document.getElementById('greet').textContent = 'Hola,';
+      document.getElementById('subtitle').textContent = 'Acá podés ver tu panel o seguir navegando.';
+      document.getElementById('hintText').textContent = 'Si querés volver al login o cambiar de usuario, cerrá sesión.';
+    } else {
+      // si no hay nombre (acceso directo a welcome.html), redirigimos al login
+      document.getElementById('displayName').textContent = '';
+      document.getElementById('greet').textContent = 'Acceso no autorizado';
+      document.getElementById('subtitle').textContent = 'No se encontró una sesión válida.';
+      document.getElementById('hintText').textContent = 'Serás redirigido al login en 3 segundos.';
+      setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+      // limpiar sessionStorage y volver al login
+      sessionStorage.removeItem('feria_user_name');
+      window.location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

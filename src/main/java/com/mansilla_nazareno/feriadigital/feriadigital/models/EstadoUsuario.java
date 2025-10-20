@@ -1,6 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
-public enum UserEstate {
+public enum EstadoUsuario {
     ACTIVO,
     INACTIVO
 }
