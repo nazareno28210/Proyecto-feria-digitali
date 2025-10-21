@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootApplication
@@ -42,10 +41,11 @@ public class FeriaDigitalApplication {
 						EstadoUsuario.ACTIVO
 				);
 
-				usuarioRepository.save(nazareno);
+
 
 				AdministradorDeFeria admin1 = new AdministradorDeFeria();
 				admin1.setUsuario(nazareno);
+				usuarioRepository.save(nazareno);
 				administradorDeFeriaRepository.save(admin1);
 
 				Usuario francisco = new Usuario(
@@ -55,8 +55,6 @@ public class FeriaDigitalApplication {
 						passwordEncoder.encode("123"),
 						EstadoUsuario.ACTIVO
 				);
-				usuarioRepository.save(francisco);
-
 				Feriante ferianteFrancisco = new Feriante(
 						"Emprendimiento Francisco",
 						"Venta de artesanías de madera",
@@ -65,6 +63,7 @@ public class FeriaDigitalApplication {
 						EstadoUsuario.ACTIVO
 				);
 				ferianteFrancisco.setUsuario(francisco);
+				usuarioRepository.save(francisco);
 				ferianteRepository.save(ferianteFrancisco);
 
 				// ------------------- Categorías -------------------

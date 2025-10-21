@@ -90,9 +90,12 @@ public class Feriante {
     }
 
     public void setUsuario(Usuario usuario) {
-        usuario.setTipoUsuario(TipoUsuario.FERIANTE);
+        if (usuario.getTipoUsuario() == TipoUsuario.NORMAL) {
+            usuario.setTipoUsuario(TipoUsuario.FERIANTE);
+        }
         this.usuario = usuario;
     }
+
 
     public TipoUsuario getTipoUsuario() {
         if (this.usuario != null) {

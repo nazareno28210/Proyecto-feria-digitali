@@ -26,7 +26,9 @@ public class AdministradorDeFeria {
     }
 
     public void setUsuario(Usuario usuario) {
-        usuario.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
+        if (usuario.getTipoUsuario() == TipoUsuario.NORMAL) {
+            usuario.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
+        }
         this.usuario = usuario;
     }
 }

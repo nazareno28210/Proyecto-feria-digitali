@@ -64,4 +64,12 @@ public class Producto {
     public void setStand(Stand stand) {
         this.stand = stand;
     }
+
+    public Stand getStand() {
+        return stand;
+    }
+
+    public List<CategoriaProducto> getCategorias() {
+        return categorias;
+    }
 }
