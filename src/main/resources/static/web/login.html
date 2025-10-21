@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <title>Login Feria Digital</title>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script defer src="/web/js/login.js"></script>
 </head>
 <body>
   <h2>Iniciar sesión</h2>
@@ -13,47 +14,5 @@
     <input type="password" id="password" placeholder="Contraseña" required><br><br>
     <button type="submit">Entrar</button>
   </form>
-
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-
-      try {
-        // 1️⃣ Hacemos POST a /api/login
-        await axios.post("/api/login", 
-          new URLSearchParams({ email, password }),
-          { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
-        );
-
-        // 2️⃣ Si el login fue exitoso, pedimos el usuario actual
-        const res = await axios.get("/api/usuarios/current");
-        const usuario = res.data;
-
-        console.log("Usuario logueado:", usuario);
-
-        // 3️⃣ Redirigimos según el tipo de usuario
-        switch (usuario.tipoUsuario) {
-          case "ADMINISTRADOR":
-            window.location.href = "/web/admin.html";
-            break;
-          case "FERIANTE":
-            window.location.href = "/web/feriante.html";
-            break;
-          case "NORMAL":
-            window.location.href = "/web/usuario.html";
-            break;
-          default:
-            alert("Tipo de usuario desconocido");
-        }
-
-      } catch (error) {
-        console.error(error);
-        alert("Error al iniciar sesión. Verifica tus datos.");
-      }
-    });
-  </script>
 </body>
 </html>
