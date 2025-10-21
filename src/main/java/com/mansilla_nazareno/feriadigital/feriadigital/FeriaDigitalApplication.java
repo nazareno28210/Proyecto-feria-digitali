@@ -51,7 +51,7 @@ public class FeriaDigitalApplication {
 				Usuario francisco = new Usuario(
 						"Francisco",
 						"García",
-						"francisco@mail.com",
+						"francisco@gmail.com",
 						passwordEncoder.encode("123"),
 						EstadoUsuario.ACTIVO
 				);

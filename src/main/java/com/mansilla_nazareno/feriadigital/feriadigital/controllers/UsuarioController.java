@@ -3,6 +3,7 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,4 +35,14 @@ public class UsuarioController {
                 .orElse(null);
 
     }
+    // 🔹 NUEVO ENDPOINT PARA LOGIN
+    @GetMapping("/usuarios/current")
+    public UsuarioDTO getCurrentUser(Authentication authentication) {
+        if (authentication == null) {
+            return null; // No hay usuario logueado
+        }
+        Usuario usuario = usuarioRepository.findByemail(authentication.getName());
+        return new UsuarioDTO(usuario);
+    }
+
 }

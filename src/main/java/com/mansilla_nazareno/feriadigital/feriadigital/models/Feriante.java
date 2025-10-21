@@ -69,7 +69,7 @@ public class Feriante {
     }
 
     public void setEmailEmprendimiento(String emailEmprendimiento) {
-        this.emailEmprendimiento = this.emailEmprendimiento;
+        this.emailEmprendimiento = emailEmprendimiento;
     }
 
     public LocalDate getFechaRegistro() {

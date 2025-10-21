@@ -1,6 +1,5 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.configurations;
 
-
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,31 +20,26 @@ public class WebAuthentication extends GlobalAuthenticationConfigurerAdapter {
 
     @Override
     public void init(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(inputName-> {
-
+        auth.userDetailsService(inputName -> {
             Usuario usuario = usuarioRepository.findByemail(inputName);
 
-
-            if (usuario != null) {
-                if (usuario.getEmail().equals("nazarenoguardia2004@gmail.com")) {
-                    return new User(usuario.getEmail(), usuario.getContrasena(),
-                            AuthorityUtils.createAuthorityList("ADMIN"));
-                }
-                else {
-                    return new User(usuario.getEmail(), usuario.getContrasena(),
-                            AuthorityUtils.createAuthorityList("USER"));
-                }
-
+            if (usuario == null) {
+                throw new UsernameNotFoundException("Usuario desconocido: " + inputName);
             }
-            else { throw new UsernameNotFoundException("Unknown user: " +
-                        inputName);
-            }
+
+            // Asigna rol según tipoUsuario
+            String rol = usuario.getTipoUsuario().name(); // NORMAL, FERIANTE, ADMINISTRADOR
+
+            return new User(
+                    usuario.getEmail(),
+                    usuario.getContrasena(),
+                    AuthorityUtils.createAuthorityList("ROLE_" + rol)
+            );
         });
     }
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
-    
 }

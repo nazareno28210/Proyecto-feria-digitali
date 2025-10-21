@@ -13,45 +13,50 @@ import org.springframework.security.web.authentication.logout.HttpStatusReturnin
 
 @EnableWebSecurity
 @Configuration
-    public class WebAuthorization {
+public class WebAuthorization {
 
     @Bean
     public SecurityFilterChain filterChain(org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable())// desactivar CSRF temporalmente para pruebas
+        http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/web/index.html", "/web/js/**", "/web/css/**", "/web/img/**").permitAll()
+                        .requestMatchers("/","/web/index.html","/web/login.html", "/web/js/**", "/web/css/**", "/web/img/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/login", "/api/logout").permitAll()
-                        // Protege rutas de API o dashboard
-                        .requestMatchers("/api/**").hasAuthority("ADMIN")
-                        .requestMatchers("/web/**").hasAuthority("ADMIN")
-                        .requestMatchers("/api/**").hasAuthority("USUARIO")
-                        .requestMatchers("/web/**").hasAuthority("USUARIO")
-                        .anyRequest().denyAll()
+
+
+                        .requestMatchers("/web/admin/**", "/api/admin/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/web/feriante/**", "/api/feriante/**").hasRole("FERIANTE")
+                        .requestMatchers("/web/usuario/**", "/api/usuario/**").hasRole("NORMAL")
+                        .anyRequest().authenticated()
+                )
+                .formLogin(form -> form
+
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .loginPage("/web/login.html")
+                        .loginProcessingUrl("/api/login")
+
+                        .successHandler((request, response, authentication) -> {
+                            clearAuthenticationAttributes(request);
+
+                            var authorities = authentication.getAuthorities();
+                            String rol = authorities.iterator().next().getAuthority();
+
+                            // Redirección según rol
+                            switch (rol) {
+                                case "ROLE_ADMINISTRADOR" -> response.sendRedirect("/web/admin.html");
+                                case "ROLE_FERIANTE" -> response.sendRedirect("/web/feriante.html");
+                                case "ROLE_NORMAL" -> response.sendRedirect("/web/usuario.html");
+                                default -> response.sendRedirect("/web/index.html");
+                            }
+                        })
+                        .failureHandler((request, response, exception) ->
+                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/api/logout")
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
                 );
-
-        // Login personalizado
-        http.formLogin(form -> form
-                .loginPage("/web/login.html") // tu página de login real
-                .loginProcessingUrl("/api/login") // endpoint que procesa el POST
-                .usernameParameter("email")
-                .passwordParameter("password")
-
-
-                .successHandler((request, response, authentication) -> {
-                    clearAuthenticationAttributes(request);
-                    response.setStatus(HttpServletResponse.SC_OK); // devuelve 200
-                })
-                .failureHandler((request, response, exception) -> {
-                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED); // devuelve 401
-                })
-        );
-
-        // Logout personalizado
-        http.logout(logout -> logout
-                .logoutUrl("/api/logout")
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-        );
 
         return http.build();
     }
