@@ -22,6 +22,7 @@ public class WebAuthorization {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/","/web/index.html","/web/login.html", "/web/js/**", "/web/css/**", "/web/img/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/login", "/api/logout").permitAll()
+                        .requestMatchers("/api/**").permitAll()
 
 
                         .requestMatchers("/web/admin/**", "/api/admin/**").hasRole("ADMINISTRADOR")

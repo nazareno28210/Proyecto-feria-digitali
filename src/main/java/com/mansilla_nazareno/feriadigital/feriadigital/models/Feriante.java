@@ -24,6 +24,9 @@ public class Feriante {
     @JoinColumn(name = "fk_id_usuario", referencedColumnName = "id")
     private Usuario usuario;
 
+    @OneToOne(mappedBy = "feriante")
+    private Stand stand;
+
     public Feriante() {}
 
     public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento,
@@ -34,6 +37,7 @@ public class Feriante {
         this.emailEmprendimiento = emailEmprendimiento;
         this.fechaRegistro =  LocalDate.now();
         this.estadoUsuario = estadoUsuario;
+
     }
 
     public int getId() {
@@ -102,5 +106,13 @@ public class Feriante {
             return this.usuario.getTipoUsuario();
         }
         return null;
+    }
+    // getters y setters
+    public Stand getStand() {
+        return stand;
+    }
+
+    public void setStand(Stand stand) {
+        this.stand = stand;
     }
 }

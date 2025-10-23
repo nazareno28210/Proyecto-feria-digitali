@@ -27,7 +27,7 @@ public class FerianteController {
                 .toList();
     }
 
-    @RequestMapping("/feriantes/{id}")
+    @GetMapping("/feriantes/{id}")
     public FerianteDTO getFerianteDTO(@PathVariable Integer id){
         return ferianteRepository.findById(id)
                 .map(FerianteDTO::new)

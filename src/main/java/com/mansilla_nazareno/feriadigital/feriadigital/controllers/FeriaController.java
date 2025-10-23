@@ -2,6 +2,7 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.FerianteDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.FeriaRepository;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,6 @@ public class FeriaController {
 
     public FeriaController(FeriaRepository feriaRepository) {this.feriaRepository = feriaRepository;}
 
-    // 📋 Obtener todas las ferias
     @GetMapping("/ferias")
     public List<FeriaDTO> getFerias() {
         return feriaRepository.findAll()
@@ -27,7 +27,7 @@ public class FeriaController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/feria/{id}")
+    @GetMapping("/ferias/{id}")
     public FeriaDTO getFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id)
                 .map(FeriaDTO::new)

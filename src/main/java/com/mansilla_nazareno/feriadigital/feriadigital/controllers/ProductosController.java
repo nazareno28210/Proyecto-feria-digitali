@@ -2,6 +2,7 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.FerianteDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.ProductoDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.ProductoRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +27,12 @@ public class ProductosController {
                 .toList();
     }
 
-    @RequestMapping("/productos/{id}")
+    @GetMapping("/productos/{id}")
     public ProductoDTO getProductoDTO(@PathVariable Integer id){
         return productoRepository.findById(id)
                 .map(ProductoDTO::new)
                 .orElse(null);
     }
+
+
 }

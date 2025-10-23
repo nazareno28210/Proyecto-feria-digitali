@@ -27,7 +27,8 @@ public class FeriaDigitalApplication {
 			UsuarioRepository usuarioRepository,
 			AdministradorDeFeriaRepository administradorDeFeriaRepository,
 			FerianteRepository ferianteRepository,
-			FeriaRepository feriaRepository
+			FeriaRepository feriaRepository,
+			StandRepository standRepository
 	) {
 		return (args) -> {
 			if (usuarioRepository.findAll().isEmpty()) {
@@ -55,16 +56,7 @@ public class FeriaDigitalApplication {
 						passwordEncoder.encode("123"),
 						EstadoUsuario.ACTIVO
 				);
-				Feriante ferianteFrancisco = new Feriante(
-						"Emprendimiento Francisco",
-						"Venta de artesanías de madera",
-						"2964-555999",
-						"contactofrancisco@gmail.com",
-						EstadoUsuario.ACTIVO
-				);
-				ferianteFrancisco.setUsuario(francisco);
-				usuarioRepository.save(francisco);
-				ferianteRepository.save(ferianteFrancisco);
+
 
 				// ------------------- Categorías -------------------
 				CategoriaProducto c1 = new CategoriaProducto("pantalon", "prenda de vestir");
@@ -105,12 +97,30 @@ public class FeriaDigitalApplication {
 						LocalDate.of(2025, 11, 5),
 						"Centro Cultural",
 						"Feria dedicada a la tecnología y gadgets",
-						"Activa",
+						"ACTIVA",
 						"Centro Cultural"
 				);
 
 				feria.setStands(List.of(stand1));
 				stand1.setFeria(feria); // si la relación es bidireccional
+
+				Feriante ferianteFrancisco = new Feriante(
+						"Emprendimiento Francisco",
+						"Venta de artesanías de madera",
+						"2964-555999",
+						"contactofrancisco@gmail.com",
+						EstadoUsuario.ACTIVO
+				);
+				ferianteFrancisco.setStand(stand1);
+				stand1.setFeriante(ferianteFrancisco);
+
+				ferianteFrancisco.setUsuario(francisco);
+
+				usuarioRepository.save(francisco);
+
+
+
+
 
 				// ------------------- Guardado final -------------------
 				// Con cascade = ALL en Stand -> Producto y Producto -> CategoriaProducto

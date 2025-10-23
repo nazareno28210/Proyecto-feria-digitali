@@ -28,7 +28,7 @@ public class UsuarioController {
                 .map(usuario-> new UsuarioDTO(usuario))
                 .toList();
     }
-    @RequestMapping("/usuario/{id}")
+    @GetMapping("/usuarios/{id}")
     public UsuarioDTO getUsuarioDTO(@PathVariable Integer id){
         return usuarioRepository.findById(id)
                 .map(UsuarioDTO::new)

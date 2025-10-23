@@ -55,7 +55,4 @@ public class FeriaDTO {
         return estado;
     }
 
-    public List<Stand> getStands() {
-        return stands;
-    }
 }

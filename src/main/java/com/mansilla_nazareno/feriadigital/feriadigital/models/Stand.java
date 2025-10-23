@@ -18,6 +18,10 @@ public class Stand {
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Producto> productos; // un stand puede tener muchos productos
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "feriante_id") // crea la columna en la tabla Stand
+    private Feriante feriante;
+
     public Stand(){}
     public Stand(String nombre, String descripcion) {
         this.nombre = nombre;
@@ -58,5 +62,13 @@ public class Stand {
 
     public List<Producto> getProductos() {
         return productos;
+    }
+
+    public Feriante getFeriante() {
+        return feriante;
+    }
+
+    public void setFeriante(Feriante feriante) {
+        this.feriante = feriante;
     }
 }

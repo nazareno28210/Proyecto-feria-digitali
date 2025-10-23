@@ -16,7 +16,6 @@ public class UsuarioDTO {
     private LocalDate DayRegistrer;
     private TipoUsuario tipoUsuario;
 
-    public UsuarioDTO(){}
     public UsuarioDTO(Usuario usuario) {
         this.id= usuario.getId();
         this.nombre = usuario.getNombre();

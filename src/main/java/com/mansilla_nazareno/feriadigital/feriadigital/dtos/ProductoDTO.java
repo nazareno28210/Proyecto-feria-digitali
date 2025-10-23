@@ -40,11 +40,4 @@ public class ProductoDTO {
         return precio;
     }
 
-    public Stand getStand() {
-        return stand;
-    }
-
-    public List<CategoriaProducto> getCategorias() {
-        return categorias;
-    }
 }
