@@ -21,7 +21,7 @@ public class WebAuthentication extends GlobalAuthenticationConfigurerAdapter {
     @Override
     public void init(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(inputName -> {
-            Usuario usuario = usuarioRepository.findByemail(inputName);
+            Usuario usuario = usuarioRepository.findByEmail(inputName);
 
             if (usuario == null) {
                 throw new UsernameNotFoundException("Usuario desconocido: " + inputName);

@@ -72,4 +72,5 @@ public class Producto {
     public List<CategoriaProducto> getCategorias() {
         return categorias;
     }
+
 }

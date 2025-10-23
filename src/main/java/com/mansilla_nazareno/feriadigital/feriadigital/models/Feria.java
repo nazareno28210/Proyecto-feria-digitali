@@ -87,4 +87,8 @@ public class Feria {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
+    public List<Stand> getStands() {
+        return stands;
+    }
 }

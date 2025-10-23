@@ -41,7 +41,7 @@ public class UsuarioController {
         if (authentication == null) {
             return null; // No hay usuario logueado
         }
-        Usuario usuario = usuarioRepository.findByemail(authentication.getName());
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
         return new UsuarioDTO(usuario);
     }
 

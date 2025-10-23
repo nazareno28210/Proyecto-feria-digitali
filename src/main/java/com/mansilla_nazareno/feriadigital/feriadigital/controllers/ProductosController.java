@@ -18,7 +18,7 @@ public class ProductosController {
 
     public ProductosController (ProductoRepository productoRepository){this.productoRepository=productoRepository;}
 
-    @GetMapping("/Productos")
+    @GetMapping("/productos")
     public List<ProductoDTO> getProductos(){
         return productoRepository.findAll()
                 .stream()
@@ -26,7 +26,7 @@ public class ProductosController {
                 .toList();
     }
 
-    @RequestMapping("/Productos/{id}")
+    @RequestMapping("/productos/{id}")
     public ProductoDTO getProductoDTO(@PathVariable Integer id){
         return productoRepository.findById(id)
                 .map(ProductoDTO::new)

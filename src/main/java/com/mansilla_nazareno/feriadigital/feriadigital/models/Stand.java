@@ -18,6 +18,7 @@ public class Stand {
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Producto> productos; // un stand puede tener muchos productos
 
+    public Stand(){}
     public Stand(String nombre, String descripcion) {
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -29,5 +30,33 @@ public class Stand {
 
     public void setFeria(Feria feria) {
         this.feria = feria;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public Feria getFeria() {
+        return feria;
+    }
+
+    public List<Producto> getProductos() {
+        return productos;
     }
 }

@@ -15,6 +15,8 @@ public class CategoriaProducto {
     @JoinColumn(name = "producto_id")
     private Producto producto; // cada categoría pertenece a un producto
 
+
+    public CategoriaProducto(){}
     public CategoriaProducto(String nombre, String descripcion) {
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -42,5 +44,9 @@ public class CategoriaProducto {
 
     public void setProducto(Producto producto) {
         this.producto = producto;
+    }
+
+    public Producto getProducto() {
+        return producto;
     }
 }
