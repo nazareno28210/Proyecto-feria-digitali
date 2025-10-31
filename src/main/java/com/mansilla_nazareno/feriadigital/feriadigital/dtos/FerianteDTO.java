@@ -63,4 +63,5 @@ public class FerianteDTO {
     public Usuario getUsuario() {
         return usuario;
     }
+
 }

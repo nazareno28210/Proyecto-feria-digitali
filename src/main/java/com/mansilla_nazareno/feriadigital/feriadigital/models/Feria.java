@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -15,11 +16,12 @@ public class Feria {
     private String nombre;
     private LocalDate fechaInicio;
     private LocalDate fechaFinal;
-    private String Lugar;
+    private String lugar;
     private String descripcion;
     private String estado;
 
     @OneToMany(mappedBy = "feria", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("feria") // Rompe la recursividad
     private List<Stand> stands;
 
     public Feria(){}
@@ -27,7 +29,7 @@ public class Feria {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFinal = fechaFinal;
-        this.Lugar = lugar;
+        this.lugar = lugar;
         this.descripcion = descripcion;
         this.estado = estado;
     }
@@ -53,11 +55,11 @@ public class Feria {
     }
 
     public String getLugar() {
-        return Lugar;
+        return lugar;
     }
 
     public void setLugar(String lugar) {
-        Lugar = lugar;
+        lugar = lugar;
     }
 
     public void setStands(List<Stand> stands) {

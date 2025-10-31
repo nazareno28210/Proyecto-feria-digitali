@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -13,13 +14,17 @@ public class Stand {
     private String descripcion;
     @ManyToOne
     @JoinColumn(name = "feria_id", referencedColumnName = "id")
+    @JsonIgnoreProperties("stands")
+
     private Feria feria; // cada stand pertenece a una feria
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("stand")
     private List<Producto> productos; // un stand puede tener muchos productos
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "feriante_id") // crea la columna en la tabla Stand
+    @JsonIgnoreProperties("stands")
     private Feriante feriante;
 
     public Stand(){}
@@ -71,4 +76,5 @@ public class Stand {
     public void setFeriante(Feriante feriante) {
         this.feriante = feriante;
     }
+
 }

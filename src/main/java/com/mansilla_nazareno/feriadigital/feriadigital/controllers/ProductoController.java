@@ -1,9 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers;
 
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.FerianteDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.ProductoDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.ProductoRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,10 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
-public class ProductosController {
+public class ProductoController {
     private ProductoRepository productoRepository;
 
-    public ProductosController (ProductoRepository productoRepository){this.productoRepository=productoRepository;}
+    public ProductoController(ProductoRepository productoRepository){this.productoRepository=productoRepository;}
 
     @GetMapping("/productos")
     public List<ProductoDTO> getProductos(){

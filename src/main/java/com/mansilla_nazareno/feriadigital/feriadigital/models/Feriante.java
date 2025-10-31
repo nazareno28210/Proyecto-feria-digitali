@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ public class Feriante {
     private Usuario usuario;
 
     @OneToOne(mappedBy = "feriante")
+    @JsonIgnoreProperties("feriante")
     private Stand stand;
 
     public Feriante() {}

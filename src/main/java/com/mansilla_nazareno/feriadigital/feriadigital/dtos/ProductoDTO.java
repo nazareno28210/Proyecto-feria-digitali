@@ -6,22 +6,24 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Stand;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProductoDTO {
     private int id;
     private String nombre;
     private String Descripcion;
     private double precio;
-    private Stand stand;
-    private List<CategoriaProducto> categorias;
+    private List<CategoriaProductoDTO> categorias;
 
     public ProductoDTO(Producto producto) {
         this.id =producto.getId();
         this.nombre = producto.getNombre();
         Descripcion = producto.getDescripcion();
         this.precio = producto.getPrecio();
-        this.stand = producto.getStand();
-        this.categorias = producto.getCategorias();
+        this.categorias = producto.getCategorias()
+                .stream()
+                .map(CategoriaProductoDTO::new)
+                .collect(Collectors.toList());;
     }
 
     public int getId() {
@@ -40,4 +42,9 @@ public class ProductoDTO {
         return precio;
     }
 
+
+
+    public List<CategoriaProductoDTO> getCategorias() {
+        return categorias;
+    }
 }

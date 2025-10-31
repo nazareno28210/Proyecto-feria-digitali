@@ -58,4 +58,5 @@ public class UsuarioDTO {
     public TipoUsuario getTipoUsuario() {
         return tipoUsuario;
     }
+
 }
