@@ -1,28 +1,59 @@
+/* Reset Básico (Asumo que tienes un archivo de reset o esta regla al inicio) */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f4f7f9;
     color: #333;
-    padding: 20px;
+    /* CORRECTO: Sin padding lateral para que header y footer usen el 100% */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
+/* MAIN: Contenedor para el contenido principal (sección blanca) */
+main {
+    flex-grow: 1;
+    /* CORRECTO: Padding interno para centrar el contenido (info y productos) */
+    padding: 20px 40px;
+}
+
+/* Header - Diseño de barra de ancho completo */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    background-color: #0078d7; /* Color Azul */
+    color: white;
+
+    /* CORRECCIÓN CLAVE: El padding garantiza 40px de espacio interno a los lados */
+    padding: 20px 40px;
+
+    margin-bottom: 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 header h1 {
     font-size: 2rem;
+    margin: 0; /* Asegura que el h1 no tenga margen por defecto que cause problemas */
 }
 
 header button {
     padding: 8px 16px;
-    background-color: #2563eb;
+    background-color: #005fa3;
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.2s ease;
+}
+header button:hover {
+    background-color: #004c87;
 }
 
 #info-stand {
@@ -30,6 +61,12 @@ header button {
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-top: 25px; /* Separación del header */
+    margin-bottom: 30px;
+}
+
+h2 {
+    margin-top: 0;
     margin-bottom: 30px;
 }
 
@@ -39,12 +76,33 @@ header button {
     gap: 20px;
 }
 
+/* Tarjeta de producto: Altura fija y flex para scroll */
 .producto-card {
     background-color: white;
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    height: 250px; /* Altura fija solicitada */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenido interno que permite el scroll */
+.producto-card-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 5px;
+}
+
+/* Estilos de Scrollbar */
+.producto-card-content::-webkit-scrollbar {
+    width: 6px;
+}
+.producto-card-content::-webkit-scrollbar-thumb {
+    background: #0078d7;
+    border-radius: 4px;
 }
 
 .producto-card:hover {
@@ -55,9 +113,22 @@ header button {
 .producto-card h3 {
     font-size: 1.1rem;
     margin-bottom: 8px;
+    color: #0078d7;
 }
 
 .producto-card p {
     font-size: 0.9rem;
     margin-bottom: 6px;
+}
+
+/* Footer - Diseño de barra de ancho completo */
+footer {
+    background-color: #0078d7; /* Color Azul */
+    color: white;
+    text-align: left;
+    padding: 15px 40px; /* Espaciado interno */
+    font-size: 0.9rem;
+    margin-top: auto; /* Empuja el footer hacia abajo */
+    border-radius: 0;
+    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
 }
