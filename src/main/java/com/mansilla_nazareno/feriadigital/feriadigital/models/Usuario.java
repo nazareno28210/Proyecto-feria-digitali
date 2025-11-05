@@ -23,8 +23,6 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipoUsuario;
 
-    @OneToOne(mappedBy = "usuario")
-    private Feriante feriante;
 
     public Usuario() {}
 
@@ -36,6 +34,10 @@ public class Usuario {
         this.fechaRegistro = LocalDate.now();
         this.estadoUsuario = estadoUsuario;
         this.tipoUsuario = TipoUsuario.NORMAL;
+    }
+
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+        this.fechaRegistro = fechaRegistro;
     }
 
     public int getId() {

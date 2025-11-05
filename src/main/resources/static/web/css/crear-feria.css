@@ -1,0 +1,122 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    color: #333;
+}
+
+header a {
+    text-decoration: none;
+    background-color: #555;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+form {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+legend {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box; /* Asegura que el padding no afecte el ancho */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* --- Estilos Drag and Drop --- */
+.drag-container {
+    display: flex;
+    gap: 20px;
+    min-height: 200px;
+}
+
+.drag-list {
+    flex: 1;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.drag-list h3 {
+    text-align: center;
+    margin-top: 0;
+    color: #555;
+}
+
+.drag-item {
+    background-color: #007bff;
+    color: white;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: grab;
+    user-select: none;
+}
+
+.drag-item:active {
+    cursor: grabbing;
+}
+
+/* Estilo para el elemento "fantasma" que se arrastra */
+.drag-item.dragging {
+    opacity: 0.5;
+}
+
+/* Estilo para la lista cuando se arrastra sobre ella */
+.drag-list.drag-over {
+    background-color: #e0e0e0;
+    border-color: #999;
+}
+
+.submit-btn {
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+}

@@ -59,7 +59,7 @@ public class Feria {
     }
 
     public void setLugar(String lugar) {
-        lugar = lugar;
+        this.lugar = lugar;
     }
 
     public void setStands(List<Stand> stands) {

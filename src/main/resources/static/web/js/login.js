@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
 
@@ -6,20 +5,22 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
 
     const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const contrasena = document.getElementById("contrasena").value;
 
     try {
-      //Enviar login con credenciales habilitadas
-      await axios.post("/api/login", new URLSearchParams({ email, password }),
+      // Enviar login con credenciales habilitadas
+      await axios.post(
+        "/api/login",
+        new URLSearchParams({ email, password: contrasena }), // 👈 backend usa "password" en login
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           withCredentials: true,
         }
       );
 
-      //Obtener usuario actual
+      // Obtener usuario actual
       const res = await axios.get("/api/usuarios/current", {
-        withCredentials: true, // <-- también aquí
+        withCredentials: true,
       });
       const usuario = res.data;
 
@@ -30,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // 🔹 3. Redirigir según tipo de usuario
+      // Redirigir según tipo de usuario
       switch (usuario.tipoUsuario) {
         case "ADMINISTRADOR":
           window.location.href = "/web/admin.html";
@@ -47,9 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     } catch (error) {
       console.error("❌ Error al iniciar sesión:", error);
-      if (error.response) {
-        console.log("Detalles del error:", error.response.data);
-      }
+      if (error.response) console.log("Detalles del error:", error.response.data);
       alert("Credenciales incorrectas o error en el servidor");
     }
   });

@@ -20,39 +20,11 @@ public class WebAuthorization {
 
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/","/web/index.html","/web/login.html", "/web/js/**", "/web/css/**", "/web/img/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/login", "/api/logout").permitAll()
-                        .requestMatchers("/api/**").permitAll()
-
-
-                        .requestMatchers("/web/admin/**", "/api/admin/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/web/feriante/**", "/api/feriante/**").hasRole("FERIANTE")
-                        .requestMatchers("/web/usuario/**", "/api/usuario/**").hasRole("NORMAL")
-                        .anyRequest().authenticated()
+                        // 🔓 Todo el sitio es público
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
-
-                        .usernameParameter("email")
-                        .passwordParameter("password")
-                        .loginPage("/web/login.html")
-                        .loginProcessingUrl("/api/login")
-
-                        .successHandler((request, response, authentication) -> {
-                            clearAuthenticationAttributes(request);
-
-                            var authorities = authentication.getAuthorities();
-                            String rol = authorities.iterator().next().getAuthority();
-
-                            // Redirección según rol
-                            switch (rol) {
-                                case "ROLE_ADMINISTRADOR" -> response.sendRedirect("/web/admin.html");
-                                case "ROLE_FERIANTE" -> response.sendRedirect("/web/feriante.html");
-                                case "ROLE_NORMAL" -> response.sendRedirect("/web/usuario.html");
-                                default -> response.sendRedirect("/web/index.html");
-                            }
-                        })
-                        .failureHandler((request, response, exception) ->
-                                response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                        .disable() // 🚫 Desactiva el login por formulario
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/logout")
@@ -61,7 +33,10 @@ public class WebAuthorization {
 
         return http.build();
     }
-
+    //.requestMatchers("/web/admin/**", "/api/admin/**").hasRole("ADMINISTRADOR")
+    //                        .requestMatchers("/web/feriante/**", "/api/feriante/**").hasRole("FERIANTE")
+    //                        .requestMatchers("/web/usuario/**", "/api/usuario/**").hasRole("NORMAL")
+    //                        .anyRequest().authenticated()
     private void clearAuthenticationAttributes(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
