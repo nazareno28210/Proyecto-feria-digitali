@@ -110,8 +110,8 @@ public class FeriaDigitalApplication {
 				// ------------------- Feria -------------------
 				Feria feria = new Feria(
 						"Feria Gimnasio Don Bosco",
-						LocalDate.of(2025, 10, 24),
-						LocalDate.of(2025, 10, 27),
+						LocalDate.of(2025, 12, 24),
+						LocalDate.of(2025, 12, 27),
 						"Colegio Don Bosco,Alberdi 368",
 						"Feria De Rio Grande TDF ",
 						"ACTIVA",
@@ -207,6 +207,7 @@ public class FeriaDigitalApplication {
 // ------------------- Agregar el stand2 a la feria existente -------------------
 				feria.setStands(List.of(stand1, stand2));
 				stand2.setFeria(feria);
+
 
 
 

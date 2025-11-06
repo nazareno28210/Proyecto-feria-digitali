@@ -7,10 +7,15 @@ const standId = params.get("idStand");
 
 async function cargarStand() {
     try {
-        const response = await fetch(`${API_URL}/${standId}`);
-        if (!response.ok) throw new Error("Error al obtener el stand: " + response.status); // Modificado para incluir el status
+        // 1. CAMBIO: Usamos axios.get()
+        const response = await axios.get(`${API_URL}/${standId}`);
 
-        const stand = await response.json();
+        // 2. CAMBIO: Los datos están en 'response.data'
+        //    Ya no se necesita 'response.ok' ni 'response.json()'
+        const stand = response.data;
+
+        // ----- Todo lo que sigue es exactamente igual -----
+
         // Mostrar info general del stand
         const infoStand = document.getElementById("info-stand");
         infoStand.innerHTML = `
@@ -47,13 +52,14 @@ async function cargarStand() {
         }
 
     } catch (error) {
+        // 3. CAMBIO: Este 'catch' ahora también captura errores 404 o 500
         console.error("Error al cargar el stand:", error);
         document.getElementById("info-stand").innerHTML = `<p>Error al cargar los datos. Revisa la Consola (F12) para detalles.</p>`;
     }
 }
 
 function volver() {
-    window.history.back();
+    window.history.back(); // Esto vuelve a la página anterior
 }
 
 // Cargar stand al iniciar la página

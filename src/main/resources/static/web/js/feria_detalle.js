@@ -1,13 +1,19 @@
+// Tu archivo /web/js/feria_detalle.js (actualizado)
+
 const API_URL = "http://localhost:8080/api/ferias";
 const params = new URLSearchParams(window.location.search);
 const feriaId = params.get("id");
 
 async function cargarFeria() {
   try {
-    const response = await fetch(`${API_URL}/${feriaId}`);
-    if (!response.ok) throw new Error("Error al obtener la feria");
+    // 1. CAMBIO: Usamos axios.get() en lugar de fetch()
+    const response = await axios.get(`${API_URL}/${feriaId}`);
 
-    const feria = await response.json();
+    // 2. CAMBIO: Los datos están en 'response.data'
+    //    Ya no se necesita 'response.ok' ni 'response.json()'
+    const feria = response.data;
+
+    // ----- Todo lo que sigue es exactamente igual -----
 
     // Mostrar info general (ocultando estado visualmente)
     const infoFeria = document.getElementById("info-feria");
@@ -16,8 +22,7 @@ async function cargarFeria() {
       <p><strong>Fecha inicio:</strong> ${feria.fechaInicio}</p>
       <p><strong>Fecha fin:</strong> ${feria.fechaFinal}</p>
       <p><strong>Descripción:</strong> ${feria.descripcion}</p>
-      <p hidden><strong>Estado:</strong> ${feria.estado}</p> <!-- 🔹 oculto -->
-    `;
+      <p hidden><strong>Estado:</strong> ${feria.estado}</p> `;
 
     document.getElementById("nombre-feria").textContent = feria.nombre;
 
@@ -45,6 +50,8 @@ async function cargarFeria() {
         "<p>No hay stands registrados para esta feria.</p>";
     }
   } catch (error) {
+    // 3. CAMBIO: Este 'catch' ahora también captura errores 404 o 500
+    //    (Axios los lanza automáticamente)
     console.error("Error al cargar la feria:", error);
     document.getElementById("info-feria").innerHTML =
       "<p>Error al cargar los datos.</p>";

@@ -91,7 +91,7 @@ button {
   padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
-  align-self: flex-start;
+  align-self: center;
 }
 
 button:hover {

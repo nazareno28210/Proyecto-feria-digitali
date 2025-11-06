@@ -3,14 +3,20 @@ let feriasGlobal = [];
 
 async function cargarFerias() {
   try {
-    const response = await fetch(API_URL);
-    feriasGlobal = await response.json();
+    // 1. CAMBIO: Usamos axios.get() en lugar de fetch()
+    const response = await axios.get(API_URL);
+
+    // 2. CAMBIO: Axios entrega los datos JSON directamente en la propiedad 'data'
+    feriasGlobal = response.data;
+
     mostrarFerias(feriasGlobal);
   } catch (error) {
     console.error("Error al cargar las ferias:", error);
+    // Aquí podrías añadir un mensaje de error en el HTML
   }
 }
 
+// El resto de tu código sigue exactamente igual
 function mostrarFerias(lista) {
   const container = document.getElementById("ferias-container");
   container.innerHTML = "";
@@ -38,7 +44,7 @@ function verDetalles(id) {
   window.location.href = `feria_detalle.html?id=${id}`;
 }
 
-// 🔹 Filtrado por nombre
+// 🔹 Filtrado por nombre (esto tampoco cambia)
 document.addEventListener("DOMContentLoaded", () => {
   cargarFerias();
 
