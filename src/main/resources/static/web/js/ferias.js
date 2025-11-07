@@ -30,7 +30,7 @@ function mostrarFerias(lista) {
         <h2>${feria.nombre}</h2>
         <p><strong>Lugar:</strong> ${feria.lugar}</p>
         <p><strong>Fecha inicio:</strong> ${feria.fechaInicio}</p>
-        <p><strong>Fecha fin:</strong> ${feria.fechaFin ?? "Sin definir"}</p>
+        <p><strong>Fecha fin:</strong> ${feria.fechaFinal ?? "Sin definir"}</p>
         <p>${feria.descripcion ?? ""}</p>
       </div>
       <button onclick="verDetalles(${feria.id})">Ver detalles</button>

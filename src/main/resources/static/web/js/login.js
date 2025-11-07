@@ -34,10 +34,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // Redirigir según tipo de usuario
       switch (usuario.tipoUsuario) {
         case "ADMINISTRADOR":
-          window.location.href = "/web/admin.html";
+          window.location.href = "/web/admin/dashboard.html";
           break;
         case "FERIANTE":
-          window.location.href = "/web/feriante.html";
+          window.location.href = "/web/feriante/feriante.html";
           break;
         case "NORMAL":
           window.location.href = "/web/ferias.html";

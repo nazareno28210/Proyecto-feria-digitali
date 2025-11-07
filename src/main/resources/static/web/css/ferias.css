@@ -12,8 +12,21 @@ header {
   background-color: #0078d7;
   color: white;
   padding: 20px;
-  text-align: center;
   position: relative;
+
+  /* ⬇️ CAMBIOS EN HEADER ⬇️ */
+  /* text-align: center; (Eliminado) */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Espacio entre la fila superior y la barra de búsqueda */
+}
+
+/* ⬇️ NUEVO CONTENEDOR PARA H1 Y BOTÓN ⬇️ */
+.header-top {
+  display: flex;
+  justify-content: space-between; /* Empuja el h1 a la izq y el botón a la der */
+  align-items: center;
+  width: 100%;
 }
 
 header h1 {
@@ -21,8 +34,32 @@ header h1 {
   font-size: 1.8rem;
 }
 
+/* ⬇️ NUEVO BOTÓN DE LOGIN ⬇️ */
+.btn-login {
+  background-color: white;
+  color: #0078d7; /* Texto azul */
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none; /* Quita el subrayado del <a> */
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap; /* Evita que el texto se parta */
+}
+
+.btn-login:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 header input {
-  margin-top: 15px;
+  /* ⬇️ CAMBIO: margin-top eliminado (se usa 'gap' en header) ⬇️ */
+  /* margin-top: 15px; */
+
+  /* ⬇️ CAMBIO: align-self para centrar la barra ⬇️ */
+  align-self: center;
+
   padding: 10px 15px;
   width: 80%;
   max-width: 500px;
