@@ -58,47 +58,52 @@ function verDetalles(id) {
 }
 
 // ======================================================
-// 🆕 NUEVAS FUNCIONES DE SESIÓN (Usando AXIOS)
+// 🆕 GESTIÓN DE SESIÓN Y ROLES (Actualizado)
 // ======================================================
 
 async function verificarSesion() {
   try {
-    // Intentamos obtener el usuario actual.
-    // 'withCredentials: true' es VITAL para enviar la cookie de sesión al backend.
     const response = await axios.get(AUTH_URL, { withCredentials: true });
 
-    // Si el backend responde con éxito (status 200) y hay datos de usuario:
     if (response.status === 200 && response.data) {
-      console.log("Usuario autenticado:", response.data.email);
-      mostrarBotonLogout(response.data.nombre || "Usuario"); // Opcional: pasar el nombre para mostrarlo
+      console.log("Usuario autenticado:", response.data);
+      // Pasamos los datos completos del usuario para ver su rol
+      mostrarOpcionesUsuario(response.data);
     }
   } catch (error) {
-    // Si da error 401 o 403, significa que no está logueado.
-    // No hacemos nada, dejamos el botón de "Iniciar sesión" por defecto.
     console.log("Usuario no autenticado (modo visitante)");
+    // No hace falta hacer nada, el botón de "Iniciar sesión" ya está por defecto en el HTML
   }
 }
 
-function mostrarBotonLogout(nombreUsuario) {
+function mostrarOpcionesUsuario(usuario) {
   const container = document.getElementById("user-actions");
+  container.innerHTML = ""; // Limpiamos el botón de "Iniciar sesión"
 
-  // Usamos la nueva clase 'btn-logout' y quitamos el 'style' inline
-  container.innerHTML = `
-    <button id="btn-logout" class="btn-logout">
-      Cerrar sesión
-    </button>
-  `;
+  // 1. DETECCIÓN DE ROL: Si es 'USUARIO', mostramos el botón de feriante.
+  // ⚠️ IMPORTANTE: Verifica si tu backend envía el campo como 'rol', 'role' o 'tipo'.
+  // Ajusta 'usuario.rol' según corresponda a tu JSON.
+  if (usuario.rol === "USUARIO") {
+      const btnFeriante = document.createElement("a");
+      btnFeriante.href = "solicitud_feriante.html"; // Asegúrate de que este nombre coincida con tu archivo HTML real
+      btnFeriante.className = "btn-feriante";
+      btnFeriante.textContent = "Quiero ser feriante";
+      container.appendChild(btnFeriante);
+  }
 
-  document.getElementById("btn-logout").addEventListener("click", cerrarSesion);
+  // 2. Botón de Cerrar Sesión (siempre visible si está logueado)
+  const btnLogout = document.createElement("button");
+  btnLogout.id = "btn-logout";
+  btnLogout.className = "btn-logout";
+  btnLogout.textContent = "Cerrar sesión";
+  btnLogout.addEventListener("click", cerrarSesion);
+
+  container.appendChild(btnLogout);
 }
 
 async function cerrarSesion() {
   try {
-    // Petición POST para cerrar sesión.
-    // IMPORTANTE: Asegúrate de que tu backend espera el logout en /api/logout
     await axios.post(LOGOUT_URL, {}, { withCredentials: true });
-
-    // Si el logout es exitoso, recargamos la página para volver al estado inicial
     window.location.reload();
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
