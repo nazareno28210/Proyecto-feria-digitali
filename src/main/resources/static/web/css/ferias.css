@@ -142,3 +142,31 @@ footer {
   padding: 15px;
   font-size: 0.9rem;
 }
+
+
+/* 🎨 ESTILO PARA EL BOTÓN DE CERRAR SESIÓN */
+.btn-logout {
+  background-color: #dc3545;    /* Mismo fondo blanco limpio */
+  color: white;            /* Texto rojo en lugar de azul */
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;              /* ⚠️ IMPORTANTE: Quita el borde gris por defecto */
+  font-family: "Poppins", sans-serif; /* ⚠️ IMPORTANTE: Mantiene tu tipografía */
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra sutil para que destaque un poco sobre el azul */
+}
+
+.btn-logout:hover {
+  background-color: #fff5f5; /* Un tono rosado muy sutil al pasar el mouse */
+  color: #c82333;            /* Un rojo un poco más oscuro al hacer hover */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* (Opcional) Asegura que tu .btn-login también tenga la misma fuente si alguna vez lo cambias a <button> */
+.btn-login {
+    font-family: "Poppins", sans-serif;
+}
