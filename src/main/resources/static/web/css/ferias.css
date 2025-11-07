@@ -48,6 +48,18 @@ header h1 {
   white-space: nowrap; /* Evita que el texto se parta */
 }
 
+.btn-feriante {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+.btn-feriante:hover {
+  background-color: #388e3c;
+}
+
+
 .btn-login:hover {
   background-color: #f0f0f0;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -135,6 +147,7 @@ button:hover {
   background-color: #005fa3;
 }
 
+
 footer {
   background-color: #0078d7;
   color: white;
@@ -150,8 +163,8 @@ footer {
   color: white;            /* Texto rojo en lugar de azul */
   padding: 8px 16px;
   border-radius: 8px;
-  border: none;              /* ⚠️ IMPORTANTE: Quita el borde gris por defecto */
-  font-family: "Poppins", sans-serif; /* ⚠️ IMPORTANTE: Mantiene tu tipografía */
+  border: none;
+  font-family: "Poppins", sans-serif;
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -176,8 +189,6 @@ footer {
   gap: 15px;      /* Espacio entre botones */
   align-items: center;
 }
-
-
 
 
 /* Estilo del botón "Quiero ser feriante" */
