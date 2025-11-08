@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
 
@@ -8,17 +9,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = document.getElementById("password").value;
 
     try {
-      // 🔹 1. Enviar login
-      await axios.post("/api/login", 
+      // 🔹 1. Enviar login con credenciales habilitadas
+      await axios.post(
+        "/api/login",
         new URLSearchParams({ email, password }),
-        { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+        {
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          withCredentials: true, // <-- importante para mantener la sesión
+        }
       );
 
       // 🔹 2. Obtener usuario actual
-      const res = await axios.get("/api/usuarios/current");
+      const res = await axios.get("/api/usuarios/current", {
+        withCredentials: true, // <-- también aquí
+      });
       const usuario = res.data;
 
-      console.log("Usuario logueado:", usuario);
+      console.log("✅ Usuario logueado:", usuario);
+
+      if (!usuario || !usuario.tipoUsuario) {
+        alert("No se pudo obtener el tipo de usuario. Revisa el backend.");
+        return;
+      }
 
       // 🔹 3. Redirigir según tipo de usuario
       switch (usuario.tipoUsuario) {
@@ -29,15 +41,18 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = "/web/feriante.html";
           break;
         case "NORMAL":
-          window.location.href = "/web/usuario.html";
+          window.location.href = "/web/ferias.html";
           break;
         default:
-          alert("Tipo de usuario desconocido");
+          alert("Tipo de usuario desconocido: " + usuario.tipoUsuario);
       }
 
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-      alert("Credenciales incorrectas o usuario no encontrado");
+      console.error("❌ Error al iniciar sesión:", error);
+      if (error.response) {
+        console.log("Detalles del error:", error.response.data);
+      }
+      alert("Credenciales incorrectas o error en el servidor");
     }
   });
 });
