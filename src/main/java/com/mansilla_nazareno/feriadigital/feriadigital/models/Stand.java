@@ -12,10 +12,10 @@ public class Stand {
     private int id;
     private String nombre;
     private String descripcion;
+
     @ManyToOne
     @JoinColumn(name = "feria_id", referencedColumnName = "id")
     @JsonIgnoreProperties("stands")
-
     private Feria feria; // cada stand pertenece a una feria
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

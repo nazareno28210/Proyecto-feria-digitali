@@ -24,6 +24,7 @@ public class Producto {
     @JsonIgnoreProperties("productos")
     private List<CategoriaProducto> categorias; // un producto puede tener varias categorías
 
+    private boolean estado;
 
     public Producto(){}
     public Producto(double precio, String descripcion, String nombre) {
