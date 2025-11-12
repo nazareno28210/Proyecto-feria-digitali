@@ -14,6 +14,7 @@ public class Producto {
     private String nombre;
     private String Descripcion;
     private double precio;
+    private String imagen;
 
     @ManyToOne
     @JoinColumn(name = "stand_id")
@@ -77,4 +78,11 @@ public class Producto {
         return categorias;
     }
 
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
 }

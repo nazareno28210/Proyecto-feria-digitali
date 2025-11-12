@@ -17,12 +17,13 @@ async function cargarProductos() {
       contenedor.innerHTML += `
         <div class="col-md-4 mb-4">
           <div class="card h-100 sombra">
+            <img src="${p.imagen || 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" class="card-img-top" alt="${p.nombre}" style="height: 200px; object-fit: cover;">
             <div class="card-body">
               <h5 class="card-title">${p.nombre}</h5>
               <p class="card-text text-muted">${p.descripcion}</p>
               <p><strong>$${p.precio.toFixed(2)}</strong></p>
               <div class="d-flex justify-content-between">
-                <button class="btn btn-primary btn-sm" onclick="abrirModalEditar(${p.id}, '${p.nombre}', '${p.descripcion}', ${p.precio})">Editar</button>
+                <button class="btn btn-primary btn-sm" onclick="abrirModalEditar(${p.id}, '${p.nombre}', '${p.descripcion}', ${p.precio}, '${p.imagen || ''}')">Editar</button>
                 <button class="btn btn-danger btn-sm" onclick="eliminarProducto(${p.id})">Eliminar</button>
               </div>
             </div>
@@ -41,6 +42,7 @@ async function crearProducto() {
   const nombre = document.getElementById("nombre").value.trim();
   const descripcion = document.getElementById("descripcion").value.trim();
   const precio = parseFloat(document.getElementById("precio").value);
+  const imagen = document.getElementById("imagenUrl").value.trim();
 
   if (!nombre || !descripcion || isNaN(precio)) {
     alert("Por favor, completá todos los campos.");
@@ -48,7 +50,7 @@ async function crearProducto() {
   }
 
   try {
-    await axios.post("/api/productos", { nombre, descripcion, precio });
+    await axios.post("/api/productos", { nombre, descripcion, precio, imagen });
     alert("✅ Producto agregado correctamente");
     limpiarCampos();
     cargarProductos();
@@ -73,14 +75,15 @@ async function eliminarProducto(id) {
 }
 
 // 🔹 Abrir modal de edición
-function abrirModalEditar(id, nombre, descripcion, precio) {
+function abrirModalEditar(id, nombre, descripcion, precio, imagen) {
   document.getElementById("edit-id").value = id;
   document.getElementById("edit-nombre").value = nombre;
   document.getElementById("edit-descripcion").value = descripcion;
   document.getElementById("edit-precio").value = precio;
+  document.getElementById("edit-imagenUrl").value = imagen; // Carga la URL actual en el input
 
   const modal = new bootstrap.Modal(document.getElementById("modalEditar"));
-  modal.show();
+  modal.show(); // FALTABA ESTA LÍNEA Y LA LLAVE DE CIERRE
 }
 
 // 🔹 Guardar cambios del modal
@@ -89,6 +92,7 @@ async function guardarEdicion() {
   const nombre = document.getElementById("edit-nombre").value.trim();
   const descripcion = document.getElementById("edit-descripcion").value.trim();
   const precio = parseFloat(document.getElementById("edit-precio").value);
+  const imagen = document.getElementById("edit-imagenUrl").value.trim();
 
   if (!nombre || !descripcion || isNaN(precio)) {
     alert("Completá todos los campos antes de guardar.");
@@ -96,9 +100,11 @@ async function guardarEdicion() {
   }
 
   try {
-    await axios.put(`/api/productos/${id}`, { nombre, descripcion, precio });
+    await axios.put(`/api/productos/${id}`, { nombre, descripcion, precio, imagen });
     alert("✅ Producto actualizado correctamente");
-    const modal = bootstrap.Modal.getInstance(document.getElementById("modalEditar"));
+    // Truco para cerrar el modal si la instancia bootstrap da problemas al re-instanciar
+    const modalEl = document.getElementById('modalEditar');
+    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
     modal.hide();
     cargarProductos();
   } catch (err) {
@@ -112,6 +118,7 @@ function limpiarCampos() {
   document.getElementById("nombre").value = "";
   document.getElementById("descripcion").value = "";
   document.getElementById("precio").value = "";
+  document.getElementById("imagenUrl").value = "";
 }
 
 // Cargar productos al iniciar

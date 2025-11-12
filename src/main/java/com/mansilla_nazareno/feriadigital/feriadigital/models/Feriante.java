@@ -96,19 +96,13 @@ public class Feriante {
     }
 
     public void setUsuario(Usuario usuario) {
-        if (usuario.getTipoUsuario() == TipoUsuario.NORMAL) {
-            usuario.setTipoUsuario(TipoUsuario.FERIANTE);
-        }
         this.usuario = usuario;
     }
 
-
-    public TipoUsuario getTipoUsuario() {
-        if (this.usuario != null) {
-            return this.usuario.getTipoUsuario();
-        }
-        return null;
+    public EstadoUsuario getEstadoUsuario() {
+        return estadoUsuario;
     }
+
     // getters y setters
     public Stand getStand() {
         return stand;

@@ -37,7 +37,8 @@ async function cargarStand() {
 
                 // MODIFICADO: Se añade el div producto-card-content para manejar el scroll
                 div.innerHTML = `
-                    <h3>${producto.nombre}</h3>
+                    <img src="${producto.imagen || 'https://via.placeholder.com/150'}" alt="${producto.nombre}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">
+                        <h3>${producto.nombre}</h3>
                     <div class="producto-card-content">
                         <p>${producto.descripcion}</p>
                         <p><strong>Precio:</strong> $${producto.precio}</p>

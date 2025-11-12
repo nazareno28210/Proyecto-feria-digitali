@@ -72,6 +72,8 @@ public class ProductoController {
 
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
+
+
     // 🔹 Crear nuevo producto
     @PostMapping("/productos")
     public ResponseEntity<?> crearProducto(@RequestBody Producto producto, Authentication authentication) {
@@ -102,6 +104,7 @@ public class ProductoController {
         producto.setNombre(productoActualizado.getNombre());
         producto.setDescripcion(productoActualizado.getDescripcion());
         producto.setPrecio(productoActualizado.getPrecio());
+        producto.setImagen(productoActualizado.getImagen());
         productoRepository.save(producto);
 
         return new ResponseEntity<>("Producto actualizado correctamente", HttpStatus.OK);

@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
           window.location.href = "/web/admin/dashboard.html";
           break;
         case "FERIANTE":
-          window.location.href = "/web/feriante/feriante.html";
+          window.location.href = "/web/feriante/perfil.html";
           break;
         case "NORMAL":
           window.location.href = "/web/ferias.html";

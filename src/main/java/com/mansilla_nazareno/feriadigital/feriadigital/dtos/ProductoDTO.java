@@ -14,6 +14,7 @@ public class ProductoDTO {
     private String Descripcion;
     private double precio;
     private List<CategoriaProductoDTO> categorias;
+    private String imagen; // NUEVO
 
     public ProductoDTO(Producto producto) {
         this.id =producto.getId();
@@ -24,6 +25,7 @@ public class ProductoDTO {
                 .stream()
                 .map(CategoriaProductoDTO::new)
                 .collect(Collectors.toList());;
+        this.imagen = producto.getImagen();
     }
 
     public int getId() {
@@ -46,5 +48,8 @@ public class ProductoDTO {
 
     public List<CategoriaProductoDTO> getCategorias() {
         return categorias;
+    }
+    public String getImagen() {
+        return imagen;
     }
 }
