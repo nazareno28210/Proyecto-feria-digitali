@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Ferias</title>
+    <link rel="stylesheet" href="/web/css/dashboard.css">
+    <link rel="stylesheet" href="/web/css/adminferias.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<header>
+    <div class="header-content">
+        <h1>Gestión de Ferias</h1>
+        <a href="/web/admin/dashboard.html" class="btn-logout">← Volver</a>
+    </div>
+</header>
+
+<main>
+    <h2>Crear nueva feria</h2>
+    <form id="form-feria">
+        <input type="text" id="nombre" placeholder="Nombre" required><br>
+        <input type="text" id="lugar" placeholder="Lugar" required><br>
+        <label>Fecha inicio:</label>
+        <input type="date" id="fechaInicio" required><br>
+        <label>Fecha fin:</label>
+        <input type="date" id="fechaFinal" required><br>
+        <textarea id="descripcion" placeholder="Descripción"></textarea><br>
+        <button type="submit">Guardar Feria</button>
+    </form>
+
+    <h2>Ferias registradas</h2>
+    <table id="tabla-ferias">
+        <thead>
+            <tr><th>Nombre</th><th>Lugar</th><th>Fechas</th><th>Estado</th><th>Acciones</th></tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</main>
+
+<script src="/web/js/adminFerias.js"></script>
+</body>
+</html>

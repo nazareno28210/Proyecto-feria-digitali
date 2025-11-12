@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Solicitudes de Feriantes</title>
-
-    <link rel="stylesheet" href="/web/css/solicitudes.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Solicitudes de Feriantes</title>
+  <link rel="stylesheet" href="/web/css/solicitudes.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
 
-<h1>Solicitudes para ser Feriantes</h1>
+  <header>
+    <div class="header-content">
+      <h1>Solicitudes para ser Feriante</h1>
+      <a href="/web/admin/panel.html" class="btn-volver">← Volver al panel</a>
+    </div>
+  </header>
 
-<table id="tabla-solicitudes">
-    <thead>
-    <tr>
-        <th>ID Solicitud</th>
-        <th>Nombre</th>
-        <th>Apellido</th>
-        <th>Email</th>
-        <th>Fecha de Solicitud</th>
-        <th>Acción</th>
-    </tr>
-    </thead>
-    <tbody id="tabla-body">
-    </tbody>
-</table>
+  <main>
+    <table id="tabla-solicitudes">
+      <thead>
+        <tr>
+          <th>N° de Solicitud</th>
+          <th>Nombre</th>
+          <th>Apellido</th>
+          <th>Email Usuario</th>
+          <th>Emprendimiento</th>
+          <th>Descripción</th>
+          <th>Teléfono</th>
+          <th>Email Emprendimiento</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-body"></tbody>
+    </table>
 
-<p class="mensaje" id="mensaje"></p>
+    <p class="mensaje" id="mensaje"></p>
+  </main>
 
-<script defer src="/web/js/solicitudes.js"></script>
+  <script defer src="/web/js/solicitudes.js"></script>
 </body>
 </html>

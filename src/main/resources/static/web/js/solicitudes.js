@@ -1,29 +1,25 @@
 const tablaBody = document.getElementById("tabla-body");
 const mensaje = document.getElementById("mensaje");
 
-// 🔹 Cargar solicitudes al iniciar
 document.addEventListener("DOMContentLoaded", cargarSolicitudes);
 
-// =========================================
-// FUNCIÓN PARA CARGAR LISTA (GET)
-// =========================================
+// =========================================================
+// FUNCIÓN PARA CARGAR TODAS LAS SOLICITUDES PENDIENTES
+// =========================================================
 async function cargarSolicitudes() {
   try {
-    // Axios automáticamente lanza error si el status no es 200 OK
     const response = await axios.get("/api/solicitudes/pendientes");
     const solicitudes = response.data;
 
-    tablaBody.innerHTML = ""; // Limpiar tabla antes de recargar
+    tablaBody.innerHTML = "";
 
     if (solicitudes.length === 0) {
-        mensaje.textContent = "No hay solicitudes pendientes de revisión.";
-        return;
+      mensaje.textContent = "No hay solicitudes pendientes.";
+      return;
     }
 
-    // Limpiamos mensaje si hubo uno antes
     mensaje.textContent = "";
 
-    // Renderizamos las filas usando los datos "aplanados" del DTO
     solicitudes.forEach(s => {
       const fila = document.createElement("tr");
       fila.innerHTML = `
@@ -32,10 +28,12 @@ async function cargarSolicitudes() {
         <td>${s.apellidoUsuario}</td>
         <td>${s.emailUsuario}</td>
         <td>${s.nombreEmprendimiento}</td>
+        <td>${s.descripcion || "-"}</td>
+        <td>${s.telefono || "-"}</td>
+        <td>${s.emailEmprendimiento || "-"}</td>
         <td>
-            <button class="btn-aprobar" onclick="aprobarSolicitud(${s.id})">
-                ✅ Aprobar
-            </button>
+          <button class="btn-aprobar" onclick="aprobarSolicitud(${s.id})">✅ Aprobar</button>
+          <button class="btn-rechazar" onclick="rechazarSolicitud(${s.id})">❌ Rechazar</button>
         </td>
       `;
       tablaBody.appendChild(fila);
@@ -44,32 +42,38 @@ async function cargarSolicitudes() {
   } catch (error) {
     console.error("Error cargando solicitudes:", error);
     mensaje.style.color = "red";
-    mensaje.textContent = "Error al conectar con el servidor. Intenta más tarde.";
+    mensaje.textContent = "Error al conectar con el servidor.";
   }
 }
 
-// =========================================
-// FUNCIÓN PARA APROBAR (POST)
-// =========================================
+// =========================================================
+// FUNCIÓN PARA APROBAR SOLICITUD
+// =========================================================
 async function aprobarSolicitud(id) {
-  // Confirmación simple antes de enviar
-  if (!confirm("¿Estás seguro de que deseas aprobar a este usuario como Feriante?")) {
-      return;
-  }
+  if (!confirm("¿Seguro deseas aprobar esta solicitud?")) return;
 
   try {
     const response = await axios.post(`/api/solicitudes/aprobar/${id}`);
-
-    // Si llega aquí, es que todo salió bien (status 200)
-    alert("¡Éxito! " + response.data);
-
-    // Recargamos la tabla para que desaparezca la solicitud aprobada
+    alert("✅ " + response.data);
     cargarSolicitudes();
-
   } catch (error) {
     console.error("Error al aprobar:", error);
-    // Intentamos mostrar el mensaje exacto que envió el backend si existe
-    const errorMsg = error.response && error.response.data ? error.response.data : "No se pudo aprobar la solicitud.";
-    alert("❌ Error: " + errorMsg);
+    alert("❌ " + (error.response?.data || "No se pudo aprobar la solicitud."));
+  }
+}
+
+// =========================================================
+// FUNCIÓN PARA RECHAZAR SOLICITUD
+// =========================================================
+async function rechazarSolicitud(id) {
+  if (!confirm("¿Seguro deseas rechazar esta solicitud?")) return;
+
+  try {
+    const response = await axios.post(`/api/solicitudes/rechazar/${id}`);
+    alert("❌ " + response.data);
+    cargarSolicitudes();
+  } catch (error) {
+    console.error("Error al rechazar:", error);
+    alert("⚠️ " + (error.response?.data || "No se pudo rechazar la solicitud."));
   }
 }
