@@ -3,11 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const mensaje = document.getElementById("mensaje");
 
   form.addEventListener("submit", async function (e) {
-  e.preventDefault();
-  console.log("FORM SUBMIT DETECTED"); 
-  mensaje.textContent = "";
-
-  form.addEventListener("submit", async function (e) {
     e.preventDefault();
     mensaje.textContent = "";
 
@@ -18,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!usuario || !usuario.id) {
         mensaje.style.color = "red";
-        mensaje.textContent = "No se pudo identificar al usuario. Inicie sesión nuevamente.";
+        mensaje.textContent = "⚠️ No se pudo identificar al usuario. Inicie sesión nuevamente.";
         return;
       }
 

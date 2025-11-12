@@ -87,7 +87,9 @@ async function mostrarOpcionesUsuario(usuario) {
     try {
       const solicitudRes = await axios.get(`${SOLICITUD_URL}/pendientes`, { withCredentials: true });
       const pendientes = solicitudRes.data;
-      const tienePendiente = pendientes.some(s => s.usuario.id === usuario.id);
+      // ✅ Buscar si el usuario actual tiene una solicitud pendiente
+      const tienePendiente = pendientes.some(s => s.emailUsuario === usuario.email);
+
 
       if (tienePendiente) {
         const msgPendiente = document.createElement("p");
