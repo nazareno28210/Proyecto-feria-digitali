@@ -34,7 +34,63 @@ public class FeriaController {
                 .orElse(null);
     }
 
+    //obtener ferias activas
+    @GetMapping("/ferias/activas")
+    public List<FeriaDTO> getFeriasActivas() {
+        return feriaRepository.findByEstado("Activa")
+                .stream()
+                .map(FeriaDTO::new)
+                .collect(Collectors.toList());
+    }
 
+    //crear feria
+    @PostMapping("/ferias")
+    public ResponseEntity<?> crearFeria(@RequestBody Feria nuevaFeria) {
+        nuevaFeria.setEstado("Activa");
+        feriaRepository.save(nuevaFeria);
+        return ResponseEntity.ok("Feria creada correctamente");
+    }
 
+    //actualizar feria
+    @PutMapping("/ferias/{id}")
+    public ResponseEntity<?> actualizarFeria(@PathVariable Integer id, @RequestBody Feria feriaActualizada) {
+        return feriaRepository.findById(id).map(feria -> {
+            feria.setNombre(feriaActualizada.getNombre());
+            feria.setLugar(feriaActualizada.getLugar());
+            feria.setDescripcion(feriaActualizada.getDescripcion());
+            feria.setFechaInicio(feriaActualizada.getFechaInicio());
+            feria.setFechaFinal(feriaActualizada.getFechaFinal());
+            feriaRepository.save(feria);
+            return ResponseEntity.ok("Feria actualizada correctamente");
+        }).orElse(ResponseEntity.notFound().build());
+    }
+    //dar de baja feria
+    @PatchMapping("/ferias/{id}/baja")
+    public ResponseEntity<?> darDeBaja(@PathVariable Integer id) {
+        return feriaRepository.findById(id).map(feria -> {
+            feria.setEstado("Inactiva");
+            feriaRepository.save(feria);
+            return ResponseEntity.ok("Feria dada de baja");
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    //eliminar feria
+    @DeleteMapping("/ferias/{id}")
+    public ResponseEntity<?> eliminarFeria(@PathVariable Integer id) {
+        if (!feriaRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        feriaRepository.deleteById(id);
+        return ResponseEntity.ok("Feria eliminada correctamente");
+    }
+    //activar feria
+    @PatchMapping("/ferias/{id}/activar")
+    public ResponseEntity<?> activarFeria(@PathVariable Integer id) {
+        return feriaRepository.findById(id).map(feria -> {
+            feria.setEstado("Activa");
+            feriaRepository.save(feria);
+            return ResponseEntity.ok("Feria activada correctamente");
+        }).orElse(ResponseEntity.notFound().build());
+    }
 
 }

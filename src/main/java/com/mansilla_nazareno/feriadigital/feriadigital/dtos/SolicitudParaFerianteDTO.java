@@ -36,4 +36,21 @@ public class SolicitudParaFerianteDTO {
     public SolicitudParaFeriante getS() {
         return s;
     }
+
+    public void setNombreEmprendimiento(String nombreEmprendimiento) {
+        this.nombreEmprendimiento = nombreEmprendimiento;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public void setEmailEmprendimiento(String emailEmprendimiento) {
+        this.emailEmprendimiento = emailEmprendimiento;
+    }
+
 }

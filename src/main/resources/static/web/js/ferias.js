@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api/ferias";
+const API_URL = "http://localhost:8080/api/ferias/activas";
 const AUTH_URL = "http://localhost:8080/api/usuarios/current";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
 const SOLICITUD_URL = "http://localhost:8080/api/solicitudes";
