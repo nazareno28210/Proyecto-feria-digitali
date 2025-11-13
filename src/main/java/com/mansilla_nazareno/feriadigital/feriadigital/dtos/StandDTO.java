@@ -30,6 +30,18 @@ public class StandDTO {
             this.feriante = new FerianteDTO(stand.getFeriante());
         }
     }
+    public StandDTO(Stand stand, boolean esParaFerianteDTO) {
+        this.id=stand.getId();
+        this.nombre =stand.getNombre();
+        this.descripcion = stand.getDescripcion();
+        this.productos =stand.getProductos()
+                .stream()
+                .map(ProductoDTO::new)
+                .collect(Collectors.toList());
+
+        // ¡No inicializamos el feriante! Así evitamos el bucle infinito.
+        this.feriante = null;
+    }
 
     public int getId() {
         return id;

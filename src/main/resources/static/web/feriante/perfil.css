@@ -3,41 +3,168 @@ body {
     background: #f4f6f8;
     color: #333;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    height: 100vh;
+    padding: 2rem 1rem;
+    min-height: 100vh;
 }
 
 .perfil-container {
     background: #fff;
-    padding: 2rem 3rem;
+    padding: 2rem;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    width: 400px;
-    text-align: center;
+    width: 100%;
+    max-width: 600px;
+    text-align: left;
 }
 
 h1 {
     color: #0078d4;
-    margin-bottom: 1rem;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.25rem;
+    color: #2c3e50;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+/* ⬇️ --- NUEVOS ESTILOS --- ⬇️ */
+
+/* Contenedor de H2 + Botón "Editar" */
+.header-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.perfil-container h2:first-of-type {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
 }
 
 .perfil-card {
-    text-align: left;
-    line-height: 1.8;
-    margin-bottom: 1.5rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #fcfcfc;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
 }
 
-.acciones button {
+.perfil-card p {
+    margin: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.perfil-card p strong {
+    color: #555;
+    min-width: 180px;
+    display: inline-block;
+}
+
+/* --- Estilos de Formulario de Edición --- */
+.edit-mode {
+    display: none; /* Oculto por defecto */
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box; /* Importante */
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 1rem;
+}
+
+/* --- Estilos de Botones --- */
+.btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-edit {
+    background-color: #e0e0e0;
+    color: #333;
+    font-size: 0.9rem;
+}
+.btn-edit:hover { background-color: #ccc; }
+
+.btn-save {
+    background-color: #2ecc71;
+    color: white;
+}
+.btn-save:hover { background-color: #27ae60; }
+
+.btn-cancel {
+    background-color: #f0f0f0;
+    color: #555;
+}
+.btn-cancel:hover { background-color: #e0e0e0; }
+
+.btn-productos {
     background-color: #0078d4;
     color: white;
+    padding: 12px 20px;
+    font-size: 1rem;
+    width: 100%;
+}
+.btn-productos:hover { background-color: #005fa3; }
+
+
+/* --- Botón de Logout --- */
+.acciones {
+    margin-top: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre botones */
+}
+
+.btn-logout {
+    background-color: #dc3545;
+    color: white;
     border: none;
-    padding: 10px 18px;
+    padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.3s;
+    font-weight: 600;
+    font-size: 1rem;
 }
 
-.acciones button:hover {
-    background-color: #005fa3;
+.btn-logout:hover {
+    background-color: #c82333;
 }

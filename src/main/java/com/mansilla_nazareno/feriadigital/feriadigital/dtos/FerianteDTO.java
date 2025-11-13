@@ -20,6 +20,7 @@ public class FerianteDTO {
     private LocalDate fechaRegistro;
     private EstadoUsuario estadoUsuario;
     private Usuario usuario;
+    private StandDTO stand;
 
     public FerianteDTO(Feriante feriante) {
         this.id = feriante.getId();
@@ -30,6 +31,9 @@ public class FerianteDTO {
         this.fechaRegistro = feriante.getFechaRegistro();
         this.estadoUsuario = feriante.getUserEstate();
         this.usuario = feriante.getUsuario();
+        if (feriante.getStand() != null) {
+            this.stand = new StandDTO(feriante.getStand(), true);
+        }
     }
 
     public int getId() {
@@ -64,4 +68,7 @@ public class FerianteDTO {
         return usuario;
     }
 
+    public StandDTO getStand() {
+        return stand;
+    }
 }
