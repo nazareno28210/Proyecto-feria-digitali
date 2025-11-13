@@ -43,7 +43,7 @@ function cargarPerfil() {
             setText("usuario-email", usuario.email);
             setText("usuario-nombre", usuario.nombre);
             setText("usuario-apellido", usuario.apellido);
-            setText("usuario-fecha", usuario.dayRegistrer);
+            setText("usuario-fecha", usuario.fechaRegistro);
 
             // 2. Llenar Datos de Feriante (Modo Vista y Modo Edición)
             setText("feriante-nombre", ferianteActual.nombreEmprendimiento);

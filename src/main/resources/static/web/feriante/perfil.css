@@ -1,13 +1,64 @@
+/* ====================================
+   ESTRUCTURA DE PÁGINA (NUEVO)
+   ==================================== */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f4f6f8;
+    background: #f4f6f8; /* Fondo gris claro para toda la página */
     color: #333;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1rem;
-    min-height: 100vh;
+    flex-direction: column; /* Eje vertical */
+    min-height: 100vh;      /* Ocupa toda la altura de la pantalla */
+    margin: 0;
+    padding: 0;
 }
+
+header {
+    width: 100%;
+    background: #0078d4; /* Azul */
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-content h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: white; /* Sobrescribe el H1 azul */
+}
+
+/* Botón en el header */
+.btn-header-nav {
+    background-color: white;
+    color: #0078d4;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.btn-header-nav:hover {
+    background-color: #f0f0f0;
+}
+
+main {
+    flex: 1; /* Hace que el main ocupe el espacio sobrante, empujando el footer */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el .perfil-container */
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+}
+
+/* ====================================
+   CONTENIDO DEL PERFIL (Modificado)
+   ==================================== */
 
 .perfil-container {
     background: #fff;
@@ -17,9 +68,11 @@ body {
     width: 100%;
     max-width: 600px;
     text-align: left;
+    /* Ya no necesita centrarse, 'main' lo hace por él */
 }
 
-h1 {
+/* Título principal DENTRO del container */
+.perfil-container h1 {
     color: #0078d4;
     margin-top: 0;
     margin-bottom: 1.5rem;
@@ -33,8 +86,6 @@ h2 {
     margin-bottom: 0.75rem;
 }
 
-/* ⬇️ --- NUEVOS ESTILOS --- ⬇️ */
-
 /* Contenedor de H2 + Botón "Editar" */
 .header-card {
     display: flex;
@@ -44,6 +95,7 @@ h2 {
     padding-bottom: 0.5rem;
 }
 
+/* El primer H2 de usuario no tiene botón, le ponemos el borde */
 .perfil-container h2:first-of-type {
     margin-top: 0;
     border-bottom: 1px solid #eee;
@@ -71,9 +123,11 @@ h2 {
     display: inline-block;
 }
 
-/* --- Estilos de Formulario de Edición --- */
+/* ====================================
+   FORMULARIO DE EDICIÓN (Sin cambios)
+   ==================================== */
 .edit-mode {
-    display: none; /* Oculto por defecto */
+    display: none;
 }
 
 .form-group {
@@ -95,7 +149,7 @@ h2 {
     border-radius: 6px;
     font-size: 1rem;
     font-family: inherit;
-    box-sizing: border-box; /* Importante */
+    box-sizing: border-box;
 }
 
 .form-actions {
@@ -105,7 +159,9 @@ h2 {
     margin-top: 1rem;
 }
 
-/* --- Estilos de Botones --- */
+/* ====================================
+   BOTONES (Sin cambios)
+   ==================================== */
 .btn {
     padding: 8px 14px;
     border: none;
@@ -143,14 +199,12 @@ h2 {
 }
 .btn-productos:hover { background-color: #005fa3; }
 
-
-/* --- Botón de Logout --- */
 .acciones {
     margin-top: 2rem;
     text-align: center;
     display: flex;
     flex-direction: column;
-    gap: 15px; /* Espacio entre botones */
+    gap: 15px;
 }
 
 .btn-logout {
@@ -167,4 +221,24 @@ h2 {
 
 .btn-logout:hover {
     background-color: #c82333;
+}
+
+/* ====================================
+   FOOTER (NUEVO)
+   ==================================== */
+footer {
+    width: 100%;
+    background: #2c3e50; /* Color oscuro */
+    color: #f0f0f0;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    /* No necesita 'margin-top: auto' porque 'main' tiene 'flex: 1' */
+}
+footer p {
+    margin: 0;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.5;
 }
