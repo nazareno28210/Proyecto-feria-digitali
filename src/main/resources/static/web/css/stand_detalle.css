@@ -1,60 +1,9 @@
-/* Reset Básico (Asumo que tienes un archivo de reset o esta regla al inicio) */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* ====================================
+   ESTILOS DE STAND_DETALLE (stand_detalle.css)
+   ==================================== */
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f9;
-    color: #333;
-    /* CORRECTO: Sin padding lateral para que header y footer usen el 100% */
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-/* MAIN: Contenedor para el contenido principal (sección blanca) */
-main {
-    flex-grow: 1;
-    /* CORRECTO: Padding interno para centrar el contenido (info y productos) */
-    padding: 20px 40px;
-}
-
-/* Header - Diseño de barra de ancho completo */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: #0078d7; /* Color Azul */
-    color: white;
-
-    /* CORRECCIÓN CLAVE: El padding garantiza 40px de espacio interno a los lados */
-    padding: 20px 40px;
-
-    margin-bottom: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-header h1 {
-    font-size: 2rem;
-    margin: 0; /* Asegura que el h1 no tenga margen por defecto que cause problemas */
-}
-
-header button {
-    padding: 8px 16px;
-    background-color: #005fa3;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-}
-header button:hover {
-    background-color: #004c87;
-}
+/* El 'body', 'header' y 'footer' ya están en global.css */
+/* El 'main' global ya da el padding y el centrado */
 
 #info-stand {
     background-color: white;
@@ -66,6 +15,7 @@ header button:hover {
 }
 
 h2 {
+    /* (Podrías mover esto a global.css si todos los h2 son iguales) */
     margin-top: 0;
     margin-bottom: 30px;
 }
@@ -84,9 +34,18 @@ h2 {
     box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
-    height: 250px; /* Altura fija solicitada */
+    height: 300px; /* ⬅️ Le di un poco más de altura para la imagen */
     display: flex;
     flex-direction: column;
+}
+
+/* (NUEVO) Estilo para la imagen del producto */
+.producto-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
 }
 
 /* Contenido interno que permite el scroll */
@@ -119,16 +78,4 @@ h2 {
 .producto-card p {
     font-size: 0.9rem;
     margin-bottom: 6px;
-}
-
-/* Footer - Diseño de barra de ancho completo */
-footer {
-    background-color: #0078d7; /* Color Azul */
-    color: white;
-    text-align: left;
-    padding: 15px 40px; /* Espaciado interno */
-    font-size: 0.9rem;
-    margin-top: auto; /* Empuja el footer hacia abajo */
-    border-radius: 0;
-    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
 }

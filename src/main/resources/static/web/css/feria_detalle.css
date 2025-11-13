@@ -1,0 +1,105 @@
+/* ====================================
+   ESTILOS DE FERIA_DETALLE (fd.css)
+   ==================================== */
+
+/* El 'body', 'header' y 'footer' ya están en global.css */
+/* El 'main' global ya da el padding y el centrado */
+
+/* Tarjeta de información de la feria */
+#info-feria {
+  background-color: white;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ocupa el 100% del 'main' */
+  margin-bottom: 40px;
+
+  /* El 'main' global ya centra esto,
+     así que no necesitamos 'margin-top' */
+}
+
+#info-feria p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+#info-feria p[hidden] {
+  display: none;
+}
+
+/* Título "Stands" */
+h2 {
+  color: #111827;
+  margin-bottom: 20px;
+  margin-left: 5px;
+}
+
+/* Contenedor de stands */
+#stands-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Tarjeta de stand */
+.stand-card {
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box; /* Añadido para seguridad */
+}
+
+.stand-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Contenido con scroll */
+.stand-content {
+  overflow-y: auto;
+  flex-grow: 1;
+  margin-bottom: 10px;
+}
+
+.stand-content::-webkit-scrollbar {
+  width: 6px;
+}
+.stand-content::-webkit-scrollbar-thumb {
+  background: #0078d7;
+  border-radius: 4px;
+}
+
+.stand-card h3 {
+  color: #0078d7;
+  margin-bottom: 6px;
+}
+
+.stand-card p {
+  margin: 6px 0;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+/* Botón "Ver productos" de la card */
+.stand-card button {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  align-self: center;
+  transition: background 0.2s ease;
+}
+
+.stand-card button:hover {
+  background-color: #059669;
+}

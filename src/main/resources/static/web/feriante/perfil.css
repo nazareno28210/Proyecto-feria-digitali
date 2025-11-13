@@ -1,74 +1,21 @@
 /* ====================================
-   ESTRUCTURA DE PÁGINA (NUEVO)
-   ==================================== */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f4f6f8; /* Fondo gris claro para toda la página */
-    color: #333;
-    display: flex;
-    flex-direction: column; /* Eje vertical */
-    min-height: 100vh;      /* Ocupa toda la altura de la pantalla */
-    margin: 0;
-    padding: 0;
-}
-
-header {
-    width: 100%;
-    background: #0078d4; /* Azul */
-    color: white;
-    padding: 1rem 2rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    box-sizing: border-box;
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.header-content h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    color: white; /* Sobrescribe el H1 azul */
-}
-
-/* Botón en el header */
-.btn-header-nav {
-    background-color: white;
-    color: #0078d4;
-    text-decoration: none;
-    font-size: 0.9rem;
-}
-.btn-header-nav:hover {
-    background-color: #f0f0f0;
-}
-
-main {
-    flex: 1; /* Hace que el main ocupe el espacio sobrante, empujando el footer */
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centra el .perfil-container */
-    padding: 2rem 1rem;
-    box-sizing: border-box;
-}
-
-/* ====================================
-   CONTENIDO DEL PERFIL (Modificado)
+   ESTILOS DE PERFIL (perfil.css)
    ==================================== */
 
+/* El 'body', 'header', 'main' y 'footer' ya están en global.css */
+
+/*
+ * El 'main' global ya centra el contenido.
+ * Solo definimos el contenedor blanco del perfil.
+ */
 .perfil-container {
     background: #fff;
     padding: 2rem;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     width: 100%;
-    max-width: 600px;
+    max-width: 600px; /* Ancho máximo del formulario */
     text-align: left;
-    /* Ya no necesita centrarse, 'main' lo hace por él */
 }
 
 /* Título principal DENTRO del container */
@@ -124,10 +71,10 @@ h2 {
 }
 
 /* ====================================
-   FORMULARIO DE EDICIÓN (Sin cambios)
+   FORMULARIO DE EDICIÓN
    ==================================== */
 .edit-mode {
-    display: none;
+    display: none; /* Oculto por defecto */
 }
 
 .form-group {
@@ -160,16 +107,11 @@ h2 {
 }
 
 /* ====================================
-   BOTONES (Sin cambios)
+   BOTONES
    ==================================== */
-.btn {
-    padding: 8px 14px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
+
+/* Estilo base para botones (ya está en global.css) */
+/* .btn { ... } */
 
 .btn-edit {
     background-color: #e0e0e0;
@@ -221,24 +163,4 @@ h2 {
 
 .btn-logout:hover {
     background-color: #c82333;
-}
-
-/* ====================================
-   FOOTER (NUEVO)
-   ==================================== */
-footer {
-    width: 100%;
-    background: #2c3e50; /* Color oscuro */
-    color: #f0f0f0;
-    text-align: center;
-    padding: 1.5rem 1rem;
-    box-sizing: border-box;
-    font-size: 0.9rem;
-    /* No necesita 'margin-top: auto' porque 'main' tiene 'flex: 1' */
-}
-footer p {
-    margin: 0;
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.5;
 }

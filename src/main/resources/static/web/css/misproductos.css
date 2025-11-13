@@ -1,6 +1,8 @@
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+/* ====================================
+   ESTILOS DE MIS PRODUCTOS (misproductos.css)
+   ==================================== */
+
+/* El 'body' ya está definido en global.css */
 
 .titulo {
   color: #0d6efd;
@@ -29,6 +31,10 @@ body {
   box-shadow: 0 8px 16px rgba(0,0,0,0.15);
 }
 
+/* * Nota: 'global.css' también define .btn
+ * Esta regla de Bootstrap es más específica y 
+ * anula la de global.css, lo cual está bien para esta página.
+ */
 .btn {
   border-radius: 10px;
 }
