@@ -97,3 +97,17 @@ footer p {
     background-color: #f0f0f0;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
+/* ====================================
+   BOTONES DE ACCIÓN ESPECIALES
+   ==================================== */
+
+/* Estilo para botones de "Cerrar Sesión" (rojo) */
+.btn-logout {
+    background-color: #dc3545; /* Rojo */
+    color: white;
+}
+.btn-logout:hover {
+    background-color: #c82333; /* Rojo oscuro */
+    color: white; /* Asegurarse de que el texto siga blanco */
+}
