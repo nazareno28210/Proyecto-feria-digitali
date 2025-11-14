@@ -48,6 +48,15 @@ public class SolicitudParaFerianteController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya tienes una solicitud pendiente de revisión.");
         }
 
+        //   VALIDACIÓN DE TELÉFONO
+        String telefono = dto.getTelefono();
+        String telefonoRegex = "^[0-9\\s+\\-()]*$"; // Expresión regular para Java
+
+        if (telefono == null || telefono.trim().isEmpty() || !telefono.matches(telefonoRegex)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("El teléfono solo puede contener números y símbolos válidos.");
+        }
+
         // LÓGICA DE EMAIL OPCIONAL
         String emailEmprendimiento = dto.getEmailEmprendimiento();
 
@@ -62,8 +71,8 @@ public class SolicitudParaFerianteController {
                 usuario,
                 dto.getNombreEmprendimiento(),
                 dto.getDescripcion(),
-                dto.getTelefono(),
-                emailEmprendimiento // Usamos la variable local (que ya está validada)
+                telefono, // Usamos la variable validada
+                emailEmprendimiento
         );
 
         solicitudRepository.save(solicitud);
