@@ -1,0 +1,65 @@
+/* ====================================
+   ESTILOS DE PERFIL DE USUARIO
+   (Inspirado en perfil.css)
+   ==================================== */
+
+/* Contenedor principal blanco (tomado de perfil.css) */
+.perfil-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: left;
+}
+
+/* Título principal (tomado de perfil.css) */
+.perfil-container h1 {
+    color: #0078d4;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.25rem;
+    color: #2c3e50;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+/* Tarjeta de datos (tomado de perfil.css) */
+.perfil-card {
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #fcfcfc;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+}
+
+.perfil-card p {
+    margin: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.perfil-card p strong {
+    color: #555;
+    min-width: 180px;
+    display: inline-block;
+}
+
+/* Contenedor del botón de logout (tomado de perfil.css) */
+.acciones {
+    margin-top: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* El estilo de .btn-logout ya viene de global.css */

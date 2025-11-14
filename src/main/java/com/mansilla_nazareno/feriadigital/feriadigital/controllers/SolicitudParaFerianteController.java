@@ -105,6 +105,16 @@ public class SolicitudParaFerianteController {
         if (solicitud.isAprobada()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Esta solicitud ya fue aprobada anteriormente");
         }
+        // Obtenemos el usuario de la solicitud
+        Usuario usuario = solicitud.getUsuario();
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("La solicitud no tiene un usuario válido asociado.");
+        }
+
+        // ¡Cambiamos el tipo de usuario!
+        usuario.setTipoUsuario(TipoUsuario.FERIANTE);
+        // Guardamos el cambio en la base de datos
+        usuarioRepository.save(usuario);
 
         // 1. Crear Feriante (IGUAL QUE ANTES)
         Feriante nuevoFeriante = new Feriante(

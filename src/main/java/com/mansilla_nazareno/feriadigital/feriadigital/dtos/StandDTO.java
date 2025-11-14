@@ -47,6 +47,11 @@ public class StandDTO {
 
         // ¡No inicializamos el feriante! Así evitamos el bucle infinito.
         this.feriante = null;
+        if (stand.getFeria() != null) {
+            this.feriaId = stand.getFeria().getId();
+        } else {
+            this.feriaId = null;
+        }
     }
 
     public int getId() {
@@ -75,4 +80,5 @@ public class StandDTO {
     public Integer getFeriaId() {
         return feriaId;
     }
+
 }

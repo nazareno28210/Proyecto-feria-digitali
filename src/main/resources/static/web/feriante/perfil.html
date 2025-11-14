@@ -19,80 +19,108 @@
 </header>
 
 <main>
-    <div class="perfil-container">
-        <h1>Mi Perfil de Feriante</h1>
+    <!-- Contenedor para el layout de 2 columnas -->
+    <div class="perfil-layout">
 
-        <h2>Datos de Usuario</h2>
-        <div class="perfil-card">
-            <p><strong>Email:</strong> <span id="usuario-email"></span></p>
-            <p><strong>Nombre:</strong> <span id="usuario-nombre"></span></p>
-            <p><strong>Apellido:</strong> <span id="usuario-apellido"></span></p>
-            <p><strong>Fecha de Registro:</strong> <span id="usuario-fecha"></span></p>
+        <!-- 1. Columna Izquierda (Tus datos) -->
+        <div class="perfil-container">
+            <h1>Mi Perfil de Feriante</h1>
+
+            <h2>Datos de Usuario</h2>
+            <div class="perfil-card">
+                <p><strong>Email:</strong> <span id="usuario-email"></span></p>
+                <p><strong>Nombre:</strong> <span id="usuario-nombre"></span></p>
+                <p><strong>Apellido:</strong> <span id="usuario-apellido"></span></p>
+                <p><strong>Fecha de Registro:</strong> <span id="usuario-fecha"></span></p>
+            </div>
+
+            <div class="header-card">
+                <h2>Datos de Feriante</h2>
+                <button id="btn-edit-feriante" class="btn btn-edit">Editar</button>
+            </div>
+
+            <div class="perfil-card" id="feriante-view">
+                <p><strong>Emprendimiento:</strong> <span id="feriante-nombre"></span></p>
+                <p><strong>Descripción:</strong> <span id="feriante-desc"></span></p>
+                <p><strong>Teléfono:</strong> <span id="feriante-tel"></span></p>
+                <p><strong>Email Emprendimiento:</strong> <span id="feriante-email"></span></p>
+            </div>
+
+            <div class="perfil-card edit-mode" id="feriante-edit">
+                <!-- (Contenido del formulario de edición de feriante) -->
+                <div class="form-group">
+                    <label>Nombre Emprendimiento</label>
+                    <input type="text" id="edit-feriante-nombre">
+                </div>
+                <div class="form-group">
+                    <label>Descripción</label>
+                    <textarea id="edit-feriante-desc" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="edit-feriante-tel">
+                </div>
+                <div class="form-group">
+                    <label>Email Emprendimiento</label>
+                    <input type="email" id="edit-feriante-email">
+                </div>
+                <div class="form-actions">
+                    <button id="btn-cancel-feriante" class="btn btn-cancel">Cancelar</button>
+                    <button id="btn-save-feriante" class="btn btn-save">Guardar Cambios</button>
+                </div>
+            </div>
+
+            <div class="header-card">
+                <h2>Mi Stand</h2>
+                <button id="btn-edit-stand" class="btn btn-edit">Editar</button>
+            </div>
+
+            <div class="perfil-card" id="stand-view">
+                <!-- (Contenido de la vista de stand) -->
+            </div>
+
+            <div class="perfil-card edit-mode" id="stand-edit">
+                <!-- (Contenido del formulario de edición de stand) -->
+                <div class="form-group">
+                    <label>Nombre del Stand</label>
+                    <input type="text" id="edit-stand-nombre">
+                </div>
+                <div class="form-group">
+                    <label>Descripción del Stand</label>
+                    <textarea id="edit-stand-desc" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button id="btn-cancel-stand" class="btn btn-cancel">Cancelar</button>
+                    <button id="btn-save-stand" class="btn btn-save">Guardar Cambios</button>
+                </div>
+            </div>
+
+            <div class="acciones">
+                <button id="cerrarSesion" class="btn-logout">Cerrar sesión</button>
+            </div>
         </div>
 
-        <div class="header-card">
-            <h2>Datos de Feriante</h2>
-            <button id="btn-edit-feriante" class="btn btn-edit">Editar</button>
+        <!-- 2. Columna Derecha (Acciones) -->
+        <div class="perfil-acciones">
+
+            <a href="/web/feriante/misproductos.html" class="dashboard-card">
+                <div class="icon">🛍️</div>
+                <h3>Gestionar Mis Productos</h3>
+                <p>Agregar, editar o eliminar los productos de tu stand.</p>
+            </a>
+
+            <!-- 🟢 CAMBIO: Convertido de <div> a <a> y añadido un ID 🟢 -->
+            <a id="card-mis-ferias" class="dashboard-card" href="#"> <!-- Era <div> -->
+                <div class="icon">🎪</div>
+                <h3>Mis Ferias Asignadas</h3>
+                <div id="ferias-card-body">
+                    <p>Cargando información de ferias...</p>
+                </div>
+            </a>
+
         </div>
 
-        <div class="perfil-card" id="feriante-view">
-            <p><strong>Emprendimiento:</strong> <span id="feriante-nombre"></span></p>
-            <p><strong>Descripción:</strong> <span id="feriante-desc"></span></p>
-            <p><strong>Teléfono:</strong> <span id="feriante-tel"></span></p>
-            <p><strong>Email Emprendimiento:</strong> <span id="feriante-email"></span></p>
-        </div>
-
-        <div class="perfil-card edit-mode" id="feriante-edit">
-            <div class="form-group">
-                <label>Nombre Emprendimiento</label>
-                <input type="text" id="edit-feriante-nombre">
-            </div>
-            <div class="form-group">
-                <label>Descripción</label>
-                <textarea id="edit-feriante-desc" rows="3"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Teléfono</label>
-                <input type="text" id="edit-feriante-tel">
-            </div>
-            <div class="form-group">
-                <label>Email Emprendimiento</label>
-                <input type="email" id="edit-feriante-email">
-            </div>
-            <div class="form-actions">
-                <button id="btn-cancel-feriante" class="btn btn-cancel">Cancelar</button>
-                <button id="btn-save-feriante" class="btn btn-save">Guardar Cambios</button>
-            </div>
-        </div>
-
-        <div class="header-card">
-            <h2>Mi Stand</h2>
-            <button id="btn-edit-stand" class="btn btn-edit">Editar</button>
-        </div>
-
-        <div class="perfil-card" id="stand-view">
-        </div>
-
-        <div class="perfil-card edit-mode" id="stand-edit">
-            <div class="form-group">
-                <label>Nombre del Stand</label>
-                <input type="text" id="edit-stand-nombre">
-            </div>
-            <div class="form-group">
-                <label>Descripción del Stand</label>
-                <textarea id="edit-stand-desc" rows="3"></textarea>
-            </div>
-            <div class="form-actions">
-                <button id="btn-cancel-stand" class="btn btn-cancel">Cancelar</button>
-                <button id="btn-save-stand" class="btn btn-save">Guardar Cambios</button>
-            </div>
-        </div>
-
-        <div class="acciones">
-            <button id="btn-productos" class="btn btn-productos">Gestionar Mis Productos</button>
-            <button id="cerrarSesion" class="btn-logout">Cerrar sesión</button>
-        </div>
-    </div>
+    </div> <!-- .perfil-layout -->
 </main>
 
 <footer>

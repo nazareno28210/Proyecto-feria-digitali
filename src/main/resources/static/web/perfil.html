@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Feria Digital</title>
+
+    <!-- 1. CSS Global -->
+    <link rel="stylesheet" href="/web/css/global.css">
+
+    <!-- 2. CSS Propio de esta página -->
+    <link rel="stylesheet" href="/web/css/perfil.css">
+
+    <!-- 3. CSS de Toastify (para notificaciones) -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <h1>Feria Digital</h1>
+        <a href="/web/ferias.html" class="btn btn-header">← Volver a Ferias</a>
+    </div>
+</header>
+
+<main>
+    <!-- Reutilizamos la clase .perfil-container para un look similar -->
+    <div class="perfil-container">
+        <h1>Mi Perfil</h1>
+
+        <h2>Mis Datos</h2>
+        <!-- Reutilizamos la clase .perfil-card -->
+        <div class="perfil-card">
+            <p><strong>Email:</strong> <span id="usuario-email">Cargando...</span></p>
+            <p><strong>Nombre:</strong> <span id="usuario-nombre">Cargando...</span></p>
+            <p><strong>Apellido:</strong> <span id="usuario-apellido">Cargando...</span></p>
+            <p><strong>Miembro desde:</strong> <span id="usuario-fecha">Cargando...</span></p>
+        </div>
+
+        <div class="acciones">
+            <button id="cerrarSesion" class="btn-logout">Cerrar sesión</button>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos de la carrera de Tecnicatura Superior en Desarrollo de Software del CENT 35.</p>
+</footer>
+
+<!-- JS Libs -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<!-- JS Propio -->
+<script src="/web/js/perfil.js"></script>
+</body>
+</html>

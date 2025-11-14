@@ -1,11 +1,13 @@
 // URLs del API
 const API_URL = "http://localhost:8080/api/feriantes/current";
+const FERIAS_URL = "http://localhost:8080/api/ferias";
 const FERIANTE_UPDATE_URL = "http://localhost:8080/api/feriantes/current";
 const STAND_UPDATE_URL = "http://localhost:8080/api/stands/mi-stand";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
 
 // Almacenamos los datos actuales para poder "Cancelar" la edición
 let ferianteActual = null;
+let todasLasFerias = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     // Carga inicial
@@ -13,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Listeners de botones
     document.getElementById("cerrarSesion").addEventListener("click", cerrarSesion);
-    document.getElementById("btn-productos").addEventListener("click", irAProductos);
 
     // --- Listeners para Feriante ---
     document.getElementById("btn-edit-feriante").addEventListener("click", () => toggleEditFeriante(true));
@@ -30,9 +31,15 @@ document.addEventListener("DOMContentLoaded", () => {
 // CARGAR PERFIL (Llenar VISTA y EDICIÓN)
 // ========================================================
 function cargarPerfil() {
-    axios.get(API_URL, { withCredentials: true })
-        .then(response => {
-            ferianteActual = response.data; // Guardamos los datos globalmente
+
+    const getFeriante = axios.get(API_URL, { withCredentials: true });
+    const getFerias = axios.get(FERIAS_URL);
+
+    axios.all([getFeriante, getFerias])
+        .then(axios.spread((resFeriante, resFerias) => {
+
+            ferianteActual = resFeriante.data;
+            todasLasFerias = resFerias.data;
 
             if (!ferianteActual || !ferianteActual.usuario) {
                 return manejarError("No se pudo cargar la información.");
@@ -45,7 +52,7 @@ function cargarPerfil() {
             setText("usuario-apellido", usuario.apellido);
             setText("usuario-fecha", usuario.fechaRegistro);
 
-            // 2. Llenar Datos de Feriante (Modo Vista y Modo Edición)
+            // 2. Llenar Datos de Feriante (Vista y Edición)
             setText("feriante-nombre", ferianteActual.nombreEmprendimiento);
             setText("feriante-desc", ferianteActual.descripcion);
             setText("feriante-tel", ferianteActual.telefono);
@@ -56,8 +63,7 @@ function cargarPerfil() {
             setValue("edit-feriante-tel", ferianteActual.telefono);
             setValue("edit-feriante-email", ferianteActual.emailEmprendimiento);
 
-
-            // 3. Llenar Datos de Stand (Modo Vista y Modo Edición)
+            // 3. Llenar Datos de Stand (Vista y Edición)
             const stand = ferianteActual.stand;
             const standViewContainer = document.getElementById("stand-view");
 
@@ -71,23 +77,66 @@ function cargarPerfil() {
                 setValue("edit-stand-nombre", stand.nombre);
                 setValue("edit-stand-desc", stand.descripcion);
 
-                // Habilitamos el botón de editar stand
                 document.getElementById("btn-edit-stand").style.display = 'block';
             } else {
                 standViewContainer.innerHTML = `<p>Aún no tienes un stand asignado.</p>`;
-                // Ocultamos el botón de editar stand
                 document.getElementById("btn-edit-stand").style.display = 'none';
                 document.getElementById("stand-edit").style.display = 'none';
             }
-        })
+
+            // 4. Llenar Tarjeta de Ferias Asignadas
+            renderFeriasAsignadas(stand);
+
+        }))
         .catch(error => {
             console.error("Error al obtener perfil:", error);
             manejarError("Error al cargar el perfil. Verificá tu sesión.");
         });
 }
 
+// 🟢 CAMBIO: Esta función ahora también añade el Href a la tarjeta 🟢
+function renderFeriasAsignadas(stand) {
+    const feriasCard = document.getElementById("card-mis-ferias"); // El <a>
+    const feriasCardBody = document.getElementById("ferias-card-body"); // El <div> interno
+
+    if (stand && stand.feriaId) {
+        const miFeria = todasLasFerias.find(f => f.id === stand.feriaId);
+
+        if (miFeria) {
+            const estadoIcono = miFeria.estado === 'Activa' ? '🟢' : '🔴';
+            feriasCardBody.innerHTML = `
+                <p>Tu stand está asignado a:</p>
+                <h3>${estadoIcono} ${miFeria.nombre}</h3>
+                <p><strong>Lugar:</strong> ${miFeria.lugar}</p>
+                <p><strong>Fechas:</strong> ${miFeria.fechaInicio} al ${miFeria.fechaFinal}</p>
+            `;
+            // Añadimos el enlace a la tarjeta
+            feriasCard.href = `/web/feria_detalle.html?id=${miFeria.id}`;
+            // Nos aseguramos de que parezca un enlace (cursor pointer)
+            feriasCard.style.cursor = "pointer";
+        } else {
+            feriasCardBody.innerHTML = `
+                <p>Tu stand está asignado a una feria (ID: ${stand.feriaId}) que no se pudo encontrar.</p>
+            `;
+            feriasCard.style.cursor = "default"; // No parece un enlace
+            // 🟢 AÑADIDO: Quitamos el enlace y prevenimos el clic
+            feriasCard.removeAttribute("href");
+            feriasCard.addEventListener('click', (e) => e.preventDefault());
+        }
+    } else {
+        feriasCardBody.innerHTML = `
+            <p>Tu stand aún no ha sido asignado a ninguna feria por un administrador.</p>
+        `;
+        feriasCard.style.cursor = "default"; // No parece un enlace
+        // 🟢 AÑADIDO: Quitamos el enlace y prevenimos el clic
+        feriasCard.removeAttribute("href");
+        feriasCard.addEventListener('click', (e) => e.preventDefault());
+    }
+}
+
+
 // ========================================================
-// LÓGICA DE EDICIÓN (Feriante)
+// LÓGICA DE EDICIÓN (Feriante) - (Sin cambios)
 // ========================================================
 
 function toggleEditFeriante(modoEdicion) {
@@ -95,7 +144,6 @@ function toggleEditFeriante(modoEdicion) {
     document.getElementById("feriante-edit").style.display = modoEdicion ? 'block' : 'none';
     document.getElementById("btn-edit-feriante").style.display = modoEdicion ? 'none' : 'block';
 
-    // Si cancelamos, reseteamos los valores a los originales
     if (!modoEdicion) {
         setValue("edit-feriante-nombre", ferianteActual.nombreEmprendimiento);
         setValue("edit-feriante-desc", ferianteActual.descripcion);
@@ -105,7 +153,6 @@ function toggleEditFeriante(modoEdicion) {
 }
 
 async function guardarFeriante() {
-    // 1. Recolectar datos del formulario de edición
     const data = {
         nombreEmprendimiento: getValue("edit-feriante-nombre"),
         descripcion: getValue("edit-feriante-desc"),
@@ -114,14 +161,10 @@ async function guardarFeriante() {
     };
 
     try {
-        // 2. Enviar al backend
         await axios.put(FERIANTE_UPDATE_URL, data, { withCredentials: true });
-
-        // 3. Éxito: Recargar el perfil y salir del modo edición
         showToast("Perfil de feriante actualizado", "success");
         cargarPerfil();
         toggleEditFeriante(false);
-
     } catch (error) {
         console.error("Error al guardar feriante:", error);
         showToast("Error al guardar. " + (error.response?.data?.error || "Intente de nuevo."), "error");
@@ -129,7 +172,7 @@ async function guardarFeriante() {
 }
 
 // ========================================================
-// LÓGICA DE EDICIÓN (Stand)
+// LÓGICA DE EDICIÓN (Stand) - (Sin cambios)
 // ========================================================
 
 function toggleEditStand(modoEdicion) {
@@ -137,7 +180,6 @@ function toggleEditStand(modoEdicion) {
     document.getElementById("stand-edit").style.display = modoEdicion ? 'block' : 'none';
     document.getElementById("btn-edit-stand").style.display = modoEdicion ? 'none' : 'block';
 
-    // Si cancelamos, reseteamos
     if (!modoEdicion && ferianteActual.stand) {
         setValue("edit-stand-nombre", ferianteActual.stand.nombre);
         setValue("edit-stand-desc", ferianteActual.stand.descripcion);
@@ -153,9 +195,8 @@ async function guardarStand() {
     try {
         await axios.put(STAND_UPDATE_URL, data, { withCredentials: true });
         showToast("Información del Stand actualizada", "success");
-        cargarPerfil(); // Recargamos todo
+        cargarPerfil();
         toggleEditStand(false);
-
     } catch (error) {
         console.error("Error al guardar stand:", error);
         showToast("Error al guardar el stand.", "error");
@@ -164,12 +205,8 @@ async function guardarStand() {
 
 
 // ========================================================
-// NAVEGACIÓN Y UTILIDADES
+// NAVEGACIÓN Y UTILIDADES - (Sin cambios)
 // ========================================================
-
-function irAProductos() {
-    window.location.href = "/web/feriante/misproductos.html";
-}
 
 function cerrarSesion() {
     axios.post(LOGOUT_URL, {}, { withCredentials: true })
