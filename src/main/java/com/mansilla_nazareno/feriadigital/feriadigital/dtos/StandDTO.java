@@ -15,7 +15,7 @@ public class StandDTO {
     private String imagenUrl;
     private List<ProductoDTO> productos;
     private FerianteDTO feriante;
-
+    private Integer feriaId;
 
     public StandDTO(Stand stand) {
         this.id=stand.getId();
@@ -29,6 +29,11 @@ public class StandDTO {
         this.feriante=getFeriante();
         if (stand.getFeriante() != null) {
             this.feriante = new FerianteDTO(stand.getFeriante());
+        }
+        if (stand.getFeria() != null) {
+            this.feriaId = stand.getFeria().getId();
+        } else {
+            this.feriaId = null;
         }
     }
     public StandDTO(Stand stand, boolean esParaFerianteDTO) {
@@ -67,5 +72,7 @@ public class StandDTO {
     public String getImagenUrl() {
         return imagenUrl;
     }
-
+    public Integer getFeriaId() {
+        return feriaId;
+    }
 }
