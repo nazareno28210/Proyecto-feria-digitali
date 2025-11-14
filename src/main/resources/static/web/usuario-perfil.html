@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="/web/css/global.css">
 
     <!-- 2. CSS Propio de esta página -->
-    <link rel="stylesheet" href="/web/css/perfil.css">
+    <link rel="stylesheet" href="/web/css/usuario-perfil.css">
 
     <!-- 3. CSS de Toastify (para notificaciones) -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -24,18 +24,34 @@
 </header>
 
 <main>
-    <!-- Reutilizamos la clase .perfil-container para un look similar -->
     <div class="perfil-container">
         <h1>Mi Perfil</h1>
 
         <h2>Mis Datos</h2>
-        <!-- Reutilizamos la clase .perfil-card -->
         <div class="perfil-card">
             <p><strong>Email:</strong> <span id="usuario-email">Cargando...</span></p>
             <p><strong>Nombre:</strong> <span id="usuario-nombre">Cargando...</span></p>
             <p><strong>Apellido:</strong> <span id="usuario-apellido">Cargando...</span></p>
             <p><strong>Miembro desde:</strong> <span id="usuario-fecha">Cargando...</span></p>
         </div>
+
+        <h2>Acciones</h2>
+        <!-- 🟢 CAMBIO: Ahora es un contenedor flex 🟢 -->
+        <div id="acciones-container">
+
+            <!-- 🟢 Contenedor dinámico para la solicitud de feriante 🟢 -->
+            <div id="feriante-solicitud-container">
+                <!-- El contenido se cargará dinámicamente con JS -->
+            </div>
+
+            <!-- 🟢 Tarjeta estática para Cambiar Contraseña 🟢 -->
+            <!--<a href="#" id="btn-cambiar-pass" class="accion-card accion-card--blue">
+                <div class="icon">🔒</div>
+                <h3>Cambiar Contraseña</h3>
+                <p>Actualiza tu contraseña por una nueva.</p>
+            </a>-->
+        </div>
+
 
         <div class="acciones">
             <button id="cerrarSesion" class="btn-logout">Cerrar sesión</button>
@@ -51,6 +67,6 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <!-- JS Propio -->
-<script src="/web/js/perfil.js"></script>
+<script src="/web/js/usuario-perfil.js"></script>
 </body>
 </html>

@@ -1,0 +1,152 @@
+/* ====================================
+   ESTILOS DE PERFIL DE USUARIO
+   (Inspirado en perfil.css)
+   ==================================== */
+
+/* Contenedor principal blanco (tomado de perfil.css) */
+.perfil-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: left;
+
+    /* 🟢 CAMBIO: Centrar el contenedor en la página 🟢 */
+    margin: 0 auto;
+}
+
+/* Título principal (tomado de perfil.css) */
+.perfil-container h1 {
+    color: #0078d4;
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+h2 {
+    font-size: 1.25rem;
+    color: #2c3e50;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+/* Tarjeta de datos (tomado de perfil.css) */
+.perfil-card {
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #fcfcfc;
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+}
+
+.perfil-card p {
+    margin: 0.5rem 0;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.perfil-card p strong {
+    color: #555;
+    min-width: 180px;
+    display: inline-block;
+}
+
+/* Contenedor del botón de logout (tomado de perfil.css) */
+.acciones {
+    margin-top: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* El estilo de .btn-logout ya viene de global.css */
+
+
+/* ====================================
+   🟢 ESTILOS DE TARJETAS DE ACCIÓN (Actualizados) 🟢
+   ==================================== */
+
+/* Contenedor de las tarjetas de acción */
+#acciones-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Espacio entre tarjetas */
+}
+
+/* Estilo base para la tarjeta "Quiero ser feriante" */
+.accion-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.accion-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.accion-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.accion-card h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+    transition: color 0.3s;
+}
+
+.accion-card p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+/* Versión VERDE (para "Ser Feriante") */
+.accion-card.accion-card--green {
+    border-color: #10b981;
+}
+.accion-card.accion-card--green:hover {
+    border-color: #059669;
+}
+.accion-card.accion-card--green h3 {
+    color: #10b981;
+}
+
+/* Versión AZUL (para "Cambiar Contraseña") */
+.accion-card.accion-card--blue {
+    border-color: #3498db;
+}
+.accion-card.accion-card--blue:hover {
+    border-color: #2980b9;
+}
+.accion-card.accion-card--blue h3 {
+    color: #3498db;
+}
+
+
+/* Estilo para el mensaje de "Solicitud pendiente" */
+.mensaje-pendiente {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e67e22; /* Naranja */
+    padding: 20px;
+    background: #fffaf0;
+    border: 1px solid #f3d9b1;
+    border-radius: 8px;
+    text-align: center;
+}

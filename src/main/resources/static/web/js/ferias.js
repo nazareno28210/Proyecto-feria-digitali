@@ -108,61 +108,54 @@ async function verificarSesion() {
     }
   } catch (error) {
     console.log("Usuario no autenticado (modo visitante)");
+    // No mostramos nada en user-actions si no está logueado
+    document.getElementById("user-actions").innerHTML = `
+      <a href="/web/login.html" class="btn btn-header">Iniciar sesión</a>
+    `;
   }
 }
 
+// 🟢 CAMBIO: Esta función ha sido actualizada 🟢
 async function mostrarOpcionesUsuario(usuario) {
   const container = document.getElementById("user-actions");
   container.innerHTML = "";
-  
+
   const btnLogout = document.createElement("button");
   btnLogout.id = "btn-logout";
   btnLogout.className = "btn btn-logout"; // Clase global
   btnLogout.textContent = "Cerrar sesión";
   btnLogout.addEventListener("click", cerrarSesion);
 
-  // 🔹 Si el usuario es NORMAL 
+  // 🔹 Si el usuario es NORMAL
   if (usuario.tipoUsuario === "NORMAL") {
-    try {
-      const solicitudRes = await axios.get(`${SOLICITUD_URL}/pendientes`, { withCredentials: true });
-      const pendientes = solicitudRes.data;
-      const tienePendiente = pendientes.some(s => s.emailUsuario === usuario.email);
-
-      if (tienePendiente) {
-        const msgPendiente = document.createElement("p");
-        msgPendiente.textContent = "Solicitud pendiente";
-        msgPendiente.style.color = "white";
-        container.appendChild(msgPendiente);
-      } else {
-        const btnFeriante = document.createElement("a");
-        btnFeriante.href = "solicitud-feriante.html";
-        btnFeriante.className = "btn btn-feriante";
-        btnFeriante.textContent = "Deseo ser un Feriante";
-        container.appendChild(btnFeriante);
-      }
-    } catch (error) {
-      console.error("Error al verificar solicitud:", error);
-      showToast("⚠️ Error al verificar solicitud de feriante", "warning");
-    }
+    // Siempre muestra "Mi Perfil"
+    const btnPerfil = document.createElement("a");
+    btnPerfil.href = "/web/usuario-perfil.html"; // Enlace a su perfil de usuario
+    btnPerfil.className = "btn btn-header"; // Estilo de botón de header
+    btnPerfil.textContent = "Mi Perfil";
+    container.appendChild(btnPerfil);
   }
 
-  // 🔹 Si el usuario es FERIANTE 
+  // 🔹 Si el usuario es FERIANTE
   if (usuario.tipoUsuario === "FERIANTE") {
-    // (Sin texto de saludo)
+    // Muestra "Mi Perfil" que enlaza al perfil de feriante
+    const btnPerfil = document.createElement("a");
+    btnPerfil.href = "/web/feriante/perfil.html"; // Enlace a su dashboard de feriante
+    btnPerfil.className = "btn btn-header";
+    btnPerfil.textContent = "Mi Perfil";
+    container.appendChild(btnPerfil);
   }
 
   // 🔹 Si el usuario es ADMINISTRADOR
   if (usuario.tipoUsuario === "ADMINISTRADOR") {
     const btnAdmin = document.createElement("a");
-    btnAdmin.href = "/web/admin/dashboard.html"; // La URL que pediste
-    btnAdmin.className = "btn btn-admin"; // Clase nueva para el CSS
+    btnAdmin.href = "/web/admin/dashboard.html";
+    btnAdmin.className = "btn btn-admin";
     btnAdmin.textContent = "Panel de administrador";
-    
-    // Lo añadimos al contenedor
     container.appendChild(btnAdmin);
   }
 
-  // Se añade el botón de cerrar sesión al final, al lado del botón de admin (si existe)
+  // Se añade el botón de cerrar sesión al final
   container.appendChild(btnLogout);
 }
 
