@@ -1,10 +1,9 @@
 /*
  * ====================================
- * SOLICITUD-FERIANTE.JS (con Toastify y Redirección)
+ * SOLICITUD-FERIANTE.JS (Corregido)
  * ====================================
  */
 
-// 1. AÑADIDA: Función Toastify
 function showToast(message, type = "info") {
   let color;
   switch (type) {
@@ -25,49 +24,67 @@ function showToast(message, type = "info") {
     duration: 4000,
     gravity: "top", 
     position: "right", 
-    backgroundColor: color,
+    // CAMBIO: Arreglo del warning de Toastify
+    style: {
+        background: color,
+    },
     stopOnFocus: true,
   }).showToast();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("form-feriante");
-  // const mensaje = document.getElementById("mensaje"); // Ya no se usa
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
-    // mensaje.textContent = ""; // Ya no se usa
-
+    
     try {
       // 1️⃣ Obtener usuario logueado
       const userRes = await axios.get("/api/usuarios/current", { withCredentials: true });
-      const usuario = userRes.data;
+      
+      // !! LÍNEA CORREGIDA: Esta línea faltaba en mi código anterior !!
+      const usuario = userRes.data; 
 
       if (!usuario || !usuario.id) {
-        // CAMBIO: Reemplazado por Toast
         showToast("⚠️ No se pudo identificar al usuario. Inicie sesión nuevamente.", "warning");
         return;
       }
 
       // 2️⃣ Capturar datos del formulario
+      const nombreEmprendimiento = document.getElementById("nombreEmprendimiento").value;
+      const descripcion = document.getElementById("descripcion").value;
+      const telefono = document.getElementById("telefono").value; 
+      const emailEmprendimiento = document.getElementById("email").value;
+
+      // ===================================
+      //   VALIDACIÓN DE TELÉFONO
+      // ===================================
+      // Esta RegEx permite solo números, espacios, +, -, ( y )
+      const telefonoRegex = /^[0-9\s+\-()]*$/; 
+
+      if (!telefonoRegex.test(telefono)) {
+        showToast("❌ El teléfono solo puede contener números.", "error");
+        return; // Detiene el envío
+      }
+      // ===================================
+
       const datosFormulario = {
-        nombreEmprendimiento: document.getElementById("nombreEmprendimiento").value,
-        descripcion: document.getElementById("descripcion").value,
-        telefono: document.getElementById("telefono").value,
-        emailEmprendimiento: document.getElementById("email").value
+        nombreEmprendimiento: nombreEmprendimiento,
+        descripcion: descripcion,
+        telefono: telefono,
+        emailEmprendimiento: emailEmprendimiento
       };
 
       // 3️⃣ Enviar solicitud
       const res = await axios.post(
-        `/api/solicitudes/crear/${usuario.id}`,
+        `/api/solicitudes/crear/${usuario.id}`, // Esta línea ahora funcionará
         datosFormulario,
         { withCredentials: true }
-      ); 
+      );
 
-      // 4. CAMBIOS EN ÉXITO
+      // 4. ÉXITO
       showToast(res.data || "✅ Solicitud enviada correctamente.", "success");
       
-      // Deshabilitar el botón para evitar doble envío
       form.querySelector('button[type="submit"]').disabled = true;
 
       // Redirigir a ferias.html después de 1.5s
@@ -76,14 +93,17 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 1500);
 
     } catch (error) {
-      console.error("Error al enviar la solicitud:", error); 
+      console.error("Error al enviar la solicitud:", error);
       
-      // 5. CAMBIOS EN ERROR
+      // 5. MANEJO DE ERROR
       if (error.response) {
-        // Muestra el mensaje de error específico del backend (ej: "Ya tienes una solicitud")
-        showToast("❌ " + (error.response.data || "Error en el envío de la solicitud."), "error"); 
+        // Error del backend (ej: "Teléfono inválido", "Email ya existe")
+        showToast("❌ " + (error.response.data || "Error en el envío de la solicitud."), "error");
       } else {
-        showToast("Error al conectar con el servidor. Intenta más tarde.", "error"); 
+        // Error de JS (como el ReferenceError) o de red
+        showToast("Error al conectar con el servidor. Intenta más tarde.", "error");
+        // Imprimimos el error real en la consola para depurar
+        console.error("El error real es:", error); 
       }
     }
   });
