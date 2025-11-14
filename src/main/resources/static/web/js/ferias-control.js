@@ -22,7 +22,7 @@ function showToast(message, type = "info") {
   }
   Toastify({
     text: message,
-    duration: 4000,
+    duration: 2000,
     gravity: "top", 
     position: "right", 
     style: {

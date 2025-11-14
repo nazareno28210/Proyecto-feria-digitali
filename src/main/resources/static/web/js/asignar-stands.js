@@ -1,3 +1,9 @@
+/*
+ * ====================================
+ * ASIGNAR-STANDS.JS (Lógica corregida)
+ * ====================================
+ */
+
 document.addEventListener("DOMContentLoaded", () => {
     // Referencias al DOM
     const feriaSelect = document.getElementById("feria-select");
@@ -9,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Almacenes de datos
     let todasLasFerias = [];
     let todosLosStands = [];
-    let originalStandsEnFeria = []; // IDs de stands originalmente en la feria
+    let originalStandsEnFeria = []; 
     let selectedFeriaId = null;
 
     // ========================================================
@@ -20,9 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
         await cargarDatosIniciales();
         feriaSelect.addEventListener("change", mostrarListas);
         guardarBtn.addEventListener("click", guardarCambios);
-
-        // 🔴 CAMBIO: Ya no se llama a initDragAndDrop()
-        // 🟢 CAMBIO: Se inicializan los listeners de clic
         initClickListeners();
     }
 
@@ -32,9 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 axios.get("/api/ferias"),
                 axios.get("/api/stands")
             ]);
-
+            
+            // Asignamos los datos
             todasLasFerias = resFerias.data;
-            todosLosStands = resStands.data;
+            todosLosStands = resStands.data; // Lista completa de stands
 
             // Poblar selector de ferias
             feriaSelect.innerHTML = '<option value="">Selecciona una feria...</option>';
@@ -44,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     <option value="${feria.id}">${estado} ${feria.nombre} (${feria.estado})</option>
                 `;
             });
-
         } catch (error) {
             console.error("Error fatal al cargar datos:", error);
             showToast("Error al cargar datos iniciales", "error");
@@ -52,44 +55,58 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ========================================================
-    // LÓGICA DE RENDERIZADO (AL CAMBIAR FERIA)
+    // LÓGICA DE RENDERIZADO (CORREGIDA)
     // ========================================================
 
     function mostrarListas() {
         selectedFeriaId = parseInt(feriaSelect.value);
-
         if (!selectedFeriaId) {
             gestionContainer.classList.add("hidden");
             return;
         }
 
-        // Limpiar listas
         disponiblesList.innerHTML = '<h3>Stands Disponibles</h3>';
         enFeriaList.innerHTML = '<h3>Stands en esta Feria</h3>';
 
-        // Filtrar y renderizar stands
-        const standsDisponibles = todosLosStands.filter(s => !s.feriaId);
-        const standsEnFeria = todosLosStands.filter(s => s.feriaId === selectedFeriaId);
+        // ==============================================
+        //  BLOQUE DE LÓGICA CORREGIDO
+        // ==============================================
+        
+        // 1. Encontrar los IDs de los stands que YA están en la feria seleccionada.
+        //    Buscamos la feria en la lista de ferias...
+        const feriaSeleccionada = todasLasFerias.find(f => f.id === selectedFeriaId);
+        //    ...y obtenemos los IDs de sus stands.
+        const idsStandsEnFeria = feriaSeleccionada ? feriaSeleccionada.stands.map(s => s.id) : [];
+
+        // 2. Filtrar la lista COMPLETA de stands (todosLosStands)
+        todosLosStands.forEach(stand => {
+            if (idsStandsEnFeria.includes(stand.id)) {
+                // Si el ID está en la lista de la feria, va a la columna "Stands en esta Feria"
+                renderStandItem(stand, enFeriaList);
+            } else {
+                // Si no, va a la columna "Stands Disponibles"
+                renderStandItem(stand, disponiblesList);
+            }
+        });
+        
+        // ==============================================
 
         // Guardar estado original para la lógica de guardado
-        originalStandsEnFeria = standsEnFeria.map(s => s.id);
-
-        standsDisponibles.forEach(stand => renderStandItem(stand, disponiblesList));
-        standsEnFeria.forEach(stand => renderStandItem(stand, enFeriaList));
+        originalStandsEnFeria = idsStandsEnFeria;
 
         gestionContainer.classList.remove("hidden");
     }
 
-    // 🟢 CAMBIO: renderStandItem ahora crea botones en lugar de items "arrastrables"
     function renderStandItem(stand, lista) {
-        const ferianteNombre = stand.feriante ? stand.feriante.nombreEmprendimiento : "Sin feriante";
+        const ferianteNombre = stand.feriante ?
+            stand.feriante.nombreEmprendimiento : "Sin feriante";
         const item = document.createElement("div");
         item.className = "stand-item";
         item.dataset.standId = stand.id;
 
         const isAvailableList = (lista.id === 'stands-disponibles');
-
-        // Usamos las clases de global.css
+        
+        // Usamos las clases de global.css (btn-primary = azul, btn-logout = rojo)
         const btnClass = isAvailableList ? 'btn-primary' : 'btn-logout';
         const btnText = isAvailableList ? '+ Agregar' : 'Quitar';
 
@@ -102,64 +119,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ========================================================
-    // 🟢 NUEVA LÓGICA DE CLIC (Reemplaza Drag & Drop)
+    // LÓGICA DE CLIC (Sin cambios)
     // ========================================================
 
     function initClickListeners() {
-        // Usamos delegación de eventos en el contenedor principal
         gestionContainer.addEventListener('click', (e) => {
-
-            // Si hacen clic en un botón de acción
             if (e.target.classList.contains('btn-accion')) {
                 const item = e.target.closest('.stand-item');
 
                 // Mover a la lista de "En Feria"
                 if (e.target.classList.contains('btn-primary')) {
-                    enFeriaList.appendChild(item); // Mueve el item en la UI
+                    enFeriaList.appendChild(item); 
                     e.target.textContent = 'Quitar';
                     e.target.classList.remove('btn-primary');
-                    e.target.classList.add('btn-logout'); // Clase roja
-
+                    e.target.classList.add('btn-logout'); 
+                } 
                 // Mover a la lista de "Disponibles"
-                } else if (e.target.classList.contains('btn-logout')) {
-                    disponiblesList.appendChild(item); // Mueve el item en la UI
+                else if (e.target.classList.contains('btn-logout')) {
+                     disponiblesList.appendChild(item); 
                     e.target.textContent = '+ Agregar';
                     e.target.classList.remove('btn-logout');
-                    e.target.classList.add('btn-primary'); // Clase verde
+                    e.target.classList.add('btn-primary');
                 }
             }
         });
     }
 
     // ========================================================
-    // LÓGICA DE GUARDADO (¡Esta función no necesita cambios!)
+    // LÓGICA DE GUARDADO (Sin cambios)
     // ========================================================
 
     async function guardarCambios() {
         if (!selectedFeriaId) return;
 
-        // 1. Obtener el estado final desde la UI (lee las listas tal como están)
         const finalStandIdsEnFeria = Array.from(enFeriaList.querySelectorAll(".stand-item"))
                                           .map(item => parseInt(item.dataset.standId));
 
-        // 2. Calcular los cambios (Deltas)
         const standsToAssign = finalStandIdsEnFeria.filter(
             id => !originalStandsEnFeria.includes(id)
         );
-
         const standsToUnassign = originalStandsEnFeria.filter(
             id => !finalStandIdsEnFeria.includes(id)
         );
 
-        // 3. Crear promesas para todas las llamadas API
         const promises = [];
-
         standsToAssign.forEach(standId => {
             promises.push(
                 axios.patch(`/api/stands/${standId}/asignar-feria/${selectedFeriaId}`)
             );
         });
-
         standsToUnassign.forEach(standId => {
             promises.push(
                 axios.patch(`/api/stands/${standId}/desasignar-feria`)
@@ -171,16 +179,13 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // 4. Ejecutar todas las promesas
         try {
             await Promise.all(promises);
             showToast(`Cambios guardados: ${standsToAssign.length} asignados, ${standsToUnassign.length} quitados.`, "success");
 
-            // 5. Recargar el estado desde el servidor
+            // Recargamos el estado desde el servidor
             await cargarDatosIniciales();
-            // Renderizar la vista con los nuevos datos
-            mostrarListas();
-
+            mostrarListas(); // Re-renderiza las listas
         } catch (error) {
             console.error("Error al guardar cambios:", error);
             showToast("Error al guardar los cambios.", "error");
@@ -188,28 +193,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ========================================================
-    // FUNCIÓN DE TOAST (COPIADA DE login.js)
+    // FUNCIÓN DE TOAST 
     // ========================================================
     function showToast(message, type = "info") {
         let color;
+        // CAMBIO: Colores actualizados a la paleta de la app
         switch (type) {
             case "success":
-                color = "linear-gradient(to right, #00b09b, #96c93d)";
+                color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
                 break;
             case "error":
-                color = "linear-gradient(to right, #ff5f6d, #ffc371)";
+                color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
                 break;
             case "warning":
+                color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+                break;
             default:
-                color = "linear-gradient(to right, #f7971e, #ffd200)";
+                color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
         }
 
         Toastify({
             text: message,
-            duration: 4000,
+            duration: 2000,
             gravity: "top",
             position: "right",
-            backgroundColor: color,
+            style: {
+                background: color,
+            },
             stopOnFocus: true,
         }).showToast();
     }
