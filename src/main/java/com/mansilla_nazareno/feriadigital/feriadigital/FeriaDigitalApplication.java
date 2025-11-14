@@ -41,6 +41,7 @@ public class FeriaDigitalApplication {
 				Usuario francisco = new Usuario("Francisco", "García", "francisco@gmail.com", passwordEncoder.encode("123"), EstadoUsuario.ACTIVO);
 				Usuario maria = new Usuario("María", "González", "maria.perros@gmail.com", passwordEncoder.encode("123"), EstadoUsuario.ACTIVO);
 				nazareno.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
+				francisco.setTipoUsuario(TipoUsuario.FERIANTE);
 				usuarioRepository.save(nazareno);
 				usuarioRepository.save(denis);
 				usuarioRepository.save(francisco);
