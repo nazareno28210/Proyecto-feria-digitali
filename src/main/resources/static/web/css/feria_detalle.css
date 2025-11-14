@@ -1,60 +1,9 @@
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* ====================================
+   ESTILOS DE FERIA_DETALLE (fd.css)
+   ==================================== */
 
-body {
-  font-family: "Poppins", sans-serif;
-  background-color: #f4f8fb;
-  color: #333;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  /* MODIFICADO: Elimino el padding lateral para que header y footer ocupen el 100% */
-  padding: 0;
-}
-
-/* Contenedor principal para centrar el contenido y darle padding interno */
-#main-content {
-  flex-grow: 1;
-  /* Ocupa el espacio disponible */
-  padding: 20px 40px;
-  /* Padding que antes tenía el body */
-}
-
-/* Encabezado */
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #0078d7;
-  color: white;
-  /* MODIFICADO: Uso el mismo padding que el main-content para alineación */
-  padding: 20px 40px;
-  /* MODIFICADO: Elimino los bordes redondeados y el margin-bottom */
-  border-radius: 0;
-  margin-bottom: 0;
-}
-
-header h1 {
-  font-size: 1.8rem;
-}
-
-header button {
-  background-color: #005fa3;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-header button:hover {
-  background-color: #004c87;
-}
+/* El 'body', 'header' y 'footer' ya están en global.css */
+/* El 'main' global ya da el padding y el centrado */
 
 /* Tarjeta de información de la feria */
 #info-feria {
@@ -62,10 +11,11 @@ header button:hover {
   padding: 25px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%;
+  width: 100%; /* Ocupa el 100% del 'main' */
   margin-bottom: 40px;
-  /* MODIFICADO: Ajusto el margen superior para separar del header */
-  margin-top: 25px;
+
+  /* El 'main' global ya centra esto,
+     así que no necesitamos 'margin-top' */
 }
 
 #info-feria p {
@@ -77,6 +27,7 @@ header button:hover {
   display: none;
 }
 
+/* Título "Stands" */
 h2 {
   color: #111827;
   margin-bottom: 20px;
@@ -86,10 +37,8 @@ h2 {
 /* Contenedor de stands */
 #stands-container {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
-  align-items: stretch;
-  justify-items: start;
 }
 
 /* Tarjeta de stand */
@@ -98,13 +47,14 @@ h2 {
   border-radius: 16px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   width: 100%;
-  /* height: 250px; ⬅️ ELIMINADA ALTURA FIJA */
+  height: 250px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* padding: 20px; ⬅️ ELIMINADO PADDING */
+  padding: 20px;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box; /* Añadido para seguridad */
 }
 
 .stand-card:hover {
@@ -112,32 +62,11 @@ h2 {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* ⬇️ ESTILOS NUEVOS PARA LA IMAGEN DEL STAND ⬇️ */
-.stand-image-container {
-  width: 100%;
-  height: 150px; /* Altura fija para el logo */
-  padding: 10px; /* Un poco de aire alrededor del logo */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f9f9f9; /* Un fondo sutil por si el logo es transparente */
-}
-
-.stand-image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* 'contain' es mejor para logos (evita recortes) */
-  display: block;
-}
-/* ⬆️ FIN DE ESTILOS NUEVOS ⬆️ */
-
-
 /* Contenido con scroll */
 .stand-content {
   overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 10px;
-  padding: 0 20px; /* ⬅️ AÑADIDO (antes estaba en .stand-card) */
 }
 
 .stand-content::-webkit-scrollbar {
@@ -151,7 +80,6 @@ h2 {
 .stand-card h3 {
   color: #0078d7;
   margin-bottom: 6px;
-  padding-top: 15px; /* ⬅️ AÑADIDO (antes estaba en .stand-card) */
 }
 
 .stand-card p {
@@ -160,7 +88,7 @@ h2 {
   color: #444;
 }
 
-/* Botón */
+/* Botón "Ver productos" de la card */
 .stand-card button {
   background-color: #10b981;
   color: white;
@@ -170,23 +98,8 @@ h2 {
   cursor: pointer;
   align-self: center;
   transition: background 0.2s ease;
-  margin-bottom: 20px; /* ⬅️ AÑADIDO MARGEN INFERIOR */
 }
 
 .stand-card button:hover {
   background-color: #059669;
-}
-
-/* Footer */
-footer {
-  background-color: #0078d7;
-  color: white;
-  text-align: left;
-  /* MODIFICADO: Uso el mismo padding lateral que el main-content para alineación */
-  padding: 15px 40px;
-  font-size: 0.9rem;
-  /* MODIFICADO: Elimino el margin-top y los bordes redondeados */
-  margin-top: auto;
-  /* Esto empuja el footer hacia abajo */
-  border-radius: 0;
 }

@@ -1,27 +1,22 @@
-body {
-  font-family: "Poppins", Arial, sans-serif;
-  background-color: #f4f8fb;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+/* ====================================
+   ESTILOS DE FERIAS (ferias.css)
+   ==================================== */
 
+/* El 'body' global ya está en global.css */
+
+/*
+ * El 'header' global pone el color de fondo.
+ * Aquí solo definimos la estructura interna de ESTE header.
+ */
 header {
-  background-color: #0078d7;
-  color: white;
   padding: 20px;
-  position: relative;
-  /* ⬇️ CAMBIOS EN HEADER ⬇️ */
-  /* text-align: center; (Eliminado) */
   display: flex;
   flex-direction: column;
   gap: 15px;
   /* Espacio entre la fila superior y la barra de búsqueda */
 }
 
-/* ⬇️ NUEVO CONTENEDOR PARA H1 Y BOTÓN ⬇️ */
+/* Contenedor PARA H1 Y BOTÓN */
 .header-top {
   display: flex;
   justify-content: space-between; /* Empuja el h1 a la izq y el botón a la der */
@@ -32,9 +27,10 @@ header {
 header h1 {
   margin: 0;
   font-size: 1.8rem;
+  /* El color 'white' lo hereda del 'header' en global.css */
 }
 
-/* ⬇️ NUEVO BOTÓN DE LOGIN ⬇️ */
+/* Botón de LOGIN */
 .btn-login {
   background-color: white;
   color: #0078d7;
@@ -47,10 +43,15 @@ header h1 {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  white-space: nowrap;
-  /* Evita que el texto se parta */
+  white-space: nowrap; /* Evita que el texto se parta */
+  font-family: "Poppins", sans-serif;
+}
+.btn-login:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* Botón "Quiero ser feriante" */
 .btn-feriante {
   background-color: #4caf50;
   color: white;
@@ -62,20 +63,9 @@ header h1 {
   background-color: #388e3c;
 }
 
-
-.btn-login:hover {
-  background-color: #f0f0f0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
+/* Barra de búsqueda del header */
 header input {
-  /* ⬇️ CAMBIO: margin-top eliminado (se usa 'gap' en header) ⬇️ */
-  /* margin-top: 15px;
-  */
-
-  /* ⬇️ CAMBIO: align-self para centrar la barra ⬇️ */
   align-self: center;
-
   padding: 10px 15px;
   width: 80%;
   max-width: 500px;
@@ -85,13 +75,16 @@ header input {
   outline: none;
 }
 
+/* * El 'main' global ya está en global.css 
+ * (define flex-grow: 1).
+ * Aquí solo definimos el contenido interno.
+ */
 #ferias-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
   /* 🔹 tarjetas más anchas */
   gap: 30px;
   padding: 40px;
-  flex-grow: 1;
   justify-items: center;
 }
 
@@ -159,6 +152,7 @@ header input {
   color: #555;
 }
 
+/* Botón "Ver detalles" de la card */
 button {
   background-color: #0078d7;
   color: white;
@@ -182,16 +176,10 @@ button:hover {
 }
 
 
-footer {
-  background-color: #0078d7;
-  color: white;
-  text-align: center;
-  padding: 15px;
-  font-size: 0.9rem;
-}
+/* El 'footer' global ya está en global.css */
 
 
-/* 🎨 ESTILO PARA EL BOTÓN DE CERRAR SESIÓN */
+/* Botón de CERRAR SESIÓN */
 .btn-logout {
   background-color: #dc3545;
   color: white;
@@ -204,19 +192,15 @@ footer {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-
 .btn-logout:hover {
   background-color: #fff5f5;
   color: #c82333;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.btn-login {
-    font-family: "Poppins", sans-serif;
-}
-
+/* Contenedor de acciones de usuario en el header */
 #user-actions {
   display: flex;
   gap: 15px;

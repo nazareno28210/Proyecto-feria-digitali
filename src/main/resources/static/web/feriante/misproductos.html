@@ -4,43 +4,57 @@
     <meta charset="UTF-8">
     <title>Mis Productos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/misproductos.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
-<body class="bg-light">
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4 titulo">🛍️ Mis Productos</h2>
+<body>
 
-    <!-- 🔹 Formulario para agregar nuevo producto -->
-    <div class="card p-3 mb-4 sombra">
-        <h5 class="mb-3 subtitulo">Agregar nuevo producto</h5>
-        <div class="row g-2">
-            <div class="col-md-4">
-                <input id="nombre" class="form-control" placeholder="Nombre">
-            </div>
-            <div class="col-md-5">
-                <input id="descripcion" class="form-control" placeholder="Descripción">
-            </div>
+<header>
+    <div class="header-content">
+        <h1>Gestión de Productos</h1>
+        <a href="/web/feriante/perfil.html" class="btn btn-header">← Volver al Perfil</a>
+    </div>
+</header>
 
-            <div class="col-md-12 mt-2">
-                <input id="imagenUrl" class="form-control" placeholder="URL de la imagen (https://...)">
-            </div>
+<main>
+    <div class="container">
+        <h2 class="text-center mb-4 titulo">🛍️ Mis Productos</h2>
 
-            <div class="col-md-2">
-                <input id="precio" type="number" class="form-control" placeholder="Precio">
-            </div>
-            <div class="col-md-1 d-grid">
-                <button class="btn btn-success" onclick="crearProducto()">➕</button>
+        <div class="card p-3 mb-4 sombra">
+            <h5 class="mb-3 subtitulo">Agregar nuevo producto</h5>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input id="nombre" class="form-control" placeholder="Nombre">
+                </div>
+                <div class="col-md-5">
+                    <input id="descripcion" class="form-control" placeholder="Descripción">
+                </div>
+
+                <div class="col-md-12 mt-2">
+                    <input id="imagenUrl" class="form-control" placeholder="URL de la imagen (https://...)">
+                </div>
+
+                <div class="col-md-2">
+                    <input id="precio" type="number" class="form-control" placeholder="Precio">
+                </div>
+                <div class="col-md-1 d-grid">
+                    <button class="btn btn-success" onclick="crearProducto()">➕</button>
+                </div>
             </div>
         </div>
+
+        <div id="productos" class="row"></div>
     </div>
+</main>
 
-    <!-- 🔹 Lista de productos -->
-    <div id="productos" class="row"></div>
-</div>
+<footer>
+    <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos de la carrera de Tecnicatura Superior en Desarrollo de Software del CENT 35.</p>
+</footer>
 
-<!-- 🔹 Modal de edición -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content sombra">
@@ -76,6 +90,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="/web/js/misproductos.js"></script>
 
 </body>
