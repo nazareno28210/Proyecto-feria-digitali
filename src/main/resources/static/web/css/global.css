@@ -1,5 +1,26 @@
+/*
+ * ====================================
+ * GLOBAL.CSS (ACTUALIZADO CON PALETA)
+ * ====================================
+ */
+
+/* 1. Definición de la paleta de colores del logo */
+:root {
+  --color-dark-blue: #1a3a5a;
+  --color-medium-blue: #3b82f6;
+  --color-light-accent: #67e8f9;
+  --color-background: #eef6ff; /* Fondo azul claro para el body */
+  --color-card: #ffffff;
+  --color-text-dark: #1f2937;
+  --color-text-light: #6b7280;
+  
+  /* Colores de Alerta (Toastify) */
+  --color-success: #24778b; /* Verde (para "Deseo ser Feriante") */
+  --color-error: #dc3545; /* Rojo (para "Cerrar Sesión") */
+}
+
 /* ====================================
-   1. RESET Y GLOBALES
+   2. RESET Y GLOBALES
    ==================================== */
 * {
   margin: 0;
@@ -9,19 +30,21 @@
 
 body {
   font-family: "Poppins", Arial, sans-serif;
-  background-color: #f4f8fb; /* Fondo gris claro unificado */
-  color: #333;
+  /* CAMBIO: Usamos el nuevo color de fondo */
+  background-color: var(--color-background); 
+  color: var(--color-text-dark);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
 /* ====================================
-   2. HEADER UNIFICADO
+   3. HEADER UNIFICADO
    ==================================== */
 header {
   width: 100%;
-  background-color: #2c3e50; /* Color oscuro unificado */
+  /* CAMBIO: Usamos el azul oscuro del logo */
+  background-color: var(--color-dark-blue); 
   color: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   padding: 1rem 2rem;
@@ -43,29 +66,31 @@ header {
 }
 
 /* ====================================
-   3. MAIN (CONTENIDO PRINCIPAL)
+   4. MAIN (CONTENIDO PRINCIPAL)
    ==================================== */
 main {
-  flex-grow: 1; /* Empuja el footer hacia abajo */
+  flex-grow: 1; 
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem; /* Espaciado estándar */
+  padding: 2rem; 
   box-sizing: border-box;
 }
 
 /* ====================================
-   4. FOOTER UNIFICADO
+   5. FOOTER UNIFICADO
    ==================================== */
 footer {
   width: 100%;
-  background-color: #2c3e50; /* Color oscuro unificado */
+  background-color: var(--color-dark-blue); 
   color: white;
   text-align: center;
-  padding: 1.5rem 1rem;
-  font-size: 0.9rem;
+  /* CAMBIO: Padding reducido */
+  padding: 1rem;
+  /* CAMBIO: Fuente más pequeña */
+  font-size: 0.85rem; 
   box-sizing: border-box;
-  margin-top: auto; /* Asegura que se pegue abajo */
+  margin-top: auto; 
 }
 
 footer p {
@@ -76,7 +101,7 @@ footer p {
 }
 
 /* ====================================
-   5. BOTONES GLOBALES
+   6. BOTONES GLOBALES
    ==================================== */
 .btn {
   padding: 8px 16px;
@@ -93,25 +118,25 @@ footer p {
 /* Botón blanco para headers oscuros */
 .btn-header {
   background-color: white;
-  color: #2c3e50; /* Color del header */
+  color: var(--color-dark-blue); /* Color del header */
 }
 .btn-header:hover {
   background-color: #f0f0f0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Botón de acción principal (verde) */
+/* Botón de acción principal (azul) */
 .btn-primary {
-  background-color: #10b981;
+  background-color: var(--color-dark-blue);
   color: white;
 }
 .btn-primary:hover {
-  background-color: #059669;
+  background-color: var(--color-medium-blue);
 }
 
 /* Botón de "Cerrar Sesión" (rojo) */
 .btn-logout {
-  background-color: #dc3545;
+  background-color: var(--color-error);
   color: white;
 }
 .btn-logout:hover {

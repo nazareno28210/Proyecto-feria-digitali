@@ -1,9 +1,41 @@
+/*
+ * ====================================
+ * FERIAS.JS (ACTUALIZADO CON TOASTIFY)
+ * ====================================
+ */
+
 const API_URL = "http://localhost:8080/api/ferias/activas";
 const AUTH_URL = "http://localhost:8080/api/usuarios/current";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
 const SOLICITUD_URL = "http://localhost:8080/api/solicitudes";
 
 let feriasGlobal = [];
+
+// 🔹 AÑADIDO: Función Toastify (copiada de login/registro.js)
+function showToast(message, type = "info") {
+  let color;
+  switch (type) {
+    case "success":
+      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
+      break;
+    case "error":
+      color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
+      break;
+    case "warning":
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      break;
+    default:
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+  }
+  Toastify({
+    text: message,
+    duration: 4000,
+    gravity: "top", 
+    position: "right", 
+    backgroundColor: color,
+    stopOnFocus: true,
+  }).showToast();
+}
 
 // 🔹 INIT
 document.addEventListener("DOMContentLoaded", () => {
@@ -28,24 +60,31 @@ async function cargarFerias() {
     mostrarFerias(feriasGlobal);
   } catch (error) {
     console.error("Error al cargar las ferias:", error);
+    // CAMBIO: alert a toast
+    showToast("❌ Error al cargar las ferias", "error");
   }
 }
 
 function mostrarFerias(lista) {
   const container = document.getElementById("ferias-container");
   container.innerHTML = "";
+  
+  if (lista.length === 0) {
+      container.innerHTML = "<p class='no-ferias-msg'>No se encontraron ferias que coincidan con la búsqueda.</p>";
+      // (Opcional: puedes añadir un estilo para .no-ferias-msg en ferias.css)
+      return;
+  }
 
   lista.forEach((feria) => {
     const card = document.createElement("div");
     card.classList.add("card");
-    // 1. Crear el HTML de la imagen (solo si existe)
+    
     const imagenHtml = feria.imagenUrl
       ? `<div class="card-image-container">
            <img src="${feria.imagenUrl}" alt="Imagen de ${feria.nombre}">
          </div>`
       : '';
 
-    // 2. Construir la tarjeta con la imagen
     card.innerHTML = `
       ${imagenHtml} 
       <div class="card-content">
@@ -83,54 +122,49 @@ async function verificarSesion() {
 async function mostrarOpcionesUsuario(usuario) {
   const container = document.getElementById("user-actions");
   container.innerHTML = "";
-
-  // Botón de logout
+  
   const btnLogout = document.createElement("button");
   btnLogout.id = "btn-logout";
-  btnLogout.className = "btn-logout";
+  // CAMBIO: Clase global de botón
+  btnLogout.className = "btn btn-logout"; 
   btnLogout.textContent = "Cerrar sesión";
   btnLogout.addEventListener("click", cerrarSesion);
 
-  // 🔹 Si el usuario es NORMAL, verificamos si tiene solicitud pendiente
+  // 🔹 Si el usuario es NORMAL
   if (usuario.tipoUsuario === "NORMAL") {
     try {
       const solicitudRes = await axios.get(`${SOLICITUD_URL}/pendientes`, { withCredentials: true });
       const pendientes = solicitudRes.data;
-      // ✅ Buscar si el usuario actual tiene una solicitud pendiente
       const tienePendiente = pendientes.some(s => s.emailUsuario === usuario.email);
-
 
       if (tienePendiente) {
         const msgPendiente = document.createElement("p");
-        msgPendiente.textContent = "Solicitud pendiente de aprobación";
+        msgPendiente.textContent = "Solicitud pendiente";
         msgPendiente.style.color = "white";
         container.appendChild(msgPendiente);
       } else {
         const btnFeriante = document.createElement("a");
         btnFeriante.href = "solicitud-feriante.html";
-        btnFeriante.className = "btn-feriante";
+        // CAMBIO: Clase de botón
+        btnFeriante.className = "btn btn-feriante"; 
         btnFeriante.textContent = "Deseo ser un Feriante";
         container.appendChild(btnFeriante);
       }
     } catch (error) {
       console.error("Error al verificar solicitud:", error);
+      // CAMBIO: console.error a toast
+      showToast("⚠️ Error al verificar solicitud de feriante", "warning");
     }
   }
 
   // 🔹 Si el usuario es FERIANTE
   if (usuario.tipoUsuario === "FERIANTE") {
-    const msg = document.createElement("p");
-    msg.textContent = "Eres feriante ";
-    msg.style.color = "white";
-    container.appendChild(msg);
+ 
   }
 
   // 🔹 Si el usuario es ADMINISTRADOR
   if (usuario.tipoUsuario === "ADMINISTRADOR") {
-    const msg = document.createElement("p");
-    msg.textContent = "Eres administrador ";
-    msg.style.color = "white";
-    container.appendChild(msg);
+
   }
 
   container.appendChild(btnLogout);
@@ -139,9 +173,14 @@ async function mostrarOpcionesUsuario(usuario) {
 async function cerrarSesion() {
   try {
     await axios.post(LOGOUT_URL, {}, { withCredentials: true });
-    window.location.reload();
+    // CAMBIO: alert a toast
+    showToast("✅ Sesión cerrada correctamente", "success");
+    setTimeout(() => {
+        window.location.reload();
+    }, 1500); // Espera 1.5s para que se vea el toast
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
-    alert("No se pudo cerrar la sesión correctamente.");
+    // CAMBIO: alert a toast
+    showToast("❌ No se pudo cerrar la sesión", "error");
   }
 }

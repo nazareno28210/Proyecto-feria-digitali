@@ -1,17 +1,22 @@
 function showToast(message, type = "info") {
   let color;
+  // Colores actualizados a la paleta de la app
   switch (type) {
     case "success":
-      color = "linear-gradient(to right, #00b09b, #96c93d)";
+      // Gradiente del azul oscuro al medio
+      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
       break;
     case "error":
-      color = "linear-gradient(to right, #ff5f6d, #ffc371)";
+      // Gradiente de rojos
+      color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
       break;
     case "warning":
-      color = "linear-gradient(to right, #f7971e, #ffd200)";
+      // Gradiente de naranjas/ámbar
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)";
       break;
     default:
-      color = "linear-gradient(to right, #2193b0, #6dd5ed)";
+      // Gradiente del azul medio al cian
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
   }
 
   Toastify({
@@ -30,19 +35,30 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // 1. Obtenemos todos los valores del formulario
     const nombre = document.getElementById("nombre").value;
     const apellido = document.getElementById("apellido").value;
     const email = document.getElementById("email").value;
     const contrasena = document.getElementById("password").value;
+    const confirmContrasena = document.getElementById("confirmPassword").value;
+
+    // 2. Validación RÁPIDA en el frontend (para mejor UX)
+    if (contrasena !== confirmContrasena) {
+      showToast("⚠️ Las contraseñas no coinciden", "warning");
+      return; // Detiene el envío
+    }
 
     try {
+      // 3. Enviamos el objeto completo al backend (coincide con RegistroDTO)
       await axios.post("/api/usuarios", {
         nombre,
         apellido,
         email,
         contrasena,
+        confirmContrasena // Se envía también la confirmación
       });
 
+      // 4. Éxito
       showToast("✅ Usuario registrado correctamente", "success");
 
       setTimeout(() => {
@@ -50,12 +66,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 1500);
 
     } catch (error) {
-      if (error.response?.status === 409)
+      // 5. Manejo de errores (ahora lee el mensaje del backend)
+      if (error.response?.status === 409) {
+        // Conflicto (Email ya existe)
         showToast("⚠️ El correo ya está registrado", "warning");
-      else if (error.response?.status === 400)
-        showToast("⚠️ La contraseña no cumple los requisitos", "warning");
-      else
+      } else if (error.response?.status === 400) {
+        // Bad Request (Contraseñas no coinciden, o no es segura)
+        // Usamos el mensaje específico que envía el backend
+        showToast("⚠️ " + (error.response.data || "Error en los datos"), "warning");
+      } else {
+        // Otro error
         showToast("❌ Error al registrar usuario", "error");
+      }
     }
   });
 });
