@@ -14,7 +14,7 @@ function showToast(message, type = "info") {
       color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
       break;
     case "warning":
-      color = "linear-gradient(to right, #f59e0b, #d97706)"; 
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
       break;
     default:
       color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
