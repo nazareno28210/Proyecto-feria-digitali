@@ -1,119 +1,152 @@
+/*
+ * ====================================
+ * FERIAS.CSS (v4 - Corrección de alineación)
+ * ====================================
+ */
+
 /* ====================================
-   ESTILOS DE FERIAS (ferias.css)
+   1. HEADER
    ==================================== */
 
-/* El 'body' global ya está en global.css */
 
-/*
- * El 'header' global pone el color de fondo.
- * Aquí solo definimos la estructura interna de ESTE header.
- */
-header {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  /* Espacio entre la fila superior y la barra de búsqueda */
-}
-
-/* Contenedor PARA H1 Y BOTÓN */
+/* Contenedor principal del header (Izquierda, Centro, Derecha) */
 .header-top {
   display: flex;
-  justify-content: space-between; /* Empuja el h1 a la izq y el botón a la der */
+  justify-content: space-between; 
   align-items: center;
-  width: 100%;
+  width: 100%; /* Ocupa el 100% del header (ya no está en un div de 1200px) */
+  gap: 2rem; 
+}
+
+/* --- 1.1 Bloque Izquierda (Logo + Título) --- */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px; 
+    flex: 1; /* Crece para ocupar espacio */
+    justify-content: flex-start; /* Se alinea a la izquierda */
+}
+
+.header-logo {
+  width: 55px;
+  height: 55px;
+  background-color: white; 
+  border-radius: 50%;
+  padding: 4px;
+  border: 1px solid var(--color-light-accent);
 }
 
 header h1 {
   margin: 0;
   font-size: 1.8rem;
-  /* El color 'white' lo hereda del 'header' en global.css */
+  color: white;
 }
 
-/* Botón de LOGIN */
+/* --- 1.2 Bloque Centro (Búsqueda) --- */
+.search-bar {
+  flex: 0 0 350px; /* Tamaño fijo, no crece ni se encoge */
+}
+
+header input {
+  padding: 10px 15px;
+  width: 100%; 
+  border: 1px solid #5a7a9a; 
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  background-color: #1a3a5a; 
+  color: white;
+  transition: all 0.3s ease;
+}
+header input::placeholder { 
+  color: #a0bacc;
+}
+header input:focus {
+  background-color: #f8faff; 
+  color: var(--color-text-dark);
+  border-color: var(--color-medium-blue);
+}
+
+/* --- 1.3 Bloque Derecha (Botones) --- */
+#user-actions {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex: 1; /* Crece para ocupar espacio */
+  justify-content: flex-end; /* Se alinea a la derecha */
+}
+
 .btn-login {
   background-color: white;
-  color: #0078d7;
-  /* Texto azul */
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none;
-  /* Quita el subrayado del <a> */
+  color: var(--color-dark-blue);
   font-weight: 600;
   font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  white-space: nowrap; /* Evita que el texto se parta */
-  font-family: "Poppins", sans-serif;
+  white-space: nowrap;
 }
 .btn-login:hover {
   background-color: #f0f0f0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
 }
 
-/* Botón "Quiero ser feriante" */
 .btn-feriante {
-  background-color: #4caf50;
+  background-color: var(--color-success); 
   color: white;
-  padding: 10px 15px;
-  text-decoration: none;
-  border-radius: 5px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 .btn-feriante:hover {
-  background-color: #388e3c;
+  background-color: #8cbfe0;
 }
 
-/* Barra de búsqueda del header */
-header input {
-  align-self: center;
-  padding: 10px 15px;
-  width: 80%;
-  max-width: 500px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  outline: none;
+#user-actions p {
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: white;
 }
 
-/* * El 'main' global ya está en global.css 
- * (define flex-grow: 1).
- * Aquí solo definimos el contenido interno.
- */
+
+/* ====================================
+   2. CONTENEDOR DE TARJETAS (MAIN)
+   ==================================== */
 #ferias-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
-  /* 🔹 tarjetas más anchas */
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 30px;
-  padding: 40px;
+  padding: 2.5rem 1rem;
   justify-items: center;
 }
 
-/* ======================================= */
-/* ⬇️ ÚLTIMOS CAMBIOS EN LA TARJETA ⬇️     */
-/* ======================================= */
 
+/* ====================================
+   3. TARJETA DE FERIA (CARD)
+   ==================================== */
 .card {
-  background-color: #fff;
+  background-color: var(--color-card);
   border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 580px;
-  /* ⬅️ 1. ALTURA REDUCIDA (ajusta este valor si lo necesitas) */
-  height: 550px; 
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 100%; 
+  max-width: 580px;
+  height: auto;
   padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
+  border-top: 4px solid var(--color-dark-blue);
+  border-bottom: 4px solid var(--color-dark-blue);
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* ESTILOS PARA LA IMAGEN */
 .card-image-container {
   width: 100%;
   height: 250px; 
   overflow: hidden;
 }
-
 .card-image-container img {
   width: 100%;
   height: 100%;
@@ -121,107 +154,60 @@ header input {
   display: block;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
 .card-content {
   overflow-y: auto;
   flex-grow: 1;
-  margin-bottom: 10px;
-  padding: 0 25px; 
+  padding: 1.5rem; 
 }
-
 .card-content::-webkit-scrollbar {
   width: 6px;
 }
 .card-content::-webkit-scrollbar-thumb {
-  background: #0078d7;
+  background: var(--color-medium-blue);
   border-radius: 4px;
 }
 
 .card h2 {
-  color: #0078d7;
-  margin-bottom: 8px;
-  padding-top: 20px; 
+  color: var(--color-dark-blue);
+  margin-bottom: 1rem;
+  padding-top: 0;
 }
-
 .card p {
   margin: 6px 0;
-  color: #555;
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+}
+.card p strong {
+  color: var(--color-text-dark);
 }
 
-/* Botón "Ver detalles" de la card */
-button {
-  background-color: #0078d7;
+.card button {
+  background-color: var(--color-dark-blue);
   color: white;
   border: none;
   padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
-  /* ⬅️ 2. BOTÓN CENTRADO */
   align-self: center; 
-  /* ⬅️ 3. MÁRGENES AJUSTADOS (arriba, lados, abajo) */
-  margin: 15px 0 25px 0; 
-}
-
-/* ======================================= */
-/* ⬆️ FIN DE LOS CAMBIOS ⬆️                */
-/* ======================================= */
-
-
-button:hover {
-  background-color: #005fa3;
-}
-
-
-/* El 'footer' global ya está en global.css */
-
-
-/* Botón de CERRAR SESIÓN */
-.btn-logout {
-  background-color: #dc3545;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  font-family: "Poppins", sans-serif;
+  margin: 0 1.5rem 1.5rem; 
+  width: calc(100% - 3rem); 
   font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
-.btn-logout:hover {
-  background-color: #fff5f5;
-  color: #c82333;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-/* Contenedor de acciones de usuario en el header */
-#user-actions {
-  display: flex;
-  gap: 15px;
-  align-items: center;
+.card button:hover {
+  background-color: var(--color-medium-blue);
 }
 
 
-/* Estilo del botón "Quiero ser feriante" */
-.btn-feriante {
-  background-color: #4caf50;
-  /* Verde */
-  color: white;
-  padding: 8px 16px;
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-}
-
-.btn-feriante:hover {
-  background-color: #388e3c; /* Verde más oscuro al pasar el mouse */
+/* ====================================
+   4. MENSAJE DE BÚSQUEDA VACÍA
+   ==================================== */
+.no-ferias-msg {
+  color: var(--color-text-light);
+  font-size: 1.1rem;
+  text-align: center;
+  width: 100%;
+  grid-column: 1 / -1; 
+  padding: 3rem 0;
 }

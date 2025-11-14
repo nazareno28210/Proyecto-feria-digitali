@@ -1,17 +1,21 @@
 function showToast(message, type = "info") {
   let color;
-  switch (type) {
+   switch (type) {
     case "success":
-      color = "linear-gradient(to right, #00b09b, #96c93d)";
+      // Gradiente del azul oscuro al medio
+      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
       break;
     case "error":
-      color = "linear-gradient(to right, #ff5f6d, #ffc371)";
+      // Gradiente de rojos
+      color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
       break;
     case "warning":
-      color = "linear-gradient(to right, #f7971e, #ffd200)";
+      // Gradiente de naranjas/ámbar
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)";
       break;
     default:
-      color = "linear-gradient(to right, #2193b0, #6dd5ed)";
+      // Gradiente del azul medio al cian
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
   }
 
   Toastify({

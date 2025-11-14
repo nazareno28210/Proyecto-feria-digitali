@@ -4,25 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ferias Activas</title>
+    <link rel="icon" href="/web/assets/logo.png" />
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/ferias.css" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
 <header>
     <div class="header-top">
-        <h1>Ferias Activas</h1>
+        
+        <div class="header-left">
+            <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
+            <h1>Ferias Activas</h1>
+        </div>
+        
+        <div class="search-bar">
+            <input type="text" id="busqueda" placeholder="Buscar feria por nombre..." />
+        </div>
 
         <div id="user-actions">
-            <a href="login.html" class="btn-login">Iniciar sesión</a>
+            <a href="login.html" class="btn btn-login">Iniciar sesión</a>
         </div>
-    </div>
 
-    <input type="text" id="busqueda" placeholder="Buscar feria por nombre..." />
+    </div>
 </header>
 <main id="ferias-container">
-</main>
+    </main>
 
 <footer>
     <p id="creditos">

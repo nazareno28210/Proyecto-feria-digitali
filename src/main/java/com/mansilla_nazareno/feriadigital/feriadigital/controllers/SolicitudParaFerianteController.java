@@ -44,9 +44,17 @@ public class SolicitudParaFerianteController {
 
         if (usuario == null) {return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");}
         if (usuario.getTipoUsuario() == TipoUsuario.FERIANTE) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario ya es feriante");}
-        // Opcional: Verificar si ya tiene una solicitud pendiente para no duplicar
         if (solicitudRepository.findByUsuario(usuario).isPresent() && !solicitudRepository.findByUsuario(usuario).get().isAprobada()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya tienes una solicitud pendiente de revisión.");
+        }
+
+        // LÓGICA DE EMAIL OPCIONAL
+        String emailEmprendimiento = dto.getEmailEmprendimiento();
+
+        if (emailEmprendimiento == null || emailEmprendimiento.trim().isEmpty()) {
+            // Si está vacío, asigna el email principal del usuario
+            emailEmprendimiento = usuario.getEmail();
+            System.out.println("➡️ Email emprendimiento vacío, asignando email de usuario: " + emailEmprendimiento);
         }
 
         // Creamos la entidad con los datos del DTO
@@ -55,7 +63,7 @@ public class SolicitudParaFerianteController {
                 dto.getNombreEmprendimiento(),
                 dto.getDescripcion(),
                 dto.getTelefono(),
-                dto.getEmailEmprendimiento()
+                emailEmprendimiento // Usamos la variable local (que ya está validada)
         );
 
         solicitudRepository.save(solicitud);

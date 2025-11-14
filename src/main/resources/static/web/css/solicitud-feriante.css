@@ -1,63 +1,103 @@
+/*
+ * ====================================
+ * SOLICITUD-FERIANTE.CSS (Tarjeta más corta)
+ * ====================================
+ */
+
 /* ====================================
-   ESTILOS DE SOLICITUD (solicitud-feriante.css)
+   1. HEADER (Sin cambios)
    ==================================== */
 
-/* 'body', 'header', 'header-content' están en global.css */
-/* El .btn-volver ahora usa .btn .btn-header de global.css */
+.header-top {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  width: 100%;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px; 
+}
+.header-logo {
+  width: 55px;
+  height: 55px;
+  background-color: white; 
+  border-radius: 50%;
+  padding: 4px;
+  border: 1px solid var(--color-light-accent);
+}
+.header-right {
+  /* No necesita estilos extra */
+}
 
-/* * 'main' global ya centra el contenido horizontalmente.
- * Solo definimos cómo se ve el contenido dentro de 'main'.
- */
+/* ====================================
+   2. MAIN Y FORMULARIO
+   ==================================== */
+
 main {
-  display: flex; /* Añadido para que 'justify-content' funcione */
-  justify-content: center; /* Centra el formulario */
-  padding-top: 40px; /* Separación del header */
+  display: flex;
+  justify-content: center; 
+  padding-top: 40px;
   padding-bottom: 40px;
 }
 
 .form-card {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-  width: 100%; /* Ocupa el espacio del 'main' */
-  max-width: 450px; /* Pero con un límite */
+  background: var(--color-card);
+  padding: 3rem 3.5rem;
+  border-radius: 20px; 
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 500px; 
+  border-top: 5px solid var(--color-dark-blue); 
+  border-bottom: 5px solid var(--color-dark-blue); 
   display: flex;
   flex-direction: column;
 }
 
 label {
-  margin-top: 10px;
-  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-light); 
+  font-weight: 500;
+  font-size: 0.95rem; 
+  margin-top: 1rem;
+}
+label:first-of-type {
+  margin-top: 0;
 }
 
 input, textarea {
-  margin-top: 5px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-family: inherit; /* Hereda la fuente del body */
+  width: 100%;
+  padding: 1rem; 
+  border: 1px solid #d1d5db; 
+  border-radius: 8px;
   font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-top: 0;
+}
+input:focus, textarea:focus {
+  border-color: var(--color-medium-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
-/* Botón 'Enviar Solicitud' */
 button[type="submit"] {
-  margin-top: 20px;
-  padding: 10px;
+  background-color: var(--color-dark-blue);
+  color: #fff;
   border: none;
+  padding: 1rem; 
+  width: 100%;
   border-radius: 8px;
-  background-color: #2ecc71; /* Verde */
-  color: white;
-  font-weight: bold;
+  font-size: 1.05rem; 
+  font-weight: 600;
   cursor: pointer;
-  font-size: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 5rem; 
 }
 
 button[type="submit"]:hover {
-  background-color: #27ae60;
-}
-
-.mensaje {
-  margin-top: 15px;
-  font-weight: 600;
+  background-color: var(--color-medium-blue);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }

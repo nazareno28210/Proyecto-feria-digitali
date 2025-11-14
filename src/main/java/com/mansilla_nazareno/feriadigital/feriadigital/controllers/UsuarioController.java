@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers;
 
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.RegistroDTO; // 1. IMPORTAR DTO
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
@@ -25,8 +26,7 @@ public class UsuarioController {
         this.usuarioRepository = usuarioRepository;
     }
 
-
-
+    // ... (deja los métodos getUsuarios, getUsuarioDTO y getCurrentUser igual) ...
     @GetMapping("/usuarios")
     public List<UsuarioDTO> getUsuarios(){
         return usuarioRepository.findAll()
@@ -34,6 +34,7 @@ public class UsuarioController {
                 .map(usuario-> new UsuarioDTO(usuario))
                 .toList();
     }
+
     @GetMapping("/usuarios/{id}")
     public UsuarioDTO getUsuarioDTO(@PathVariable Integer id){
         return usuarioRepository.findById(id)
@@ -41,18 +42,18 @@ public class UsuarioController {
                 .orElse(null);
 
     }
-    // 🔹 NUEVO ENDPOINT PARA LOGIN
+
     @GetMapping("/usuarios/current")
     public UsuarioDTO getCurrentUser(Authentication authentication) {
         if (authentication == null) {
-            return null; // No hay usuario logueado
+            return null;
         }
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
         return new UsuarioDTO(usuario);
     }
+
     @Autowired
     PasswordEncoder passwordEncoder;
-
 
     private boolean esContrasenaSegura(String contrasena) {
         String patron = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!¿?.,;:_-]).{8,}$";
@@ -60,32 +61,40 @@ public class UsuarioController {
     }
 
     @PostMapping("/usuarios")
-    public ResponseEntity<?> registrarUsuario(@RequestBody Usuario usuario) {
+    // 2. CAMBIAR PARÁMETRO a @RequestBody RegistroDTO dto
+    public ResponseEntity<?> registrarUsuario(@RequestBody RegistroDTO dto) {
 
-        if (usuarioRepository.findByEmail(usuario.getEmail()) != null) {
+        // 3. AÑADIR VALIDACIÓN DE COINCIDENCIA
+        if (dto.getContrasena() == null || !dto.getContrasena().equals(dto.getConfirmContrasena())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Las contraseñas no coinciden");
+        }
+
+        if (usuarioRepository.findByEmail(dto.getEmail()) != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("El correo ya está registrado");
         }
 
-        // Codificar contraseña
-        if (!esContrasenaSegura(usuario.getContrasena())) {
+        if (!esContrasenaSegura(dto.getContrasena())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.");
         }
-        usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
+
+        // 4. CREAR EL USUARIO real a partir del DTO
+        Usuario usuario = new Usuario();
+        usuario.setNombre(dto.getNombre());
+        usuario.setApellido(dto.getApellido());
+        usuario.setEmail(dto.getEmail());
+        usuario.setContrasena(passwordEncoder.encode(dto.getContrasena())); // Codificar
 
         // Valores por defecto
-        if (usuario.getEstadoUsuario() == null) usuario.setUserEstate(EstadoUsuario.ACTIVO);
-        if (usuario.getTipoUsuario() == null) usuario.setTipoUsuario(TipoUsuario.NORMAL);
-        if (usuario.getFechaRegistro() == null) usuario.setFechaRegistro(LocalDate.now());
+        usuario.setUserEstate(EstadoUsuario.ACTIVO);
+        usuario.setTipoUsuario(TipoUsuario.NORMAL);
+        usuario.setFechaRegistro(LocalDate.now());
 
         usuarioRepository.save(usuario);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Usuario registrado correctamente");
     }
-
-
-
-
 }
