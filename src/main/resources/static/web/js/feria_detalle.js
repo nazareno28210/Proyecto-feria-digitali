@@ -47,7 +47,8 @@ async function cargarFeria() {
               stand.feriante ? stand.feriante.nombreEmprendimiento : "No asignado"
             }</p>
           </div>
-          <button onclick="verProductos(${stand.id})">Ver productos</button>
+
+          <button class="btn btn-primary" onclick="verProductos(${stand.id})">Ver productos</button>
         `;
         standsContainer.appendChild(div);
       });

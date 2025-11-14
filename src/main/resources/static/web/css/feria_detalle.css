@@ -1,9 +1,6 @@
 /* ====================================
-   ESTILOS DE FERIA_DETALLE (fd.css)
+   ESTILOS PÁGINA FERIA (feria.css)
    ==================================== */
-
-/* El 'body', 'header' y 'footer' ya están en global.css */
-/* El 'main' global ya da el padding y el centrado */
 
 /* Tarjeta de información de la feria */
 #info-feria {
@@ -11,11 +8,8 @@
   padding: 25px;
   border-radius: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Ocupa el 100% del 'main' */
+  width: 100%;
   margin-bottom: 40px;
-
-  /* El 'main' global ya centra esto,
-     así que no necesitamos 'margin-top' */
 }
 
 #info-feria p {
@@ -27,18 +21,18 @@
   display: none;
 }
 
-/* Título "Stands" */
 h2 {
-  color: #111827;
+  color: #111827; /* Título oscuro (está bien) */
   margin-bottom: 20px;
-  margin-left: 5px;
 }
 
 /* Contenedor de stands */
 #stands-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 20px;
+  align-items: stretch;
+  justify-items: start;
 }
 
 /* Tarjeta de stand */
@@ -47,14 +41,11 @@ h2 {
   border-radius: 16px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   width: 100%;
-  height: 250px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-sizing: border-box; /* Añadido para seguridad */
 }
 
 .stand-card:hover {
@@ -62,24 +53,46 @@ h2 {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
+/* Imagen del stand */
+.stand-image-container {
+  width: 100%;
+  height: 150px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+}
+
+.stand-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 /* Contenido con scroll */
 .stand-content {
   overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 10px;
+  padding: 0 20px;
 }
 
 .stand-content::-webkit-scrollbar {
   width: 6px;
 }
 .stand-content::-webkit-scrollbar-thumb {
-  background: #0078d7;
+  /* MODIFICADO: Uso el color verde primario */
+  background: #10b981;
   border-radius: 4px;
 }
 
 .stand-card h3 {
-  color: #0078d7;
+  /* MODIFICADO: Uso el color verde primario */
+  color: #10b981;
   margin-bottom: 6px;
+  padding-top: 15px;
 }
 
 .stand-card p {
@@ -88,8 +101,13 @@ h2 {
   color: #444;
 }
 
-/* Botón "Ver productos" de la card */
+/* Botón */
 .stand-card button {
+  /* MODIFICADO: Hereda los estilos de .btn y .btn-primary */
+  /* (Asumiendo que en tu HTML pones <button class="btn btn-primary">) */
+
+  /* Si no puedes cambiar el HTML, descomenta esto: */
+  /*
   background-color: #10b981;
   color: white;
   border: none;
@@ -98,8 +116,18 @@ h2 {
   cursor: pointer;
   align-self: center;
   transition: background 0.2s ease;
+  margin-bottom: 20px;
+  font-weight: 600;
+  */
+}
+
+/* Si usas las clases .btn, solo necesitas esto: */
+.stand-card .btn {
+   align-self: center;
+   margin-bottom: 20px;
 }
 
 .stand-card button:hover {
-  background-color: #059669;
+   /* MODIFICADO: Hereda de .btn-primary:hover */
+   /* background-color: #059669; */
 }
