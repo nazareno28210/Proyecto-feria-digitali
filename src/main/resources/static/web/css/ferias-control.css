@@ -1,253 +1,195 @@
-/* ========================================================== */
-/* CONTENIDO DE: /web/css/global.css
-/* ========================================================== */
+/*
+ * ====================================
+ * FERIAS-CONTROL.CSS (Rediseñado)
+ * ====================================
+ */
 
 /* ====================================
-   1. RESET Y GLOBALES
+   1. HEADER
    ==================================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-body {
-  font-family: "Poppins", Arial, sans-serif;
-  background-color: #f4f8fb; /* Fondo gris claro unificado */
-  color: #333;
+.header-top {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* ====================================
-   2. HEADER UNIFICADO
-   ==================================== */
-header {
-  width: 100%;
-  background-color: #2c3e50; /* Color oscuro unificado */
-  color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  padding: 1rem 2rem;
-  box-sizing: border-box;
-}
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
+  justify-content: space-between; 
   align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px; 
+}
+.header-logo {
+  width: 55px;
+  height: 55px;
+  background-color: white; 
+  border-radius: 50%;
+  padding: 4px;
+  border: 1px solid var(--color-light-accent);
+  transition: transform 0.3s ease;
+}
+.header-logo:hover {
+  transform: scale(1.1) rotate(15deg);
+}
+.header-right {
+  /* No necesita estilos extra */
 }
 
-.header-content h1 {
-  margin: 0;
-  font-size: 1.5rem;
+
+/* ====================================
+   2. TÍTULOS DE SECCIÓN
+   ==================================== */
+h2 {
+    color: var(--color-dark-blue);
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    border-bottom: 2px solid var(--color-medium-blue);
+    padding-bottom: 5px;
+}
+main > h2:first-of-type {
+    margin-top: 0;
+}
+
+/* ====================================
+   3. FORMULARIO DE CREACIÓN
+   ==================================== */
+.form-card {
+  background: var(--color-card);
+  padding: 2.5rem;
+  border-radius: 20px; 
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-top: 5px solid var(--color-dark-blue); 
+  border-bottom: 5px solid var(--color-dark-blue); 
+  margin-bottom: 40px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-light); 
+  font-weight: 500;
+  font-size: 0.95rem; 
+  margin-top: 1rem;
+}
+.form-column label:first-of-type,
+main > label:first-of-type {
+  margin-top: 0;
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+  width: 100%;
+  padding: 1rem; 
+  border: 1px solid #d1d5db; 
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
+  margin-top: 0;
+  box-sizing: border-box; 
+}
+input:focus, textarea:focus {
+  border-color: var(--color-medium-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+button[type="submit"] {
+  background-color: var(--color-dark-blue);
+  color: #fff;
+  border: none;
+  padding: 1rem; 
+  width: 100%;
+  border-radius: 8px;
+  font-size: 1.05rem; 
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 2rem; 
+}
+button[type="submit"]:hover {
+  background-color: var(--color-medium-blue);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+
+/* ====================================
+   4. TABLA DE FERIAS
+   ==================================== */
+table {
+  width: 100%; 
+  border-collapse: collapse;
+  background: var(--color-card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+thead {
+  background-color: var(--color-dark-blue);
   color: white;
 }
 
-/* ====================================
-   3. MAIN (CONTENIDO PRINCIPAL)
-   ==================================== */
-main {
-  flex-grow: 1; /* Empuja el footer hacia abajo */
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem; /* Espaciado estándar */
-  box-sizing: border-box;
+th, td {
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1px solid #eef0f3;
+  vertical-align: middle; 
 }
 
-/* ====================================
-   4. FOOTER UNIFICADO
-   ==================================== */
-footer {
-  width: 100%;
-  background-color: #2c3e50; /* Color oscuro unificado */
-  color: white;
-  text-align: center;
-  padding: 1.5rem 1rem;
-  font-size: 0.9rem;
-  box-sizing: border-box;
-  margin-top: auto; /* Asegura que se pegue abajo */
+tbody tr:hover {
+  background-color: #f9faff;
 }
 
-footer p {
-  margin: 0;
-  max-width: 800px;
-  margin: 0 auto;
-  line-height: 1.5;
+td {
+  color: var(--color-text-dark);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+td:last-child {
+  white-space: nowrap; 
 }
 
-/* ====================================
-   5. BOTONES GLOBALES
-   ==================================== */
-.btn {
-  padding: 8px 16px;
+/* Botones de acción */
+table button {
+  padding: 8px 14px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.9rem;
-  text-decoration: none;
+  color: white;
   transition: all 0.2s ease-in-out;
-  white-space: nowrap;
+  margin-right: 5px;
 }
-
-/* Botón blanco para headers oscuros */
-.btn-header {
-  background-color: white;
-  color: #2c3e50; /* Color del header */
-}
-.btn-header:hover {
-  background-color: #f0f0f0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Botón de acción principal (verde) */
-.btn-primary {
-  background-color: #10b981;
-  color: white;
-}
-.btn-primary:hover {
-  background-color: #059669;
-}
-
-/* Botón de "Cerrar Sesión" (rojo) */
-.btn-logout {
-  background-color: #dc3545;
-  color: white;
-}
-.btn-logout:hover {
-  background-color: #c82333;
-}
-
-
-/* ========================================================== */
-/* CONTENIDO DE: /web/css/dashboard.css
-/* ========================================================== */
-
-/* (Estilos de .dashboard-card, etc. - No afectan esta página) */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-}
-/* ... (otros estilos de dashboard) */
-
-
-/* ========================================================== */
-/* CONTENIDO DE: /web/css/adminferias.css
-/* (Ahora parte de ferias-control.css)
-/* ========================================================== */
-
-h2 {
-    color: #2c3e50;
-    margin-top: 20px; /* Añadido para separar "Crear" de "Registradas" */
-    margin-bottom: 20px;
-}
-
-main > h2:first-of-type {
-    margin-top: 0; /* El primer h2 no necesita margen superior */
-}
-
-/* Formulario */
-form {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 40px;
-}
-
-form input[type="text"],
-form input[type="date"],
-form textarea {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-family: inherit;
-    box-sizing: border-box; /* Importante */
-}
-
-form label {
-    font-weight: 600;
-    color: #333;
-    margin: 10px 0 5px 0;
-    display: inline-block;
-}
-
-/* Botón "Guardar Feria" del formulario */
-form button {
-    background-color: #2c3e50; /* Color oscuro unificado */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-
-form button:hover {
-    background-color: #3a506b; /* Un tono más claro */
-}
-
-/* Tabla de ferias */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-th, td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-}
-
-th {
-    background-color: #2c3e50; /* Color oscuro unificado */
-    color: white;
-    font-weight: 600;
-}
-
-tr:hover {
-    background-color: #f9f9f9;
-}
-
-/* Botones de acción de la tabla */
-table button {
-    border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    color: white; /* Todos los botones de acción tienen texto blanco */
-    margin-right: 5px; /* Espacio entre botones */
-}
-
 table button:hover {
-    opacity: 0.9;
-}
-
-button[onclick^="editar"] {
-    background-color: #f1c40f;
-}
-
-button[onclick^="darBaja"] {
-    background-color: #e67e22;
-}
-
-button[onclick^="eliminar"] {
-    background-color: #e74c3c;
+    transform: scale(1.05);
 }
 
 button[onclick^="activar"] {
-    background-color: #2ecc71;
+    background-color: var(--color-success);
+}
+button[onclick^="darBaja"] {
+    background-color: #f59e0b; /* Naranja/Warning */
+}
+button[onclick^="eliminar"] {
+    background-color: var(--color-error);
 }
