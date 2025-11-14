@@ -5,9 +5,11 @@ import com.mansilla_nazareno.feriadigital.feriadigital.dtos.FerianteDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.FeriaRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,29 @@ public class FeriaController {
     //crear feria
     @PostMapping("/ferias")
     public ResponseEntity<?> crearFeria(@RequestBody Feria nuevaFeria) {
+
+        // 🟢 INICIO DE VALIDACIÓN DE BACKEND 🟢
+
+        // 1. Validar que no falten datos (aunque el frontend ya lo hizo)
+        if (nuevaFeria.getNombre() == null || nuevaFeria.getNombre().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacío");
+        }
+        if (nuevaFeria.getFechaInicio() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha de inicio es obligatoria");
+        }
+
+        // 2. Validar la lógica de fechas (la misma que en el JS)
+        if (nuevaFeria.getFechaInicio().isBefore(LocalDate.now())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha de inicio no puede ser anterior a hoy");
+        }
+
+        if (nuevaFeria.getFechaFinal() != null && nuevaFeria.getFechaFinal().isBefore(nuevaFeria.getFechaInicio())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la fecha de inicio");
+        }
+
+        // 🟢 FIN DE VALIDACIÓN 🟢
+
+        // Si todo está OK, se procede a guardar:
         nuevaFeria.setEstado("Activa");
         feriaRepository.save(nuevaFeria);
         return ResponseEntity.ok("Feria creada correctamente");

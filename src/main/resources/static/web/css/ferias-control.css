@@ -1,0 +1,324 @@
+/* ========================================================== */
+/* CONTENIDO DE: /web/css/global.css
+/* ========================================================== */
+
+/* ====================================
+   1. RESET Y GLOBALES
+   ==================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Poppins", Arial, sans-serif;
+  background-color: #f4f8fb; /* Fondo gris claro unificado */
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ====================================
+   2. HEADER UNIFICADO
+   ==================================== */
+header {
+  width: 100%;
+  background-color: #2c3e50; /* Color oscuro unificado */
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-content h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+}
+
+/* ====================================
+   3. MAIN (CONTENIDO PRINCIPAL)
+   ==================================== */
+main {
+  flex-grow: 1; /* Empuja el footer hacia abajo */
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem; /* Espaciado estándar */
+  box-sizing: border-box;
+}
+
+/* ====================================
+   4. FOOTER UNIFICADO
+   ==================================== */
+footer {
+  width: 100%;
+  background-color: #2c3e50; /* Color oscuro unificado */
+  color: white;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  margin-top: auto; /* Asegura que se pegue abajo */
+}
+
+footer p {
+  margin: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ====================================
+   5. BOTONES GLOBALES
+   ==================================== */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+}
+
+/* Botón blanco para headers oscuros */
+.btn-header {
+  background-color: white;
+  color: #2c3e50; /* Color del header */
+}
+.btn-header:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botón de acción principal (verde) */
+.btn-primary {
+  background-color: #10b981;
+  color: white;
+}
+.btn-primary:hover {
+  background-color: #059669;
+}
+
+/* Botón de "Cerrar Sesión" (rojo) */
+.btn-logout {
+  background-color: #dc3545;
+  color: white;
+}
+.btn-logout:hover {
+  background-color: #c82333;
+}
+
+
+/* ========================================================== */
+/* CONTENIDO DE: /web/css/dashboard.css
+/* ========================================================== */
+
+/* ====================================
+   ESTILOS DE DASHBOARD (dashboard.css)
+   ==================================== */
+
+/* El 'body', 'header' y 'footer' ya están en global.css */
+/* El 'main' global ya da el padding y el centrado */
+
+#bienvenida {
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 40px;
+}
+
+/* GRID DE TARJETAS */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.dashboard-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    text-decoration: none; /* Para que el <a> no tenga subrayado */
+    color: inherit;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    border-color: #3498db;
+}
+
+.dashboard-card .icon {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.dashboard-card h3 {
+    margin: 0 0 10px 0;
+    color: #2c3e50;
+}
+
+.dashboard-card p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+/* Opción deshabilitada para el futuro */
+.dashboard-card.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #f9f9f9;
+}
+.dashboard-card.disabled:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: #eee;
+}
+
+
+/* ========================================================== */
+/* CONTENIDO DE: /web/css/adminferias.css
+/* ========================================================== */
+
+/* ====================================
+   ESTILOS DE ADMIN FERIAS (adminferias.css)
+   ==================================== */
+
+/* El 'body', 'header' y 'footer' ya están en global.css */
+/* El 'main' global ya da el padding y el centrado */
+
+h2 {
+    color: #2c3e50;
+}
+
+/* Formulario */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+/* * =================================
+ * 🟢 CAMBIO DE COLOR AQUÍ 🟢
+ * =================================
+ */
+
+/* Botón "Guardar Feria" del formulario */
+form button {
+    background-color: #2c3e50; /* AHORA COINCIDE CON EL HEADER */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+form button:hover {
+    background-color: #3a506b; /* Un tono más claro que el header para el hover */
+}
+
+/* Tabla de ferias */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+/* * =================================
+ * 🟢 CAMBIO DE COLOR AQUÍ 🟢
+ * =================================
+ */
+
+th {
+    background-color: #2c3e50; /* AHORA COINCIDE CON EL HEADER */
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Botones de acción de la tabla */
+/*
+ * NOTA: Esta regla 'button' es muy genérica.
+ * Idealmente, deberíamos darles una clase a estos
+ * botones de acción (ej: .btn-accion)
+ */
+button {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button[onclick^="editar"] {
+    background-color: #f1c40f;
+    color: white;
+}
+
+button[onclick^="darBaja"] {
+    background-color: #e67e22;
+    color: white;
+}
+
+button[onclick^="eliminar"] {
+    background-color: #e74c3c;
+    color: white;
+}
+
+button[onclick^="activar"] {
+    background-color: #2ecc71;
+    color: white;
+}
