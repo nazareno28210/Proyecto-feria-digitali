@@ -104,9 +104,7 @@ async function aprobarSolicitud(id) {
 // FUNCIÓN PARA RECHAZAR SOLICITUD
 // =========================================================
 async function rechazarSolicitud(id) {
-  // Mantenemos el confirm para seguridad
-  if (!confirm("¿Seguro deseas rechazar esta solicitud?")) return;
-
+  
   try {
     const response = await axios.post(`/api/solicitudes/rechazar/${id}`);
     // CAMBIO: alert a toast

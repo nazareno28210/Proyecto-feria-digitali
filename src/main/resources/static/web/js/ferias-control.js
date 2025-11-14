@@ -1,15 +1,49 @@
+/*
+ * ====================================
+ * JS de Gestión de Ferias (Sin 'confirm')
+ * ====================================
+ */
+
+// 1. Función Toastify (con paleta de colores)
+function showToast(message, type = "info") {
+  let color;
+  switch (type) {
+    case "success":
+      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
+      break;
+    case "error":
+      color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
+      break;
+    case "warning":
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      break;
+    default:
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+  }
+  Toastify({
+    text: message,
+    duration: 4000,
+    gravity: "top", 
+    position: "right", 
+    style: {
+        background: color,
+    },
+    stopOnFocus: true,
+  }).showToast();
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("form-feria");
     const tbody = document.querySelector("#tabla-ferias tbody");
 
-    // URL base de la API
     const API_BASE_URL = "http://localhost:8080/api/ferias";
 
     // Crear feria
     form.addEventListener("submit", async e => {
         e.preventDefault();
 
-        // Las validaciones de frontend (cliente) se mantienen
+        // Validaciones de frontend (cliente)
         const fechaInicio = document.getElementById("fechaInicio").value;
         const fechaFinal = document.getElementById("fechaFinal").value;
 
@@ -19,11 +53,11 @@ document.addEventListener("DOMContentLoaded", () => {
                            String(hoy.getDate()).padStart(2, '0');
 
         if (fechaInicio < hoyFormateado) {
-            showToast("La fecha de inicio no puede ser anterior al día de hoy.", "error");
+            showToast("La fecha de inicio no puede ser anterior al día de hoy.", "warning");
             return;
         }
         if (fechaFinal < fechaInicio) {
-            showToast("La fecha final no puede ser anterior a la fecha de inicio.", "error");
+            showToast("La fecha final no puede ser anterior a la fecha de inicio.", "warning");
             return;
         }
 
@@ -34,26 +68,17 @@ document.addEventListener("DOMContentLoaded", () => {
             fechaFinal: fechaFinal,
             descripcion: document.getElementById("descripcion").value
         };
-
         try {
             await axios.post(API_BASE_URL, feria);
-
             showToast("Feria creada correctamente", "success");
             form.reset();
             cargarFerias();
-
         } catch (err) {
-            // ==================================================
-            // 🟢 CAMBIO CLAVE: Leer el error del backend 🟢
-            // ==================================================
             if (err.response && err.response.data) {
-                // Muestra el error específico de la validación del backend
-                showToast(err.response.data, "error");
+                 showToast(err.response.data, "error");
             } else {
-                // Error genérico si no hay respuesta (ej: red caída)
                 showToast("Error al crear la feria", "error");
             }
-            // ==================================================
         }
     });
 
@@ -69,17 +94,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 let acciones = "";
                 if (f.estado === "Activa") {
                     acciones = `
-                        <button onclick="darBaja(${f.id})" style="background-color:#e67e22;color:white;">Baja</button>
-                        <button onclick="eliminar(${f.id})" style="background-color:#e74c3c;color:white;">Eliminar</button>
+                        <button onclick="darBaja(${f.id})">Baja</button>
+                        <button onclick="eliminar(${f.id})">Eliminar</button>
                     `;
                 } else {
                     acciones = `
-                        <button onclick="activar(${f.id})" style="background-color:#2ecc71;color:white;">Activar</button>
-                        <button onclick="eliminar(${f.id})" style="background-color:#e74c3c;color:white;">Eliminar</button>
+                        <button onclick="activar(${f.id})">Activar</button>
+                        <button onclick="eliminar(${f.id})">Eliminar</button>
                     `;
                 }
 
-                row.innerHTML = `
+                 row.innerHTML = `
                     <td>${f.nombre}</td>
                     <td>${f.lugar}</td>
                     <td>${f.fechaInicio} → ${f.fechaFinal}</td>
@@ -89,7 +114,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 tbody.appendChild(row);
             });
         } catch (err) {
-            // 🟢 CAMBIO: Manejo de error mejorado
             const msg = err.response ? err.response.data : "Error al cargar las ferias";
             showToast(msg, "error");
         }
@@ -97,8 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     cargarFerias();
 
-    // 🟢 FUNCIONES ACTUALIZADAS CON MANEJO DE ERRORES MEJORADO 🟢
-
+    // Funciones de acciones
+    
     window.activar = async (id) => {
         try {
             await axios.patch(`${API_BASE_URL}/${id}/activar`);
@@ -109,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast(msg, "error");
         }
     };
-
+    
     window.darBaja = async (id) => {
         try {
             await axios.patch(`${API_BASE_URL}/${id}/baja`);
@@ -121,45 +145,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+
     window.eliminar = async (id) => {
-        if (confirm("¿Eliminar esta feria? Esta acción no se puede deshacer.")) {
-            try {
-                await axios.delete(`${API_BASE_URL}/${id}`);
-                showToast("Feria eliminada", "success");
-                cargarFerias();
-            } catch (err) {
-                // Fíjate que tu captura de pantalla mostraba un error 404
-                // Este código ahora SÍ mostraría ese error 404 si ocurre.
-                const msg = err.response ? `Error: ${err.response.data}` : "Error al eliminar";
-                showToast(msg, "error");
-            }
+        // El código de borrado se ejecuta inmediatamente
+        try {
+            await axios.delete(`${API_BASE_URL}/${id}`);
+            showToast("Feria eliminada", "success");
+            cargarFerias();
+        } catch (err) {
+            const msg = err.response ? `Error: ${err.response.data}` : "Error al eliminar";
+            showToast(msg, "error");
         }
     }
 });
-
-// Función Toast (sin cambios)
-function showToast(message, type = "info") {
-    let color;
-    switch (type) {
-        case "success":
-            color = "linear-gradient(to right, #00b09b, #96c93d)";
-            break;
-        case "error":
-            color = "linear-gradient(to right, #ff5f6d, #ffc371)";
-            break;
-        case "warning":
-            color = "linear-gradient(to right, #f7971e, #ffd200)";
-            break;
-        default:
-            color = "linear-gradient(to right, #2193b0, #6dd5ed)";
-    }
-
-    Toastify({
-        text: message,
-        duration: 4000,
-        gravity: "top", // top or bottom
-        position: "right", // left, center or right
-        backgroundColor: color,
-        stopOnFocus: true,
-    }).showToast();
-}
