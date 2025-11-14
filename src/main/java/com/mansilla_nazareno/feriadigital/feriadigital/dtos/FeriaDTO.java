@@ -1,26 +1,34 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Stand;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FeriaDTO {
     private int id;
     private String nombre;
     private LocalDate fechaInicio;
     private LocalDate fechaFinal;
-    private String Lugar;
+    private String lugar;
     private String descripcion;
     private String estado;
-
+    private List<StandDTO> stands;
     public FeriaDTO(){}
     public FeriaDTO(Feria feria) {
+        this.id =feria.getId();
         this.nombre = feria.getNombre();
         this.fechaInicio = feria.getFechaInicio();
         this.fechaFinal = feria.getFechaFinal();
-        this.Lugar = feria.getLugar();
+        this.lugar = feria.getLugar();
         this.descripcion = feria.getDescripcion();
         this.estado = feria.getEstado();
+        this.stands =feria.getStands()
+                .stream()
+                .map(StandDTO::new)
+                .collect(Collectors.toList());
 
     }
 
@@ -41,7 +49,7 @@ public class FeriaDTO {
     }
 
     public String getLugar() {
-        return Lugar;
+        return lugar;
     }
 
     public String getDescripcion() {
@@ -50,5 +58,9 @@ public class FeriaDTO {
 
     public String getEstado() {
         return estado;
+    }
+
+    public List<StandDTO> getStands() {
+        return stands;
     }
 }

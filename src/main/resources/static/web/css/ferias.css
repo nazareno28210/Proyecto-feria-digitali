@@ -1,0 +1,193 @@
+/* ====================================
+   ESTILOS DE FERIAS (ferias.css)
+   ==================================== */
+
+/* El 'body' global ya está en global.css */
+
+/*
+ * El 'header' global pone el color de fondo.
+ * Aquí solo definimos la estructura interna de ESTE header.
+ */
+header {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Espacio entre la fila superior y la barra de búsqueda */
+}
+
+/* Contenedor PARA H1 Y BOTÓN */
+.header-top {
+  display: flex;
+  justify-content: space-between; /* Empuja el h1 a la izq y el botón a la der */
+  align-items: center;
+  width: 100%;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  /* El color 'white' lo hereda del 'header' en global.css */
+}
+
+/* Botón de LOGIN */
+.btn-login {
+  background-color: white;
+  color: #0078d7; /* Texto azul */
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none; /* Quita el subrayado del <a> */
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap; /* Evita que el texto se parta */
+  font-family: "Poppins", sans-serif;
+}
+.btn-login:hover {
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Botón "Quiero ser feriante" */
+.btn-feriante {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+}
+.btn-feriante:hover {
+  background-color: #388e3c;
+}
+
+/* Barra de búsqueda del header */
+header input {
+  align-self: center;
+  padding: 10px 15px;
+  width: 80%;
+  max-width: 500px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+}
+
+/* * El 'main' global ya está en global.css 
+ * (define flex-grow: 1).
+ * Aquí solo definimos el contenido interno.
+ */
+#ferias-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); /* 🔹 tarjetas más anchas */
+  gap: 30px;
+  padding: 40px;
+  justify-items: center;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 580px;
+  height: 280px; /* 🔹 altura fija */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-content {
+  overflow-y: auto; /* 🔹 si el texto se pasa, se puede scrollear */
+  flex-grow: 1;
+  margin-bottom: 10px;
+}
+
+.card-content::-webkit-scrollbar {
+  width: 6px;
+}
+.card-content::-webkit-scrollbar-thumb {
+  background: #0078d7;
+  border-radius: 4px;
+}
+
+.card h2 {
+  color: #0078d7;
+  margin-bottom: 8px;
+}
+
+.card p {
+  margin: 6px 0;
+  color: #555;
+}
+
+/* Botón "Ver detalles" de la card */
+button {
+  background-color: #0078d7;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: center;
+}
+
+button:hover {
+  background-color: #005fa3;
+}
+
+
+/* El 'footer' global ya está en global.css */
+
+
+/* Botón de CERRAR SESIÓN */
+.btn-logout {
+  background-color: #dc3545;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.btn-logout:hover {
+  background-color: #fff5f5;
+  color: #c82333;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Contenedor de acciones de usuario en el header */
+#user-actions {
+  display: flex;
+  gap: 15px;      /* Espacio entre botones */
+  align-items: center;
+}
+
+
+/* Estilo del botón "Quiero ser feriante" */
+.btn-feriante {
+  background-color: #4caf50; /* Verde */
+  color: white;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.btn-feriante:hover {
+  background-color: #388e3c; /* Verde más oscuro al pasar el mouse */
+}

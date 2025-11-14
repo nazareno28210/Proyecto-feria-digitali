@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Solicitudes de Feriantes</title>
+  <link rel="stylesheet" href="/web/css/global.css">
+  <link rel="stylesheet" href="/web/css/solicitudes.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1>Solicitudes para ser Feriante</h1>
+    <a href="/web/admin/dashboard.html" class="btn btn-header">← Volver al panel</a>
+  </div>
+</header>
+
+<main>
+  <table id="tabla-solicitudes">
+    <thead>
+    <tr>
+      <th>N° de Solicitud</th>
+      <th>Nombre</th>
+      <th>Apellido</th>
+      <th>Email Usuario</th>
+      <th>Emprendimiento</th>
+      <th>Descripción</th>
+      <th>Teléfono</th>
+      <th>Email Emprendimiento</th>
+      <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody id="tabla-body"></tbody>
+  </table>
+
+  <p class="mensaje" id="mensaje"></p>
+</main>
+
+<footer>
+  <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos de la carrera de Tecnicatura Superior en Desarrollo de Software del CENT 35.</p>
+</footer>
+
+<script defer src="/web/js/solicitudes.js"></script>
+</body>
+</html>

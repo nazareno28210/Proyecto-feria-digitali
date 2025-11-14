@@ -1,0 +1,81 @@
+/* ====================================
+   ESTILOS DE STAND_DETALLE (stand_detalle.css)
+   ==================================== */
+
+/* El 'body', 'header' y 'footer' ya están en global.css */
+/* El 'main' global ya da el padding y el centrado */
+
+#info-stand {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    margin-top: 25px; /* Separación del header */
+    margin-bottom: 30px;
+}
+
+h2 {
+    /* (Podrías mover esto a global.css si todos los h2 son iguales) */
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+#productos-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+/* Tarjeta de producto: Altura fija y flex para scroll */
+.producto-card {
+    background-color: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    height: 300px; /* ⬅️ Le di un poco más de altura para la imagen */
+    display: flex;
+    flex-direction: column;
+}
+
+/* (NUEVO) Estilo para la imagen del producto */
+.producto-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Contenido interno que permite el scroll */
+.producto-card-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 5px;
+}
+
+/* Estilos de Scrollbar */
+.producto-card-content::-webkit-scrollbar {
+    width: 6px;
+}
+.producto-card-content::-webkit-scrollbar-thumb {
+    background: #0078d7;
+    border-radius: 4px;
+}
+
+.producto-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+}
+
+.producto-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #0078d7;
+}
+
+.producto-card p {
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+}

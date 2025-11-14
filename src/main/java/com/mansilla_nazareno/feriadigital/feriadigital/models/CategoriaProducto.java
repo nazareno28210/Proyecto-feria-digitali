@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -13,8 +14,11 @@ public class CategoriaProducto {
 
     @ManyToOne
     @JoinColumn(name = "producto_id")
+    @JsonIgnoreProperties("categorias")
     private Producto producto; // cada categoría pertenece a un producto
 
+
+    public CategoriaProducto(){}
     public CategoriaProducto(String nombre, String descripcion) {
         this.nombre = nombre;
         this.descripcion = descripcion;
@@ -42,5 +46,9 @@ public class CategoriaProducto {
 
     public void setProducto(Producto producto) {
         this.producto = producto;
+    }
+
+    public Producto getProducto() {
+        return producto;
     }
 }

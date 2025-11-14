@@ -1,0 +1,40 @@
+/* ====================================
+   ESTILOS DE MIS PRODUCTOS (misproductos.css)
+   ==================================== */
+
+/* El 'body' ya está definido en global.css */
+
+.titulo {
+  color: #0d6efd;
+  font-weight: bold;
+}
+
+.subtitulo {
+  color: #198754;
+}
+
+.sombra {
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+
+.card-title {
+  font-weight: 600;
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+/* * Nota: 'global.css' también define .btn
+ * Esta regla de Bootstrap es más específica y 
+ * anula la de global.css, lo cual está bien para esta página.
+ */
+.btn {
+  border-radius: 10px;
+}

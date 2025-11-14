@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -13,14 +14,18 @@ public class Producto {
     private String nombre;
     private String Descripcion;
     private double precio;
+    private String imagen;
 
     @ManyToOne
     @JoinColumn(name = "stand_id")
+    @JsonIgnoreProperties("productos")
     private Stand stand; // cada producto pertenece a un stand
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("productos")
     private List<CategoriaProducto> categorias; // un producto puede tener varias categorías
 
+    private boolean estado;
 
     public Producto(){}
     public Producto(double precio, String descripcion, String nombre) {
@@ -71,5 +76,13 @@ public class Producto {
 
     public List<CategoriaProducto> getCategorias() {
         return categorias;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 }

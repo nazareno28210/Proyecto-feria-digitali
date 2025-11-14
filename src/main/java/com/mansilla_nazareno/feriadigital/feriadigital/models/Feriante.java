@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -24,6 +25,10 @@ public class Feriante {
     @JoinColumn(name = "fk_id_usuario", referencedColumnName = "id")
     private Usuario usuario;
 
+    @OneToOne(mappedBy = "feriante")
+    @JsonIgnoreProperties("feriante")
+    private Stand stand;
+
     public Feriante() {}
 
     public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento,
@@ -34,6 +39,7 @@ public class Feriante {
         this.emailEmprendimiento = emailEmprendimiento;
         this.fechaRegistro =  LocalDate.now();
         this.estadoUsuario = estadoUsuario;
+
     }
 
     public int getId() {
@@ -90,17 +96,19 @@ public class Feriante {
     }
 
     public void setUsuario(Usuario usuario) {
-        if (usuario.getTipoUsuario() == TipoUsuario.NORMAL) {
-            usuario.setTipoUsuario(TipoUsuario.FERIANTE);
-        }
         this.usuario = usuario;
     }
 
+    public EstadoUsuario getEstadoUsuario() {
+        return estadoUsuario;
+    }
 
-    public TipoUsuario getTipoUsuario() {
-        if (this.usuario != null) {
-            return this.usuario.getTipoUsuario();
-        }
-        return null;
+    // getters y setters
+    public Stand getStand() {
+        return stand;
+    }
+
+    public void setStand(Stand stand) {
+        this.stand = stand;
     }
 }

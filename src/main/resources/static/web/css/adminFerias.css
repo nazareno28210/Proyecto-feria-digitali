@@ -1,0 +1,108 @@
+/* ====================================
+   ESTILOS DE ADMIN FERIAS (adminferias.css)
+   ==================================== */
+
+/* El 'body', 'header' y 'footer' ya están en global.css */
+/* El 'main' global ya da el padding y el centrado */
+
+h2 {
+    color: #2c3e50;
+}
+
+/* Formulario */
+form {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 40px;
+}
+
+form input, form textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+/* Botón "Guardar Feria" del formulario */
+form button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+form button:hover {
+    background-color: #2980b9;
+}
+
+/* Tabla de ferias */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Botones de acción de la tabla */
+/*
+ * NOTA: Esta regla 'button' es muy genérica.
+ * Idealmente, deberíamos darles una clase a estos
+ * botones de acción (ej: .btn-accion)
+ */
+button {
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button[onclick^="editar"] {
+    background-color: #f1c40f;
+    color: white;
+}
+
+button[onclick^="darBaja"] {
+    background-color: #e67e22;
+    color: white;
+}
+
+button[onclick^="eliminar"] {
+    background-color: #e74c3c;
+    color: white;
+}
+
+button[onclick^="activar"] {
+    background-color: #2ecc71;
+    color: white;
+}

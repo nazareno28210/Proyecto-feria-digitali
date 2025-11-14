@@ -1,18 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Login Feria Digital</title>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script defer src="/web/js/login.js"></script>
-</head>
-<body>
-  <h2>Iniciar sesión</h2>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feria Digital - Iniciar Sesión</title>
+  <link rel="icon" href="/web/assets/logo.png" />
+  <link rel="stylesheet" href="/web/css/global.css">
+  <link rel="stylesheet" href="/web/css/login.css">
+  <!-- Toastify CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
+  <!-- Toastify JS -->
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+
+<body>
+
+<div class="login-container">
+  <h2>Iniciar Sesión</h2>
   <form id="loginForm">
-    <input type="email" id="email" placeholder="Email" required><br><br>
-    <input type="password" id="password" placeholder="Contraseña" required><br><br>
+    <div class="form-group">
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" placeholder="usuario@ejemplo.com" required />
+    </div>
+
+    <div class="form-group">
+      <label for="contrasena">Contraseña</label>
+      <input type="password" id="contrasena" placeholder="********" required />
+    </div>
+
     <button type="submit">Entrar</button>
+
+    <div class="footer-text">
+      ¿No tienes cuenta? <a href="/web/registro.html">Regístrate aquí</a>
+    </div>
   </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script defer src="/web/js/login.js"></script>
 </body>
 </html>
