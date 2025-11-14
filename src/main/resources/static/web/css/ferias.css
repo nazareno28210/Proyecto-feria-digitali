@@ -1,6 +1,6 @@
 /*
  * ====================================
- * FERIAS.CSS (v4 - Corrección de alineación)
+ * FERIAS.CSS (con .btn-admin)
  * ====================================
  */
 
@@ -8,13 +8,11 @@
    1. HEADER
    ==================================== */
 
-
-/* Contenedor principal del header (Izquierda, Centro, Derecha) */
 .header-top {
   display: flex;
   justify-content: space-between; 
   align-items: center;
-  width: 100%; /* Ocupa el 100% del header (ya no está en un div de 1200px) */
+  width: 100%;
   gap: 2rem; 
 }
 
@@ -23,8 +21,8 @@
     display: flex;
     align-items: center;
     gap: 15px; 
-    flex: 1; /* Crece para ocupar espacio */
-    justify-content: flex-start; /* Se alinea a la izquierda */
+    flex: 1; 
+    justify-content: flex-start;
 }
 
 .header-logo {
@@ -44,7 +42,7 @@ header h1 {
 
 /* --- 1.2 Bloque Centro (Búsqueda) --- */
 .search-bar {
-  flex: 0 0 350px; /* Tamaño fijo, no crece ni se encoge */
+  flex: 0 0 350px; 
 }
 
 header input {
@@ -72,10 +70,11 @@ header input:focus {
   display: flex;
   gap: 15px;
   align-items: center;
-  flex: 1; /* Crece para ocupar espacio */
-  justify-content: flex-end; /* Se alinea a la derecha */
+  flex: 1;
+  justify-content: flex-end;
 }
 
+/* Botón "Iniciar Sesión" */
 .btn-login {
   background-color: white;
   color: var(--color-dark-blue);
@@ -88,6 +87,7 @@ header input:focus {
   transform: translateY(-2px);
 }
 
+/* Botón "Deseo ser Feriante" */
 .btn-feriante {
   background-color: var(--color-success); 
   color: white;
@@ -96,9 +96,29 @@ header input:focus {
   white-space: nowrap;
 }
 .btn-feriante:hover {
-  background-color: #8cbfe0;
+  background-color: #218838;
 }
 
+/* ===================================
+   NUEVO ESTILO AÑADIDO
+   =================================== */
+/* Botón "Panel de Administrador" */
+.btn-admin {
+  background-color: var(--color-medium-blue); /* Azul medio de la paleta */
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  /* Hereda estilos de .btn en global.css */
+}
+.btn-admin:hover {
+  background-color: #1e6ae3; /* Un poco más oscuro */
+  transform: translateY(-2px);
+}
+/* =================================== */
+
+
+/* Texto "Solicitud pendiente" y "Hola, [usuario]" */
 #user-actions p {
   font-size: 0.9rem;
   font-weight: 500;

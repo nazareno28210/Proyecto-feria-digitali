@@ -1,9 +1,3 @@
-/*
- * ====================================
- * FERIAS.JS (ACTUALIZADO CON TOASTIFY)
- * ====================================
- */
-
 const API_URL = "http://localhost:8080/api/ferias/activas";
 const AUTH_URL = "http://localhost:8080/api/usuarios/current";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
@@ -11,7 +5,7 @@ const SOLICITUD_URL = "http://localhost:8080/api/solicitudes";
 
 let feriasGlobal = [];
 
-// 🔹 AÑADIDO: Función Toastify (copiada de login/registro.js)
+// 🔹 Función Toastify 
 function showToast(message, type = "info") {
   let color;
   switch (type) {
@@ -22,7 +16,7 @@ function showToast(message, type = "info") {
       color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
       break;
     case "warning":
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)";
       break;
     default:
       color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
@@ -32,12 +26,14 @@ function showToast(message, type = "info") {
     duration: 4000,
     gravity: "top", 
     position: "right", 
-    backgroundColor: color,
+    style: {
+        background: color,
+    },
     stopOnFocus: true,
   }).showToast();
 }
 
-// 🔹 INIT
+// 🔹 INIT 
 document.addEventListener("DOMContentLoaded", () => {
   cargarFerias();
   verificarSesion();
@@ -60,7 +56,6 @@ async function cargarFerias() {
     mostrarFerias(feriasGlobal);
   } catch (error) {
     console.error("Error al cargar las ferias:", error);
-    // CAMBIO: alert a toast
     showToast("❌ Error al cargar las ferias", "error");
   }
 }
@@ -71,7 +66,6 @@ function mostrarFerias(lista) {
   
   if (lista.length === 0) {
       container.innerHTML = "<p class='no-ferias-msg'>No se encontraron ferias que coincidan con la búsqueda.</p>";
-      // (Opcional: puedes añadir un estilo para .no-ferias-msg en ferias.css)
       return;
   }
 
@@ -109,9 +103,7 @@ function verDetalles(id) {
 async function verificarSesion() {
   try {
     const response = await axios.get(AUTH_URL, { withCredentials: true });
-
     if (response.status === 200 && response.data) {
-      console.log("Usuario autenticado:", response.data);
       mostrarOpcionesUsuario(response.data);
     }
   } catch (error) {
@@ -125,12 +117,11 @@ async function mostrarOpcionesUsuario(usuario) {
   
   const btnLogout = document.createElement("button");
   btnLogout.id = "btn-logout";
-  // CAMBIO: Clase global de botón
-  btnLogout.className = "btn btn-logout"; 
+  btnLogout.className = "btn btn-logout"; // Clase global
   btnLogout.textContent = "Cerrar sesión";
   btnLogout.addEventListener("click", cerrarSesion);
 
-  // 🔹 Si el usuario es NORMAL
+  // 🔹 Si el usuario es NORMAL 
   if (usuario.tipoUsuario === "NORMAL") {
     try {
       const solicitudRes = await axios.get(`${SOLICITUD_URL}/pendientes`, { withCredentials: true });
@@ -145,42 +136,46 @@ async function mostrarOpcionesUsuario(usuario) {
       } else {
         const btnFeriante = document.createElement("a");
         btnFeriante.href = "solicitud-feriante.html";
-        // CAMBIO: Clase de botón
-        btnFeriante.className = "btn btn-feriante"; 
+        btnFeriante.className = "btn btn-feriante";
         btnFeriante.textContent = "Deseo ser un Feriante";
         container.appendChild(btnFeriante);
       }
     } catch (error) {
       console.error("Error al verificar solicitud:", error);
-      // CAMBIO: console.error a toast
       showToast("⚠️ Error al verificar solicitud de feriante", "warning");
     }
   }
 
-  // 🔹 Si el usuario es FERIANTE
+  // 🔹 Si el usuario es FERIANTE 
   if (usuario.tipoUsuario === "FERIANTE") {
- 
+    // (Sin texto de saludo)
   }
 
   // 🔹 Si el usuario es ADMINISTRADOR
   if (usuario.tipoUsuario === "ADMINISTRADOR") {
-
+    const btnAdmin = document.createElement("a");
+    btnAdmin.href = "/web/admin/dashboard.html"; // La URL que pediste
+    btnAdmin.className = "btn btn-admin"; // Clase nueva para el CSS
+    btnAdmin.textContent = "Panel de administrador";
+    
+    // Lo añadimos al contenedor
+    container.appendChild(btnAdmin);
   }
 
+  // Se añade el botón de cerrar sesión al final, al lado del botón de admin (si existe)
   container.appendChild(btnLogout);
 }
 
+// 🔹 Función cerrarSesion (sin cambios)
 async function cerrarSesion() {
   try {
     await axios.post(LOGOUT_URL, {}, { withCredentials: true });
-    // CAMBIO: alert a toast
     showToast("✅ Sesión cerrada correctamente", "success");
     setTimeout(() => {
         window.location.reload();
-    }, 1500); // Espera 1.5s para que se vea el toast
+    }, 1500); 
   } catch (error) {
     console.error("Error al cerrar sesión:", error);
-    // CAMBIO: alert a toast
     showToast("❌ No se pudo cerrar la sesión", "error");
   }
 }
