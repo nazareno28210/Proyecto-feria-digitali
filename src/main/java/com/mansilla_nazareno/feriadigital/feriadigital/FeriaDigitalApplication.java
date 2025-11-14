@@ -61,7 +61,8 @@ public class FeriaDigitalApplication {
 						"Colegio Don Bosco, Alberdi 368",
 						"Feria artesanal y comercial",
 						"ACTIVA",
-						"Centro Cultural"
+						"Centro Cultural",
+						"/uploads/ferias/Don_Bosco.png"
 				);
 				// Guardamos la feria primero para tener su ID si hace falta,
 				// aunque con CascadeType.ALL en los stands se guardaría al final también.
@@ -70,7 +71,8 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 3. STAND 1: INDUMENTARIA FALCO
 				// =========================================
-				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana para todos");
+				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana para todos",
+						"/uploads/stands/Indumentaria.png");
 				stand1.setFeria(feria);
 
 				Feriante feriante1 = new Feriante("Indumentaria Francisco", "Venta de ropa y calzado", "2964-555999", "falco@gmail.com", EstadoUsuario.ACTIVO);
@@ -132,7 +134,8 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 4. STAND 2: MASCOTAS FELICES
 				// =========================================
-				Stand stand2 = new Stand("Mascotas Felices", "Todo para tu perro y gato");
+				Stand stand2 = new Stand("Mascotas Felices", "Todo para tu perro y gato",
+						"/uploads/stands/mascota.png");
 				stand2.setFeria(feria);
 
 				Feriante feriante2 = new Feriante("Emprendimiento Mascotas", "Accesorios y alimento para mascotas", "2964-444555", "mascotas@gmail.com", EstadoUsuario.ACTIVO);

@@ -12,6 +12,7 @@ public class Stand {
     private int id;
     private String nombre;
     private String descripcion;
+    private String imagenUrl;
 
     @ManyToOne
     @JoinColumn(name = "feria_id", referencedColumnName = "id")
@@ -28,9 +29,10 @@ public class Stand {
     private Feriante feriante;
 
     public Stand(){}
-    public Stand(String nombre, String descripcion) {
+    public Stand(String nombre, String descripcion, String imagenUrl) {
         this.nombre = nombre;
         this.descripcion = descripcion;
+        this.imagenUrl = imagenUrl;
     }
 
     public void setProductos(List<Producto> productos) {
@@ -75,6 +77,14 @@ public class Stand {
 
     public void setFeriante(Feriante feriante) {
         this.feriante = feriante;
+    }
+
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
     }
 
 }

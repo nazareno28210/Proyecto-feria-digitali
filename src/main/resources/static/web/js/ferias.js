@@ -38,7 +38,16 @@ function mostrarFerias(lista) {
   lista.forEach((feria) => {
     const card = document.createElement("div");
     card.classList.add("card");
+    // 1. Crear el HTML de la imagen (solo si existe)
+    const imagenHtml = feria.imagenUrl
+      ? `<div class="card-image-container">
+           <img src="${feria.imagenUrl}" alt="Imagen de ${feria.nombre}">
+         </div>`
+      : '';
+
+    // 2. Construir la tarjeta con la imagen
     card.innerHTML = `
+      ${imagenHtml} 
       <div class="card-content">
         <h2>${feria.nombre}</h2>
         <p><strong>Lugar:</strong> ${feria.lugar}</p>
@@ -49,7 +58,7 @@ function mostrarFerias(lista) {
       <button onclick="verDetalles(${feria.id})">Ver detalles</button>
     `;
     container.appendChild(card);
-  });
+  }); 
 }
 
 function verDetalles(id) {
