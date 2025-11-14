@@ -2,66 +2,64 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("form-feria");
     const tbody = document.querySelector("#tabla-ferias tbody");
 
-    // 🟢 URL base de la API (como en tus otros archivos) 🟢
+    // URL base de la API
     const API_BASE_URL = "http://localhost:8080/api/ferias";
 
     // Crear feria
     form.addEventListener("submit", async e => {
         e.preventDefault();
 
-        // 🟢 INICIO DE VALIDACIÓN 🟢
-        const nombre = document.getElementById("nombre").value;
-        const lugar = document.getElementById("lugar").value;
+        // Las validaciones de frontend (cliente) se mantienen
         const fechaInicio = document.getElementById("fechaInicio").value;
         const fechaFinal = document.getElementById("fechaFinal").value;
-        const descripcion = document.getElementById("descripcion").value;
 
-        // 1. Obtener fecha de hoy en formato YYYY-MM-DD
-        // (new Date() se ajusta a la zona horaria local)
         const hoy = new Date();
         const hoyFormateado = hoy.getFullYear() + '-' +
                            String(hoy.getMonth() + 1).padStart(2, '0') + '-' +
                            String(hoy.getDate()).padStart(2, '0');
 
-        // 2. Validar fecha de inicio
         if (fechaInicio < hoyFormateado) {
             showToast("La fecha de inicio no puede ser anterior al día de hoy.", "error");
             return;
         }
-
-        // 3. Validar fecha final
         if (fechaFinal < fechaInicio) {
             showToast("La fecha final no puede ser anterior a la fecha de inicio.", "error");
             return;
         }
-        // 🟢 FIN DE VALIDACIÓN 🟢
 
         const feria = {
-            nombre: nombre,
-            lugar: lugar,
+            nombre: document.getElementById("nombre").value,
+            lugar: document.getElementById("lugar").value,
             fechaInicio: fechaInicio,
             fechaFinal: fechaFinal,
-            descripcion: descripcion
+            descripcion: document.getElementById("descripcion").value
         };
 
         try {
-            // 🟢 URL ACTUALIZADA 🟢
             await axios.post(API_BASE_URL, feria);
 
-            // 🟢 TOAST AÑADIDO 🟢
             showToast("Feria creada correctamente", "success");
             form.reset();
             cargarFerias();
+
         } catch (err) {
-            // 🟢 TOAST AÑADIDO 🟢
-            showToast("Error al crear la feria", "error");
+            // ==================================================
+            // 🟢 CAMBIO CLAVE: Leer el error del backend 🟢
+            // ==================================================
+            if (err.response && err.response.data) {
+                // Muestra el error específico de la validación del backend
+                showToast(err.response.data, "error");
+            } else {
+                // Error genérico si no hay respuesta (ej: red caída)
+                showToast("Error al crear la feria", "error");
+            }
+            // ==================================================
         }
     });
 
     // Cargar ferias
     async function cargarFerias() {
         try {
-            // 🟢 URL ACTUALIZADA 🟢
             const res = await axios.get(API_BASE_URL);
             tbody.innerHTML = "";
 
@@ -91,51 +89,55 @@ document.addEventListener("DOMContentLoaded", () => {
                 tbody.appendChild(row);
             });
         } catch (err) {
-            showToast("Error al cargar las ferias", "error");
+            // 🟢 CAMBIO: Manejo de error mejorado
+            const msg = err.response ? err.response.data : "Error al cargar las ferias";
+            showToast(msg, "error");
         }
     }
 
     cargarFerias();
 
-    // 🟢 FUNCIONES ACTUALIZADAS CON TOASTS Y TRY-CATCH 🟢
+    // 🟢 FUNCIONES ACTUALIZADAS CON MANEJO DE ERRORES MEJORADO 🟢
 
     window.activar = async (id) => {
         try {
-            // 🟢 URL ACTUALIZADA 🟢
             await axios.patch(`${API_BASE_URL}/${id}/activar`);
             showToast("Feria activada", "success");
             cargarFerias();
         } catch (err) {
-            showToast("Error al activar", "error");
+            const msg = err.response ? err.response.data : "Error al activar";
+            showToast(msg, "error");
         }
     };
 
     window.darBaja = async (id) => {
         try {
-            // 🟢 URL ACTUALIZADA 🟢
             await axios.patch(`${API_BASE_URL}/${id}/baja`);
             showToast("Feria dada de baja", "success");
             cargarFerias();
         } catch (err) {
-            showToast("Error al dar de baja", "error");
+            const msg = err.response ? err.response.data : "Error al dar de baja";
+            showToast(msg, "error");
         }
     }
 
     window.eliminar = async (id) => {
         if (confirm("¿Eliminar esta feria? Esta acción no se puede deshacer.")) {
             try {
-                // 🟢 URL ACTUALIZADA 🟢
                 await axios.delete(`${API_BASE_URL}/${id}`);
                 showToast("Feria eliminada", "success");
                 cargarFerias();
             } catch (err) {
-                showToast("Error al eliminar", "error");
+                // Fíjate que tu captura de pantalla mostraba un error 404
+                // Este código ahora SÍ mostraría ese error 404 si ocurre.
+                const msg = err.response ? `Error: ${err.response.data}` : "Error al eliminar";
+                showToast(msg, "error");
             }
         }
     }
 });
 
-// 🟢 FUNCIÓN TOAST AÑADIDA (copiada de login.js) 🟢
+// Función Toast (sin cambios)
 function showToast(message, type = "info") {
     let color;
     switch (type) {
