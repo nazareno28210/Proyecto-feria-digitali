@@ -1,10 +1,42 @@
-// Tu archivo /web/js/feria_detalle.js (actualizado)
+/*
+ * ====================================
+ * FERIA-DETALLE.JS (con Toastify y Rediseño)
+ * ====================================
+ */
+
+// 1. AÑADIDA: Función Toastify
+function showToast(message, type = "info") {
+  let color;
+  switch (type) {
+    case "success":
+      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
+      break;
+    case "error":
+      color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
+      break;
+    case "warning":
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      break;
+    default:
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+  }
+  Toastify({
+    text: message,
+    duration: 2000,
+    gravity: "top", 
+    position: "right", 
+    style: {
+        background: color,
+    },
+    stopOnFocus: true,
+  }).showToast();
+}
+
 
 const API_URL = "http://localhost:8080/api/ferias";
 const params = new URLSearchParams(window.location.search);
 const feriaId = params.get("id");
 
-// 1. LLAMAR A LA FUNCIÓN AL CARGAR EL DOM
 document.addEventListener("DOMContentLoaded", cargarFeria);
 
 async function cargarFeria() {
@@ -12,14 +44,41 @@ async function cargarFeria() {
     const response = await axios.get(`${API_URL}/${feriaId}`);
     const feria = response.data;
 
-    // Mostrar info general (ocultando estado visualmente)
-    const infoFeria = document.getElementById("info-feria");
-    infoFeria.innerHTML = `
-      <p><strong>Lugar:</strong> ${feria.lugar}</p>
-      <p><strong>Fecha inicio:</strong> ${feria.fechaInicio}</p>
-      <p><strong>Fecha fin:</strong> ${feria.fechaFinal}</p>
-      <p><strong>Descripción:</strong> ${feria.descripcion}</p>
-      <p hidden><strong>Estado:</strong> ${feria.estado}</p> `;
+    // ===================================
+    //  la nueva sección de Info
+    // ===================================
+    const infoGrid = document.getElementById("info-feria-grid");
+    infoGrid.innerHTML = `
+      <div class="info-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <div class="info-item-content">
+          <strong>Lugar</strong>
+          <span>${feria.lugar}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-calendar-check"></i>
+        <div class="info-item-content">
+          <strong>Fecha inicio</strong>
+          <span>${feria.fechaInicio}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-calendar-times"></i>
+        <div class="info-item-content">
+          <strong>Fecha fin</strong>
+          <span>${feria.fechaFinal}</span>
+        </div>
+      </div>
+    `;
+    
+    const infoDesc = document.getElementById("info-feria-desc");
+    infoDesc.innerHTML = `
+      <p><strong>Descripción:</strong></p>
+      <p>${feria.descripcion}</p>
+    `;
+
+    // Pone el nombre de la feria en el H1 del header
     document.getElementById("nombre-feria").textContent = feria.nombre;
 
     const standsContainer = document.getElementById("stands-container");
@@ -30,14 +89,13 @@ async function cargarFeria() {
         const div = document.createElement("div");
         div.classList.add("stand-card");
 
-        // 1. Crear el HTML de la imagen (solo si existe)
         const imagenHtml = stand.imagenUrl
           ? `<div class="stand-image-container">
                <img src="${stand.imagenUrl}" alt="Logo de ${stand.nombre}">
              </div>`
-          : '';
+          : ''; // Si no hay imagen, no pone nada
 
-        // 2. Construir la tarjeta (con la imagen arriba)
+        // CAMBIO: Botón ahora usa .btn-stand
         div.innerHTML = `
           ${imagenHtml} 
           <div class="stand-content">
@@ -47,28 +105,30 @@ async function cargarFeria() {
               stand.feriante ? stand.feriante.nombreEmprendimiento : "No asignado"
             }</p>
           </div>
-
-          <button class="btn btn-primary" onclick="verProductos(${stand.id})">Ver productos</button>
+          <button class="btn-stand" onclick="verProductos(${stand.id})">Ver productos</button>
         `;
         standsContainer.appendChild(div);
       });
     } else {
+      // CAMBIO: Mensaje de "no hay stands" con clase
       standsContainer.innerHTML =
-        "<p>No hay stands registrados para esta feria.</p>";
+        "<p class='no-stands-msg'>Aún no hay stands registrados para esta feria.</p>";
     }
   } catch (error) {
     console.error("Error al cargar la feria:", error);
-    document.getElementById("info-feria").innerHTML =
+    // CAMBIO: console.error a toast
+    showToast("❌ Error al cargar los datos de la feria.", "error");
+    document.getElementById("info-feria-grid").innerHTML =
       "<p>Error al cargar los datos.</p>";
   }
 }
 
-// 2. DEFINIR LA FUNCIÓN 'volver'
+// 2. DEFINIR LA FUNCIÓN 'volver' (sin cambios)
 function volver() {
   window.location.href = "ferias.html";
 }
 
-// 3. DEFINIR LA FUNCIÓN 'verProductos'
+// 3. DEFINIR LA FUNCIÓN 'verProductos' (sin cambios)
 function verProductos(standId) {
   window.location.href = `stand_detalle.html?idStand=${standId}`;
 }
