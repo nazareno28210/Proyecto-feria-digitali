@@ -15,6 +15,8 @@ public class FeriaDTO {
     private String lugar;
     private String descripcion;
     private String estado;
+    private String imagenUrl;
+
     private List<StandDTO> stands;
     public FeriaDTO(){}
     public FeriaDTO(Feria feria) {
@@ -25,6 +27,7 @@ public class FeriaDTO {
         this.lugar = feria.getLugar();
         this.descripcion = feria.getDescripcion();
         this.estado = feria.getEstado();
+        this.imagenUrl = feria.getImagenUrl();
         this.stands =feria.getStands()
                 .stream()
                 .map(StandDTO::new)
@@ -60,6 +63,9 @@ public class FeriaDTO {
         return estado;
     }
 
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
     public List<StandDTO> getStands() {
         return stands;
     }

@@ -12,20 +12,21 @@ public class StandDTO {
     private int id;
     private String nombre;
     private String descripcion;
+    private String imagenUrl;
     private List<ProductoDTO> productos;
     private FerianteDTO feriante;
+
 
     public StandDTO(Stand stand) {
         this.id=stand.getId();
         this.nombre =stand.getNombre();
         this.descripcion = stand.getDescripcion();
+        this.imagenUrl = stand.getImagenUrl();
         this.productos =stand.getProductos()
                 .stream()
                 .map(ProductoDTO::new)
                 .collect(Collectors.toList());
-
         this.feriante=getFeriante();
-
         if (stand.getFeriante() != null) {
             this.feriante = new FerianteDTO(stand.getFeriante());
         }
@@ -51,5 +52,8 @@ public class StandDTO {
         return feriante;
     }
 
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
 
 }

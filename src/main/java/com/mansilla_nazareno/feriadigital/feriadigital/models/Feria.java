@@ -19,19 +19,21 @@ public class Feria {
     private String lugar;
     private String descripcion;
     private String estado;
+    private String imagenUrl;
 
     @OneToMany(mappedBy = "feria", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("feria") // Rompe la recursividad
     private List<Stand> stands;
 
     public Feria(){}
-    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado,String Lugar) {
+    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado,String Lugar, String imagenUrl) {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFinal = fechaFinal;
         this.lugar = lugar;
         this.descripcion = descripcion;
         this.estado = estado;
+        this.imagenUrl = imagenUrl;
     }
 
     public int getId() {
@@ -92,5 +94,13 @@ public class Feria {
 
     public List<Stand> getStands() {
         return stands;
+    }
+
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
     }
 }

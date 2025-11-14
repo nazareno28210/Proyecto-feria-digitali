@@ -60,6 +60,7 @@ public class FeriaController {
             feria.setDescripcion(feriaActualizada.getDescripcion());
             feria.setFechaInicio(feriaActualizada.getFechaInicio());
             feria.setFechaFinal(feriaActualizada.getFechaFinal());
+            feria.setImagenUrl(feriaActualizada.getImagenUrl());
             feriaRepository.save(feria);
             return ResponseEntity.ok("Feria actualizada correctamente");
         }).orElse(ResponseEntity.notFound().build());

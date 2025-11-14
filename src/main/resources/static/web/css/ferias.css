@@ -13,12 +13,12 @@ header {
   color: white;
   padding: 20px;
   position: relative;
-
   /* ⬇️ CAMBIOS EN HEADER ⬇️ */
   /* text-align: center; (Eliminado) */
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Espacio entre la fila superior y la barra de búsqueda */
+  gap: 15px;
+  /* Espacio entre la fila superior y la barra de búsqueda */
 }
 
 /* ⬇️ NUEVO CONTENEDOR PARA H1 Y BOTÓN ⬇️ */
@@ -37,15 +37,18 @@ header h1 {
 /* ⬇️ NUEVO BOTÓN DE LOGIN ⬇️ */
 .btn-login {
   background-color: white;
-  color: #0078d7; /* Texto azul */
+  color: #0078d7;
+  /* Texto azul */
   padding: 8px 16px;
   border-radius: 8px;
-  text-decoration: none; /* Quita el subrayado del <a> */
+  text-decoration: none;
+  /* Quita el subrayado del <a> */
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  white-space: nowrap; /* Evita que el texto se parta */
+  white-space: nowrap;
+  /* Evita que el texto se parta */
 }
 
 .btn-feriante {
@@ -67,7 +70,8 @@ header h1 {
 
 header input {
   /* ⬇️ CAMBIO: margin-top eliminado (se usa 'gap' en header) ⬇️ */
-  /* margin-top: 15px; */
+  /* margin-top: 15px;
+  */
 
   /* ⬇️ CAMBIO: align-self para centrar la barra ⬇️ */
   align-self: center;
@@ -83,25 +87,45 @@ header input {
 
 #ferias-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)); /* 🔹 tarjetas más anchas */
+  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+  /* 🔹 tarjetas más anchas */
   gap: 30px;
   padding: 40px;
   flex-grow: 1;
   justify-items: center;
 }
 
+/* ======================================= */
+/* ⬇️ ÚLTIMOS CAMBIOS EN LA TARJETA ⬇️     */
+/* ======================================= */
+
 .card {
   background-color: #fff;
   border-radius: 16px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 580px;
-  height: 280px; /* 🔹 altura fija */
-  padding: 20px;
+  /* ⬅️ 1. ALTURA REDUCIDA (ajusta este valor si lo necesitas) */
+  height: 550px; 
+  padding: 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* ESTILOS PARA LA IMAGEN */
+.card-image-container {
+  width: 100%;
+  height: 250px; 
+  overflow: hidden;
+}
+
+.card-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  display: block;
 }
 
 .card:hover {
@@ -110,9 +134,10 @@ header input {
 }
 
 .card-content {
-  overflow-y: auto; /* 🔹 si el texto se pasa, se puede scrollear */
+  overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 10px;
+  padding: 0 25px; 
 }
 
 .card-content::-webkit-scrollbar {
@@ -126,6 +151,7 @@ header input {
 .card h2 {
   color: #0078d7;
   margin-bottom: 8px;
+  padding-top: 20px; 
 }
 
 .card p {
@@ -140,8 +166,16 @@ button {
   padding: 10px 14px;
   border-radius: 8px;
   cursor: pointer;
-  align-self: center;
+  /* ⬅️ 2. BOTÓN CENTRADO */
+  align-self: center; 
+  /* ⬅️ 3. MÁRGENES AJUSTADOS (arriba, lados, abajo) */
+  margin: 15px 0 25px 0; 
 }
+
+/* ======================================= */
+/* ⬆️ FIN DE LOS CAMBIOS ⬆️                */
+/* ======================================= */
+
 
 button:hover {
   background-color: #005fa3;
@@ -159,8 +193,8 @@ footer {
 
 /* 🎨 ESTILO PARA EL BOTÓN DE CERRAR SESIÓN */
 .btn-logout {
-  background-color: #dc3545;    /* Mismo fondo blanco limpio */
-  color: white;            /* Texto rojo en lugar de azul */
+  background-color: #dc3545;
+  color: white;
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
@@ -170,30 +204,30 @@ footer {
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra sutil para que destaque un poco sobre el azul */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
 }
 
 .btn-logout:hover {
-  background-color: #fff5f5; /* Un tono rosado muy sutil al pasar el mouse */
-  color: #c82333;            /* Un rojo un poco más oscuro al hacer hover */
+  background-color: #fff5f5;
+  color: #c82333;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* (Opcional) Asegura que tu .btn-login también tenga la misma fuente si alguna vez lo cambias a <button> */
 .btn-login {
     font-family: "Poppins", sans-serif;
 }
-/* Contenedor de acciones de usuario en el header */
+
 #user-actions {
   display: flex;
-  gap: 15px;      /* Espacio entre botones */
+  gap: 15px;
   align-items: center;
 }
 
 
 /* Estilo del botón "Quiero ser feriante" */
 .btn-feriante {
-  background-color: #4caf50; /* Verde */
+  background-color: #4caf50;
+  /* Verde */
   color: white;
   padding: 8px 16px;
   text-decoration: none;

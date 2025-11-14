@@ -18,8 +18,10 @@ body {
 
 /* Contenedor principal para centrar el contenido y darle padding interno */
 #main-content {
-  flex-grow: 1; /* Ocupa el espacio disponible */
-  padding: 20px 40px; /* Padding que antes tenía el body */
+  flex-grow: 1;
+  /* Ocupa el espacio disponible */
+  padding: 20px 40px;
+  /* Padding que antes tenía el body */
 }
 
 /* Encabezado */
@@ -96,11 +98,11 @@ h2 {
   border-radius: 16px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
   width: 100%;
-  height: 250px;
+  /* height: 250px; ⬅️ ELIMINADA ALTURA FIJA */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 20px;
+  /* padding: 20px; ⬅️ ELIMINADO PADDING */
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -110,11 +112,32 @@ h2 {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
 }
 
+/* ⬇️ ESTILOS NUEVOS PARA LA IMAGEN DEL STAND ⬇️ */
+.stand-image-container {
+  width: 100%;
+  height: 150px; /* Altura fija para el logo */
+  padding: 10px; /* Un poco de aire alrededor del logo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9; /* Un fondo sutil por si el logo es transparente */
+}
+
+.stand-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* 'contain' es mejor para logos (evita recortes) */
+  display: block;
+}
+/* ⬆️ FIN DE ESTILOS NUEVOS ⬆️ */
+
+
 /* Contenido con scroll */
 .stand-content {
   overflow-y: auto;
   flex-grow: 1;
   margin-bottom: 10px;
+  padding: 0 20px; /* ⬅️ AÑADIDO (antes estaba en .stand-card) */
 }
 
 .stand-content::-webkit-scrollbar {
@@ -128,6 +151,7 @@ h2 {
 .stand-card h3 {
   color: #0078d7;
   margin-bottom: 6px;
+  padding-top: 15px; /* ⬅️ AÑADIDO (antes estaba en .stand-card) */
 }
 
 .stand-card p {
@@ -146,6 +170,7 @@ h2 {
   cursor: pointer;
   align-self: center;
   transition: background 0.2s ease;
+  margin-bottom: 20px; /* ⬅️ AÑADIDO MARGEN INFERIOR */
 }
 
 .stand-card button:hover {
@@ -161,6 +186,7 @@ footer {
   padding: 15px 40px;
   font-size: 0.9rem;
   /* MODIFICADO: Elimino el margin-top y los bordes redondeados */
-  margin-top: auto; /* Esto empuja el footer hacia abajo */
+  margin-top: auto;
+  /* Esto empuja el footer hacia abajo */
   border-radius: 0;
 }
