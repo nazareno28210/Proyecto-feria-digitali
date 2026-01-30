@@ -1,31 +1,63 @@
-document.getElementById("form-password")
-    .addEventListener("submit", cambiarPassword);
+document.getElementById("form-password").addEventListener("submit", cambiarPassword);
 
 function cambiarPassword(e) {
     e.preventDefault();
 
-    const actual = actual.value;
-    const nueva = nueva.value;
-    const repetir = repetir.value;
+    // Obtener los elementos del DOM
+    const actualInput = document.getElementById("actual");
+    const nuevaInput = document.getElementById("nueva");
+    const repetirInput = document.getElementById("repetir");
 
+    const actual = actualInput.value;
+    const nueva = nuevaInput.value;
+    const repetir = repetirInput.value;
+
+    // Validación básica de coincidencia en el cliente
     if (nueva !== repetir) {
-        toast("Las contraseñas no coinciden", "error");
+        toast("Las nuevas contraseñas no coinciden", "error");
         return;
     }
 
-    axios.put("http://localhost:8080/api/password/cambiar", {
+    // Petición para cambiar la contraseña
+    axios.post("http://localhost:8080/api/password/cambiar", {
         passwordActual: actual,
         passwordNueva: nueva
     }, { withCredentials: true })
         .then(() => {
-            toast("Contraseña actualizada", "success");
-            setTimeout(() => window.location.href = "/web/usuario-perfil.html", 1500);
+            toast("Contraseña actualizada con éxito", "success");
+            
+            // 🟢 LÓGICA DE REDIRECCIÓN DINÁMICA 🟢
+            // Consultamos quién es el usuario actual para saber a dónde mandarlo
+            axios.get("http://localhost:8080/api/usuarios/current", { withCredentials: true })
+                .then(res => {
+                    const usuario = res.data;
+                    
+                    setTimeout(() => {
+                        
+                        if (usuario.tipoUsuario === "ADMINISTRADOR") {
+                            window.location.href = "/web/admin/dashboard.html"
+                        }
+                        else if (usuario.tipoUsuario === "FERIANTE") {
+                            window.location.href = "/web/feriante/perfil.html";
+                            
+                        } else  {
+                            window.location.href = "/web/usuario-perfil.html";
+                        } 
+                    }, 1500);
+                })
+                .catch(() => {
+                    // En caso de error al verificar el tipo, por seguridad mandamos al login
+                    setTimeout(() => window.location.href = "/web/login.html", 1500);
+                });
         })
-        .catch(() => {
-            toast("Error al cambiar la contraseña", "error");
+        .catch((error) => {
+            // Manejo de errores (contraseña actual incorrecta, requisitos de seguridad, etc.)
+            const errorMsg = error.response?.data || "Error al cambiar la contraseña";
+            toast(errorMsg, "error");
         });
 }
 
+// Función auxiliar para las notificaciones
 function toast(msg, tipo) {
     Toastify({
         text: msg,

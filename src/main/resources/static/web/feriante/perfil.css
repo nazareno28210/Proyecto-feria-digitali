@@ -211,3 +211,17 @@ h2 {
     line-height: 1.5;
     color: #333;
 }
+
+.dashboard-card.action-blue:hover {
+    border-color: #3498db;
+}
+
+.dashboard-card.action-blue h3 {
+    color: #3498db;
+}
+
+/* Mejora para el estado de las ferias asignadas */
+#ferias-card-body h3 {
+    margin-top: 5px;
+    font-size: 1.1rem;
+}

@@ -27,29 +27,59 @@
     <div class="perfil-container">
         <h1>Mi Perfil</h1>
 
-        <h2>Mis Datos</h2>
-        <div class="perfil-card">
-            <p><strong>Email:</strong> <span id="usuario-email">Cargando...</span></p>
-            <p><strong>Nombre:</strong> <span id="usuario-nombre">Cargando...</span></p>
-            <p><strong>Apellido:</strong> <span id="usuario-apellido">Cargando...</span></p>
-            <p><strong>Miembro desde:</strong> <span id="usuario-fecha">Cargando...</span></p>
+        <div class="section-header">
+            <h2>Mis Datos</h2>
+            <button id="btn-editar-toggle" class="btn-edit-outline">✏️ Editar Perfil</button>
         </div>
 
-        <h2>Acciones</h2>
-        <!-- 🟢 CAMBIO: Ahora es un contenedor flex 🟢 -->
-        <div id="acciones-container">
-
-            <!-- 🟢 Contenedor dinámico para la solicitud de feriante 🟢 -->
-            <div id="feriante-solicitud-container">
-                <!-- El contenido se cargará dinámicamente con JS -->
+        <div class="perfil-card relative-container">
+            
+            <div id="vista-lectura">
+                <p><strong>Email:</strong> <span id="usuario-email">Cargando...</span></p>
+                <p><strong>Nombre:</strong> <span id="usuario-nombre">Cargando...</span></p>
+                <p><strong>Apellido:</strong> <span id="usuario-apellido">Cargando...</span></p>
+                <p class="mt-4"><strong>Miembro desde:</strong> <span id="usuario-fecha">Cargando...</span></p>
             </div>
 
-            <!-- 🟢 Tarjeta estática para Cambiar Contraseña 🟢 -->
-            <!--<a href="#" id="btn-cambiar-pass" class="accion-card accion-card--blue">
-                <div class="icon">🔒</div>
-                <h3>Cambiar Contraseña</h3>
-                <p>Actualiza tu contraseña por una nueva.</p>
-            </a>-->
+            <form id="form-edicion" class="hidden">
+                 <div class="form-group">
+                    <label for="edit-email">Email:</label>
+                    <input type="email" id="edit-email" name="email" required class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-nombre">Nombre:</label>
+                    <input type="text" id="edit-nombre" name="nombre" required class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-apellido">Apellido:</label>
+                    <input type="text" id="edit-apellido" name="apellido" required class="form-input">
+                </div>
+                
+                <p class="mt-4 read-only-text"><strong>Miembro desde:</strong> <span id="usuario-fecha-display"></span></p>
+
+                <div class="form-actions">
+                    <button type="button" id="btn-cancelar-edicion" class="btn-cancel">Cancelar</button>
+                    <button type="submit" id="btn-guardar-edicion" class="btn-save">Guardar Cambios</button>
+                </div>
+            </form>
+             </div>
+
+        <h2>Acciones</h2>
+        <div id="acciones-container">
+            <div id="feriante-solicitud-container">
+                </div>
+        </div>
+
+        <div id="acciones-container">
+     <div id="feriante-solicitud-container"></div>
+
+        <a href="/web/cambiar-contrasena.html" class="accion-card accion-card--blue">
+         <div class="icon">🔒</div>
+         <h3>Cambiar Contraseña</h3>
+            <p>Actualiza tu clave de acceso de forma segura.</p>
+        </a>
         </div>
 
 
