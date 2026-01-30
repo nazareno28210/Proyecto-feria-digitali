@@ -1,7 +1,7 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.configurations;
 
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

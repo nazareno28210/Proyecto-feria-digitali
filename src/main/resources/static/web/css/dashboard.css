@@ -1,26 +1,23 @@
 /*
  * ====================================
- * DASHBOARD.CSS (Rediseñado)
+ * DASHBOARD.CSS (Versión Final Corregida)
  * ====================================
  */
 
-/* ====================================
-   1. HEADER (Igual a ferias.css)
-   ==================================== */
-
+/* 1. HEADER Y ESTRUCTURA SUPERIOR */
 .header-top {
   display: flex;
   justify-content: space-between; 
   align-items: center;
   width: 100%;
 }
+
 .header-left {
   display: flex;
   align-items: center;
   gap: 15px; 
-  flex: 1; 
-  justify-content: flex-start;
 }
+
 .header-logo {
   width: 55px;
   height: 55px;
@@ -29,101 +26,123 @@
   padding: 4px;
   border: 1px solid var(--color-light-accent);
 }
+
 .header-right {
   display: flex;
-  gap: 15px;
+  gap: 12px;
   align-items: center;
-  flex: 1;
   justify-content: flex-end;
 }
 
-/* Botón "Ver Ferias" */
-.btn-ver-ferias {
-  background-color: var(--color-medium-blue);
-  color: white;
+/* 2. ESTILOS DE BOTONES DEL HEADER */
+
+/* Estilo base para que los enlaces y botones se vean idénticos */
+.header-right .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px; /* Altura uniforme */
+  padding: 0 18px;
+  border-radius: 8px; /* Bordes redondeados sutiles */
   font-weight: 600;
-  font-size: 0.9rem;
-  white-space: nowrap;
-}
-.btn-ver-ferias:hover {
-  background-color: #1e6ae3;
-  transform: translateY(-2px);
+  font-size: 0.85rem;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
-/* ====================================
-   2. MAIN (Títulos y Tarjetas)
-   ==================================== */
+/* Botón "Ver Ferias" (Azul de la paleta) */
+.btn-ver-ferias {
+  background-color: #3b82f6;
+  color: white !important;
+}
 
+/* BOTÓN "MI PERFIL" (Fondo blanco con texto oscuro) */
+.btn-perfil-admin {
+  background-color: #ffffff !important;
+  color: #1a3a5a !important; /* Azul oscuro para el texto */
+  border: 1px solid #ddd !important; /* Borde sutil para resaltar sobre el fondo */
+}
+
+/* Botón "Cerrar sesión" (Rojo) */
+.btn-logout {
+  background-color: #ef4444;
+  color: white !important;
+}
+
+/* Efectos al pasar el mouse */
+.header-right .btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 3. TÍTULOS Y BIENVENIDA */
 #bienvenida {
-    /* CAMBIO: Color de la paleta */
     color: var(--color-dark-blue);
-    margin-bottom: 10px;
-    font-size: 2rem;
+    margin-bottom: 8px;
+    font-size: 1.8rem;
+    font-weight: 700;
 }
 
 .subtitle {
     color: var(--color-text-light);
-    margin-bottom: 40px;
-    font-size: 1.1rem;
+    margin-bottom: 35px;
+    font-size: 1rem;
 }
 
-/* GRID DE TARJETAS */
+/* 4. GRID DE TARJETAS DEL PANEL */
 .dashboard-grid {
     display: grid;
-    /* CAMBIO: Tarjetas más anchas */
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
 }
 
 .dashboard-card {
     background: var(--color-card);
     padding: 25px;
     border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     text-decoration: none;
     color: var(--color-text-dark);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    /* CAMBIO: Bordes de la paleta */
     border-top: 4px solid var(--color-dark-blue);
     border-bottom: 4px solid var(--color-dark-blue);
 }
 
 .dashboard-card:hover {
-    transform: translateY(-6px);
+    transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    border-color: var(--color-medium-blue); /* Color del borde al pasar el ratón */
+    border-color: var(--color-medium-blue);
 }
 
 .dashboard-card .icon {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-    /* CAMBIO: Color de la paleta */
+    font-size: 2.2rem;
+    margin-bottom: 12px;
     color: var(--color-dark-blue);
 }
 
 .dashboard-card h3 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     color: var(--color-dark-blue);
-    font-size: 1.3rem;
+    font-size: 1.2rem;
+    font-weight: 600;
 }
 
 .dashboard-card p {
     margin: 0;
     color: var(--color-text-light);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
-/* Opción deshabilitada */
+/* Estado deshabilitado */
 .dashboard-card.disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
-    background-color: #f9f9f9;
-    border-color: #eee;
-}
-.dashboard-card.disabled:hover {
-    transform: none;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    filter: grayscale(1);
 }

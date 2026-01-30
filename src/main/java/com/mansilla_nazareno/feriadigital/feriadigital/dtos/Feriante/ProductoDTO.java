@@ -1,0 +1,52 @@
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante;
+
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class ProductoDTO {
+    private int id;
+    private String nombre;
+    private String Descripcion;
+    private double precio;
+    private List<CategoriaProductoDTO> categorias;
+    private String imagenUrl; // NUEVO
+
+    public ProductoDTO(Producto producto) {
+        this.id =producto.getId();
+        this.nombre = producto.getNombre();
+        Descripcion = producto.getDescripcion();
+        this.precio = producto.getPrecio();
+        this.categorias = producto.getCategorias()
+                .stream()
+                .map(CategoriaProductoDTO::new)
+                .collect(Collectors.toList());;
+        this.imagenUrl = producto.getImagenUrl();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getDescripcion() {
+        return Descripcion;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+
+
+    public List<CategoriaProductoDTO> getCategorias() {
+        return categorias;
+    }
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+}
