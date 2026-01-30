@@ -71,8 +71,7 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 3. STAND 1: INDUMENTARIA FALCO
 				// =========================================
-				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana para todos",
-						"/uploads/stands/Indumentaria.png");
+				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana para todos", null);
 				stand1.setFeria(feria);
 
 				Feriante feriante1 = new Feriante("Indumentaria Francisco", "Venta de ropa y calzado", "2964-555999", "falco@gmail.com", EstadoUsuario.ACTIVO);

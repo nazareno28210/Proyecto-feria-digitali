@@ -1,6 +1,7 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.mansilla_nazareno.feriadigital.feriadigital.configurations.CloudinaryDefaults;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -13,6 +14,9 @@ public class Stand {
     private String nombre;
     private String descripcion;
     private String imagenUrl;
+    private String imagenPublicId;
+
+    public static final String IMAGEN_DEFAULT = CloudinaryDefaults.FERiante_DEFAULT_URL;
 
     @ManyToOne
     @JoinColumn(name = "feria_id", referencedColumnName = "id")
@@ -32,7 +36,9 @@ public class Stand {
     public Stand(String nombre, String descripcion, String imagenUrl) {
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.imagenUrl = imagenUrl;
+        this.imagenUrl =  (imagenUrl == null || imagenUrl.isBlank())
+                ? IMAGEN_DEFAULT
+                : imagenUrl;
     }
 
     public void setProductos(List<Producto> productos) {
@@ -84,7 +90,18 @@ public class Stand {
     }
 
     public void setImagenUrl(String imagenUrl) {
-        this.imagenUrl = imagenUrl;
+        this.imagenUrl =
+                (imagenUrl == null || imagenUrl.isBlank())
+                        ? IMAGEN_DEFAULT
+                        : imagenUrl;
     }
+    public String getImagenPublicId() {
+        return imagenPublicId;
+    }
+
+    public void setImagenPublicId(String imagenPublicId) {
+        this.imagenPublicId = imagenPublicId;
+    }
+
 
 }

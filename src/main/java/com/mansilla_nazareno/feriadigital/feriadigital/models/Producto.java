@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.util.List;
 import java.util.Set;
 
+
 @Entity
 public class Producto {
     @Id
@@ -14,7 +15,11 @@ public class Producto {
     private String nombre;
     private String Descripcion;
     private double precio;
-    private String imagen;
+
+    private String imagenUrl;
+    private String imagenPublicId;
+    public static final String IMAGEN_DEFAULT =
+            "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
 
     @ManyToOne
     @JoinColumn(name = "stand_id")
@@ -78,11 +83,24 @@ public class Producto {
         return categorias;
     }
 
-    public String getImagen() {
-        return imagen;
+    public String getImagenUrl() {
+        return imagenUrl;
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
+    public String getImagenPublicId() {
+        return imagenPublicId;
     }
+
+    // setters inteligentes (igual que Stand)
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl =
+                (imagenUrl == null || imagenUrl.isBlank())
+                        ? IMAGEN_DEFAULT
+                        : imagenUrl;
+    }
+
+    public void setImagenPublicId(String imagenPublicId) {
+        this.imagenPublicId = imagenPublicId;
+    }
+
 }

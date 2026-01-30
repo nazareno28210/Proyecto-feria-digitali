@@ -83,8 +83,8 @@ async function cargarStand() {
                 div.classList.add("producto-card");
 
                 // La imagen (con 'placeholder' si no existe)
-                const imagenHtml = producto.imagen
-                    ? `<img src="${producto.imagen}" alt="${producto.nombre}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">`
+                const imagenHtml = producto.imagenUrl
+                    ? `<img src="${producto.imagenUrl}" alt="${producto.nombre}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">`
                     : `<img src="https://via.placeholder.com/220x150?text=Sin+Imagen" alt="${producto.nombre}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">`;
                 
                 div.innerHTML = `

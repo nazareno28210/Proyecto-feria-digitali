@@ -9,13 +9,16 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.FerianteRepo
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.ProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -32,6 +35,9 @@ public class ProductoController {
 
     @Autowired
     private StandRepository standRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public ProductoController(ProductoRepository productoRepository){this.productoRepository=productoRepository;}
 
@@ -104,7 +110,7 @@ public class ProductoController {
         producto.setNombre(productoActualizado.getNombre());
         producto.setDescripcion(productoActualizado.getDescripcion());
         producto.setPrecio(productoActualizado.getPrecio());
-        producto.setImagen(productoActualizado.getImagen());
+        producto.setImagenUrl(productoActualizado.getImagenUrl());
         productoRepository.save(producto);
 
         return new ResponseEntity<>("Producto actualizado correctamente", HttpStatus.OK);
@@ -126,6 +132,75 @@ public class ProductoController {
     }
 
 
+    @PostMapping("/productos/{id}/imagen")
+    public ResponseEntity<?> cambiarImagenProducto(
+            @PathVariable Integer id,
+            @RequestParam("imagen") MultipartFile imagen,
+            Authentication authentication
+    ) {
+
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
+        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+
+        Producto producto = productoRepository.findById(id).orElse(null);
+
+        if (producto == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // seguridad: el producto debe ser del stand del feriante
+        if (!producto.getStand().getFeriante().equals(feriante)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Map<String, String> resultado =
+                cloudinaryService.reemplazarImagen(
+                        imagen,
+                        producto.getImagenPublicId()
+                );
+
+        producto.setImagenUrl(resultado.get("url"));
+        producto.setImagenPublicId(resultado.get("public_id"));
+
+        productoRepository.save(producto);
+
+        return ResponseEntity.ok(Map.of(
+                "mensaje", "Imagen del producto actualizada",
+                "url", producto.getImagenUrl()
+        ));
+    }
+    @DeleteMapping("/productos/{id}/imagen")
+    public ResponseEntity<?> borrarImagenProducto(
+            @PathVariable Integer id,
+            Authentication authentication
+    ) {
+
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
+        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+
+        Producto producto = productoRepository.findById(id).orElse(null);
+
+        if (producto == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!producto.getStand().getFeriante().equals(feriante)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        if (producto.getImagenPublicId() != null) {
+            cloudinaryService.borrarImagen(producto.getImagenPublicId());
+        }
+
+        producto.setImagenPublicId(null);
+        producto.setImagenUrl(null); // vuelve al default
+
+        productoRepository.save(producto);
+
+        return ResponseEntity.ok(Map.of(
+                "mensaje", "Imagen del producto eliminada"
+        ));
+    }
 
 
 
