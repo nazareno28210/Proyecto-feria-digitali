@@ -9,15 +9,6 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.Fer
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.ProductoDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Producto;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Stand;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.FerianteRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.ProductoRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.StandRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
