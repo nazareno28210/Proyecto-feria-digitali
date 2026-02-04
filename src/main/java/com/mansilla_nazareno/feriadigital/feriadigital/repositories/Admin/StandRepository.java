@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StandRepository extends JpaRepository<Stand,Integer> {
     Stand findByFeriante(Feriante feriante);
+
 }

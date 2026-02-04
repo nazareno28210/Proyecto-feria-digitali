@@ -6,47 +6,37 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProductoDTO {
+
     private int id;
     private String nombre;
-    private String Descripcion;
+    private String descripcion;
     private double precio;
+    private String imagen;
+    private boolean activo;
     private List<CategoriaProductoDTO> categorias;
-    private String imagen; // NUEVO
 
     public ProductoDTO(Producto producto) {
-        this.id =producto.getId();
+        this.id = producto.getId();
         this.nombre = producto.getNombre();
-        Descripcion = producto.getDescripcion();
+        this.descripcion = producto.getDescripcion();
         this.precio = producto.getPrecio();
-        this.categorias = producto.getCategorias()
+        this.imagen = producto.getImagen();
+        this.activo = producto.isActivo();
+
+        this.categorias = producto.getCategorias() == null
+                ? List.of()
+                : producto.getCategorias()
                 .stream()
                 .map(CategoriaProductoDTO::new)
-                .collect(Collectors.toList());;
-        this.imagen = producto.getImagen();
+                .collect(Collectors.toList());
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDescripcion() {
-        return Descripcion;
-    }
-
-    public double getPrecio() {
-        return precio;
-    }
-
-
-
-    public List<CategoriaProductoDTO> getCategorias() {
-        return categorias;
-    }
-    public String getImagen() {
-        return imagen;
-    }
+    // getters
+    public int getId() { return id; }
+    public String getNombre() { return nombre; }
+    public String getDescripcion() { return descripcion; }
+    public double getPrecio() { return precio; }
+    public String getImagen() { return imagen; }
+    public boolean isActivo() { return activo; }
+    public List<CategoriaProductoDTO> getCategorias() { return categorias; }
 }

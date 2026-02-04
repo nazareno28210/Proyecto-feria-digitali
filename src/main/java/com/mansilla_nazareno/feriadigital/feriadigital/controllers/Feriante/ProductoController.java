@@ -1,15 +1,15 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Feriante;
 
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.ProductoCrearDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.ProductoDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,115 +18,153 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/productos")
 public class ProductoController {
 
-    @Autowired
-    private ProductoRepository productoRepository;
+    private final ProductoRepository productoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final FerianteRepository ferianteRepository;
+    private final StandRepository standRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private FerianteRepository ferianteRepository;
-
-    @Autowired
-    private StandRepository standRepository;
-
-    public ProductoController(ProductoRepository productoRepository){this.productoRepository=productoRepository;}
-
-    @GetMapping("/productos")
-    public List<ProductoDTO> getProductos(){
-        return productoRepository.findAll()
-                .stream()
-                .map(producto -> new ProductoDTO(producto))
-                .toList();
+    public ProductoController(
+            ProductoRepository productoRepository,
+            UsuarioRepository usuarioRepository,
+            FerianteRepository ferianteRepository,
+            StandRepository standRepository
+    ) {
+        this.productoRepository = productoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.ferianteRepository = ferianteRepository;
+        this.standRepository = standRepository;
     }
 
-    @GetMapping("/productos/{id}")
-    public ProductoDTO getProductoDTO(@PathVariable Integer id){
+    // ========================================================
+    // 🌍 VISTA PÚBLICA
+    // ========================================================
+
+    @GetMapping("/productos/publicos")
+    public ResponseEntity<List<ProductoDTO>> getProductosPublicos() {
+        List<ProductoDTO> productos = productoRepository.findByActivoTrueAndEliminadoFalse()
+                .stream()
+                .map(ProductoDTO::new)
+                .toList();
+        return ResponseEntity.ok(productos);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductoDTO> getProducto(@PathVariable int id) {
         return productoRepository.findById(id)
-                .map(ProductoDTO::new)
-                .orElse(null);
+                .filter(p -> p.isActivo() && !p.isEliminado())
+                .map(producto -> ResponseEntity.ok(new ProductoDTO(producto)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔹 Obtener todos los productos del stand del feriante logueado
-    @GetMapping("/productos/mis-productos")
-    public ResponseEntity<?> getMisProductos(Authentication authentication) {
-        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+    // ========================================================
+    // 🧑‍🌾 GESTIÓN DEL FERIANTE (CRUD)
+    // ========================================================
 
-        if (feriante == null) {
-            return new ResponseEntity<>("No se encontró feriante asociado al usuario", HttpStatus.NOT_FOUND);
-        }
-
-        Stand stand = standRepository.findByFeriante(feriante);
-        if (stand == null) {
-            return new ResponseEntity<>("El feriante no tiene un stand asignado", HttpStatus.NOT_FOUND);
-        }
-
-        List<ProductoDTO> productos = productoRepository.findByStand(stand)
+    @GetMapping("/mios")
+    public ResponseEntity<List<ProductoDTO>> getMisProductos(Authentication authentication) {
+        Stand stand = obtenerStandDelUsuario(authentication.getName());
+        List<ProductoDTO> productos = productoRepository.findByStandAndEliminadoFalse(stand)
                 .stream()
                 .map(ProductoDTO::new)
                 .toList();
-
-        return new ResponseEntity<>(productos, HttpStatus.OK);
+        return ResponseEntity.ok(productos);
     }
 
+    @PostMapping
+    public ResponseEntity<ProductoDTO> crearProducto(
+            @RequestBody ProductoCrearDTO dto,
+            Authentication authentication
+    ) {
+        Stand stand = obtenerStandDelUsuario(authentication.getName());
 
-    // 🔹 Crear nuevo producto
-    @PostMapping("/productos")
-    public ResponseEntity<?> crearProducto(@RequestBody Producto producto, Authentication authentication) {
-        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
-        Stand stand = standRepository.findByFeriante(feriante);
-
-        if (stand == null) {
-            return new ResponseEntity<>("No se encontró stand para este feriante", HttpStatus.BAD_REQUEST);
-        }
-
+        Producto producto = new Producto();
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setImagen(dto.getImagen());
+        producto.setActivo(true);
+        producto.setEliminado(false);
         producto.setStand(stand);
+
         productoRepository.save(producto);
-        return new ResponseEntity<>("Producto creado correctamente", HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ProductoDTO(producto));
     }
-    // 🔹 Editar producto
-    @PutMapping("/productos/{id}")
-    public ResponseEntity<?> editarProducto(@PathVariable Integer id, @RequestBody Producto productoActualizado, Authentication authentication) {
-        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
-        Stand stand = standRepository.findByFeriante(feriante);
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editarProducto(
+            @PathVariable int id,
+            @RequestBody ProductoCrearDTO dto,
+            Authentication authentication
+    ) {
+        Stand stand = obtenerStandDelUsuario(authentication.getName());
+        Producto producto = productoRepository.findById(id).orElse(null);
+
+        if (producto == null || producto.isEliminado() || !producto.getStand().equals(stand)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Producto no encontrado o no pertenece a tu stand");
+        }
+
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setImagen(dto.getImagen());
+
+        productoRepository.save(producto);
+        return ResponseEntity.ok("Producto actualizado correctamente");
+    }
+
+    @PutMapping("/{id}/estado")
+    public ResponseEntity<?> cambiarEstadoProducto(
+            @PathVariable int id,
+            Authentication authentication
+    ) {
+        Stand stand = obtenerStandDelUsuario(authentication.getName());
+        Producto producto = productoRepository.findById(id).orElse(null);
+
+        if (producto == null || producto.isEliminado() || !producto.getStand().equals(stand)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("No tenés permiso para modificar este producto");
+        }
+
+        producto.setActivo(!producto.isActivo());
+        productoRepository.save(producto);
+
+        String status = producto.isActivo() ? "activado" : "desactivado";
+        return ResponseEntity.ok("Producto " + status + " correctamente");
+    }
+
+    @PutMapping("/{id}/eliminar")
+    public ResponseEntity<?> eliminarProductoLogico(@PathVariable int id, Authentication authentication) {
+        Stand stand = obtenerStandDelUsuario(authentication.getName());
         Producto producto = productoRepository.findById(id).orElse(null);
 
         if (producto == null || !producto.getStand().equals(stand)) {
-            return new ResponseEntity<>("Producto no encontrado o no pertenece a tu stand", HttpStatus.FORBIDDEN);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso.");
         }
 
-        producto.setNombre(productoActualizado.getNombre());
-        producto.setDescripcion(productoActualizado.getDescripcion());
-        producto.setPrecio(productoActualizado.getPrecio());
-        producto.setImagen(productoActualizado.getImagen());
+        producto.setEliminado(true);
+        producto.setActivo(false);
         productoRepository.save(producto);
-
-        return new ResponseEntity<>("Producto actualizado correctamente", HttpStatus.OK);
+        return ResponseEntity.ok("Producto eliminado de tu lista.");
     }
-    // 🔹 Eliminar producto
-    @DeleteMapping("/productos/{id}")
-    public ResponseEntity<?> eliminarProducto(@PathVariable Integer id, Authentication authentication) {
-        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
+
+    // ========================================================
+    // 🛠️ MÉTODOS AUXILIARES (Nivel de clase, no anidados)
+    // ========================================================
+
+    private Stand obtenerStandDelUsuario(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email);
+        if (usuario == null) throw new RuntimeException("Usuario no encontrado");
+
         Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        if (feriante == null) throw new RuntimeException("El usuario no es feriante");
+
         Stand stand = standRepository.findByFeriante(feriante);
-        Producto producto = productoRepository.findById(id).orElse(null);
+        if (stand == null) throw new RuntimeException("El feriante no tiene stand");
 
-        if (producto == null || !producto.getStand().equals(stand)) {
-            return new ResponseEntity<>("Producto no encontrado o no pertenece a tu stand", HttpStatus.FORBIDDEN);
-        }
-
-        productoRepository.delete(producto);
-        return new ResponseEntity<>("Producto eliminado correctamente", HttpStatus.OK);
+        return stand;
     }
-
-
-
-
-
 }
