@@ -84,7 +84,7 @@ public class ProductoController {
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
         producto.setPrecio(dto.getPrecio());
-        producto.setImagen(dto.getImagen());
+        producto.setImagenUrl(dto.getImagen());
         producto.setActivo(true);
         producto.setEliminado(false);
         producto.setStand(stand);
@@ -110,7 +110,7 @@ public class ProductoController {
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
         producto.setPrecio(dto.getPrecio());
-        producto.setImagen(dto.getImagen());
+        producto.setImagenUrl(dto.getImagen());
 
         productoRepository.save(producto);
         return ResponseEntity.ok("Producto actualizado correctamente");
