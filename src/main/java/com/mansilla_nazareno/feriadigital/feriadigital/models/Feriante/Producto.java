@@ -62,7 +62,7 @@ public class Producto {
     }
 
     public void setDescripcion(String descripcion) {
-        descripcion = descripcion;
+        this.descripcion = descripcion;
     }
 
     public double getPrecio() {

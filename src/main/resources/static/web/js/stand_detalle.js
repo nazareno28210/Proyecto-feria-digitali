@@ -81,8 +81,8 @@ async function cargarStand() {
                 div.classList.add("producto-card");
 
                 // Imagen con respaldo (placeholder) si no existe la URL
-                const imagenUrl = producto.imagen 
-                    ? producto.imagen 
+                const imagenUrl = producto.imagenUrl
+                    ? producto.imagenUrl
                     : "https://placehold.co/300x200?text=Sin+Imagen";
                 
                 div.innerHTML = `

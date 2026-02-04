@@ -10,12 +10,15 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandR
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -25,17 +28,20 @@ public class ProductoController {
     private final UsuarioRepository usuarioRepository;
     private final FerianteRepository ferianteRepository;
     private final StandRepository standRepository;
+    private final CloudinaryService cloudinaryService;
 
     public ProductoController(
             ProductoRepository productoRepository,
             UsuarioRepository usuarioRepository,
             FerianteRepository ferianteRepository,
-            StandRepository standRepository
+            StandRepository standRepository,
+            CloudinaryService cloudinaryService
     ) {
         this.productoRepository = productoRepository;
         this.usuarioRepository = usuarioRepository;
         this.ferianteRepository = ferianteRepository;
         this.standRepository = standRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     // ========================================================
@@ -73,47 +79,63 @@ public class ProductoController {
         return ResponseEntity.ok(productos);
     }
 
-    @PostMapping
-    public ResponseEntity<ProductoDTO> crearProducto(
-            @RequestBody ProductoCrearDTO dto,
+    @PostMapping(consumes = {"multipart/form-data"}) // Necesario para recibir archivos
+    public ResponseEntity<?> crearProducto(
+            @RequestParam("nombre") String nombre,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("precio") double precio,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
             Authentication authentication
     ) {
         Stand stand = obtenerStandDelUsuario(authentication.getName());
 
         Producto producto = new Producto();
-        producto.setNombre(dto.getNombre());
-        producto.setDescripcion(dto.getDescripcion());
-        producto.setPrecio(dto.getPrecio());
-        producto.setImagenUrl(dto.getImagen());
-        producto.setActivo(true);
-        producto.setEliminado(false);
+        producto.setNombre(nombre);
+        producto.setDescripcion(descripcion);
+        producto.setPrecio(precio);
         producto.setStand(stand);
+
+        // Lógica de Cloudinary
+        if (imagen != null && !imagen.isEmpty()) {
+            Map<String, String> result = cloudinaryService.subirImagen(imagen);
+            producto.setImagenUrl(result.get("url"));
+            producto.setImagenPublicId(result.get("public_id"));
+        }
 
         productoRepository.save(producto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ProductoDTO(producto));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
     public ResponseEntity<?> editarProducto(
             @PathVariable int id,
-            @RequestBody ProductoCrearDTO dto,
+            @RequestParam("nombre") String nombre,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("precio") double precio,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
             Authentication authentication
     ) {
         Stand stand = obtenerStandDelUsuario(authentication.getName());
         Producto producto = productoRepository.findById(id).orElse(null);
 
         if (producto == null || producto.isEliminado() || !producto.getStand().equals(stand)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Producto no encontrado o no pertenece a tu stand");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Producto no encontrado");
         }
 
-        producto.setNombre(dto.getNombre());
-        producto.setDescripcion(dto.getDescripcion());
-        producto.setPrecio(dto.getPrecio());
-        producto.setImagenUrl(dto.getImagen());
+        producto.setNombre(nombre);
+        producto.setDescripcion(descripcion);
+        producto.setPrecio(precio);
+
+        // Actualizar imagen si se envía una nueva
+        if (imagen != null && !imagen.isEmpty()) {
+            // Reemplazar en Cloudinary (borra la vieja y sube la nueva)
+            Map<String, String> result = cloudinaryService.reemplazarImagen(imagen, producto.getImagenPublicId());
+            producto.setImagenUrl(result.get("url"));
+            producto.setImagenPublicId(result.get("public_id"));
+        }
 
         productoRepository.save(producto);
-        return ResponseEntity.ok("Producto actualizado correctamente");
+        return ResponseEntity.ok("Producto actualizado con éxito");
     }
 
     @PutMapping("/{id}/estado")
@@ -145,10 +167,15 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso.");
         }
 
+        // Opcional: Borrar la imagen de Cloudinary al eliminar el producto de forma lógica
+        if (producto.getImagenPublicId() != null) {
+            cloudinaryService.borrarImagen(producto.getImagenPublicId());
+        }
+
         producto.setEliminado(true);
         producto.setActivo(false);
         productoRepository.save(producto);
-        return ResponseEntity.ok("Producto eliminado de tu lista.");
+        return ResponseEntity.ok("Producto eliminado.");
     }
 
     // ========================================================
