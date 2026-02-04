@@ -17,35 +17,43 @@ public class StandDTO {
     private Integer feriaId;
 
     public StandDTO(Stand stand) {
-        this.id=stand.getId();
-        this.nombre =stand.getNombre();
+        this.id = stand.getId();
+        this.nombre = stand.getNombre();
         this.descripcion = stand.getDescripcion();
         this.imagenUrl = stand.getImagenUrl();
-        this.productos =stand.getProductos()
+
+        // 🟢 FILTRO PARA EL PÚBLICO: Solo activos y NO eliminados
+        this.productos = stand.getProductos()
                 .stream()
+                .filter(p -> p.isActivo() && !p.isEliminado())
                 .map(ProductoDTO::new)
                 .collect(Collectors.toList());
-        this.feriante=getFeriante();
+
         if (stand.getFeriante() != null) {
             this.feriante = new FerianteDTO(stand.getFeriante());
         }
+
         if (stand.getFeria() != null) {
             this.feriaId = stand.getFeria().getId();
         } else {
             this.feriaId = null;
         }
     }
+
     public StandDTO(Stand stand, boolean esParaFerianteDTO) {
-        this.id=stand.getId();
-        this.nombre =stand.getNombre();
+        this.id = stand.getId();
+        this.nombre = stand.getNombre();
         this.descripcion = stand.getDescripcion();
-        this.productos =stand.getProductos()
+
+        // 🟢 FILTRO PARA EL PÚBLICO: También aplicado aquí
+        this.productos = stand.getProductos()
                 .stream()
+                .filter(p -> p.isActivo() && !p.isEliminado())
                 .map(ProductoDTO::new)
                 .collect(Collectors.toList());
 
-        // ¡No inicializamos el feriante! Así evitamos el bucle infinito.
-        this.feriante = null;
+        this.feriante = null; // Evita bucle infinito
+
         if (stand.getFeria() != null) {
             this.feriaId = stand.getFeria().getId();
         } else {
@@ -53,31 +61,12 @@ public class StandDTO {
         }
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public List<ProductoDTO> getProductos() {
-        return productos;
-    }
-
-    public FerianteDTO getFeriante() {
-        return feriante;
-    }
-
-    public String getImagenUrl() {
-        return imagenUrl;
-    }
-    public Integer getFeriaId() {
-        return feriaId;
-    }
-
+    // Getters
+    public int getId() { return id; }
+    public String getNombre() { return nombre; }
+    public String getDescripcion() { return descripcion; }
+    public List<ProductoDTO> getProductos() { return productos; }
+    public FerianteDTO getFeriante() { return feriante; }
+    public String getImagenUrl() { return imagenUrl; }
+    public Integer getFeriaId() { return feriaId; }
 }

@@ -34,6 +34,9 @@ public class WebAuthorization {
                         // 🔒 Endpoint para CAMBIO DE CONTRASEÑA
                         .requestMatchers("/api/password/**").authenticated()
 
+                        // 🌐 Productos públicos
+                        .requestMatchers("/api/productos/publicos").permitAll()
+
                         // 🌐 Todo lo demás es público
                         .anyRequest().permitAll()
                 )

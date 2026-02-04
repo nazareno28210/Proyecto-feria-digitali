@@ -13,13 +13,19 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nombre;
-    private String Descripcion;
+    private String descripcion;
     private double precio;
 
     private String imagenUrl;
     private String imagenPublicId;
     public static final String IMAGEN_DEFAULT =
             "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
+
+    @Column(nullable = false)
+    private boolean activo = true;
+
+    @Column(nullable = false)
+    private boolean eliminado = false; // 🟢 NUEVO: Para el borrado lógico
 
     @ManyToOne
     @JoinColumn(name = "stand_id")
@@ -34,7 +40,7 @@ public class Producto {
 
     public Producto(){}
     public Producto(double precio, String descripcion, String nombre) {
-        this.Descripcion = descripcion;
+        this.descripcion = descripcion;
         this.nombre = nombre;
         this.precio = precio;
     }
@@ -52,11 +58,11 @@ public class Producto {
     }
 
     public String getDescripcion() {
-        return Descripcion;
+        return descripcion;
     }
 
     public void setDescripcion(String descripcion) {
-        Descripcion = descripcion;
+        descripcion = descripcion;
     }
 
     public double getPrecio() {
@@ -97,6 +103,22 @@ public class Producto {
                 (imagenUrl == null || imagenUrl.isBlank())
                         ? IMAGEN_DEFAULT
                         : imagenUrl;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    public boolean isEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
     }
 
     public void setImagenPublicId(String imagenPublicId) {
