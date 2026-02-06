@@ -1,13 +1,12 @@
 /*
  * ====================================
- * FERIAS-CONTROL.CSS (Rediseñado)
+ * FERIAS-CONTROL.CSS (CRUD Completo)
  * ====================================
  */
 
 /* ====================================
    1. HEADER
    ==================================== */
-
 .header-top {
   display: flex;
   justify-content: space-between; 
@@ -31,10 +30,6 @@
 .header-logo:hover {
   transform: scale(1.1) rotate(15deg);
 }
-.header-right {
-  /* No necesita estilos extra */
-}
-
 
 /* ====================================
    2. TÍTULOS DE SECCIÓN
@@ -52,7 +47,7 @@ main > h2:first-of-type {
 }
 
 /* ====================================
-   3. FORMULARIO DE CREACIÓN
+   3. FORMULARIOS (CREACIÓN Y MODAL)
    ==================================== */
 .form-card {
   background: var(--color-card);
@@ -83,10 +78,6 @@ label {
   font-size: 0.95rem; 
   margin-top: 1rem;
 }
-.form-column label:first-of-type,
-main > label:first-of-type {
-  margin-top: 0;
-}
 
 input[type="text"],
 input[type="date"],
@@ -99,19 +90,16 @@ textarea {
   font-family: inherit;
   outline: none;
   transition: all 0.3s ease;
-  margin-top: 0;
   box-sizing: border-box; 
 }
+
 input:focus, textarea:focus {
   border-color: var(--color-medium-blue);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
-textarea {
-    resize: vertical;
-    min-height: 80px;
-}
-
+/* Botón principal de guardado */
+button.btn-submit,
 button[type="submit"] {
   background-color: var(--color-dark-blue);
   color: #fff;
@@ -125,11 +113,11 @@ button[type="submit"] {
   transition: all 0.3s ease;
   margin-top: 2rem; 
 }
+button.btn-submit:hover,
 button[type="submit"]:hover {
   background-color: var(--color-medium-blue);
   box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
-
 
 /* ====================================
    4. TABLA DE FERIAS
@@ -155,41 +143,130 @@ th, td {
   vertical-align: middle; 
 }
 
+.fila-inactiva {
+    background-color: #f1f3f5;
+    opacity: 0.8;
+}
+
+.fila-inactiva td {
+    color: #6c757d; 
+}
+
 tbody tr:hover {
   background-color: #f9faff;
 }
 
-td {
-  color: var(--color-text-dark);
-  font-size: 0.95rem;
-  font-weight: 500;
-}
 td:last-child {
   white-space: nowrap; 
 }
 
-/* Botones de acción */
+/* 🟢 Badges de Estado */
+.badge-activa {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid #badbcc;
+}
+
+.badge-inactiva {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid #f5c2c7;
+}
+
+/* 🟢 Botones de acción */
 table button {
   padding: 8px 14px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: white;
   transition: all 0.2s ease-in-out;
   margin-right: 5px;
 }
+
 table button:hover {
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 
-button[onclick^="activar"] {
+.btn-editar {
+    background-color: var(--color-medium-blue);
+}
+
+.btn-activar {
     background-color: var(--color-success);
 }
-button[onclick^="darBaja"] {
-    background-color: #f59e0b; /* Naranja/Warning */
+
+.btn-baja {
+    background-color: #f59e0b; 
+    color: white;
 }
-button[onclick^="eliminar"] {
+
+.btn-eliminar {
     background-color: var(--color-error);
+}
+
+/* ====================================
+   5. MODAL DE EDICIÓN
+   ==================================== */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 2000; /* Por encima de todo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo oscurecido */
+    backdrop-filter: blur(4px); /* Efecto de desenfoque */
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 5% auto;
+    padding: 2.5rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 700px;
+    position: relative;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.close-button {
+    position: absolute;
+    right: 25px;
+    top: 20px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-button:hover {
+    color: var(--color-error);
+}
+
+/* Ajuste del título dentro del modal */
+.modal-content h2 {
+    margin-top: 0;
+    border-bottom: 2px solid var(--color-medium-blue);
+    padding-bottom: 10px;
 }

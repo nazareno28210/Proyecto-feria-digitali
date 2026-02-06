@@ -21,7 +21,8 @@ public class FeriaController {
 
     @GetMapping("/ferias")
     public List<FeriaDTO> getFerias() {
-        return feriaRepository.findAll()
+        // 🟢 CAMBIO: Usamos findByEliminadoFalse() para no mostrar la "papelera" al Admin
+        return feriaRepository.findByEliminadoFalse()
                 .stream()
                 .map(feria -> new FeriaDTO(feria))
                 .collect(Collectors.toList());
@@ -37,7 +38,7 @@ public class FeriaController {
     //obtener ferias activas
     @GetMapping("/ferias/activas")
     public List<FeriaDTO> getFeriasActivas() {
-        return feriaRepository.findByEstado("Activa")
+        return feriaRepository.findByEstadoAndEliminadoFalse("Activa")
                 .stream()
                 .map(FeriaDTO::new)
                 .collect(Collectors.toList());
@@ -98,14 +99,15 @@ public class FeriaController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    //eliminar feria
-    @DeleteMapping("/ferias/{id}")
+//  ELIMINAR FERIA (BORRADO LÓGICO)
+    @PutMapping("/ferias/{id}/eliminar")
     public ResponseEntity<?> eliminarFeria(@PathVariable Integer id) {
-        if (!feriaRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        feriaRepository.deleteById(id);
-        return ResponseEntity.ok("Feria eliminada correctamente");
+        return feriaRepository.findById(id).map(feria -> {
+            feria.setEliminado(true);
+            feria.setEstado("Inactiva"); // Al eliminarla, también la desactivamos para el público
+            feriaRepository.save(feria);
+            return ResponseEntity.ok("Feria eliminada de la vista correctamente");
+        }).orElse(ResponseEntity.notFound().build());
     }
     //activar feria
     @PatchMapping("/ferias/{id}/activar")

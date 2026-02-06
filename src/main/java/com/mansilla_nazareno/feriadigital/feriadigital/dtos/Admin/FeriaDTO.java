@@ -14,6 +14,7 @@ public class FeriaDTO {
     private String lugar;
     private String descripcion;
     private String estado;
+    private boolean eliminado;
     private String imagenUrl;
 
     private List<StandDTO> stands;
@@ -27,11 +28,11 @@ public class FeriaDTO {
         this.descripcion = feria.getDescripcion();
         this.estado = feria.getEstado();
         this.imagenUrl = feria.getImagenUrl();
-        this.stands =feria.getStands()
+        this.eliminado = feria.isEliminado();
+        this.stands = feria.getStands()
                 .stream()
                 .map(StandDTO::new)
-                .collect(Collectors.toList());
-
+                .collect(Collectors.toList());         // Mapeamos stands filtrando los que no estén eliminados (para cuando hagamos Stands)
     }
 
     public int getId() {
@@ -65,7 +66,13 @@ public class FeriaDTO {
     public String getImagenUrl() {
         return imagenUrl;
     }
+
     public List<StandDTO> getStands() {
         return stands;
     }
+
+    public boolean isEliminado() {
+        return eliminado;
+    }
+
 }

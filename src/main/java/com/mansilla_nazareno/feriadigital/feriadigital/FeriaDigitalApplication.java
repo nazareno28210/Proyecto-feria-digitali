@@ -66,14 +66,13 @@ public class FeriaDigitalApplication {
 				// 2. FERIA
 				// =========================================
 				Feria feria = new Feria(
-						"Feria Gimnasio Don Bosco",
-						LocalDate.of(2025, 12, 24),
-						LocalDate.of(2025, 12, 27),
-						"Colegio Don Bosco, Alberdi 368",
-						"Feria artesanal y comercial",
-						"ACTIVA",
-						"Centro Cultural",
-						"/uploads/ferias/Don_Bosco.png"
+						"Feria Gimnasio Don Bosco",       // 1. Nombre
+						LocalDate.of(2025, 12, 24),       // 2. Fecha Inicio
+						LocalDate.of(2025, 12, 27),       // 3. Fecha Final
+						"Colegio Don Bosco, Alberdi 368", // 4. Lugar
+						"Feria artesanal y comercial",    // 5. Descripción
+						"ACTIVA",                         // 6. Estado
+						"/uploads/ferias/Don_Bosco.png"   // 7. ImagenUrl (Aquí terminan los 7 parámetros)
 				);
 				// Guardamos la feria primero para tener su ID si hace falta,
 				// aunque con CascadeType.ALL en los stands se guardaría al final también.

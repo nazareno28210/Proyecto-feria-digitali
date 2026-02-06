@@ -25,8 +25,11 @@ public class Feria {
     @JsonIgnoreProperties("feria") // Rompe la recursividad
     private List<Stand> stands;
 
+    @Column(nullable = false)
+    private boolean eliminado = false;
+
     public Feria(){}
-    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado,String Lugar, String imagenUrl) {
+    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado, String imagenUrl) {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFinal = fechaFinal;
@@ -102,5 +105,12 @@ public class Feria {
 
     public void setImagenUrl(String imagenUrl) {
         this.imagenUrl = imagenUrl;
+    }
+
+    public boolean isEliminado() {
+        return eliminado;
+    }
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
     }
 }

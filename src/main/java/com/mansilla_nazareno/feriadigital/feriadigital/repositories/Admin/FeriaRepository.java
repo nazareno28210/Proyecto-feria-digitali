@@ -7,5 +7,9 @@ import java.util.List;
 
 public interface FeriaRepository extends JpaRepository<Feria, Integer> {
 
-    List<Feria> findByEstado(String estado);
+    // Para el Admin: Todas las ferias que no estén en la "papelera"
+    List<Feria> findByEliminadoFalse();
+
+    // Para el Público: Solo las activas y no eliminadas
+    List<Feria> findByEstadoAndEliminadoFalse(String estado);
 }
