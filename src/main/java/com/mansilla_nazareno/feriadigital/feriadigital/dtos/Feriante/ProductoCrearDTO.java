@@ -5,7 +5,12 @@ public class ProductoCrearDTO {
     private String descripcion;
     private double precio;
     private String imagen;
+    private String tipoVenta; // Recibe "PESO", "LONGITUD" o "UNIDAD"
+    private String unidadMedida;
 
+    // Getters
+    public String getTipoVenta() { return tipoVenta; }
+    public String getUnidadMedida() { return unidadMedida; }
     public String getNombre() {
         return nombre;
     }

@@ -5,6 +5,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.CategoriaProducto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.TipoVenta;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
@@ -87,6 +88,8 @@ public class ProductoController {
     public ResponseEntity<?> crearProducto(
             @RequestParam("nombre") String nombre,
             @RequestParam("descripcion") String descripcion,
+            @RequestParam("tipoVenta") String tipoVentaStr, // "PESO", "LONGITUD", "UNIDAD"
+            @RequestParam("unidadMedida") String unidad,    // "kg", "m", "un", etc.
             @RequestParam("precio") double precio,
             @RequestParam("categoriaId") int categoriaId,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
@@ -102,18 +105,43 @@ public class ProductoController {
         }
 
         Producto producto = new Producto();
+
+        // 1. Convertir y Validar el Tipo de Venta
+        TipoVenta tipo;
+        try {
+            tipo = TipoVenta.valueOf(tipoVentaStr.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Tipo de venta no válido");
+        }
+
+        // 2. Delimitar la unidad de medida según el tipo
+        producto.setTipoVenta(tipo);
+        if (tipo == TipoVenta.UNIDAD) {
+            producto.setUnidadMedida("un"); // Forzamos unidad fija para remeras, etc.
+        } else {
+            producto.setUnidadMedida(unidad.toLowerCase()); // kg, g, m, cm, mm
+        }
+
+        // 3. Setear campos básicos
         producto.setNombre(nombre);
         producto.setDescripcion(descripcion);
         producto.setPrecio(precio);
         producto.setStand(stand);
         producto.setCategoria(categoria); // Asignación de categoría única
 
+<<<<<<< HEAD
+=======
+        // 4. Lógica de Cloudinary (Imagen)
+>>>>>>> 6c62a080a856646e9fd08cc848c39765c364ad7e
         if (imagen != null && !imagen.isEmpty()) {
             Map<String, String> result = cloudinaryService.subirImagen(imagen);
             producto.setImagenUrl(result.get("url"));
             producto.setImagenPublicId(result.get("public_id"));
+        } else {
+            producto.setImagenUrl(Producto.IMAGEN_DEFAULT);
         }
 
+        // 5. Guardar y retornar
         productoRepository.save(producto);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ProductoDTO(producto));
     }

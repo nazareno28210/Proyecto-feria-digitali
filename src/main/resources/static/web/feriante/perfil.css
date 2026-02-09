@@ -282,3 +282,30 @@ input:checked + .slider:before { transform: translateX(22px); }
     margin-top: 5px;
     font-size: 1.1rem;
 }
+/* ====================================
+   FOTO DE PERFIL
+   ==================================== */
+
+.perfil-foto-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Imagen de perfil */
+.perfil-foto {
+
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #ddd;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Botón cambiar foto */
+.perfil-foto-btn {
+    font-size: 14px;
+    padding: 6px 14px;
+}

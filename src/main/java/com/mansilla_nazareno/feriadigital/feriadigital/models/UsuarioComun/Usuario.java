@@ -25,6 +25,11 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipoUsuario;
 
+    @Column(name = "imagen_url")
+    private String imagenUrl;
+
+    @Column(name = "imagen_public_id")
+    private String imagenPublicId;
 
     public Usuario() {}
 
@@ -97,4 +102,12 @@ public class Usuario {
     public void setTipoUsuario(TipoUsuario tipoUsuario) {
         this.tipoUsuario = tipoUsuario;
     }
+
+    public String getImagenUrl() { return imagenUrl; }
+
+    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
+
+    public String getImagenPublicId() {return imagenPublicId;}
+
+    public void setImagenPublicId(String imagenPublicId) {this.imagenPublicId = imagenPublicId;}
 }

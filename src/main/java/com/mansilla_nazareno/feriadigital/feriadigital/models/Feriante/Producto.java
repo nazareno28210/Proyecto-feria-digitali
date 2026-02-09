@@ -25,7 +25,7 @@ public class Producto {
     private boolean activo = true;
 
     @Column(nullable = false)
-    private boolean eliminado = false; // 🟢 NUEVO: Para el borrado lógico
+    private boolean eliminado = false; // 🟢 Para el borrado lógico
 
     @ManyToOne
     @JoinColumn(name = "stand_id")
@@ -33,10 +33,19 @@ public class Producto {
     private Stand stand; // cada producto pertenece a un stand
 
 
+<<<<<<< HEAD
     // 🟢 Reemplazamos el @OneToMany por un @ManyToOne
     @ManyToOne
     @JoinColumn(name = "categoria_id") // El producto guarda el ID de la categoría
     private CategoriaProducto categoria;
+=======
+    @Enumerated(EnumType.STRING)
+    private TipoVenta tipoVenta; //delimita la oferta
+    private String unidadMedida; // "kg", "g", "m", "un", etc.
+
+
+    private boolean estado;
+>>>>>>> 6c62a080a856646e9fd08cc848c39765c364ad7e
 
     public Producto(){}
     public Producto(double precio, String descripcion, String nombre) {
@@ -93,7 +102,6 @@ public class Producto {
         return imagenPublicId;
     }
 
-    // setters inteligentes (igual que Stand)
     public void setImagenUrl(String imagenUrl) {
         this.imagenUrl =
                 (imagenUrl == null || imagenUrl.isBlank())
@@ -121,4 +129,9 @@ public class Producto {
         this.imagenPublicId = imagenPublicId;
     }
 
+    public TipoVenta getTipoVenta() { return tipoVenta; }
+    public void setTipoVenta(TipoVenta tipoVenta) { this.tipoVenta = tipoVenta; }
+
+    public String getUnidadMedida() { return unidadMedida; }
+    public void setUnidadMedida(String unidadMedida) { this.unidadMedida = unidadMedida; }
 }

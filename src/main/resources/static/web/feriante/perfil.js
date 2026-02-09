@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Listener para cerrar sesión [cite: 146]
     document.getElementById("cerrarSesion").addEventListener("click", cerrarSesion);
+    document.getElementById("inputFotoPerfil").addEventListener("change", subirFotoPerfil);
 
     // --- Listeners para la edición de Feriante --- [cite: 146]
     document.getElementById("btn-edit-feriante").addEventListener("click", () => toggleEditFeriante(true));
@@ -58,6 +59,9 @@ function cargarPerfil() {
 
             // 1. Llenar Datos de Usuario [cite: 149]
             const usuario = ferianteActual.usuario;
+            if (usuario.imagenUrl) {
+                document.getElementById("fotoPerfil").src = usuario.imagenUrl;
+            }
             setText("usuario-email", usuario.email);
             setText("usuario-nombre", usuario.nombre);
             setText("usuario-apellido", usuario.apellido);
@@ -250,4 +254,30 @@ function showToast(mensaje, tipo = "info") {
         position: "right",
         style: { background: color }
     }).showToast();
+}
+async function subirFotoPerfil(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("imagen", file);
+
+    try {
+        const res = await axios.patch(
+            "/api/usuarios/current/imagen",
+            formData,
+            {
+                withCredentials: true,
+                headers: { "Content-Type": "multipart/form-data" }
+            }
+        );
+
+        // Actualizar imagen en pantalla
+        document.getElementById("fotoPerfil").src = res.data.imagenUrl;
+
+        showToast("Foto de perfil actualizada", "success");
+    } catch (error) {
+        console.error("Error al subir imagen:", error);
+        showToast("Error al subir la imagen", "error");
+    }
 }

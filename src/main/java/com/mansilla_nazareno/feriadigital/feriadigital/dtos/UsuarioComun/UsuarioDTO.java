@@ -15,6 +15,7 @@ public class UsuarioDTO {
     private EstadoUsuario estadoUsuario;
     private LocalDate DayRegistrer;
     private TipoUsuario tipoUsuario;
+    private String imagenUrl;
 
     public UsuarioDTO(Usuario usuario) {
         this.id= usuario.getId();
@@ -25,6 +26,7 @@ public class UsuarioDTO {
         this.estadoUsuario = usuario.getEstadoUsuario();
         this.DayRegistrer = usuario.getFechaRegistro();
         this.tipoUsuario = usuario.getTipoUsuario();
+        this.imagenUrl = usuario.getImagenUrl();
     }
 
     public int getId() {
@@ -59,4 +61,5 @@ public class UsuarioDTO {
         return tipoUsuario;
     }
 
+    public String getImagenUrl() {return imagenUrl;}
 }
