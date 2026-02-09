@@ -36,6 +36,11 @@ public class Producto {
     @JsonIgnoreProperties("productos")
     private List<CategoriaProducto> categorias; // un producto puede tener varias categorías
 
+    @Enumerated(EnumType.STRING)
+    private TipoVenta tipoVenta; //delimita la oferta
+    private String unidadMedida; // "kg", "g", "m", "un", etc.
+
+
     private boolean estado;
 
     public Producto(){}
@@ -97,7 +102,6 @@ public class Producto {
         return imagenPublicId;
     }
 
-    // setters inteligentes (igual que Stand)
     public void setImagenUrl(String imagenUrl) {
         this.imagenUrl =
                 (imagenUrl == null || imagenUrl.isBlank())
@@ -125,4 +129,9 @@ public class Producto {
         this.imagenPublicId = imagenPublicId;
     }
 
+    public TipoVenta getTipoVenta() { return tipoVenta; }
+    public void setTipoVenta(TipoVenta tipoVenta) { this.tipoVenta = tipoVenta; }
+
+    public String getUnidadMedida() { return unidadMedida; }
+    public void setUnidadMedida(String unidadMedida) { this.unidadMedida = unidadMedida; }
 }

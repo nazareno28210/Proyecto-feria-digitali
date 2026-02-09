@@ -1,6 +1,8 @@
 const API_URL = "/api/productos";
 
-// 🔹 Cargar productos al iniciar
+/* ===========================
+   CARGAR PRODUCTOS
+=========================== */
 async function cargarProductos() {
     try {
         const res = await axios.get(`${API_URL}/mios`, { withCredentials: true });
@@ -8,127 +10,234 @@ async function cargarProductos() {
         const contenedor = document.getElementById("productos");
         contenedor.innerHTML = "";
 
-        if (productos.length === 0) {
+        if (!productos || productos.length === 0) {
             contenedor.innerHTML = `<p class="text-center text-muted">No tienes productos cargados.</p>`;
             return;
         }
 
         productos.forEach(p => {
             const cardInactiva = p.activo ? "" : "producto-inactivo";
+            const textoMedida = p.tipoVenta === "UNIDAD" ? "unidad" : p.unidadMedida;
+
             contenedor.innerHTML += `
                 <div class="col-md-4 mb-4">
                     <div class="card h-100 sombra ${cardInactiva}">
-                        <img src="${p.imagen || 'https://via.placeholder.com/300x200?text=Sin+Imagen'}" 
-                             class="card-img-top" alt="${p.nombre}" style="height: 200px; object-fit: cover;">
+                        <img src="${p.imagenUrl || 'https://res.cloudinary.com/dklkf0fmq/image/upload/v1770657381/300x200_mefv8r.svg'}"
+                             class="card-img-top"
+                             style="height:200px; object-fit:cover;">
                         <div class="card-body">
-                            <h5 class="card-title">${p.nombre}</h5>
-                            <p class="card-text text-muted small">${p.descripcion}</p>
-                            <p><strong>$${p.precio.toFixed(2)}</strong></p>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="card-title">${p.nombre}</h5>
+                                <span class="badge bg-secondary">${p.tipoVenta}</span>
+                            </div>
+                            <p class="text-muted small">${p.descripcion || ""}</p>
+                            <p>
+                                <strong>$${p.precio.toFixed(2)}</strong>
+                                <small class="text-muted">por ${textoMedida}</small>
+                            </p>
                             <div class="d-flex flex-column gap-2">
                                 <div class="d-flex justify-content-between">
-                                    <button class="btn btn-primary btn-sm" onclick="abrirModalEditar(${p.id}, '${p.nombre}', '${p.descripcion}', ${p.precio}, '${p.imagen || ''}')">Editar</button>
-                                    <button class="btn ${p.activo ? 'btn-warning' : 'btn-success'} btn-sm" onclick="toggleEstado(${p.id})">
+                                    <button class="btn btn-primary btn-sm"
+                                        onclick="abrirModalEditar(${p.id}, '${p.nombre}', '${p.descripcion}', ${p.precio}, '${p.tipoVenta}', '${p.unidadMedida}')">
+                                        Editar
+                                    </button>
+                                    <button class="btn ${p.activo ? 'btn-warning' : 'btn-success'} btn-sm"
+                                        onclick="toggleEstado(${p.id})">
                                         ${p.activo ? 'Desactivar' : 'Activar'}
                                     </button>
                                 </div>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarProducto(${p.id})">Eliminar</button>
+                                <button class="btn btn-danger btn-sm" onclick="eliminarProducto(${p.id})">
+                                    Eliminar
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
         });
-    } catch (err) {
-        showToast("Error al cargar los productos", "error");
+    } catch (e) {
+        showToast("Error al cargar productos", "error");
     }
 }
 
-// 🔹 Crear producto
+/* ===========================
+   CREAR PRODUCTO
+=========================== */
 async function crearProducto() {
     const nombre = document.getElementById("nombre").value.trim();
     const descripcion = document.getElementById("descripcion").value.trim();
-    const precio = parseFloat(document.getElementById("precio").value);
-    const imagen = document.getElementById("imagenUrl").value.trim();
+    const precio = document.getElementById("precio").value;
+    const tipoVenta = document.getElementById("tipoVenta").value;
+    const unidadMedida = document.getElementById("unidadMedida").value;
+    const imagen = document.getElementById("imagen").files[0];
 
-    if (!nombre || !descripcion || isNaN(precio)) {
-        showToast("Por favor, completa todos los campos.", "error");
+    if (!nombre || !precio) {
+        showToast("Completa nombre y precio", "error");
         return;
     }
 
+    const formData = new FormData();
+    formData.append("nombre", nombre);
+    formData.append("descripcion", descripcion);
+    formData.append("precio", precio);
+    formData.append("tipoVenta", tipoVenta);
+
+    // ⚠️ Si NO es UNIDAD, mandamos unidadMedida
+    if (tipoVenta !== "UNIDAD") {
+        formData.append("unidadMedida", unidadMedida);
+    }
+
+    if (imagen) {
+        formData.append("imagen", imagen);
+    }
+
     try {
-        await axios.post(API_URL, { nombre, descripcion, precio, imagen }, { withCredentials: true });
-        showToast("✅ Producto agregado correctamente", "success");
+        await axios.post(API_URL, formData, {
+            withCredentials: true,
+            headers: { "Content-Type": "multipart/form-data" }
+        });
+        showToast("✅ Producto creado", "success");
         limpiarCampos();
         cargarProductos();
-    } catch (err) {
-        showToast("❌ Error al agregar producto", "error");
+    } catch (e) {
+        showToast("❌ Error al crear producto", "error");
     }
 }
 
-// 🔹 Activar/Desactivar Producto
+/* ===========================
+   MODAL EDITAR
+=========================== */
+function abrirModalEditar(id, nombre, descripcion, precio, tipoVenta, unidadMedida) {
+    document.getElementById("edit-id").value = id;
+    document.getElementById("edit-nombre").value = nombre;
+    document.getElementById("edit-descripcion").value = descripcion || "";
+    document.getElementById("edit-precio").value = precio;
+    document.getElementById("edit-tipoVenta").value = tipoVenta;
+    document.getElementById("edit-unidadMedida").value = unidadMedida || "";
+
+    toggleMedida("edit-");
+
+    new bootstrap.Modal(document.getElementById("modalEditar")).show();
+}
+
+/* ===========================
+   GUARDAR EDICIÓN
+=========================== */
+async function guardarEdicion() {
+    const id = document.getElementById("edit-id").value;
+    const tipoVenta = document.getElementById("edit-tipoVenta").value;
+
+    const formData = new FormData();
+    formData.append("nombre", document.getElementById("edit-nombre").value.trim());
+    formData.append("descripcion", document.getElementById("edit-descripcion").value.trim());
+    formData.append("precio", document.getElementById("edit-precio").value);
+    formData.append("tipoVenta", tipoVenta);
+
+    if (tipoVenta !== "UNIDAD") {
+        formData.append("unidadMedida", document.getElementById("edit-unidadMedida").value);
+    }
+
+    const imagen = document.getElementById("edit-imagen").files[0];
+    if (imagen) {
+        formData.append("imagen", imagen);
+    }
+
+    try {
+        await axios.put(`${API_URL}/${id}`, formData, {
+            withCredentials: true,
+            headers: { "Content-Type": "multipart/form-data" }
+        });
+        showToast("✅ Producto actualizado", "success");
+        bootstrap.Modal.getInstance(document.getElementById("modalEditar")).hide();
+        cargarProductos();
+    } catch (e) {
+        showToast("❌ Error al actualizar", "error");
+    }
+}
+
+/* ===========================
+   TOGGLE MEDIDA
+=========================== */
+function toggleMedida(prefix = "") {
+    const tipoVenta = document.getElementById(`${prefix}tipoVenta`).value;
+    const divMedida = document.getElementById(`${prefix}divMedida`);
+    const selectMedida = document.getElementById(`${prefix}unidadMedida`);
+
+    // Limpiar opciones
+    selectMedida.innerHTML = "";
+
+    switch (tipoVenta) {
+        case "UNIDAD":
+            divMedida.style.display = "none";
+            break;
+
+        case "PESO":
+            divMedida.style.display = "block";
+            selectMedida.innerHTML = `
+                <option value="kg">Kilogramo (kg)</option>
+                <option value="g">Gramo (g)</option>
+            `;
+            break;
+
+        case "METRO":
+            divMedida.style.display = "block";
+            selectMedida.innerHTML = `
+                <option value="m">Metro (m)</option>
+                <option value="cm">Centímetro (cm)</option>
+                <option value="mm">Milímetro (mm)</option>
+            `;
+            break;
+
+        case "VOLUMEN":
+            divMedida.style.display = "block";
+            selectMedida.innerHTML = `
+                <option value="l">Litro (l)</option>
+                <option value="ml">Mililitro (ml)</option>
+            `;
+            break;
+
+        default:
+            divMedida.style.display = "none";
+    }
+}
+
+
+/* ===========================
+   ESTADO / ELIMINAR
+=========================== */
 async function toggleEstado(id) {
     try {
         await axios.put(`${API_URL}/${id}/estado`, {}, { withCredentials: true });
-        showToast("Estado actualizado");
         cargarProductos();
-    } catch (err) {
+    } catch {
         showToast("Error al cambiar estado", "error");
     }
 }
 
-// 🔹 Eliminar producto (Borrado Lógico)
 async function eliminarProducto(id) {
-    if (!confirm("¿Seguro que querés eliminar este producto? Se ocultará de tu lista.")) return;
+    if (!confirm("¿Eliminar producto?")) return;
     try {
         await axios.put(`${API_URL}/${id}/eliminar`, {}, { withCredentials: true });
-        showToast("🗑️ Producto eliminado");
+        showToast("🗑️ Producto eliminado", "success");
         cargarProductos();
-    } catch (err) {
-        showToast("❌ Error al eliminar el producto", "error");
+    } catch {
+        showToast("Error al eliminar", "error");
     }
 }
 
-// 🔹 Abrir modal de edición
-function abrirModalEditar(id, nombre, descripcion, precio, imagen) {
-    document.getElementById("edit-id").value = id;
-    document.getElementById("edit-nombre").value = nombre;
-    document.getElementById("edit-descripcion").value = descripcion;
-    document.getElementById("edit-precio").value = precio;
-    document.getElementById("edit-imagenUrl").value = imagen;
-
-    const modal = new bootstrap.Modal(document.getElementById("modalEditar"));
-    modal.show();
+/* ===========================
+   UTILIDADES
+=========================== */
+function limpiarCampos() {
+    ["nombre", "descripcion", "precio", "unidadMedida", "imagen"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
 }
 
-// 🔹 Guardar edición
-async function guardarEdicion() {
-    const id = document.getElementById("edit-id").value;
-    const nombre = document.getElementById("edit-nombre").value.trim();
-    const descripcion = document.getElementById("edit-descripcion").value.trim();
-    const precio = parseFloat(document.getElementById("edit-precio").value);
-    const imagen = document.getElementById("edit-imagenUrl").value.trim();
-
-    if (!nombre || !descripcion || isNaN(precio)) {
-        showToast("Completa los campos antes de guardar.", "error");
-        return;
-    }
-
-    try {
-        await axios.put(`${API_URL}/${id}`, { nombre, descripcion, precio, imagen }, { withCredentials: true });
-        showToast("✅ Producto actualizado correctamente", "success");
-        
-        const modalEl = document.getElementById('modalEditar');
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal.hide();
-        cargarProductos();
-    } catch (err) {
-        showToast("❌ Error al actualizar el producto", "error");
-    }
-}
-
-function showToast(mensaje, tipo = "success") {
+function showToast(texto, tipo = "success") {
     Toastify({
-        text: mensaje,
+        text: texto,
         duration: 3000,
         gravity: "top",
         position: "right",
@@ -136,13 +245,6 @@ function showToast(mensaje, tipo = "success") {
             background: tipo === "success" ? "#198754" : "#dc3545"
         }
     }).showToast();
-}
-
-function limpiarCampos() {
-    document.getElementById("nombre").value = "";
-    document.getElementById("descripcion").value = "";
-    document.getElementById("precio").value = "";
-    document.getElementById("imagenUrl").value = "";
 }
 
 window.onload = cargarProductos;
