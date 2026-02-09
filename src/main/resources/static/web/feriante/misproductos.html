@@ -23,20 +23,26 @@
     <div class="card p-3 mb-4 sombra">
         <h5 class="mb-3 subtitulo">Agregar nuevo producto</h5>
         <div class="row g-2">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <input id="nombre" class="form-control" placeholder="Nombre">
             </div>
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <input id="descripcion" class="form-control" placeholder="Descripción">
             </div>
             <div class="col-md-2">
                 <input id="precio" type="number" class="form-control" placeholder="Precio">
             </div>
+            <div class="col-md-3">
+                <select id="categoriaId" class="form-select">
+                    <option value="">Categoría...</option>
+                </select>
+            </div>
             <div class="col-md-1 d-grid">
                 <button class="btn btn-success" onclick="crearProducto()">➕</button>
             </div>
             <div class="col-md-12 mt-2">
-                <input id="imagenUrl" class="form-control" placeholder="URL de la imagen (https://...)">
+                <label for="imagenFile" class="form-label">Imagen del producto</label>
+                <input type="file" id="imagenFile" class="form-control" accept="image/*">
             </div>
         </div>
     </div>
@@ -70,8 +76,14 @@
                     <input id="edit-precio" type="number" class="form-control">
                 </div>
                 <div class="mb-3">
-                    <label>URL Imagen</label>
-                    <input id="edit-imagenUrl" class="form-control" placeholder="https://...">
+                    <label>Categoría</label>
+                    <select id="edit-categoriaId" class="form-select">
+                        <option value="">Seleccione una categoría...</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Nueva Imagen (Opcional)</label>
+                    <input type="file" id="edit-imagenFile" class="form-control" accept="image/*">
                 </div>
             </div>
             <div class="modal-footer">

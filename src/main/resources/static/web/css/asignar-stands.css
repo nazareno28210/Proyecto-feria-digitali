@@ -150,3 +150,7 @@ main > h2:first-of-type {
     background-color: var(--color-medium-blue);
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
 }
+.status-badge-mini { font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-left: 5px; }
+.status-badge-mini.open { background: #d1e7dd; color: #0f5132; }
+.status-badge-mini.closed { background: #f8d7da; color: #842029; }
+.item-inactivo { opacity: 0.7; }

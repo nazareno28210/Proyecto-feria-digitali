@@ -11,7 +11,7 @@ public class ProductoDTO {
     private String descripcion;
     private double precio;
     private boolean activo;
-    private List<CategoriaProductoDTO> categorias;
+    private String categoriaNombre;
     private String imagenUrl; // NUEVO
 
     public ProductoDTO(Producto producto) {
@@ -21,12 +21,11 @@ public class ProductoDTO {
         this.precio = producto.getPrecio();
         this.activo = producto.isActivo();
         this.imagenUrl = producto.getImagenUrl();
-        this.categorias = producto.getCategorias() == null
-                ? List.of()
-                : producto.getCategorias()
-                .stream()
-                .map(CategoriaProductoDTO::new)
-                .collect(Collectors.toList());;
+        if (producto.getCategoria() != null) {
+            this.categoriaNombre = producto.getCategoria().getNombre();
+        } else {
+            this.categoriaNombre = "Sin categoría";
+        }
     }
 
 
@@ -38,5 +37,7 @@ public class ProductoDTO {
     public double getPrecio() { return precio; }
     public boolean isActivo() { return activo; }
     public String getImagenUrl() {return imagenUrl;}
-    public List<CategoriaProductoDTO> getCategorias() { return categorias; }
+    public String getCategoriaNombre() {
+        return categoriaNombre;
+    }
 }

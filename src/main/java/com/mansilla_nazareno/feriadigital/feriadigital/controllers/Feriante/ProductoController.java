@@ -1,12 +1,13 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Feriante;
 
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.ProductoCrearDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.ProductoDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.CategoriaProducto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
@@ -29,26 +30,29 @@ public class ProductoController {
     private final FerianteRepository ferianteRepository;
     private final StandRepository standRepository;
     private final CloudinaryService cloudinaryService;
+    private final CategoriaProductoRepository categoriaRepository;
 
     public ProductoController(
             ProductoRepository productoRepository,
             UsuarioRepository usuarioRepository,
             FerianteRepository ferianteRepository,
             StandRepository standRepository,
-            CloudinaryService cloudinaryService
+            CloudinaryService cloudinaryService,
+            CategoriaProductoRepository categoriaRepository
     ) {
         this.productoRepository = productoRepository;
         this.usuarioRepository = usuarioRepository;
         this.ferianteRepository = ferianteRepository;
         this.standRepository = standRepository;
         this.cloudinaryService = cloudinaryService;
+        this.categoriaRepository = categoriaRepository;
     }
 
     // ========================================================
     // 🌍 VISTA PÚBLICA
     // ========================================================
 
-    @GetMapping("/productos/publicos")
+    @GetMapping("/publicos")
     public ResponseEntity<List<ProductoDTO>> getProductosPublicos() {
         List<ProductoDTO> productos = productoRepository.findByActivoTrueAndEliminadoFalse()
                 .stream()
@@ -79,23 +83,31 @@ public class ProductoController {
         return ResponseEntity.ok(productos);
     }
 
-    @PostMapping(consumes = {"multipart/form-data"}) // Necesario para recibir archivos
+    @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<?> crearProducto(
             @RequestParam("nombre") String nombre,
             @RequestParam("descripcion") String descripcion,
             @RequestParam("precio") double precio,
+            @RequestParam("categoriaId") int categoriaId,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
             Authentication authentication
     ) {
         Stand stand = obtenerStandDelUsuario(authentication.getName());
+
+        // Buscar la categoría seleccionada
+        CategoriaProducto categoria = categoriaRepository.findById(categoriaId)
+                .orElse(null);
+        if (categoria == null) {
+            return ResponseEntity.badRequest().body("La categoría seleccionada no existe.");
+        }
 
         Producto producto = new Producto();
         producto.setNombre(nombre);
         producto.setDescripcion(descripcion);
         producto.setPrecio(precio);
         producto.setStand(stand);
+        producto.setCategoria(categoria); // Asignación de categoría única
 
-        // Lógica de Cloudinary
         if (imagen != null && !imagen.isEmpty()) {
             Map<String, String> result = cloudinaryService.subirImagen(imagen);
             producto.setImagenUrl(result.get("url"));
@@ -112,6 +124,7 @@ public class ProductoController {
             @RequestParam("nombre") String nombre,
             @RequestParam("descripcion") String descripcion,
             @RequestParam("precio") double precio,
+            @RequestParam("categoriaId") int categoriaId,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
             Authentication authentication
     ) {
@@ -122,13 +135,18 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Producto no encontrado");
         }
 
+        // Buscar y actualizar categoría
+        CategoriaProducto categoria = categoriaRepository.findById(categoriaId).orElse(null);
+        if (categoria == null) {
+            return ResponseEntity.badRequest().body("La categoría seleccionada no existe.");
+        }
+
         producto.setNombre(nombre);
         producto.setDescripcion(descripcion);
         producto.setPrecio(precio);
+        producto.setCategoria(categoria);
 
-        // Actualizar imagen si se envía una nueva
         if (imagen != null && !imagen.isEmpty()) {
-            // Reemplazar en Cloudinary (borra la vieja y sube la nueva)
             Map<String, String> result = cloudinaryService.reemplazarImagen(imagen, producto.getImagenPublicId());
             producto.setImagenUrl(result.get("url"));
             producto.setImagenPublicId(result.get("public_id"));
@@ -139,16 +157,12 @@ public class ProductoController {
     }
 
     @PutMapping("/{id}/estado")
-    public ResponseEntity<?> cambiarEstadoProducto(
-            @PathVariable int id,
-            Authentication authentication
-    ) {
+    public ResponseEntity<?> cambiarEstadoProducto(@PathVariable int id, Authentication authentication) {
         Stand stand = obtenerStandDelUsuario(authentication.getName());
         Producto producto = productoRepository.findById(id).orElse(null);
 
         if (producto == null || producto.isEliminado() || !producto.getStand().equals(stand)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("No tenés permiso para modificar este producto");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tenés permiso.");
         }
 
         producto.setActivo(!producto.isActivo());
@@ -167,7 +181,6 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No tienes permiso.");
         }
 
-        // Opcional: Borrar la imagen de Cloudinary al eliminar el producto de forma lógica
         if (producto.getImagenPublicId() != null) {
             cloudinaryService.borrarImagen(producto.getImagenPublicId());
         }
@@ -179,7 +192,7 @@ public class ProductoController {
     }
 
     // ========================================================
-    // 🛠️ MÉTODOS AUXILIARES (Nivel de clase, no anidados)
+    // 🛠️ MÉTODOS AUXILIARES
     // ========================================================
 
     private Stand obtenerStandDelUsuario(String email) {

@@ -17,7 +17,8 @@ public class Stand {
     private String descripcion;
     private String imagenUrl;
     private String imagenPublicId;
-
+    //ESTADO DE ACTIVACIÓN
+    private boolean activo = true;
     public static final String IMAGEN_DEFAULT = CloudinaryDefaults.FERiante_DEFAULT_URL;
 
     @ManyToOne
@@ -105,5 +106,7 @@ public class Stand {
         this.imagenPublicId = imagenPublicId;
     }
 
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 
 }

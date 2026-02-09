@@ -64,6 +64,16 @@ public class StandController {
                 .map(stand-> new StandDTO(stand))
                 .toList();
     }
+
+    // Para que el público solo vea stands abiertos
+    @GetMapping("/stands/activos")
+    public List<StandDTO> getStandsActivos() {
+        return standRepository.findByActivoTrue()
+                .stream()
+                .map(StandDTO::new)
+                .toList();
+    }
+
     @GetMapping("/stands/{id}")
     public StandDTO getStandDTO(@PathVariable Integer id){
         return standRepository.findById(id)
@@ -95,17 +105,17 @@ public class StandController {
         Stand stand = standRepository.findById(standId).orElse(null);
         Feria feria = feriaRepository.findById(feriaId).orElse(null);
 
-        if (stand == null) {
-            return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
-        }
-        if (feria == null) {
-            return new ResponseEntity<>("Feria no encontrada", HttpStatus.NOT_FOUND);
+        if (stand == null) return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
+        if (feria == null) return new ResponseEntity<>("Feria no encontrada", HttpStatus.NOT_FOUND);
+
+        // 🔴 REGLA DE NEGOCIO: No permitir asignar si el stand está desactivado
+        if (!stand.isActivo()) {
+            return new ResponseEntity<>("No se puede asignar un stand que está DESACTIVADO por el feriante.", HttpStatus.BAD_REQUEST);
         }
 
         stand.setFeria(feria);
         standRepository.save(stand);
-
-        return new ResponseEntity<>("Stand asignado a la feria correctamente", HttpStatus.OK);
+        return new ResponseEntity<>("Stand asignado correctamente", HttpStatus.OK);
     }
 
     // ▼▼▼ NUEVO ENDPOINT PARA DESASIGNAR ▼▼▼
@@ -191,5 +201,23 @@ public class StandController {
                 "mensaje", "Imagen del stand restaurada a la predeterminada"
         ));
     }
+
+    @PatchMapping("/stands/mi-stand/toggle-activo")
+    public ResponseEntity<?> toggleActivo(Authentication authentication) {
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
+        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Stand stand = standRepository.findByFeriante(feriante);
+
+        if (stand == null) {
+            return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
+        }
+
+        stand.setActivo(!stand.isActivo()); // Cambia de true a false o viceversa
+        standRepository.save(stand);
+
+        String estado = stand.isActivo() ? "Abierto" : "Cerrado";
+        return ResponseEntity.ok(Map.of("mensaje", "Tu stand ahora está " + estado, "activo", stand.isActivo()));
+    }
+
 
 }

@@ -32,11 +32,11 @@ public class Producto {
     @JsonIgnoreProperties("productos")
     private Stand stand; // cada producto pertenece a un stand
 
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("productos")
-    private List<CategoriaProducto> categorias; // un producto puede tener varias categorías
 
-    private boolean estado;
+    // 🟢 Reemplazamos el @OneToMany por un @ManyToOne
+    @ManyToOne
+    @JoinColumn(name = "categoria_id") // El producto guarda el ID de la categoría
+    private CategoriaProducto categoria;
 
     public Producto(){}
     public Producto(double precio, String descripcion, String nombre) {
@@ -73,9 +73,9 @@ public class Producto {
         this.precio = precio;
     }
 
-    public void setCategorias(List<CategoriaProducto> categorias) {
-        this.categorias = categorias;
-    }
+    public CategoriaProducto getCategoria() { return categoria; }
+
+    public void setCategoria(CategoriaProducto categoria) { this.categoria = categoria; }
 
     public void setStand(Stand stand) {
         this.stand = stand;
@@ -83,10 +83,6 @@ public class Producto {
 
     public Stand getStand() {
         return stand;
-    }
-
-    public List<CategoriaProducto> getCategorias() {
-        return categorias;
     }
 
     public String getImagenUrl() {

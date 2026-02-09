@@ -15,53 +15,49 @@ public class StandDTO {
     private List<ProductoDTO> productos;
     private FerianteDTO feriante;
     private Integer feriaId;
+    private boolean activo; // 🟢 Se mantiene
 
     public StandDTO(Stand stand) {
         this.id = stand.getId();
         this.nombre = stand.getNombre();
         this.descripcion = stand.getDescripcion();
         this.imagenUrl = stand.getImagenUrl();
+        this.activo = stand.isActivo();
 
-        // 🟢 FILTRO PARA EL PÚBLICO: Solo activos y NO eliminados
-        this.productos = stand.getProductos()
-                .stream()
+        // 🟢 Lógica de protección centralizada
+        this.productos = (stand.isActivo())
+                ? stand.getProductos().stream()
                 .filter(p -> p.isActivo() && !p.isEliminado())
                 .map(ProductoDTO::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                : List.of(); // Lista vacía si está cerrado
 
         if (stand.getFeriante() != null) {
             this.feriante = new FerianteDTO(stand.getFeriante());
         }
 
-        if (stand.getFeria() != null) {
-            this.feriaId = stand.getFeria().getId();
-        } else {
-            this.feriaId = null;
-        }
+        this.feriaId = (stand.getFeria() != null) ? stand.getFeria().getId() : null;
     }
 
     public StandDTO(Stand stand, boolean esParaFerianteDTO) {
         this.id = stand.getId();
         this.nombre = stand.getNombre();
         this.descripcion = stand.getDescripcion();
+        this.activo = stand.isActivo();
 
-        // 🟢 FILTRO PARA EL PÚBLICO: También aplicado aquí
-        this.productos = stand.getProductos()
-                .stream()
+        // 🟢 También protegemos aquí para ser consistentes
+        this.productos = (stand.isActivo())
+                ? stand.getProductos().stream()
                 .filter(p -> p.isActivo() && !p.isEliminado())
                 .map(ProductoDTO::new)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                : List.of();
 
-        this.feriante = null; // Evita bucle infinito
-
-        if (stand.getFeria() != null) {
-            this.feriaId = stand.getFeria().getId();
-        } else {
-            this.feriaId = null;
-        }
+        this.feriante = null;
+        this.feriaId = (stand.getFeria() != null) ? stand.getFeria().getId() : null;
     }
 
-    // Getters
+    // Getters indispensables
     public int getId() { return id; }
     public String getNombre() { return nombre; }
     public String getDescripcion() { return descripcion; }
@@ -69,4 +65,5 @@ public class StandDTO {
     public FerianteDTO getFeriante() { return feriante; }
     public String getImagenUrl() { return imagenUrl; }
     public Integer getFeriaId() { return feriaId; }
+    public boolean isActivo() { return activo; } // 🟢 AGREGADO: Importante para el JSON
 }

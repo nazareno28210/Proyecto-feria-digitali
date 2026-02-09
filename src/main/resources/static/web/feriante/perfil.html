@@ -6,7 +6,6 @@
     <title>Mi Perfil - Feria Digital</title>
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/feriante/perfil.css">
-
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 </head>
 <body>
@@ -19,10 +18,7 @@
 </header>
 
 <main>
-    <!-- Contenedor para el layout de 2 columnas -->
     <div class="perfil-layout">
-
-        <!-- 1. Columna Izquierda (Tus datos) -->
         <div class="perfil-container">
             <h1>Mi Perfil de Feriante</h1>
 
@@ -47,7 +43,6 @@
             </div>
 
             <div class="perfil-card edit-mode" id="feriante-edit">
-                <!-- (Contenido del formulario de edición de feriante) -->
                 <div class="form-group">
                     <label>Nombre Emprendimiento</label>
                     <input type="text" id="edit-feriante-nombre">
@@ -72,15 +67,20 @@
 
             <div class="header-card">
                 <h2>Mi Stand</h2>
+                <div class="stand-toggle-container">
+                    <span id="stand-status-label" class="status-badge">Cargando...</span>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-stand-activo">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
                 <button id="btn-edit-stand" class="btn btn-edit">Editar</button>
             </div>
 
             <div class="perfil-card" id="stand-view">
-                <!-- (Contenido de la vista de stand) -->
-            </div>
+                </div>
 
             <div class="perfil-card edit-mode" id="stand-edit">
-                <!-- (Contenido del formulario de edición de stand) -->
                 <div class="form-group">
                     <label>Nombre del Stand</label>
                     <input type="text" id="edit-stand-nombre">
@@ -100,36 +100,32 @@
             </div>
         </div>
 
-        <!-- 2. Columna Derecha (Acciones) -->
-    <div class="perfil-acciones">
+        <div class="perfil-acciones">
+            <a href="/web/feriante/misproductos.html" class="dashboard-card">
+                <div class="icon">🛍️</div>
+                <h3>Gestionar Mis Productos</h3>
+                <p>Agregar, editar o eliminar los productos de tu stand.</p>
+            </a>
 
-        <a href="/web/feriante/misproductos.html" class="dashboard-card">
-            <div class="icon">🛍️</div>
-            <h3>Gestionar Mis Productos</h3>
-            <p>Agregar, editar o eliminar los productos de tu stand.</p>
-        </a>
+            <a id="card-mis-ferias" class="dashboard-card" href="#">
+                <div class="icon">🎪</div>
+                <h3>Mis Ferias Asignadas</h3>
+                <div id="ferias-card-body">
+                    <p>Cargando información de ferias...</p>
+                </div>
+            </a>
 
-        <a id="card-mis-ferias" class="dashboard-card" href="#">
-            <div class="icon">🎪</div>
-            <h3>Mis Ferias Asignadas</h3>
-            <div id="ferias-card-body">
-            <p>Cargando información de ferias...</p>
-            </div>
-        </a>
-
-        <a href="/web/cambiar-contrasena.html" class="dashboard-card action-blue">
-            <div class="icon">🔒</div>
-            <h3>Cambiar Contraseña</h3>
-            <p>Actualiza tu clave de acceso de forma segura.</p>
-        </a>
-
+            <a href="/web/cambiar-contrasena.html" class="dashboard-card action-blue">
+                <div class="icon">🔒</div>
+                <h3>Cambiar Contraseña</h3>
+                <p>Actualiza tu clave de acceso de forma segura.</p>
+            </a>
+        </div>
     </div>
-
-    </div> <!-- .perfil-layout -->
 </main>
 
 <footer>
-    <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos de la carrera de Tecnicatura Superior en Desarrollo de Software del CENT 35.</p>
+    <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos CENT 35.</p>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>

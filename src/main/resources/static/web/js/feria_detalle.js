@@ -1,10 +1,10 @@
 /*
  * ====================================
- * FERIA-DETALLE.JS (con Toastify y Rediseño)
+ * FERIA-DETALLE.JS (Actualizado: Filtro de Stands Activos)
  * ====================================
  */
 
-// 1. AÑADIDA: Función Toastify
+// 1. Función Toastify (Mantenida) [cite: 168-173]
 function showToast(message, type = "info") {
   let color;
   switch (type) {
@@ -18,7 +18,7 @@ function showToast(message, type = "info") {
       color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
       break;
     default:
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      color = "linear-gradient(to right, #3b82f6, #67e8f9)";
   }
   Toastify({
     text: message,
@@ -32,7 +32,6 @@ function showToast(message, type = "info") {
   }).showToast();
 }
 
-
 const API_URL = "http://localhost:8080/api/ferias";
 const params = new URLSearchParams(window.location.search);
 const feriaId = params.get("id");
@@ -42,10 +41,10 @@ document.addEventListener("DOMContentLoaded", cargarFeria);
 async function cargarFeria() {
   try {
     const response = await axios.get(`${API_URL}/${feriaId}`);
-    const feria = response.data;
+    const feria = response.data; 
 
     // ===================================
-    //  la nueva sección de Info
+    // Renderizado de Info de la Feria [cite: 176-179]
     // ===================================
     const infoGrid = document.getElementById("info-feria-grid");
     infoGrid.innerHTML = `
@@ -71,21 +70,26 @@ async function cargarFeria() {
         </div>
       </div>
     `;
-    
+
     const infoDesc = document.getElementById("info-feria-desc");
     infoDesc.innerHTML = `
       <p><strong>Descripción:</strong></p>
       <p>${feria.descripcion}</p>
     `;
 
-    // Pone el nombre de la feria en el H1 del header
-    document.getElementById("nombre-feria").textContent = feria.nombre;
+    document.getElementById("nombre-feria").textContent = feria.nombre; 
 
+    // ===================================
+    // Lógica de Stands (CON FILTRO DE ACTIVACIÓN) 
+    // ===================================
     const standsContainer = document.getElementById("stands-container");
     standsContainer.innerHTML = "";
     
-    if (feria.stands && feria.stands.length > 0) {
-      feria.stands.forEach((stand) => {
+    // 🟢 CAMBIO CLAVE: Filtramos la lista para mostrar solo stands que tengan activo: true
+    const standsVisibles = (feria.stands || []).filter(stand => stand.activo === true);
+
+    if (standsVisibles.length > 0) {
+      standsVisibles.forEach((stand) => {
         const div = document.createElement("div");
         div.classList.add("stand-card");
 
@@ -93,9 +97,8 @@ async function cargarFeria() {
           ? `<div class="stand-image-container">
                <img src="${stand.imagenUrl}" alt="Logo de ${stand.nombre}">
              </div>`
-          : ''; // Si no hay imagen, no pone nada
+          : ''; 
 
-        // CAMBIO: Botón ahora usa .btn-stand
         div.innerHTML = `
           ${imagenHtml} 
           <div class="stand-content">
@@ -106,29 +109,27 @@ async function cargarFeria() {
             }</p>
           </div>
           <button class="btn-stand" onclick="verProductos(${stand.id})">Ver productos</button>
-        `;
+        `; 
         standsContainer.appendChild(div);
       });
     } else {
-      // CAMBIO: Mensaje de "no hay stands" con clase
+      // Si la feria tiene stands asignados pero todos están "Cerrados", mostramos este mensaje 
       standsContainer.innerHTML =
-        "<p class='no-stands-msg'>Aún no hay stands registrados para esta feria.</p>";
+        "<p class='no-stands-msg'>Actualmente no hay stands disponibles para visitar en esta feria.</p>";
     }
   } catch (error) {
-    console.error("Error al cargar la feria:", error);
-    // CAMBIO: console.error a toast
-    showToast("❌ Error al cargar los datos de la feria.", "error");
+    console.error("Error al cargar la feria:", error); 
+    showToast("❌ Error al cargar los datos de la feria.", "error"); 
     document.getElementById("info-feria-grid").innerHTML =
-      "<p>Error al cargar los datos.</p>";
+      "<p>Error al cargar los datos.</p>"; 
   }
 }
 
-// 2. DEFINIR LA FUNCIÓN 'volver' (sin cambios)
+// Funciones de navegación (Sin cambios) [cite: 188-189]
 function volver() {
   window.location.href = "ferias.html";
 }
 
-// 3. DEFINIR LA FUNCIÓN 'verProductos' (sin cambios)
 function verProductos(standId) {
   window.location.href = `stand_detalle.html?idStand=${standId}`;
 }

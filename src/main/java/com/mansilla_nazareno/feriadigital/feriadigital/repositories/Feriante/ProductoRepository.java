@@ -36,5 +36,5 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     List<Producto> findByStand_Feriante_Usuario_Email(String email);
 
 
-
+    List<Producto> findByCategoria_IdAndActivoTrue(int categoriaId);
 }
