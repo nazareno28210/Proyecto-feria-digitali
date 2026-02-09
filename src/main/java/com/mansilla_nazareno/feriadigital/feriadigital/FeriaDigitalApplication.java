@@ -219,6 +219,7 @@ public class FeriaDigitalApplication {
 				feriaRepository.save(feria);
 
 				System.out.println("--- DATOS DE PRUEBA CARGADOS EXITOSAMENTE ---");
+
 			}
 		};
 	}

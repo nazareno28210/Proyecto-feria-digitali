@@ -36,6 +36,10 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	// Cloudinary
 	implementation 'com.cloudinary:cloudinary-http44:1.36.0'
+	//gmail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+
 }
 
 tasks.named('test') {

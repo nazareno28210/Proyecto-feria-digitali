@@ -1,26 +1,28 @@
 /*
  * ====================================
- * NUEVO LOGIN.CSS - v6 (Fondo con color)
+ * LOGIN.CSS - v7 (UI premium)
  * ====================================
  */
 
-/* Paleta de colores del logo */
 :root {
   --color-dark-blue: #1a3a5a;
   --color-medium-blue: #3b82f6;
   --color-light-accent: #67e8f9;
-  /* CAMBIO: Fondo con un azul claro más notable */
   --color-background: #eef6ff;
   --color-card: #ffffff;
   --color-text-dark: #1f2937;
   --color-text-light: #6b7280;
 }
 
-/* Estilos generales */
+/* Fondo general */
 body {
   font-family: "Poppins", sans-serif;
-  /* Este color se toma de la variable --color-background */
-  background-color: var(--color-background); 
+  background: linear-gradient(
+    180deg,
+    #f5faff 0%,
+    #eef6ff 60%,
+    #e8f1fb 100%
+  );
   display: flex;
   justify-content: center;
   align-items: center;
@@ -28,84 +30,128 @@ body {
   margin: 0;
 }
 
+/* Card */
 .login-container {
   background: var(--color-card);
   padding: 3rem 3.5rem;
-  border-radius: 20px; 
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
   width: 100%;
-  max-width: 480px; 
+  max-width: 480px;
   text-align: center;
-  border-top: 5px solid var(--color-dark-blue); 
-  border-bottom: 5px solid var(--color-dark-blue); 
+  border-top: 5px solid var(--color-dark-blue);
+  border-bottom: 5px solid var(--color-dark-blue);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
   transition: all 0.3s ease;
+  animation: fadeInUp 0.6s ease;
 }
 
-/* Estilo para el logo */
+.login-container:hover {
+  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+}
+
+/* Animación */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Logo */
 .login-logo {
-    width: 120px;
-    height: 120px;
-    margin: 0 auto 1.5rem; 
-    display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+  display: block;
 }
 
 /* Título */
 h2 {
-  font-size: 1.75rem; 
+  font-size: 1.8rem;
   margin-bottom: 2rem;
-  color: var(--color-dark-blue); 
+  color: var(--color-dark-blue);
   font-weight: 700;
 }
 
-/* Form-group */
+/* Form */
 .form-group {
-  margin-bottom: 1.5rem; 
+  margin-bottom: 1.5rem;
   text-align: left;
 }
 
-/* Labels */
 label {
   display: block;
   margin-bottom: 0.5rem;
-  color: var(--color-text-light); 
+  color: var(--color-text-light);
   font-weight: 500;
-  font-size: 0.95rem; 
+  font-size: 0.95rem;
 }
 
 /* Inputs */
 input {
   width: 100%;
-  padding: 1rem; 
-  border: 1px solid #d1d5db; 
+  padding: 1rem;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
-  transition: all 0.3s ease;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease;
 }
 
+/* 👇 CUANDO PASÁS EL CURSOR */
+input:hover {
+  border-color: var(--color-medium-blue);
+  background-color: #f9fbff;
+}
+
+/* 👇 CUANDO HACÉS CLICK / FOCO */
 input:focus {
   border-color: var(--color-medium-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
-/* Botón */
 button {
   background-color: var(--color-dark-blue);
   color: #fff;
   border: none;
-  padding: 1rem; 
+  padding: 1rem;
   width: 100%;
   border-radius: 8px;
-  font-size: 1.05rem; 
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition:
+    background-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
   margin-top: 1.5rem;
+}
+
+/* 👇 RESPUESTA AL PASAR EL CURSOR */
+button:hover {
+  background-color: var(--color-medium-blue);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+}
+
+/* 👇 RESPUESTA AL HACER CLICK */
+button:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: 0 6px 15px rgba(59, 130, 246, 0.25);
 }
 
 button:hover {
   background-color: var(--color-medium-blue);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
 }
 
 /* Footer */
@@ -122,5 +168,20 @@ button:hover {
 }
 
 .footer-text a:hover {
+  text-decoration: underline;
+}
+
+/* Link recuperar contraseña */
+.forgot-password {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.forgot-password a {
+  color: var(--color-medium-blue);
+  text-decoration: none;
+}
+
+.forgot-password a:hover {
   text-decoration: underline;
 }
