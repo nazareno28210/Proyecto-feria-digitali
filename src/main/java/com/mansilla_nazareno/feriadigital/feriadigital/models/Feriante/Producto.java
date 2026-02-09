@@ -25,7 +25,7 @@ public class Producto {
     private boolean activo = true;
 
     @Column(nullable = false)
-    private boolean eliminado = false; // 🟢 NUEVO: Para el borrado lógico
+    private boolean eliminado = false; // 🟢 Para el borrado lógico
 
     @ManyToOne
     @JoinColumn(name = "stand_id")

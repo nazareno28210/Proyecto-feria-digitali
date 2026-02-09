@@ -14,7 +14,7 @@ public class TestEmailController {
     @GetMapping("/test-mail")
     public String testMail() {
         emailService.enviar(
-                "nazarenoguardia2004@gmail.com",
+                "giandenismansilla@gmail.com",
                 "Feria Digital – Test",
                 "Si llegó este mail, Gmail SMTP funciona correctamente 🚀"
         );

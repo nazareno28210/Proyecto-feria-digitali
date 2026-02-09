@@ -24,6 +24,28 @@
 
         <!-- 1. Columna Izquierda (Tus datos) -->
         <div class="perfil-container">
+            <div class="perfil-foto-container">
+                <img
+                        src="/img/default-user.png"
+                        alt="Foto de perfil"
+                        class="perfil-foto"
+                        id="fotoPerfil"
+                >
+
+                <input
+                        type="file"
+                        id="inputFotoPerfil"
+                        accept="image/*"
+                        hidden
+                >
+
+                <button
+                        class="btn btn-edit perfil-foto-btn"
+                        onclick="document.getElementById('inputFotoPerfil').click()"
+                >
+                    Cambiar foto
+                </button>
+            </div>
             <h1>Mi Perfil de Feriante</h1>
 
             <h2>Datos de Usuario</h2>

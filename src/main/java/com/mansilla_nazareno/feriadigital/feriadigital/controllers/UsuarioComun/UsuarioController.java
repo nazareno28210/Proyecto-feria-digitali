@@ -6,27 +6,31 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
-
+    private final CloudinaryService cloudinaryService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioRepository usuarioRepository,CloudinaryService cloudinaryService) {
         this.usuarioRepository = usuarioRepository;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping("/usuarios")
@@ -156,5 +160,32 @@ public class UsuarioController {
         String patron = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!¿?.,;:_-]).{8,}$";
         return contrasena.matches(patron);
     }
+    @PatchMapping(value = "/usuarios/current/imagen", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> subirFotoPerfil(@RequestParam("imagen") MultipartFile imagen,
+            Authentication authentication
+    ) {
+        if (imagen == null || imagen.isEmpty()) {return ResponseEntity.badRequest().body("No se envió ninguna imagen");}
+
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
+
+        Map<String, String> result;
+        if (usuario.getImagenPublicId() != null) {
+            result = cloudinaryService.reemplazarImagen(
+                    imagen,
+                    usuario.getImagenPublicId()
+            );
+        } else {result = cloudinaryService.subirImagen(imagen);}
+
+        usuario.setImagenUrl(result.get("url"));
+        usuario.setImagenPublicId(result.get("public_id"));
+
+        usuarioRepository.save(usuario);
+
+        return ResponseEntity.ok("Foto de perfil actualizada");
+    }
+
 
 }
