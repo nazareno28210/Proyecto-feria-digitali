@@ -20,16 +20,8 @@
 <main class="container py-4">
     <h2 class="text-center mb-4 titulo">🛍️ Mis Productos</h2>
 
-    <div class="card p-3 mb-4 sombra">
+    <div class="card p-4 mb-4 sombra">
         <h5 class="mb-3 subtitulo">Agregar nuevo producto</h5>
-<<<<<<< HEAD
-        <div class="row g-2">
-            <div class="col-md-3">
-                <input id="nombre" class="form-control" placeholder="Nombre">
-            </div>
-            <div class="col-md-3">
-                <input id="descripcion" class="form-control" placeholder="Descripción">
-=======
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label small fw-bold">Nombre del Producto</label>
@@ -38,26 +30,18 @@
             <div class="col-md-5">
                 <label class="form-label small fw-bold">Descripción corta</label>
                 <input id="descripcion" class="form-control" placeholder="Detalles del producto">
->>>>>>> 6c62a080a856646e9fd08cc848c39765c364ad7e
             </div>
             <div class="col-md-3">
                 <label class="form-label small fw-bold">Precio</label>
                 <input id="precio" type="number" class="form-control" placeholder="0.00">
             </div>
-<<<<<<< HEAD
-            <div class="col-md-3">
+
+            <div class="col-md-4">
+                <label class="form-label small fw-bold">Categoría</label>
                 <select id="categoriaId" class="form-select">
-                    <option value="">Categoría...</option>
+                    <option value="">Cargando categorías...</option>
                 </select>
             </div>
-            <div class="col-md-1 d-grid">
-                <button class="btn btn-success" onclick="crearProducto()">➕</button>
-            </div>
-            <div class="col-md-12 mt-2">
-                <label for="imagenFile" class="form-label">Imagen del producto</label>
-                <input type="file" id="imagenFile" class="form-control" accept="image/*">
-=======
-
             <div class="col-md-4">
                 <label class="form-label small fw-bold">Se vende por:</label>
                 <select id="tipoVenta" class="form-select" onchange="toggleMedida()">
@@ -67,20 +51,17 @@
                     <option value="VOLUMEN">Volumen (l / ml)</option>
                 </select>
             </div>
-
             <div class="col-md-4" id="divMedida" style="display: none;">
                 <label class="form-label small fw-bold">Unidad de medida</label>
                 <select id="unidadMedida" class="form-select"></select>
             </div>
 
-            <div class="col-md-4">
+            <div class="col-md-8">
                 <label class="form-label small fw-bold">Imagen del producto</label>
                 <input type="file" id="imagen" class="form-control" accept="image/*">
             </div>
-
-            <div class="col-md-12 text-end">
-                <button class="btn btn-success px-4" onclick="crearProducto()">➕ Agregar Producto</button>
->>>>>>> 6c62a080a856646e9fd08cc848c39765c364ad7e
+            <div class="col-md-4 d-grid align-items-end">
+                <button class="btn btn-success fw-bold" onclick="crearProducto()">➕ Agregar Producto</button>
             </div>
         </div>
     </div>
@@ -101,19 +82,31 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="edit-id">
+                
                 <div class="mb-3">
                     <label class="fw-bold">Nombre</label>
                     <input id="edit-nombre" class="form-control">
                 </div>
+                
                 <div class="mb-3">
                     <label class="fw-bold">Descripción</label>
                     <textarea id="edit-descripcion" class="form-control"></textarea>
                 </div>
+
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="fw-bold">Precio</label>
                         <input id="edit-precio" type="number" class="form-control">
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold">Categoría</label>
+                        <select id="edit-categoriaId" class="form-select">
+                            <option value="">Seleccione...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="fw-bold">Tipo de Venta</label>
                         <select id="edit-tipoVenta" class="form-select" onchange="toggleMedida('edit-')">
@@ -123,25 +116,15 @@
                             <option value="VOLUMEN">Volumen</option>
                         </select>
                     </div>
+                    <div class="col-md-6 mb-3" id="edit-divMedida" style="display: none;">
+                        <label class="fw-bold">Unidad de Medida</label>
+                        <select id="edit-unidadMedida" class="form-select"></select>
+                    </div>
                 </div>
-                <div class="mb-3" id="edit-divMedida" style="display: none;">
-                    <label class="fw-bold">Unidad de Medida</label>
-                    <input id="edit-unidadMedida" class="form-control" placeholder="ej: kg, m">
-                </div>
+
                 <div class="mb-3">
-<<<<<<< HEAD
-                    <label>Categoría</label>
-                    <select id="edit-categoriaId" class="form-select">
-                        <option value="">Seleccione una categoría...</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label>Nueva Imagen (Opcional)</label>
-                    <input type="file" id="edit-imagenFile" class="form-control" accept="image/*">
-=======
                     <label class="fw-bold">Cambiar Imagen (opcional)</label>
                     <input type="file" id="edit-imagen" class="form-control" accept="image/*">
->>>>>>> 6c62a080a856646e9fd08cc848c39765c364ad7e
                 </div>
             </div>
             <div class="modal-footer">

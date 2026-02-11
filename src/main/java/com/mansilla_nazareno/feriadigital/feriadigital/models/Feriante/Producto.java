@@ -33,19 +33,18 @@ public class Producto {
     private Stand stand; // cada producto pertenece a un stand
 
 
-<<<<<<< HEAD
+
     // 🟢 Reemplazamos el @OneToMany por un @ManyToOne
     @ManyToOne
     @JoinColumn(name = "categoria_id") // El producto guarda el ID de la categoría
     private CategoriaProducto categoria;
-=======
+
     @Enumerated(EnumType.STRING)
     private TipoVenta tipoVenta; //delimita la oferta
     private String unidadMedida; // "kg", "g", "m", "un", etc.
 
 
-    private boolean estado;
->>>>>>> 6c62a080a856646e9fd08cc848c39765c364ad7e
+
 
     public Producto(){}
     public Producto(double precio, String descripcion, String nombre) {

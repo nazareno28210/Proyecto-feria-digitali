@@ -7,12 +7,14 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.CategoriaProducto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.TipoVenta; // 🟢 Importado
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.AdministradorDeFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -41,7 +43,8 @@ public class FeriaDigitalApplication {
 			FerianteRepository ferianteRepository,
 			FeriaRepository feriaRepository,
 			StandRepository standRepository,
-			CategoriaProductoRepository categoriaRepository // 🟢 Agregamos esto
+			CategoriaProductoRepository categoriaRepository,
+			ProductoRepository productoRepository
 	) {
 		return (args) -> {
 			if (usuarioRepository.findAll().isEmpty()) {
@@ -55,17 +58,14 @@ public class FeriaDigitalApplication {
 				Usuario maria = new Usuario("María", "González", "maria.perros@gmail.com", passwordEncoder.encode("123"), EstadoUsuario.ACTIVO);
 				nazareno.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
 				francisco.setTipoUsuario(TipoUsuario.FERIANTE);
-				usuarioRepository.save(nazareno);
-				usuarioRepository.save(denis);
-				usuarioRepository.save(francisco);
-				usuarioRepository.save(maria);
+				usuarioRepository.saveAll(List.of(nazareno, denis, francisco, maria));
 
 				AdministradorDeFeria admin1 = new AdministradorDeFeria();
 				admin1.setUsuario(nazareno);
 				administradorDeFeriaRepository.save(admin1);
 
 				// =========================================
-				// 2. CATEGORÍAS GLOBALES (Creamos las que usaremos)
+				// 2. CATEGORÍAS GLOBALES
 				// =========================================
 				CategoriaProducto catIndumentaria = new CategoriaProducto("Indumentaria", "Ropa y telas");
 				CategoriaProducto catCalzado = new CategoriaProducto("Calzado", "Zapatos y zapatillas");
@@ -93,19 +93,29 @@ public class FeriaDigitalApplication {
 
 				// --- Productos Stand 1 ---
 				Producto p1 = new Producto(50000, "Pantalón térmico neopren", "Pantalón Invierno");
-				p1.setCategoria(catIndumentaria); // 🟢 Ahora es setCategoria
+				p1.setCategoria(catIndumentaria);
+				p1.setTipoVenta(TipoVenta.UNIDAD);
+				p1.setUnidadMedida("un");
 
 				Producto p2 = new Producto(25000, "Camisa floreada manga corta", "Camisa Verano");
 				p2.setCategoria(catIndumentaria);
+				p2.setTipoVenta(TipoVenta.UNIDAD);
+				p2.setUnidadMedida("un");
 
 				Producto p3 = new Producto(17000, "Zapatillas urbanas", "Zapatillas Rebook");
 				p3.setCategoria(catCalzado);
+				p3.setTipoVenta(TipoVenta.UNIDAD);
+				p3.setUnidadMedida("un");
 
 				Producto p4 = new Producto(20000, "Remera estampada Messi", "Remera 10");
 				p4.setCategoria(catIndumentaria);
+				p4.setTipoVenta(TipoVenta.UNIDAD);
+				p4.setUnidadMedida("un");
 
 				Producto p5 = new Producto(18000, "Bufanda de lana tejida", "Bufanda Artesanal");
 				p5.setCategoria(catAccesorios);
+				p5.setTipoVenta(TipoVenta.UNIDAD);
+				p5.setUnidadMedida("un");
 
 				List<Producto> productosStand1 = List.of(p1, p2, p3, p4, p5);
 				productosStand1.forEach(p -> p.setStand(stand1));
@@ -125,9 +135,13 @@ public class FeriaDigitalApplication {
 				// --- Productos Stand 2 ---
 				Producto p10 = new Producto(15000, "Pelota de caucho resistente", "Juguete perro");
 				p10.setCategoria(catMascotas);
+				p10.setTipoVenta(TipoVenta.UNIDAD);
+				p10.setUnidadMedida("un");
 
 				Producto p11 = new Producto(12000, "Collar ajustable reflectivo", "Collar perro");
 				p11.setCategoria(catMascotas);
+				p11.setTipoVenta(TipoVenta.UNIDAD);
+				p11.setUnidadMedida("un");
 
 				List<Producto> productosStand2 = List.of(p10, p11);
 				productosStand2.forEach(p -> p.setStand(stand2));
@@ -138,7 +152,7 @@ public class FeriaDigitalApplication {
 				feriaRepository.save(feria);
 
 				System.out.println("--- DATOS DE PRUEBA CARGADOS EXITOSAMENTE ---");
-
 			}
 		};
-	}}
+	}
+}
