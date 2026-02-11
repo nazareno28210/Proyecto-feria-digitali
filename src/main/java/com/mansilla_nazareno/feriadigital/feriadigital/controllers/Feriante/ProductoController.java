@@ -69,7 +69,26 @@ public class ProductoController {
                 .map(producto -> ResponseEntity.ok(new ProductoDTO(producto)))
                 .orElse(ResponseEntity.notFound().build());
     }
+// ========================================================
+// 🔎 BUSCADOR GLOBAL (VENTANA ÚNICA)
+// ========================================================
 
+    @GetMapping("/buscar")
+    public ResponseEntity<List<ProductoDTO>> buscarProductos(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) Integer categoriaId,
+            @RequestParam(required = false) Integer feriaId,
+            @RequestParam(required = false) Double minPrecio,
+            @RequestParam(required = false) Double maxPrecio,
+            @RequestParam(defaultValue = "true") boolean soloActivos,
+            @RequestParam(defaultValue = "true") boolean soloFeriasActivas
+    ) {
+        // Usamos el método avanzado del repositorio que filtra por todo esto
+        List<ProductoDTO> resultados = productoRepository.buscarConFiltrosPro(
+                        nombre, categoriaId, feriaId, minPrecio, maxPrecio, soloActivos, soloFeriasActivas)
+                .stream().map(ProductoDTO::new).toList();
+        return ResponseEntity.ok(resultados);
+    }
     // ========================================================
     // 🧑‍🌾 GESTIÓN DEL FERIANTE (CRUD)
     // ========================================================

@@ -24,4 +24,5 @@ public class CategoriaProductoController {
                 .map(CategoriaProductoDTO::new)
                 .toList();
     }
+
 }

@@ -108,40 +108,52 @@ async function verificarSesion() {
     }
   } catch (error) {
     console.log("Usuario no autenticado (modo visitante)");
-    // No mostramos nada en user-actions si no está logueado
+    
+    // 🛒 AGREGADO: Botón de búsqueda para visitantes
     document.getElementById("user-actions").innerHTML = `
+      <a href="buscar.html" class="btn btn-header" style="margin-right: 10px;">
+        <i class="bi bi-cart-fill"></i> Buscar Productos
+      </a>
       <a href="/web/login.html" class="btn btn-header">Iniciar sesión</a>
     `;
   }
 }
 
-// 🟢 CAMBIO: Esta función ha sido actualizada 🟢
 async function mostrarOpcionesUsuario(usuario) {
   const container = document.getElementById("user-actions");
-  container.innerHTML = "";
+  container.innerHTML = ""; // Al limpiar, borramos todo, por eso lo re-creamos abajo
 
+  // 🛒 1. Crear Botón de Búsqueda (Visible para TODOS los logueados)
+  const btnBuscar = document.createElement("a");
+  btnBuscar.href = "buscar.html";
+  btnBuscar.className = "btn btn-header"; 
+  btnBuscar.style.marginRight = "10px"; 
+  btnBuscar.innerHTML = '<i class="bi bi-cart-fill"></i> Buscar Productos';
+  container.appendChild(btnBuscar);
+
+  // 2. Botón de Cerrar Sesión (Se usará al final)
   const btnLogout = document.createElement("button");
   btnLogout.id = "btn-logout";
-  btnLogout.className = "btn btn-logout"; // Clase global
+  btnLogout.className = "btn btn-logout";
   btnLogout.textContent = "Cerrar sesión";
   btnLogout.addEventListener("click", cerrarSesion);
 
   // 🔹 Si el usuario es NORMAL
   if (usuario.tipoUsuario === "NORMAL") {
-    // Siempre muestra "Mi Perfil"
     const btnPerfil = document.createElement("a");
-    btnPerfil.href = "/web/usuario-perfil.html"; // Enlace a su perfil de usuario
-    btnPerfil.className = "btn btn-header"; // Estilo de botón de header
+    btnPerfil.href = "/web/usuario-perfil.html";
+    btnPerfil.className = "btn btn-header";
+    btnPerfil.style.marginRight = "10px";
     btnPerfil.textContent = "Mi Perfil";
     container.appendChild(btnPerfil);
   }
 
   // 🔹 Si el usuario es FERIANTE
   if (usuario.tipoUsuario === "FERIANTE") {
-    // Muestra "Mi Perfil" que enlaza al perfil de feriante
     const btnPerfil = document.createElement("a");
-    btnPerfil.href = "/web/feriante/perfil.html"; // Enlace a su dashboard de feriante
+    btnPerfil.href = "/web/feriante/perfil.html";
     btnPerfil.className = "btn btn-header";
+    btnPerfil.style.marginRight = "10px";
     btnPerfil.textContent = "Mi Perfil";
     container.appendChild(btnPerfil);
   }
@@ -151,11 +163,12 @@ async function mostrarOpcionesUsuario(usuario) {
     const btnAdmin = document.createElement("a");
     btnAdmin.href = "/web/admin/dashboard.html";
     btnAdmin.className = "btn btn-admin";
+    btnAdmin.style.marginRight = "10px";
     btnAdmin.textContent = "Panel de administrador";
     container.appendChild(btnAdmin);
   }
 
-  // Se añade el botón de cerrar sesión al final
+  // 3. Añadir el botón de cerrar sesión al final
   container.appendChild(btnLogout);
 }
 
