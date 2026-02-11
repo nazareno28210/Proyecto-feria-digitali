@@ -1,0 +1,41 @@
+/* Colores basados en el azul institucional de Feria Digital */
+:root {
+    --azul-primario: #0d2c44; /* El azul oscuro del header */
+    --azul-brillante: #0d6efd;
+}
+
+body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+.navbar-custom { background-color: var(--azul-primario); }
+
+.filtro-panel { background: white; border-radius: 10px; }
+
+.producto-card {
+    border: none;
+    border-radius: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+.producto-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+    background-color: #eee;
+}
+
+.badge-categoria {
+    background-color: var(--azul-brillante);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+}
+
+.footer-custom { background-color: var(--azul-primario); }
+
+.text-primary { color: var(--azul-brillante) !important; }
+
+.btn-primary { background-color: var(--azul-brillante); border: none; }

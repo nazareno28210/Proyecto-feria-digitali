@@ -231,3 +231,12 @@ header input:focus {
   grid-column: 1 / -1; 
   padding: 3rem 0;
 }
+
+.bi-cart-fill {
+    margin-right: 5px;
+}
+
+#user-actions {
+    display: flex;
+    align-items: center;
+}

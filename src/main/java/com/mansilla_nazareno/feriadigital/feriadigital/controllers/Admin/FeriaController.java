@@ -1,6 +1,7 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import org.springframework.http.HttpStatus;
@@ -118,5 +119,13 @@ public class FeriaController {
             return ResponseEntity.ok("Feria activada correctamente");
         }).orElse(ResponseEntity.notFound().build());
     }
-
+    // Lista de ferias para el selector (id + nombre) - SOLO las que no estén eliminadas
+    @GetMapping("/ferias/lista-select")
+    public ResponseEntity<List<FeriaSelectorDTO>> getFeriasParaSelector() {
+        List<FeriaSelectorDTO> ferias = feriaRepository.findByEliminadoFalse()
+                .stream()
+                .map(FeriaSelectorDTO::new)
+                .toList();
+        return ResponseEntity.ok(ferias);
+    }
 }

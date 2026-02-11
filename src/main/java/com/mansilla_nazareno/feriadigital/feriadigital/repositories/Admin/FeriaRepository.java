@@ -12,4 +12,7 @@ public interface FeriaRepository extends JpaRepository<Feria, Integer> {
 
     // Para el Público: Solo las activas y no eliminadas
     List<Feria> findByEstadoAndEliminadoFalse(String estado);
+
+
 }
+

@@ -17,6 +17,7 @@ public class ProductoDTO {
     private int categoriaId; // 🟢 Agregamos el ID para el frontend
     private String tipoVenta; // 🟢 String para evitar problemas de mapeo en JS
     private String unidadMedida;
+    private String feriaNombre;
 
 
     public ProductoDTO(Producto producto) {
@@ -41,6 +42,13 @@ public class ProductoDTO {
             this.categoriaNombre = "Sin categoría";
             this.categoriaId = 0;
         }
+
+        // 🟢 Obtenemos el nombre de la feria navegando: Producto -> Stand -> Feria
+        if (producto.getStand() != null && producto.getStand().getFeria() != null) {
+            this.feriaNombre = producto.getStand().getFeria().getNombre();
+        } else {
+            this.feriaNombre = "Feria General";
+        }
     }
 
     // Getters necesarios
@@ -54,4 +62,5 @@ public class ProductoDTO {
     public int getCategoriaId() { return categoriaId; }
     public String getTipoVenta() { return tipoVenta; }
     public String getUnidadMedida() { return unidadMedida; }
+    public String getFeriaNombre() { return feriaNombre; }
 }
