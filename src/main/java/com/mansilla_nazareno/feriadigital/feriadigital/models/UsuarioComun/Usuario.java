@@ -18,6 +18,8 @@ public class Usuario {
     private String email;
     private String contrasena;
     private LocalDate fechaRegistro;
+    @Column(nullable = false)
+    private boolean enabled;
 
     @Enumerated(EnumType.STRING)
     private EstadoUsuario estadoUsuario;
@@ -41,6 +43,18 @@ public class Usuario {
         this.fechaRegistro = LocalDate.now();
         this.estadoUsuario = estadoUsuario;
         this.tipoUsuario = TipoUsuario.NORMAL;
+
+        this.enabled=false;
+
+
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public void setFechaRegistro(LocalDate fechaRegistro) {
