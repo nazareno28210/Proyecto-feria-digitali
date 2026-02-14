@@ -4,30 +4,20 @@
  * ====================================
  */
 
-// Función para mostrar notificaciones [cite: 190]
 function showToast(message, type = "info") {
     let color;
     switch (type) {
-        case "success":
-            color = "linear-gradient(to right, #1a3a5a, #3b82f6)";
-            break;
-        case "error":
-            color = "linear-gradient(to right, #ef4444, #b91c1c)";
-            break; 
-        case "warning":
-            color = "linear-gradient(to right, #3b82f6, #67e8f9)";
-            break; 
-        default:
-            color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+        case "success": color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; break;
+        case "error": color = "linear-gradient(to right, #ef4444, #b91c1c)"; break; 
+        case "warning": color = "linear-gradient(to right, #3b82f6, #67e8f9)"; break; 
+        default: color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
     }
     Toastify({
         text: message,
         duration: 4000,
         gravity: "top",
         position: "right",
-        style: {
-            background: color,
-        },
+        style: { background: color },
         stopOnFocus: true,
     }).showToast(); 
 }
@@ -41,7 +31,7 @@ async function cargarStand() {
         const response = await axios.get(`${API_URL}/${standId}`);
         const stand = response.data;
 
-        // 1. Llenar la sección de información del Stand [cite: 198]
+        // 1. Llenar la sección de información del Stand
         const infoStand = document.getElementById("info-stand");
         if (infoStand) {
             infoStand.innerHTML = `
@@ -69,7 +59,6 @@ async function cargarStand() {
             `; 
         }
 
-        // Actualizar el título en el header [cite: 204]
         const nombreHeader = document.getElementById("nombre-stand");
         if (nombreHeader) nombreHeader.textContent = stand.nombre;
 
@@ -77,16 +66,16 @@ async function cargarStand() {
         if (!productosContainer) return;
         productosContainer.innerHTML = ""; 
 
-        // 🟢 NUEVA LÓGICA DE PROTECCIÓN: Si el stand está desactivado por el feriante
+        // 🟢 LÓGICA DE PROTECCIÓN: Stand desactivado
         if (!stand.activo) {
             productosContainer.innerHTML = `
                 <div class="mensaje-cerrado" style="grid-column: 1 / -1; text-align: center; padding: 50px; background: #fff5f5; border: 2px dashed #feb2b2; border-radius: 15px; color: #c53030; margin-top: 20px;">
                     <i class="fas fa-store-slash" style="font-size: 3rem; margin-bottom: 15px;"></i>
                     <h3 style="margin-bottom: 10px; font-size: 1.5rem;">Este stand se encuentra cerrado temporalmente</h3>
-                    <p style="font-size: 1.1rem;">El feriante ha pausado la visibilidad de sus productos. Por favor, vuelve más tarde.</p>
+                    <p style="font-size: 1.1rem;">El feriante ha pausado la visibilidad de sus productos.</p>
                 </div>
             `;
-            return; // Detenemos la carga de productos
+            return; 
         }
 
         // 2. Renderizar los productos si el stand está activo 
@@ -95,7 +84,11 @@ async function cargarStand() {
                 const div = document.createElement("div");
                 div.classList.add("producto-card"); 
 
-                const imagenUrl = producto.imagenUrl ? producto.imagenUrl : "https://placehold.co/300x200?text=Sin+Imagen"; 
+                // 🔗 AGREGADO: Redirección al detalle al hacer clic
+                div.style.cursor = "pointer";
+                div.onclick = () => window.location.href = `producto-detalle.html?id=${producto.id}`;
+
+                const imagenUrl = producto.imagenUrl ? producto.imagenUrl : "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png"; 
                 
                 div.innerHTML = `
                     <img src="${imagenUrl}" alt="${producto.nombre}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">
@@ -113,7 +106,6 @@ async function cargarStand() {
                 productosContainer.appendChild(div); 
             });
         } else {
-            // Mensaje cuando el stand está abierto pero no tiene productos [cite: 211]
             productosContainer.innerHTML = `
                 <div class="no-products-container" style="grid-column: 1 / -1; text-align: center; padding: 50px;">
                     <p class='no-products-msg' style="font-size: 1.2rem; color: #666;">
@@ -125,16 +117,9 @@ async function cargarStand() {
     } catch (error) {
         console.error("Error al cargar el stand:", error); 
         showToast("❌ Error al cargar los datos del stand.", "error"); 
-        const infoStand = document.getElementById("info-stand");
-        if (infoStand) {
-            infoStand.innerHTML = `<p class="text-danger">Error al cargar los datos. Por favor, reintente más tarde.</p>`; 
-        }
     }
 }
 
-function volver() {
-    window.history.back(); 
-}
+function volver() { window.history.back(); }
 
-// Inicializar la carga cuando el DOM esté listo 
 document.addEventListener("DOMContentLoaded", cargarStand);

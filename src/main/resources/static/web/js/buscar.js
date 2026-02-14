@@ -66,24 +66,37 @@ function dibujarProductos(productos) {
         return;
     }
 
-    productos.forEach(p => {
-        const img = p.imagenUrl || "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
-        contenedor.innerHTML += `
-            <div class="col-md-3 mb-4">
-                <div class="card h-100 producto-card shadow-sm">
-                    <img src="${img}" class="card-img-top">
-                    <div class="card-body d-flex flex-column">
-                        <div class="mb-2"><span class="badge badge-categoria">${p.categoriaNombre}</span></div>
-                        <h5 class="card-title h6 fw-bold mb-1">${p.nombre}</h5>
-                        <p class="card-text text-muted small flex-grow-1">${p.descripcion || ''}</p>
-                        <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+productos.forEach(p => {
+    const img = p.imagenUrl || "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
+    
+    contenedor.innerHTML += `
+        <div class="col-md-3 mb-4">
+            <div class="card h-100 producto-card shadow-sm border-0" 
+                 onclick="window.location.href='producto-detalle.html?id=${p.id}'" 
+                 style="cursor: pointer;">
+                
+                <img src="${img}" class="card-img-top" alt="${p.nombre}" style="height: 200px; object-fit: cover;">
+                
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                        <span class="badge badge-cat text-uppercase">${p.categoriaNombre}</span>
+                    </div>
+                    <h5 class="card-title h6 fw-bold mb-1">${p.nombre}</h5>
+                    <p class="card-text text-muted small flex-grow-1 mb-2">${p.descripcion || ''}</p>
+                    <div class="mt-auto">
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-primary fs-5">$${p.precio.toFixed(0)}</span>
-                            <span class="text-muted small"><i class="bi bi-shop"></i> ${p.feriaNombre || 'Feria'}</span>
+                            <span class="text-muted" style="font-size: 0.75rem;">
+                                <i class="bi bi-shop"></i> ${p.feriaNombre || 'Feria'}
+                            </span>
                         </div>
                     </div>
                 </div>
-            </div>`;
-    });
+            </div>
+        </div>
+    `;
+});
 }
 
 function ordenarProductos(criterio) {

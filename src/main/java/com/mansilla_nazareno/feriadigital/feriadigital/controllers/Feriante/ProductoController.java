@@ -63,9 +63,9 @@ public class ProductoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductoDTO> getProducto(@PathVariable int id) {
+    public ResponseEntity<ProductoDTO> getProductoDetalle(@PathVariable int id) {
         return productoRepository.findById(id)
-                .filter(p -> p.isActivo() && !p.isEliminado())
+                .filter(p -> !p.isEliminado())
                 .map(producto -> ResponseEntity.ok(new ProductoDTO(producto)))
                 .orElse(ResponseEntity.notFound().build());
     }

@@ -34,6 +34,9 @@ public class WebAuthorization {
                         // 🔒 Endpoint para CAMBIO DE CONTRASEÑA
                         .requestMatchers("/api/password/**").authenticated()
 
+                        // 🛡️ AGREGÁ ESTA LÍNEA PARA LAS RESEÑAS
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/resenas").authenticated()
+
                         // 🌐 Productos públicos
                         .requestMatchers("/api/productos/publicos").permitAll()
 

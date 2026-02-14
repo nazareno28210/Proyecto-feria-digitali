@@ -18,6 +18,8 @@ public class ProductoDTO {
     private String tipoVenta; // 🟢 String para evitar problemas de mapeo en JS
     private String unidadMedida;
     private String feriaNombre;
+    private String standNombre; // 🟢 PASO 1: Agregar el campo
+    private int usuarioDueñoId; // ID del Usuario que es dueño del stand
 
 
     public ProductoDTO(Producto producto) {
@@ -49,6 +51,17 @@ public class ProductoDTO {
         } else {
             this.feriaNombre = "Feria General";
         }
+
+        // 🟢 PASO 2: Mapear el nombre del Stand
+        if (producto.getStand() != null) {
+            this.standNombre = producto.getStand().getNombre();
+        } else {
+            this.standNombre = "Stand General";
+        }
+
+        if (producto.getStand() != null && producto.getStand().getFeriante() != null) {
+            this.usuarioDueñoId = producto.getStand().getFeriante().getUsuario().getId();
+        }
     }
 
     // Getters necesarios
@@ -63,4 +76,6 @@ public class ProductoDTO {
     public String getTipoVenta() { return tipoVenta; }
     public String getUnidadMedida() { return unidadMedida; }
     public String getFeriaNombre() { return feriaNombre; }
+    public String getStandNombre() { return standNombre; }
+    public int getUsuarioDueñoId() { return usuarioDueñoId; }
 }

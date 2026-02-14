@@ -1,0 +1,61 @@
+/* Colores y Fuentes */
+body {
+    background-color: #f0f4f8;
+    font-family: 'Poppins', sans-serif;
+}
+
+.navbar-custom, .footer-custom {
+    background-color: #0d2c44; /* El azul oscuro de tu proyecto */
+}
+
+/* Imagen de producto */
+.producto-img-container {
+    background: white;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#p-imagen {
+    max-height: 450px;
+    width: auto;
+    object-fit: contain;
+}
+
+/* Estrellas Interactivas */
+.star-btn {
+    cursor: pointer;
+    transition: transform 0.2s, color 0.2s;
+    margin-right: 5px;
+}
+
+.star-btn:hover {
+    transform: scale(1.2);
+}
+
+.star-btn.bi-star-fill {
+    color: #ffc107; /* Amarillo dorado */
+}
+
+/* Cards de Reseñas */
+.resena-card {
+    border: none;
+    border-radius: 12px;
+    background: white;
+    border-left: 5px solid #0d6efd;
+    transition: transform 0.3s;
+}
+
+.resena-card:hover {
+    transform: translateX(5px);
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+}

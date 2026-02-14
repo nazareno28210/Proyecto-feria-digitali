@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Producto - Feria Digital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
+    <link rel="stylesheet" href="/web/css/global.css">
+    <link rel="stylesheet" href="/web/css/producto-detalle.css">
+</head>
+<body>
+
+<header class="navbar-custom py-3 shadow-lg mb-0">
+    <div class="container d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <img src="/web/assets/logo.png" alt="Logo" height="40" class="me-2">
+            <h1 class="h4 text-white mb-0 fw-bold">Feria Digital</h1>
+        </div>
+        <a href="buscar.html" class="btn btn-outline-light btn-sm fw-bold">
+            <i class="bi bi-arrow-left"></i> Volver al Mercado
+        </a>
+    </div>
+</header>
+
+<main class="container my-5">
+    <div class="row g-5 bg-white shadow-sm rounded-4 p-4 mb-5 border-top border-4 border-primary">
+        <div class="col-md-7">
+            <div class="producto-img-container p-2 border rounded-4 bg-light text-center">
+                <img id="p-imagen" src="" alt="Cargando..." class="img-fluid rounded-3 shadow-sm">
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-2">
+                    <li class="breadcrumb-item"><span id="p-feria" class="text-primary fw-bold"></span></li>
+                    <li class="breadcrumb-item active" id="p-categoria"></li>
+                </ol>
+            </nav>
+            
+            <h1 id="p-nombre" class="display-6 fw-bold mb-1 text-dark"></h1>
+            
+            <div id="promedio-estrellas-container" class="mb-3">
+                </div>
+            
+            <div class="d-flex align-items-baseline mb-4">
+                <span id="p-precio" class="h2 fw-bold text-primary mb-0"></span>
+                <span id="p-unidad" class="ms-2 text-muted fw-semibold"></span>
+            </div>
+
+            <div class="card bg-primary-subtle border-0 mb-4 rounded-3">
+                <div class="card-body py-2">
+                    <p class="mb-0 small fw-bold text-primary">
+                        <i class="bi bi-shop"></i> Vendido por: <span id="p-stand" class="text-dark"></span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="d-grid gap-3">
+                <button class="btn btn-primary btn-lg py-3 fw-bold rounded-3 shadow-sm">
+                    <i class="bi bi-whatsapp"></i> Contactar Feriante
+                </button>
+                <button class="btn btn-outline-secondary py-2 rounded-3">
+                    <i class="bi bi-chat-dots"></i> Preguntar al vendedor
+                </button>
+            </div>
+        </div>
+
+        <div class="col-12 mt-4 pt-4 border-top">
+            <h3 class="h5 fw-bold text-dark mb-3">Información del producto</h3>
+            <p id="p-descripcion" class="text-secondary lh-lg" style="white-space: pre-wrap;"></p>
+        </div>
+    </div>
+
+    <div class="row mt-5 pt-5">
+        <div class="col-md-5 mb-5" id="seccion-dejar-resena" style="display: none;">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h4 class="h5 fw-bold text-primary mb-3">¿Qué te pareció este producto?</h4>
+                <p class="small text-muted mb-4">Tu opinión ayuda a la comunidad de Rio Grande.</p>
+                
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary">Tu calificación:</label>
+                    <div id="selector-estrellas" class="fs-3 text-warning">
+                        <i class="bi bi-star star-btn" data-value="1"></i>
+                        <i class="bi bi-star star-btn" data-value="2"></i>
+                        <i class="bi bi-star star-btn" data-value="3"></i>
+                        <i class="bi bi-star star-btn" data-value="4"></i>
+                        <i class="bi bi-star star-btn" data-value="5"></i>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-bold text-secondary">Tu comentario:</label>
+                    <textarea 
+                        class="form-control rounded-3" 
+                        id="comentario-texto" 
+                        rows="4" 
+                        minlength="10" 
+                        maxlength="500"
+                        placeholder="Escribí al menos 10 caracteres sobre tu experiencia..."></textarea>
+                    <div class="form-text text-end" style="font-size: 0.7rem;">Mínimo 10 - Máximo 500 caracteres</div>
+                </div>
+
+                <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="enviarResena()">
+                    Publicar reseña
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            <h4 class="h5 fw-bold text-dark mb-4">Opiniones de la comunidad</h4>
+            <div id="lista-resenas" class="pe-md-4">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="footer-custom py-5 mt-5">
+    <div class="container text-center text-white opacity-75 small">
+        <p class="mb-0 fw-bold">Proyecto Feria Digital — Nazareno Guardia y Mansilla Denis.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="/web/js/producto-detalle.js"></script>
+</body>
+</html>
