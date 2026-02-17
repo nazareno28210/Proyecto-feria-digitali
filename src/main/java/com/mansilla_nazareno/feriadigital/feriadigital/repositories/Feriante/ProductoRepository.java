@@ -22,7 +22,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     // 🔍 BUSCADOR DINÁMICO
     @Query("SELECT p FROM Producto p WHERE p.eliminado = false " +
             "AND (:soloActivos = false OR p.activo = true) " +
-            "AND (:soloFeriasActivas = false OR p.stand.feria.estado = 'ACTIVA') " +
+            "AND (:soloFeriasActivas = false OR (p.stand.feria.estado = 'ACTIVA' AND p.stand.activo = true)) " +
             "AND (:nombre IS NULL OR LOWER(p.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) " +
             "AND (:catId IS NULL OR p.categoria.id = :catId) " +
             "AND (:feriaId IS NULL OR p.stand.feria.id = :feriaId) " +

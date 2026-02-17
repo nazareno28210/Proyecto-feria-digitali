@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 @Table(name = "resenas")
 public class Resena {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -37,6 +38,9 @@ public class Resena {
     @ManyToOne
     @JoinColumn(name = "feria_id")
     private Feria feria;
+
+    private String respuesta; // El texto del feriante
+    private LocalDateTime fechaRespuesta; // Para saber cuándo respondió
 
     public Feria getFeria() {
         return feria;
@@ -98,4 +102,19 @@ public class Resena {
         return id;
     }
 
+    public String getRespuesta() {
+        return respuesta;
+    }
+
+    public void setRespuesta(String respuesta) {
+        this.respuesta = respuesta;
+    }
+
+    public LocalDateTime getFechaRespuesta() {
+        return fechaRespuesta;
+    }
+
+    public void setFechaRespuesta(LocalDateTime fechaRespuesta) {
+        this.fechaRespuesta = fechaRespuesta;
+    }
 }

@@ -1,4 +1,11 @@
+/* ============================================================
+   PRODUCTO-DETALLE.JS - Versión Final con Respuestas y Fechas
+   ============================================================ */
+
 let puntajeSeleccionado = 0;
+let usuarioLogueadoId = null; 
+let dueñoProductoId = null;   
+let nombreStandActual = "";   
 
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -9,20 +16,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // Ejecutar carga inicial
-    cargarDatosProducto(productoId);
-    cargarResenas(productoId);
-    verificarPermisoComentar();
+    // 1. Carga inicial sincronizada
+    await obtenerUsuarioActual();
+    await cargarDatosProducto(productoId); 
+    cargarResenas(productoId); 
     configurarEstrellas();
 });
 
-// 1. Cargar Info del Producto
+// 0. Obtener sesión del usuario
+async function obtenerUsuarioActual() {
+    try {
+        const res = await axios.get("/api/usuarios/current", { withCredentials: true });
+        if (res.data) {
+            usuarioLogueadoId = res.data.id;
+            // Mostrar formulario de reseña solo si es cliente o feriante ajeno
+            if (res.data.tipoUsuario === "NORMAL" || res.data.tipoUsuario === "FERIANTE") {
+                const sec = document.getElementById("seccion-dejar-resena");
+                if (sec) sec.style.display = "block";
+            }
+        }
+    } catch (err) { console.log("Navegando como visitante."); }
+}
+
+// 1. Cargar Información del Producto
 async function cargarDatosProducto(id) {
     try {
         const res = await axios.get(`/api/productos/${id}`);
         const p = res.data;
+        dueñoProductoId = p.usuarioDueñoId;
+        nombreStandActual = p.standNombre || "Feriante"; 
 
-        // 1. Llenamos el HTML
         document.getElementById("p-nombre").textContent = p.nombre;
         document.getElementById("p-precio").textContent = `$${p.precio.toLocaleString()}`;
         document.getElementById("p-unidad").textContent = p.tipoVenta === 'UNIDAD' ? '/ unidad' : `/ ${p.unidadMedida}`;
@@ -32,124 +55,23 @@ async function cargarDatosProducto(id) {
         document.getElementById("p-descripcion").textContent = p.descripcion || "Sin descripción.";
         document.getElementById("p-imagen").src = p.imagenUrl || "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
 
-        // ⭐ DIBUJAR PROMEDIO (Esto arregla la visual de la cabecera)
         renderizarEstrellasCabecera(p.promedioEstrellas, p.cantidadResenas);
 
-        // 2. Verificar dueño para el formulario
-        const userRes = await axios.get("/api/usuarios/current", { withCredentials: true });
-        const user = userRes.data;
-
-        if (user && p.usuarioDueñoId === user.id) {
+        // Bloque de aviso para el dueño
+        if (usuarioLogueadoId && dueñoProductoId === usuarioLogueadoId) {
             const formContainer = document.getElementById("seccion-dejar-resena");
-            formContainer.style.display = "block"; 
-            formContainer.innerHTML = `
-                <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 text-center">
-                    <i class="bi bi-person-badge fs-2"></i>
-                    <p class="mt-2 mb-0 fw-bold">Estás viendo uno de tus productos.</p>
-                </div>`;
+            if (formContainer) {
+                formContainer.innerHTML = `
+                    <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 text-center">
+                        <i class="bi bi-person-badge fs-2"></i>
+                        <p class="mt-2 mb-0 fw-bold">Estás viendo uno de tus productos. Respondé a tus clientes abajo.</p>
+                    </div>`;
+            }
         }
-    } catch (err) {
-        console.error("Error al cargar datos:", err);
-    }
+    } catch (err) { console.error("Error al cargar producto:", err); }
 }
 
-// ⭐ Función para las estrellas del promedio
-function renderizarEstrellasCabecera(promedio, cantidad) {
-    const contenedor = document.getElementById("promedio-estrellas-container");
-    if (!contenedor || !cantidad) {
-        contenedor.innerHTML = '<span class="text-muted small">Sin calificaciones aún</span>';
-        return;
-    }
-
-    let estrellasHtml = "";
-    for (let i = 1; i <= 5; i++) {
-        if (i <= Math.floor(promedio)) {
-            estrellasHtml += '<i class="bi bi-star-fill text-warning me-1"></i>';
-        } else if (i - 0.5 <= promedio) {
-            estrellasHtml += '<i class="bi bi-star-half text-warning me-1"></i>';
-        } else {
-            estrellasHtml += '<i class="bi bi-star text-warning me-1"></i>';
-        }
-    }
-
-    contenedor.innerHTML = `
-        <div class="d-flex align-items-center gap-2">
-            <div>${estrellasHtml}</div>
-            <span class="fw-bold mt-1">${promedio.toFixed(1)}</span>
-            <span class="text-muted small mt-1">(${cantidad} opiniones)</span>
-        </div>`;
-}
-
-// ⭐ NUEVA FUNCIÓN: Dibuja las estrellas de calificación general
-function renderizarEstrellasCabecera(promedio, cantidad) {
-    const contenedor = document.getElementById("promedio-estrellas-container");
-    if (!contenedor) return;
-
-    if (!cantidad || cantidad === 0) {
-        contenedor.innerHTML = '<span class="text-muted small">Sin calificaciones aún</span>';
-        return;
-    }
-
-    let estrellasHtml = "";
-    // Lógica para estrellas llenas, medias o vacías
-    for (let i = 1; i <= 5; i++) {
-        if (i <= Math.floor(promedio)) {
-            // Estrella llena
-            estrellasHtml += '<i class="bi bi-star-fill text-warning me-1"></i>';
-        } else if (i - 0.5 <= promedio) {
-            // Media estrella
-            estrellasHtml += '<i class="bi bi-star-half text-warning me-1"></i>';
-        } else {
-            // Estrella vacía
-            estrellasHtml += '<i class="bi bi-star text-warning me-1"></i>';
-        }
-    }
-
-    contenedor.innerHTML = `
-        <div class="d-flex align-items-center gap-2">
-            <div class="fs-5">${estrellasHtml}</div>
-            <span class="fw-bold mt-1">${promedio.toFixed(1)}</span>
-            <span class="text-muted small mt-1">(${cantidad} ${cantidad === 1 ? 'opinión' : 'opiniones'})</span>
-        </div>
-    `;
-}
-
-// 2. Sistema de Calificación Visual (Selector para nuevas reseñas)
-function configurarEstrellas() {
-    const stars = document.querySelectorAll(".star-btn");
-    stars.forEach(s => {
-        s.addEventListener("click", () => {
-            puntajeSeleccionado = parseInt(s.dataset.value);
-            actualizarEstrellas(puntajeSeleccionado);
-        });
-    });
-}
-
-function actualizarEstrellas(valor) {
-    document.querySelectorAll(".star-btn").forEach(s => {
-        const val = parseInt(s.dataset.value);
-        s.classList.toggle("bi-star-fill", val <= valor);
-        s.classList.toggle("bi-star", val > valor);
-    });
-}
-
-// 3. Verificación de Rol
-async function verificarPermisoComentar() {
-    try {
-        const res = await axios.get("/api/usuarios/current", { withCredentials: true });
-        const user = res.data;
-        
-        // Si es NORMAL o FERIANTE (y no el dueño), mostramos el formulario
-        if (user && (user.tipoUsuario === "NORMAL" || user.tipoUsuario === "FERIANTE")) {
-            // El display block aquí es genérico, la lógica de "dueño" dentro de cargarDatosProducto tiene prioridad
-            document.getElementById("seccion-dejar-resena").style.display = "block";
-        }
-    } catch (err) {
-        console.log("Modo visitante o error de sesión.");
-    }
-}
-
-// 4. Cargar Reseñas Existentes (Listado inferior)
+// 2. Cargar Reseñas y Respuestas (Con Fechas)
 async function cargarResenas(id) {
     const lista = document.getElementById("lista-resenas");
     try {
@@ -162,46 +84,152 @@ async function cargarResenas(id) {
         }
 
         res.data.forEach(r => {
+            const esMiProducto = usuarioLogueadoId === dueñoProductoId;
             const estrellas = "★".repeat(r.puntaje) + "☆".repeat(5 - r.puntaje);
-            lista.innerHTML += `
-                <div class="resena-card shadow-sm p-3 mb-3">
-                    <div class="d-flex justify-content-between">
-                        <span class="fw-bold text-primary">${r.nombreUsuario}</span>
-                        <span class="text-warning small">${estrellas}</span>
-                    </div>
-                    <p class="my-2 small text-dark">${r.comentario || 'Sin comentarios adicionales.'}</p>
-                    <div class="text-end opacity-50" style="font-size: 0.65rem;">
-                        ${new Date(r.fecha).toLocaleDateString()}
-                    </div>
-                </div>`;
+            
+            // Etiqueta según quién mire: "Tu respuesta" o "Respuesta de [Nombre]"
+            const labelRespuesta = esMiProducto ? "Tu respuesta:" : `Respuesta de ${nombreStandActual}:`;
+
+            // Fecha formateada (Día/Mes/Año Hora:Min)
+            const fechaRespHtml = r.fechaRespuesta 
+                ? `<div class="text-end opacity-50" style="font-size: 0.6rem; margin-top: -5px;">
+                     Respondido el ${new Date(r.fechaRespuesta).toLocaleString([], {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit'})}
+                   </div>` 
+                : "";
+
+            // Botones de gestión para el Feriante
+            const botonesDuenio = esMiProducto ? `
+                <div class="mt-2 d-flex gap-2 opacity-75 border-top pt-2">
+                    <button class="btn btn-sm btn-link p-0 text-decoration-none small text-primary" onclick="abrirEditorRespuesta(${r.id}, '${r.respuesta}')">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
+                    <span class="text-muted">|</span>
+                    <button class="btn btn-sm btn-link p-0 text-decoration-none small text-danger" onclick="eliminarRespuesta(${r.id})">
+                        <i class="bi bi-trash"></i> Borrar
+                    </button>
+                </div>` : "";
+
+            const resenaDiv = document.createElement("div");
+            resenaDiv.className = "resena-card shadow-sm p-3 mb-3 bg-white rounded-3";
+            resenaDiv.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-primary">${r.nombreUsuario}</span>
+                    <span class="text-warning small">${estrellas}</span>
+                </div>
+                <p class="my-2 small text-dark">${r.comentario || 'Sin comentarios.'}</p>
+                <div class="text-end opacity-50 mb-2" style="font-size: 0.65rem;">
+                    ${new Date(r.fecha).toLocaleDateString()}
+                </div>
+                
+                <div id="contenedor-respuesta-${r.id}">
+                    ${r.respuesta 
+                        ? `<div class="ms-4 p-3 bg-light border-start border-4 border-primary rounded">
+                             <small class="fw-bold text-primary d-block mb-1">
+                                <i class="bi bi-reply-fill"></i> ${labelRespuesta}
+                             </small>
+                             <p class="mb-2 small fst-italic text-dark">${r.respuesta}</p>
+                             ${fechaRespHtml} ${botonesDuenio}
+                           </div>`
+                        : (esMiProducto ? `<button class="btn btn-sm btn-outline-primary mt-1 rounded-pill px-3" onclick="abrirEditorRespuesta(${r.id}, '')">Responder</button>` : "")
+                    }
+                </div>
+            `;
+            lista.appendChild(resenaDiv);
         });
+    } catch (err) { lista.innerHTML = `<p class="text-danger small">Error de conexión.</p>`; }
+}
+
+// 3. Gestión de Respuestas (Responder, Editar, Eliminar)
+function abrirEditorRespuesta(resenaId, textoPrevio) {
+    const contenedor = document.getElementById(`contenedor-respuesta-${resenaId}`);
+    contenedor.innerHTML = `
+        <div class="mt-2 ms-4 p-3 bg-light rounded border border-primary">
+            <label class="small fw-bold text-primary mb-2">Escribí tu respuesta:</label>
+            <textarea id="input-respuesta-${resenaId}" class="form-control form-control-sm mb-2" rows="3">${textoPrevio}</textarea>
+            <div class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-sm btn-light border" onclick="location.reload()">Cancelar</button>
+                <button class="btn btn-sm btn-primary px-3 fw-bold" onclick="enviarRespuesta(${resenaId})">Guardar</button>
+            </div>
+        </div>
+    `;
+}
+
+async function enviarRespuesta(resenaId) {
+    const texto = document.getElementById(`input-respuesta-${resenaId}`).value.trim();
+    if (!texto) {
+        Toastify({ text: "⚠️ Escribí algo antes de guardar.", background: "#dc3545" }).showToast();
+        return;
+    }
+    try {
+        await axios.put(`/api/resenas/${resenaId}/responder`, texto, {
+            headers: { 'Content-Type': 'text/plain' }, withCredentials: true
+        });
+        Toastify({ text: "✅ Respuesta guardada", background: "#1a3a5a" }).showToast();
+        setTimeout(() => location.reload(), 1000);
     } catch (err) {
-        lista.innerHTML = `<p class="text-danger small">Error al conectar con el servidor de reseñas.</p>`;
+        Toastify({ text: "❌ Error al guardar respuesta", background: "#dc3545" }).showToast();
     }
 }
 
-// 5. Enviar Nueva Reseña
+async function eliminarRespuesta(resenaId) {
+    if (!confirm("¿Seguro que querés eliminar tu respuesta?")) return;
+    try {
+        await axios.delete(`/api/resenas/${resenaId}/respuesta`, { withCredentials: true });
+        Toastify({ text: "🗑️ Respuesta eliminada", background: "#dc3545" }).showToast();
+        setTimeout(() => location.reload(), 1000);
+    } catch (err) {
+        Toastify({ text: "❌ No se pudo eliminar", background: "#dc3545" }).showToast();
+    }
+}
+
+// 4. Estrellas y Visuales
+function renderizarEstrellasCabecera(promedio, cantidad) {
+    const contenedor = document.getElementById("promedio-estrellas-container");
+    if (!contenedor || !cantidad) return;
+    let estrellasHtml = "";
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(promedio)) estrellasHtml += '<i class="bi bi-star-fill text-warning me-1"></i>';
+        else if (i - 0.5 <= promedio) estrellasHtml += '<i class="bi bi-star-half text-warning me-1"></i>';
+        else estrellasHtml += '<i class="bi bi-star text-warning me-1"></i>';
+    }
+    contenedor.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <div class="fs-5">${estrellasHtml}</div>
+            <span class="fw-bold mt-1">${promedio.toFixed(1)}</span>
+            <span class="text-muted small mt-1">(${cantidad} opiniones)</span>
+        </div>`;
+}
+
+function configurarEstrellas() {
+    const stars = document.querySelectorAll(".star-btn");
+    stars.forEach(s => {
+        s.addEventListener("click", () => {
+            puntajeSeleccionado = parseInt(s.dataset.value);
+            document.querySelectorAll(".star-btn").forEach(st => {
+                const val = parseInt(st.dataset.value);
+                st.classList.toggle("bi-star-fill", val <= puntajeSeleccionado);
+                st.classList.toggle("bi-star", val > puntajeSeleccionado);
+            });
+        });
+    });
+}
+
+// 5. Enviar Reseña de Cliente
 async function enviarResena() {
     const texto = document.getElementById("comentario-texto").value.trim();
     const urlParams = new URLSearchParams(window.location.search);
     const productoId = parseInt(urlParams.get('id'));
-
     if (puntajeSeleccionado === 0) {
         Toastify({ text: "¡Seleccioná las estrellas!", background: "#dc3545" }).showToast();
         return;
     }
-
     try {
         await axios.post("/api/resenas", {
-            puntaje: puntajeSeleccionado,
-            comentario: texto,
-            producto: { id: productoId }
+            puntaje: puntajeSeleccionado, comentario: texto, producto: { id: productoId }
         }, { withCredentials: true });
-
         Toastify({ text: "¡Gracias por tu opinión!", background: "#198754" }).showToast();
         setTimeout(() => location.reload(), 1500);
     } catch (err) {
-        // Capturamos el mensaje de error que viene del Backend (malas palabras, autoreseña, etc)
         const errorMsg = err.response ? err.response.data : "Error al publicar.";
         Toastify({ text: errorMsg, background: "#dc3545" }).showToast();
     }

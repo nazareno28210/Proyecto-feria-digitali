@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -130,5 +131,61 @@ public class ResenaController {
         if (texto == null) return false;
         List<String> palabrasProhibidas = Arrays.asList("mierda", "puto", "boludo", "estafa", "hdp", "tarado");
         return palabrasProhibidas.stream().anyMatch(texto.toLowerCase()::contains);
+    }
+
+    @PutMapping("/{id}/responder")
+    public ResponseEntity<?> responderResena(@PathVariable Integer id, @RequestBody String textoRespuesta, Authentication authentication) {
+        if (authentication == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Usuario usuarioLogueado = usuarioRepository.findByEmail(authentication.getName());
+        Resena resena = resenaRepository.findById(id).orElse(null);
+
+        if (resena == null) return ResponseEntity.notFound().build();
+
+        // 🛡️ VALIDACIÓN DE SEGURIDAD
+        // Buscamos quién es el dueño del producto que fue calificado
+        int idDueñoProducto = resena.getProducto().getStand().getFeriante().getUsuario().getId();
+
+        if (usuarioLogueado.getId() != idDueñoProducto) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Solo el dueño del producto puede responder.");
+        }
+
+        // 📝 GUARDAR O EDITAR RESPUESTA
+        // Al usar un solo campo 'respuesta', si ya existía algo, simplemente lo sobreescribe (edita)
+        resena.setRespuesta(textoRespuesta);
+        resena.setFechaRespuesta(LocalDateTime.now());
+
+        resenaRepository.save(resena);
+        return ResponseEntity.ok("Respuesta guardada/actualizada correctamente");
+    }
+
+    // --- NUEVO: Endpoint para ELIMINAR la respuesta del feriante (Punto 1) ---
+    @DeleteMapping("/{id}/respuesta")
+    public ResponseEntity<?> eliminarRespuesta(@PathVariable Integer id, Authentication authentication) {
+        if (authentication == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+
+        Usuario usuarioLogueado = usuarioRepository.findByEmail(authentication.getName());
+        Resena resena = resenaRepository.findById(id).orElse(null);
+
+        if (resena == null) return ResponseEntity.notFound().build();
+
+        // 🛡️ VALIDACIÓN DE SEGURIDAD: Solo el dueño puede borrar su respuesta
+        // Aseguramos que la reseña tenga producto y stand asociados para evitar NullPointerException
+        if (resena.getProducto() == null || resena.getProducto().getStand() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede verificar la propiedad del producto.");
+        }
+
+        int idDueñoProducto = resena.getProducto().getStand().getFeriante().getUsuario().getId();
+
+        if (usuarioLogueado.getId() != idDueñoProducto) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Solo el dueño del producto puede eliminar la respuesta.");
+        }
+
+        // 📝 ELIMINACIÓN LÓGICA: Seteamos los campos en NULL
+        resena.setRespuesta(null);
+        resena.setFechaRespuesta(null);
+
+        resenaRepository.save(resena);
+        return ResponseEntity.ok("Respuesta eliminada correctamente");
     }
 }

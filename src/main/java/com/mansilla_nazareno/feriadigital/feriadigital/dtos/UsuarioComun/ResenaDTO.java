@@ -10,6 +10,8 @@ public class ResenaDTO {
     private String comentario;
     private LocalDateTime fecha;
     private String nombreUsuario; // Solo el nombre para mostrar en la web
+    private String respuesta; // El texto del feriante
+    private LocalDateTime fechaRespuesta; // Para saber cuándo respondió
 
     public ResenaDTO(Resena resena) {
         this.id = resena.getId();
@@ -17,6 +19,8 @@ public class ResenaDTO {
         this.comentario = resena.getComentario();
         this.fecha = resena.getFechaCreacion();
         this.nombreUsuario = resena.getUsuario().getNombre(); // Asumiendo que Usuario tiene getNombre()
+        this.respuesta = resena.getRespuesta();
+        this.fechaRespuesta = resena.getFechaRespuesta();
     }
 
     // Getters
@@ -25,4 +29,6 @@ public class ResenaDTO {
     public String getComentario() { return comentario; }
     public LocalDateTime getFecha() { return fecha; }
     public String getNombreUsuario() { return nombreUsuario; }
+    public String getRespuesta() { return respuesta; }
+    public LocalDateTime getFechaRespuesta() { return fechaRespuesta; }
 }
