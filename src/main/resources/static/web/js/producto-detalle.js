@@ -19,11 +19,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 // 1. Cargar Info del Producto
 async function cargarDatosProducto(id) {
     try {
-        // 1. Traemos los datos del producto
         const res = await axios.get(`/api/productos/${id}`);
         const p = res.data;
 
-        // 2. Llenamos el HTML (esto quita el "Cargando...")
+        // 1. Llenamos el HTML
         document.getElementById("p-nombre").textContent = p.nombre;
         document.getElementById("p-precio").textContent = `$${p.precio.toLocaleString()}`;
         document.getElementById("p-unidad").textContent = p.tipoVenta === 'UNIDAD' ? '/ unidad' : `/ ${p.unidadMedida}`;
@@ -33,30 +32,89 @@ async function cargarDatosProducto(id) {
         document.getElementById("p-descripcion").textContent = p.descripcion || "Sin descripción.";
         document.getElementById("p-imagen").src = p.imagenUrl || "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
 
-        // 3. Verificamos si es el dueño para ocultar el formulario
+        // ⭐ DIBUJAR PROMEDIO (Esto arregla la visual de la cabecera)
+        renderizarEstrellasCabecera(p.promedioEstrellas, p.cantidadResenas);
+
+        // 2. Verificar dueño para el formulario
         const userRes = await axios.get("/api/usuarios/current", { withCredentials: true });
         const user = userRes.data;
 
         if (user && p.usuarioDueñoId === user.id) {
             const formContainer = document.getElementById("seccion-dejar-resena");
-            formContainer.style.display = "block"; // Lo mostramos pero lo cambiamos
+            formContainer.style.display = "block"; 
             formContainer.innerHTML = `
                 <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 text-center">
                     <i class="bi bi-person-badge fs-2"></i>
                     <p class="mt-2 mb-0 fw-bold">Estás viendo uno de tus productos.</p>
-                    <small>No podés calificar tus propios artículos.</small>
                 </div>`;
-        } else if (user && (user.tipoUsuario === "NORMAL" || user.tipoUsuario === "FERIANTE")) {
-            // Si no es el dueño pero es usuario, mostramos el formulario normal
-            document.getElementById("seccion-dejar-resena").style.display = "block";
         }
-
     } catch (err) {
         console.error("Error al cargar datos:", err);
     }
 }
 
-// 2. Sistema de Calificación Visual
+// ⭐ Función para las estrellas del promedio
+function renderizarEstrellasCabecera(promedio, cantidad) {
+    const contenedor = document.getElementById("promedio-estrellas-container");
+    if (!contenedor || !cantidad) {
+        contenedor.innerHTML = '<span class="text-muted small">Sin calificaciones aún</span>';
+        return;
+    }
+
+    let estrellasHtml = "";
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(promedio)) {
+            estrellasHtml += '<i class="bi bi-star-fill text-warning me-1"></i>';
+        } else if (i - 0.5 <= promedio) {
+            estrellasHtml += '<i class="bi bi-star-half text-warning me-1"></i>';
+        } else {
+            estrellasHtml += '<i class="bi bi-star text-warning me-1"></i>';
+        }
+    }
+
+    contenedor.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <div>${estrellasHtml}</div>
+            <span class="fw-bold mt-1">${promedio.toFixed(1)}</span>
+            <span class="text-muted small mt-1">(${cantidad} opiniones)</span>
+        </div>`;
+}
+
+// ⭐ NUEVA FUNCIÓN: Dibuja las estrellas de calificación general
+function renderizarEstrellasCabecera(promedio, cantidad) {
+    const contenedor = document.getElementById("promedio-estrellas-container");
+    if (!contenedor) return;
+
+    if (!cantidad || cantidad === 0) {
+        contenedor.innerHTML = '<span class="text-muted small">Sin calificaciones aún</span>';
+        return;
+    }
+
+    let estrellasHtml = "";
+    // Lógica para estrellas llenas, medias o vacías
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(promedio)) {
+            // Estrella llena
+            estrellasHtml += '<i class="bi bi-star-fill text-warning me-1"></i>';
+        } else if (i - 0.5 <= promedio) {
+            // Media estrella
+            estrellasHtml += '<i class="bi bi-star-half text-warning me-1"></i>';
+        } else {
+            // Estrella vacía
+            estrellasHtml += '<i class="bi bi-star text-warning me-1"></i>';
+        }
+    }
+
+    contenedor.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <div class="fs-5">${estrellasHtml}</div>
+            <span class="fw-bold mt-1">${promedio.toFixed(1)}</span>
+            <span class="text-muted small mt-1">(${cantidad} ${cantidad === 1 ? 'opinión' : 'opiniones'})</span>
+        </div>
+    `;
+}
+
+// 2. Sistema de Calificación Visual (Selector para nuevas reseñas)
 function configurarEstrellas() {
     const stars = document.querySelectorAll(".star-btn");
     stars.forEach(s => {
@@ -75,22 +133,23 @@ function actualizarEstrellas(valor) {
     });
 }
 
-// 3. Verificación de Rol (Solo NORMAL comenta)
+// 3. Verificación de Rol
 async function verificarPermisoComentar() {
     try {
         const res = await axios.get("/api/usuarios/current", { withCredentials: true });
         const user = res.data;
         
-        // 🟢 AHORA: Si es NORMAL o FERIANTE, puede ver el formulario
+        // Si es NORMAL o FERIANTE (y no el dueño), mostramos el formulario
         if (user && (user.tipoUsuario === "NORMAL" || user.tipoUsuario === "FERIANTE")) {
+            // El display block aquí es genérico, la lógica de "dueño" dentro de cargarDatosProducto tiene prioridad
             document.getElementById("seccion-dejar-resena").style.display = "block";
         }
     } catch (err) {
-        console.log("Modo visitante o error: formulario oculto.");
+        console.log("Modo visitante o error de sesión.");
     }
 }
 
-// 4. Cargar Reseñas Existentes
+// 4. Cargar Reseñas Existentes (Listado inferior)
 async function cargarResenas(id) {
     const lista = document.getElementById("lista-resenas");
     try {
@@ -125,7 +184,7 @@ async function cargarResenas(id) {
 async function enviarResena() {
     const texto = document.getElementById("comentario-texto").value.trim();
     const urlParams = new URLSearchParams(window.location.search);
-    const productoId = parseInt(urlParams.get('id')); // 🟢 Convertimos a número entero
+    const productoId = parseInt(urlParams.get('id'));
 
     if (puntajeSeleccionado === 0) {
         Toastify({ text: "¡Seleccioná las estrellas!", background: "#dc3545" }).showToast();
@@ -133,7 +192,6 @@ async function enviarResena() {
     }
 
     try {
-        // 🟢 Solo enviamos puntaje, comentario y el ID del producto
         await axios.post("/api/resenas", {
             puntaje: puntajeSeleccionado,
             comentario: texto,
@@ -143,8 +201,8 @@ async function enviarResena() {
         Toastify({ text: "¡Gracias por tu opinión!", background: "#198754" }).showToast();
         setTimeout(() => location.reload(), 1500);
     } catch (err) {
-        // Ahora el error 500 mostrará un mensaje más claro si lo configuramos en el backend
-        console.error(err.response.data);
-        Toastify({ text: "Error al publicar. Intentá de nuevo.", background: "#dc3545" }).showToast();
+        // Capturamos el mensaje de error que viene del Backend (malas palabras, autoreseña, etc)
+        const errorMsg = err.response ? err.response.data : "Error al publicar.";
+        Toastify({ text: errorMsg, background: "#dc3545" }).showToast();
     }
 }

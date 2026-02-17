@@ -166,3 +166,89 @@ h2 {
   grid-column: 1 / -1; 
   padding: 3rem 0;
 }
+
+/* =========================================
+   ESTILOS PARA LA BARRA DE CALIFICACIÓN COMPACTA
+   ========================================= */
+
+#seccion-calificar-stand {
+    /* Mismo estilo de fondo y bordes que las tarjetas de arriba */
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    margin-bottom: 30px; /* Separación de los productos */
+    padding: 0; /* Quitamos padding externo */
+    overflow: hidden;
+    border-left: 4px solid #1a3a5a; /* Un detalle de color a la izquierda */
+}
+
+.card-content {
+    /* Layout horizontal usando Flexbox */
+    display: flex;
+    align-items: center; /* Centrar verticalmente */
+    justify-content: space-between; /* Título a la izq, acciones a la der */
+    padding: 12px 20px; /* Padding interno compacto */
+    flex-wrap: wrap; /* Para que se adapte en celulares */
+    gap: 15px;
+}
+
+/* Estilo del Título */
+.rating-title-box h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a3a5a;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* Contenedor derecho (Estrellas + Botón) */
+.rating-actions {
+     display: flex;
+     align-items: center;
+     gap: 20px; /* Espacio entre estrellas y botón */
+}
+
+/* Las Estrellas interactivas */
+.star-stand-btn {
+    cursor: pointer;
+    color: #ffc107; /* Amarillo */
+    transition: transform 0.2s, color 0.2s;
+    margin: 0 2px;
+}
+.star-stand-btn:hover {
+    transform: scale(1.3); /* Efecto pop al pasar el mouse */
+    color: #ffdb4d;
+}
+
+/* El Botón compacto */
+.btn-enviar-voto {
+    padding: 6px 16px; /* Botón más chico */
+    border-radius: 20px; /* Botón redondeado moderno */
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+/* --- RESPONSIVE: Ajuste para celulares --- */
+@media (max-width: 576px) {
+    .card-content {
+        flex-direction: column; /* Apilar verticalmente en móvil */
+        text-align: center;
+        padding: 15px;
+    }
+    
+    .rating-actions {
+        flex-direction: column;
+        gap: 15px;
+        width: 100%;
+    }
+    
+    .rating-title-box {
+        margin-bottom: 5px;
+    }
+    
+    .btn-enviar-voto {
+        width: 100%; /* Botón ancho completo en celular */
+    }
+}

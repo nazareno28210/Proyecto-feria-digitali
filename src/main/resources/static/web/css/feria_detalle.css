@@ -207,3 +207,37 @@ h2 {
   grid-column: 1 / -1; 
   padding: 3rem 0;
 }
+.voto-container-horizontal {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin: 20px 0 40px 0;
+    padding: 15px 25px;
+    border-left: 5px solid #1a3a5a;
+}
+
+.voto-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.btn-voto {
+    border: 2px solid #ddd;
+    background: white;
+    padding: 8px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-voto-si:hover { background: #d1e7dd; border-color: #198754; color: #198754; }
+.btn-voto-no:hover { background: #f8d7da; border-color: #dc3545; color: #dc3545; }
+
+#aprobacion-header .badge {
+    font-size: 0.85rem;
+    padding: 5px 12px;
+}

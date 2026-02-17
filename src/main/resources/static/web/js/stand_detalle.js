@@ -1,8 +1,10 @@
 /*
  * ====================================
- * STAND-DETALLE.JS (Versión Integrada)
+ * STAND-DETALLE.JS (Versión con Calificaciones)
  * ====================================
  */
+
+let puntajeStand = 0; // Variable global para el selector de estrellas
 
 function showToast(message, type = "info") {
     let color;
@@ -62,6 +64,13 @@ async function cargarStand() {
         const nombreHeader = document.getElementById("nombre-stand");
         if (nombreHeader) nombreHeader.textContent = stand.nombre;
 
+        // ⭐ NUEVO: Renderizar promedio de estrellas en la cabecera
+        renderizarPromedioStand(stand.promedioEstrellas, stand.cantidadResenas);
+
+        // 🟢 NUEVO: Configurar el selector de estrellas y permisos
+        configurarEstrellasStand();
+        verificarAccesoCalificacion(stand.usuarioDueñoId);
+
         const productosContainer = document.getElementById("productos-container"); 
         if (!productosContainer) return;
         productosContainer.innerHTML = ""; 
@@ -83,8 +92,6 @@ async function cargarStand() {
             stand.productos.forEach(producto => {
                 const div = document.createElement("div");
                 div.classList.add("producto-card"); 
-
-                // 🔗 AGREGADO: Redirección al detalle al hacer clic
                 div.style.cursor = "pointer";
                 div.onclick = () => window.location.href = `producto-detalle.html?id=${producto.id}`;
 
@@ -96,11 +103,6 @@ async function cargarStand() {
                         <h3>${producto.nombre}</h3>
                         <p>${producto.descripcion || "Sin descripción"}</p>
                         <p><strong>Precio:</strong> $${producto.precio.toFixed(2)}</p>
-                        <p><strong>Categorías:</strong> ${
-                            producto.categorias && producto.categorias.length > 0 
-                            ? producto.categorias.map(c => c.nombre).join(", ") 
-                            : "General"
-                        }</p>
                     </div>
                 `; 
                 productosContainer.appendChild(div); 
@@ -117,6 +119,94 @@ async function cargarStand() {
     } catch (error) {
         console.error("Error al cargar el stand:", error); 
         showToast("❌ Error al cargar los datos del stand.", "error"); 
+    }
+}
+
+// ⭐ Función para dibujar las estrellas del promedio en el Header
+function renderizarPromedioStand(promedio, cantidad) {
+    const contenedor = document.getElementById("promedio-estrellas-stand");
+    if (!contenedor) return;
+
+    if (!cantidad || cantidad === 0) {
+        contenedor.innerHTML = '<span class="text-muted small" style="color: #eee !important;">Sin calificaciones aún</span>';
+        return;
+    }
+
+    let estrellasHtml = "";
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(promedio)) {
+            estrellasHtml += '<i class="bi bi-star-fill text-warning me-1"></i>';
+        } else if (i - 0.5 <= promedio) {
+            estrellasHtml += '<i class="bi bi-star-half text-warning me-1"></i>';
+        } else {
+            estrellasHtml += '<i class="bi bi-star text-warning me-1"></i>';
+        }
+    }
+
+    contenedor.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+            <div>${estrellasHtml}</div>
+            <span class="fw-bold text-white">${promedio.toFixed(1)}</span>
+            <span class="text-white small opacity-75">(${cantidad} votos)</span>
+        </div>`;
+}
+
+// ⭐ Manejo interactivo de las estrellas para votar
+function configurarEstrellasStand() {
+    const stars = document.querySelectorAll(".star-stand-btn");
+    stars.forEach(s => {
+        s.addEventListener("click", () => {
+            puntajeStand = parseInt(s.dataset.value);
+            stars.forEach(st => {
+                const val = parseInt(st.dataset.value);
+                st.classList.toggle("bi-star-fill", val <= puntajeStand);
+                st.classList.toggle("bi-star", val > puntajeStand);
+            });
+        });
+    });
+}
+
+// ⭐ Enviar la calificación al servidor
+async function enviarCalificacionStand() {
+    if (puntajeStand === 0) {
+        showToast("⚠️ Por favor, seleccioná un puntaje.", "warning");
+        return;
+    }
+
+    try {
+        await axios.post("/api/resenas", {
+            puntaje: puntajeStand,
+            stand: { id: parseInt(standId) }
+        }, { withCredentials: true });
+
+        showToast("⭐ ¡Gracias por tu calificación!", "success");
+        setTimeout(() => location.reload(), 1500);
+    } catch (err) {
+        const msg = err.response ? err.response.data : "Error al calificar.";
+        showToast(`❌ ${msg}`, "error");
+    }
+}
+
+// ⭐ Verificar si el usuario puede calificar (logueado y no es dueño)
+async function verificarAccesoCalificacion(usuarioDueñoId) {
+    try {
+        const res = await axios.get("/api/usuarios/current", { withCredentials: true });
+        const user = res.data;
+
+        if (user) {
+            const seccion = document.getElementById("seccion-calificar-stand");
+            if (user.id === usuarioDueñoId) {
+                seccion.style.display = "block";
+                seccion.innerHTML = `
+                    <div class="alert alert-light border text-center p-3">
+                        <i class="fas fa-user-cog"></i> Estás viendo tu propio stand.
+                    </div>`;
+            } else {
+                seccion.style.display = "block";
+            }
+        }
+    } catch (e) {
+        console.log("Modo visitante: formulario oculto.");
     }
 }
 

@@ -11,8 +11,10 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandR
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,9 @@ public class ProductoController {
     private final StandRepository standRepository;
     private final CloudinaryService cloudinaryService;
     private final CategoriaProductoRepository categoriaRepository;
+    @Autowired
+    private ResenaRepository resenaRepository;
+
 
     public ProductoController(
             ProductoRepository productoRepository,
@@ -66,9 +71,25 @@ public class ProductoController {
     public ResponseEntity<ProductoDTO> getProductoDetalle(@PathVariable int id) {
         return productoRepository.findById(id)
                 .filter(p -> !p.isEliminado())
-                .map(producto -> ResponseEntity.ok(new ProductoDTO(producto)))
+                .map(producto -> {
+                    // 1. Calculamos el promedio y cantidad de la DB
+                    Double promedio = resenaRepository.getPromedioPorProducto(id);
+                    Long cantidad = resenaRepository.getCantidadResenasPorProducto(id);
+
+                    // 2. Creamos el DTO
+                    ProductoDTO dto = new ProductoDTO(producto);
+
+                    // 3. Cargamos los datos calculados
+                    // Si 'promedio' es null (porque no hay reseñas), ponemos 0.0
+                    dto.setPromedioEstrellas(promedio != null ? promedio : 0.0);
+                    dto.setCantidadResenas(cantidad != null ? cantidad.intValue() : 0);
+
+                    return ResponseEntity.ok(dto);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
 // ========================================================
 // 🔎 BUSCADOR GLOBAL (VENTANA ÚNICA)
 // ========================================================

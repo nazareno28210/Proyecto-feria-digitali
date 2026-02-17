@@ -20,6 +20,8 @@ public class ProductoDTO {
     private String feriaNombre;
     private String standNombre; // 🟢 PASO 1: Agregar el campo
     private int usuarioDueñoId; // ID del Usuario que es dueño del stand
+    private Double promedioEstrellas;
+    private int cantidadResenas;
 
 
     public ProductoDTO(Producto producto) {
@@ -78,4 +80,20 @@ public class ProductoDTO {
     public String getFeriaNombre() { return feriaNombre; }
     public String getStandNombre() { return standNombre; }
     public int getUsuarioDueñoId() { return usuarioDueñoId; }
+
+    public int getCantidadResenas() {
+        return cantidadResenas;
+    }
+
+    public Double getPromedioEstrellas() {
+        return promedioEstrellas;
+    }
+
+    public void setCantidadResenas(int cantidadResenas) {
+        this.cantidadResenas = cantidadResenas;
+    }
+
+    public void setPromedioEstrellas(Double promedioEstrellas) {
+        this.promedioEstrellas = promedioEstrellas;
+    }
 }

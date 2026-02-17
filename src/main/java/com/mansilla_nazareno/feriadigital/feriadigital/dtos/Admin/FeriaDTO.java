@@ -16,6 +16,8 @@ public class FeriaDTO {
     private String estado;
     private boolean eliminado;
     private String imagenUrl;
+    private Integer porcentajeAprobacion;
+    private Integer totalVotos;
 
     private List<StandDTO> stands;
     public FeriaDTO(){}
@@ -75,4 +77,19 @@ public class FeriaDTO {
         return eliminado;
     }
 
+    public void setPorcentajeAprobacion(Integer porcentajeAprobacion) {
+        this.porcentajeAprobacion = porcentajeAprobacion;
+    }
+
+    public void setTotalVotos(Integer totalVotos) {
+        this.totalVotos = totalVotos;
+    }
+
+    public Integer getPorcentajeAprobacion() {
+        return porcentajeAprobacion;
+    }
+
+    public Integer getTotalVotos() {
+        return totalVotos;
+    }
 }

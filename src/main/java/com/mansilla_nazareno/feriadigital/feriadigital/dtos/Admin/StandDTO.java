@@ -16,6 +16,9 @@ public class StandDTO {
     private FerianteDTO feriante;
     private Integer feriaId;
     private boolean activo; // 🟢 Se mantiene
+    private Double promedioEstrellas;
+    private int cantidadResenas;
+
 
     public StandDTO(Stand stand) {
         this.id = stand.getId();
@@ -66,4 +69,8 @@ public class StandDTO {
     public String getImagenUrl() { return imagenUrl; }
     public Integer getFeriaId() { return feriaId; }
     public boolean isActivo() { return activo; } // 🟢 AGREGADO: Importante para el JSON
-}
+    public Double getPromedioEstrellas() { return promedioEstrellas; }
+    public void setPromedioEstrellas(Double promedioEstrellas) { this.promedioEstrellas = promedioEstrellas; }
+
+    public int getCantidadResenas() { return cantidadResenas; }
+    public void setCantidadResenas(int cantidadResenas) { this.cantidadResenas = cantidadResenas; }}

@@ -4,6 +4,8 @@ import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,9 @@ import java.util.stream.Collectors;
 public class FeriaController {
 
     private final FeriaRepository feriaRepository;
+
+    @Autowired
+    private ResenaRepository resenaRepository;
 
     public FeriaController(FeriaRepository feriaRepository) {this.feriaRepository = feriaRepository;}
 
@@ -32,7 +37,23 @@ public class FeriaController {
     @GetMapping("/ferias/{id}")
     public FeriaDTO getFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id)
-                .map(FeriaDTO::new)
+                .map(feria -> {
+                    // 1. Creamos el DTO base
+                    FeriaDTO dto = new FeriaDTO(feria);
+
+                    // 2. Calculamos los votos desde el ResenaRepository
+                    Long positivos = resenaRepository.countVotosPositivosFeria(id);
+                    Long totales = resenaRepository.countTotalVotosFeria(id);
+
+                    // 3. Matemática: (Positivos / Totales) * 100
+                    int porcentaje = (totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
+
+                    // 4. Inyectamos los datos al DTO usando los SETTERS que agregamos
+                    dto.setPorcentajeAprobacion(porcentaje);
+                    dto.setTotalVotos(totales.intValue());
+
+                    return dto;
+                })
                 .orElse(null);
     }
 

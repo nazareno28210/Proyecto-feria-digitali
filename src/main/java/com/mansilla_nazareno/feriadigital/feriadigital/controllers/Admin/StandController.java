@@ -11,6 +11,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuar
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 
@@ -38,8 +39,12 @@ public class StandController {
 
     @Autowired
     private FeriaRepository feriaRepository;
+
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private ResenaRepository resenaRepository;
 
     public StandController(
             StandRepository standRepository,
@@ -75,11 +80,19 @@ public class StandController {
     }
 
     @GetMapping("/stands/{id}")
-    public StandDTO getStandDTO(@PathVariable Integer id){
+    public StandDTO getStandDTO(@PathVariable Integer id) {
         return standRepository.findById(id)
-                .map(StandDTO::new)
-                .orElse(null);
+                .map(stand -> {
+                    // Calculamos promedio y cantidad desde la DB
+                    Double promedio = resenaRepository.getPromedioPorStand(id);
+                    Long cantidad = resenaRepository.getCantidadResenasPorStand(id);
 
+                    StandDTO dto = new StandDTO(stand);
+                    dto.setPromedioEstrellas(promedio != null ? promedio : 0.0);
+                    dto.setCantidadResenas(cantidad != null ? cantidad.intValue() : 0);
+                    return dto;
+                })
+                .orElse(null);
     }
     @PutMapping("/stands/mi-stand")
     public ResponseEntity<?> updateMyStand(Authentication authentication, @RequestBody StandUpdateDTO dto) {

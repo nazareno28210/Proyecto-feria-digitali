@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle del Stand</title>
+    <title>Detalle del Stand - Feria Digital</title>
     <link rel="icon" href="/web/assets/logo.png" />
     
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/stand_detalle.css">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
@@ -23,25 +24,51 @@
                 <a href="/web/ferias.html" class="header-logo-link">
                     <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
                 </a>
-                <h1 id="nombre-stand">Detalle del Stand</h1>
+                <div>
+                    <h1 id="nombre-stand" style="margin-bottom: 5px;">Detalle del Stand</h1>
+                    <div id="promedio-estrellas-stand">
+                        </div>
+                </div>
             </div>
             <div class="header-right">
-                <button class="btn btn-header" onclick="volver()">← Volver</button>
+                <button class="btn-header" onclick="volver()">← Volver</button>
             </div>
         </div>
     </header>
 
-    <main>
+    <main class="container">
         <section id="info-stand">
             </section>
 
-        <h2>Productos</h2>
+        <section id="seccion-calificar-stand" class="calificar-card" style="display: none;">
+            <div class="card-content">
+                <div class="rating-title-box">
+                    <h3 class="mb-0"><i class="bi bi-award text-primary me-2"></i>Calificar Stand</h3>
+                </div>
+                
+                <div class="rating-actions">
+                    <div id="selector-estrellas-stand" class="star-rating-selector">
+                        <i class="bi bi-star star-stand-btn fs-4" data-value="1"></i>
+                        <i class="bi bi-star star-stand-btn fs-4" data-value="2"></i>
+                        <i class="bi bi-star star-stand-btn fs-4" data-value="3"></i>
+                        <i class="bi bi-star star-stand-btn fs-4" data-value="4"></i>
+                        <i class="bi bi-star star-stand-btn fs-4" data-value="5"></i>
+                    </div>
+                    
+                    <button class="btn-enviar-voto btn btn-sm btn-primary fw-bold" onclick="enviarCalificacionStand()">
+                        Enviar
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <h2>Productos del Feriante</h2>
         <section id="productos-container">
             </section>
     </main>
 
     <footer>
-        <p>Proyecto Feria Digital — Desarrollado por Nazzareno Guardia y Mansilla Denis Alumnos de la carrera de Tecnicatura Superior en Desarrollo de Software del CENT 35</p>
+        <p>Proyecto Feria Digital — Desarrollado por Nazzareno Guardia y Mansilla Denis. Alumnos del CENT 35.</p>
     </footer>
 
     <script defer src="/web/js/stand_detalle.js"></script>
