@@ -5,8 +5,11 @@ import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioComun.Usuario
 import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.VerificationToken;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.VerificationTokenRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,21 +19,31 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
     private final CloudinaryService cloudinaryService;
+    private final EmailService emailService;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UsuarioController(UsuarioRepository usuarioRepository,CloudinaryService cloudinaryService) {
+    public UsuarioController(UsuarioRepository usuarioRepository
+            ,CloudinaryService cloudinaryService
+            ,VerificationTokenRepository verificationTokenRepository
+            ,EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.cloudinaryService = cloudinaryService;
+        this.verificationTokenRepository = verificationTokenRepository;
+        this.emailService=emailService;
     }
 
     @GetMapping("/usuarios")
@@ -100,6 +113,7 @@ public class UsuarioController {
 
     @PostMapping("/usuarios")
     public ResponseEntity<?> registrarUsuario(@RequestBody RegistroDTO dto) {
+
         if (dto.getContrasena() == null || !dto.getContrasena().equals(dto.getConfirmContrasena())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Las contraseñas no coinciden");
         }
@@ -122,10 +136,29 @@ public class UsuarioController {
         usuario.setTipoUsuario(TipoUsuario.NORMAL);
         usuario.setFechaRegistro(LocalDate.now());
 
+        // 🔐 IMPORTANTE
+        usuario.setEnabled(false);
+
         usuarioRepository.save(usuario);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado correctamente");
+        // 🔑 Generar token
+        String token = UUID.randomUUID().toString();
+
+        VerificationToken verificationToken = new VerificationToken();
+        verificationToken.setToken(token);
+        verificationToken.setUsuario(usuario);
+        verificationToken.setFechaExpiracion(LocalDateTime.now().plusHours(24));
+
+        verificationTokenRepository.save(verificationToken);
+
+        // 📧 Enviar email
+        emailService.enviarEmail(usuario.getEmail(), token);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Usuario registrado. Revisa tu correo para verificar tu cuenta.");
     }
+
+
 
     @PostMapping("/password/cambiar")
     public ResponseEntity<?> cambiarPassword(Authentication authentication, @RequestBody java.util.Map<String, String> body) {
