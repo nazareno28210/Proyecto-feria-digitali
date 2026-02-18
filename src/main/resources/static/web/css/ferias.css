@@ -240,3 +240,37 @@ header input:focus {
     display: flex;
     align-items: center;
 }
+
+.main-layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    height: calc(100vh - 150px); /* Ajusta según el alto de tu header/footer */
+    align-items: flex-start;
+}
+
+.map-section {
+    flex: 1.5; /* El mapa ocupa un poco más de espacio */
+    position: sticky;
+    top: 20px;
+}
+
+#mapa-ferias {
+    height: 600px; /* Altura fija o relativa */
+    width: 100%;
+    border-radius: 15px;
+    border: 3px solid #1a3a5a;
+}
+
+.cards-section {
+    flex: 1;
+    overflow-y: auto; /* Permite scroll solo en las tarjetas */
+    max-height: 100%;
+}
+
+/* Ajusta tu grid de tarjetas para que sea de una sola columna aquí */
+#ferias-container {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 20px;
+}

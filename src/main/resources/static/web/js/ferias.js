@@ -5,6 +5,11 @@ const SOLICITUD_URL = "http://localhost:8080/api/solicitudes";
 
 let feriasGlobal = [];
 
+// Variables globales para el Mapa
+const RIO_GRANDE_COORDS = [-53.7860, -67.7070];
+let mapa;
+let markersGroup;
+
 // 🔹 Función Toastify 
 function showToast(message, type = "info") {
   let color;
@@ -33,31 +38,87 @@ function showToast(message, type = "info") {
   }).showToast();
 }
 
-// 🔹 INIT 
+// 🔹 INIT: Configuración inicial al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
-  cargarFerias();
-  verificarSesion();
+    inicializarMapa();
+    cargarDatosFerias(); // Carga datos, tarjetas y marcadores
+    verificarSesion();
 
-  const inputBusqueda = document.getElementById("busqueda");
-  inputBusqueda.addEventListener("input", () => {
-    const texto = inputBusqueda.value.toLowerCase();
-    const filtradas = feriasGlobal.filter((f) =>
-      f.nombre.toLowerCase().includes(texto)
-    );
-    mostrarFerias(filtradas);
-  });
+    const inputBusqueda = document.getElementById("busqueda");
+    inputBusqueda.addEventListener("input", () => {
+        const texto = inputBusqueda.value.toLowerCase();
+        const filtradas = feriasGlobal.filter((f) =>
+            f.nombre.toLowerCase().includes(texto)
+        );
+        mostrarFerias(filtradas);
+        actualizarMarcadoresMapa(filtradas); // El mapa se filtra en tiempo real
+    });
 });
 
-// ========================= FERIAS =========================
-async function cargarFerias() {
-  try {
-    const response = await axios.get(API_URL);
-    feriasGlobal = response.data;
-    mostrarFerias(feriasGlobal);
-  } catch (error) {
-    console.error("Error al cargar las ferias:", error);
-    showToast("❌ Error al cargar las ferias", "error");
-  }
+// ========================= SECCIÓN MAPAS =========================
+
+function inicializarMapa() {
+    // Inicializa el mapa centrado en Río Grande [cite: 85]
+    mapa = L.map('mapa-ferias').setView(RIO_GRANDE_COORDS, 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(mapa);
+    
+    // Grupo para manejar los pines de forma independiente
+    markersGroup = L.layerGroup().addTo(mapa);
+}
+
+function actualizarMarcadoresMapa(lista) {
+    // Limpia los pines actuales antes de poner los nuevos para evitar duplicados al filtrar
+    markersGroup.clearLayers();
+
+    lista.forEach(feria => {
+        // Verificamos que la feria tenga coordenadas válidas antes de intentar ubicarla [cite: 89, 90]
+        if (feria.latitud && feria.longitud) {
+            const marcador = L.marker([feria.latitud, feria.longitud]);
+            
+            // Configuramos el contenido del Popup con el estilo de tu proyecto [cite: 90, 91, 92]
+            marcador.bindPopup(`
+                <div style="text-align: center; font-family: sans-serif;">
+                    <strong style="color: #1a3a5a; font-size: 1.1rem;">${feria.nombre}</strong><br>
+                    <small style="color: #666;">${feria.lugar}</small><br>
+                    <button onclick="verDetalles(${feria.id})" 
+                            style="margin-top: 10px; background: #1a3a5a; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
+                        Ver detalles
+                    </button>
+                </div>
+            `);
+            
+            // EFECTO VISUAL: Al hacer clic, el mapa se desplaza suavemente hacia la feria
+            marcador.on('click', function() {
+                mapa.flyTo([feria.latitud, feria.longitud], 16, {
+                    animate: true,
+                    duration: 1.5 // segundos que tarda el desplazamiento
+                });
+            });
+            
+            // Añadimos el marcador al grupo para que sea gestionable [cite: 89]
+            markersGroup.addLayer(marcador);
+        }
+    });
+}
+
+// ========================= SECCIÓN FERIAS =========================
+
+async function cargarDatosFerias() {
+    try {
+        const res = await axios.get(API_URL); 
+        feriasGlobal = res.data;
+
+        // Renderiza ambos componentes visuales
+        mostrarFerias(feriasGlobal);
+        actualizarMarcadoresMapa(feriasGlobal);
+
+    } catch (err) {
+        console.error("Error al cargar las ferias:", err);
+        showToast("❌ Error al cargar las ferias", "error");
+    }
 }
 
 function mostrarFerias(lista) {
@@ -109,7 +170,6 @@ async function verificarSesion() {
   } catch (error) {
     console.log("Usuario no autenticado (modo visitante)");
     
-    // 🛒 AGREGADO: Botón de búsqueda para visitantes
     document.getElementById("user-actions").innerHTML = `
       <a href="buscar.html" class="btn btn-header" style="margin-right: 10px;">
         <i class="bi bi-cart-fill"></i> Buscar Productos
@@ -121,9 +181,8 @@ async function verificarSesion() {
 
 async function mostrarOpcionesUsuario(usuario) {
   const container = document.getElementById("user-actions");
-  container.innerHTML = ""; // Al limpiar, borramos todo, por eso lo re-creamos abajo
+  container.innerHTML = ""; 
 
-  // 🛒 1. Crear Botón de Búsqueda (Visible para TODOS los logueados)
   const btnBuscar = document.createElement("a");
   btnBuscar.href = "buscar.html";
   btnBuscar.className = "btn btn-header"; 
@@ -131,14 +190,12 @@ async function mostrarOpcionesUsuario(usuario) {
   btnBuscar.innerHTML = '<i class="bi bi-cart-fill"></i> Buscar Productos';
   container.appendChild(btnBuscar);
 
-  // 2. Botón de Cerrar Sesión (Se usará al final)
   const btnLogout = document.createElement("button");
   btnLogout.id = "btn-logout";
   btnLogout.className = "btn btn-logout";
   btnLogout.textContent = "Cerrar sesión";
   btnLogout.addEventListener("click", cerrarSesion);
 
-  // 🔹 Si el usuario es NORMAL
   if (usuario.tipoUsuario === "NORMAL") {
     const btnPerfil = document.createElement("a");
     btnPerfil.href = "/web/usuario-perfil.html";
@@ -148,7 +205,6 @@ async function mostrarOpcionesUsuario(usuario) {
     container.appendChild(btnPerfil);
   }
 
-  // 🔹 Si el usuario es FERIANTE
   if (usuario.tipoUsuario === "FERIANTE") {
     const btnPerfil = document.createElement("a");
     btnPerfil.href = "/web/feriante/perfil.html";
@@ -158,7 +214,6 @@ async function mostrarOpcionesUsuario(usuario) {
     container.appendChild(btnPerfil);
   }
 
-  // 🔹 Si el usuario es ADMINISTRADOR
   if (usuario.tipoUsuario === "ADMINISTRADOR") {
     const btnAdmin = document.createElement("a");
     btnAdmin.href = "/web/admin/dashboard.html";
@@ -168,11 +223,9 @@ async function mostrarOpcionesUsuario(usuario) {
     container.appendChild(btnAdmin);
   }
 
-  // 3. Añadir el botón de cerrar sesión al final
   container.appendChild(btnLogout);
 }
 
-// 🔹 Función cerrarSesion (sin cambios)
 async function cerrarSesion() {
   try {
     await axios.post(LOGOUT_URL, {}, { withCredentials: true });

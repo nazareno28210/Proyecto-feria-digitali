@@ -18,6 +18,8 @@ public class FeriaDTO {
     private String imagenUrl;
     private Integer porcentajeAprobacion;
     private Integer totalVotos;
+    private Double latitud;
+    private Double longitud;
 
     private List<StandDTO> stands;
     public FeriaDTO(){}
@@ -34,7 +36,9 @@ public class FeriaDTO {
         this.stands = feria.getStands()
                 .stream()
                 .map(StandDTO::new)
-                .collect(Collectors.toList());         // Mapeamos stands filtrando los que no estén eliminados (para cuando hagamos Stands)
+                .collect(Collectors.toList());// Mapeamos stands filtrando los que no estén eliminados (para cuando hagamos Stands)
+        this.latitud = feria.getLatitud();
+        this.longitud = feria.getLongitud();
     }
 
     public int getId() {
@@ -91,5 +95,13 @@ public class FeriaDTO {
 
     public Integer getTotalVotos() {
         return totalVotos;
+    }
+
+    public Double getLatitud() {
+        return latitud;
+    }
+
+    public Double getLongitud() {
+        return longitud;
     }
 }

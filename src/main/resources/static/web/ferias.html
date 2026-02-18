@@ -8,15 +8,16 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/ferias.css" />
-
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
 <header>
     <div class="header-top">
-        
         <div class="header-left">
             <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
             <h1>Ferias Activas</h1>
@@ -27,17 +28,20 @@
         </div>
 
         <div id="user-actions">
-            <a href="buscar.html" class="btn btn-buscar-nav">
-                <i class="bi bi-cart-fill"></i> Buscar Productos
-            </a>
-            <a href="login.html" class="btn btn-login">Iniciar sesión</a>
-        </div>
-
+            </div>
     </div>
 </header>
 
-<main id="ferias-container">
-    </main>
+<main class="main-layout">
+    <section class="map-section">
+        <div id="mapa-ferias"></div>
+    </section>
+
+    <section class="cards-section">
+        <div id="ferias-container">
+            </div>
+    </section>
+</main>
 
 <footer>
     <p id="creditos">

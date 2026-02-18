@@ -1,11 +1,10 @@
-/*
- * ====================================
- * FERIAS-CONTROL.CSS (CRUD Completo)
- * ====================================
- */
+/* ====================================
+   1. VARIABLES Y GENERALES
+   ==================================== */
+/* Aquí se asume que usas las variables de global.css como --color-dark-blue */
 
 /* ====================================
-   1. HEADER
+   2. HEADER
    ==================================== */
 .header-top {
   display: flex;
@@ -13,11 +12,13 @@
   align-items: center;
   width: 100%;
 }
+
 .header-left {
   display: flex;
   align-items: center;
   gap: 15px; 
 }
+
 .header-logo {
   width: 55px;
   height: 55px;
@@ -27,12 +28,13 @@
   border: 1px solid var(--color-light-accent);
   transition: transform 0.3s ease;
 }
+
 .header-logo:hover {
   transform: scale(1.1) rotate(15deg);
 }
 
 /* ====================================
-   2. TÍTULOS DE SECCIÓN
+   3. TÍTULOS DE SECCIÓN
    ==================================== */
 h2 {
     color: var(--color-dark-blue);
@@ -42,12 +44,13 @@ h2 {
     border-bottom: 2px solid var(--color-medium-blue);
     padding-bottom: 5px;
 }
+
 main > h2:first-of-type {
     margin-top: 0;
 }
 
 /* ====================================
-   3. FORMULARIOS (CREACIÓN Y MODAL)
+   4. FORMULARIOS (CREACIÓN Y MODAL)
    ==================================== */
 .form-card {
   background: var(--color-card);
@@ -59,10 +62,12 @@ main > h2:first-of-type {
   margin-bottom: 40px;
 }
 
+/* 🟢 CAMBIO: Grid ajustado para el mapa */
 .form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.2fr 1fr;
     gap: 2rem;
+    align-items: start;
 }
 
 .form-column {
@@ -73,7 +78,7 @@ main > h2:first-of-type {
 label {
   display: block;
   margin-bottom: 0.5rem;
-  color: var(--color-text-light); 
+  color: var(--color-text-light);
   font-weight: 500;
   font-size: 0.95rem; 
   margin-top: 1rem;
@@ -98,6 +103,30 @@ input:focus, textarea:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
+/* 📍 NUEVOS ESTILOS PARA COORDENADAS */
+.coord-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.coord-inputs input[readonly] {
+    background-color: #f3f4f6;
+    cursor: not-allowed;
+    border-style: dashed;
+    color: #6b7280;
+}
+
+.admin-map {
+    height: 300px;
+    width: 100%;
+    border-radius: 12px;
+    border: 2px solid var(--color-dark-blue);
+    margin-top: 10px;
+    z-index: 1;
+}
+
 /* Botón principal de guardado */
 button.btn-submit,
 button[type="submit"] {
@@ -113,6 +142,7 @@ button[type="submit"] {
   transition: all 0.3s ease;
   margin-top: 2rem; 
 }
+
 button.btn-submit:hover,
 button[type="submit"]:hover {
   background-color: var(--color-medium-blue);
@@ -120,8 +150,12 @@ button[type="submit"]:hover {
 }
 
 /* ====================================
-   4. TABLA DE FERIAS
+   5. TABLA DE FERIAS
    ==================================== */
+.table-container {
+    overflow-x: auto;
+}
+
 table {
   width: 100%; 
   border-collapse: collapse;
@@ -140,7 +174,7 @@ th, td {
   padding: 14px 18px;
   text-align: left;
   border-bottom: 1px solid #eef0f3;
-  vertical-align: middle; 
+  vertical-align: middle;
 }
 
 .fila-inactiva {
@@ -149,7 +183,7 @@ th, td {
 }
 
 .fila-inactiva td {
-    color: #6c757d; 
+    color: #6c757d;
 }
 
 tbody tr:hover {
@@ -157,14 +191,14 @@ tbody tr:hover {
 }
 
 td:last-child {
-  white-space: nowrap; 
+  white-space: nowrap;
 }
 
 /* 🟢 Badges de Estado */
 .badge-activa {
     background-color: #d1e7dd;
     color: #0f5132;
-    padding: 5px 10px;
+    padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 700;
@@ -174,14 +208,14 @@ td:last-child {
 .badge-inactiva {
     background-color: #f8d7da;
     color: #842029;
-    padding: 5px 10px;
+    padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 700;
     border: 1px solid #f5c2c7;
 }
 
-/* 🟢 Botones de acción */
+/* 🟢 Botones de acción en tabla */
 table button {
   padding: 8px 14px;
   border: none;
@@ -199,46 +233,34 @@ table button:hover {
     filter: brightness(1.1);
 }
 
-.btn-editar {
-    background-color: var(--color-medium-blue);
-}
-
-.btn-activar {
-    background-color: var(--color-success);
-}
-
-.btn-baja {
-    background-color: #f59e0b; 
-    color: white;
-}
-
-.btn-eliminar {
-    background-color: var(--color-error);
-}
+.btn-editar { background-color: var(--color-medium-blue); }
+.btn-activar { background-color: var(--color-success); }
+.btn-baja { background-color: #f59e0b; color: white; }
+.btn-eliminar { background-color: var(--color-error); }
 
 /* ====================================
-   5. MODAL DE EDICIÓN
+   6. MODAL DE EDICIÓN
    ==================================== */
 .modal {
     display: none; 
     position: fixed;
-    z-index: 2000; /* Por encima de todo */
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgba(0, 0, 0, 0.6); /* Fondo oscurecido */
-    backdrop-filter: blur(4px); /* Efecto de desenfoque */
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
 }
 
 .modal-content {
     background-color: #ffffff;
-    margin: 5% auto;
+    margin: 2% auto;
     padding: 2.5rem;
     border-radius: 20px;
     width: 90%;
-    max-width: 700px;
+    max-width: 900px; /* Aumentado para el mapa */
     position: relative;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
     animation: slideIn 0.3s ease-out;
@@ -257,16 +279,16 @@ table button:hover {
     font-weight: bold;
     color: #9ca3af;
     cursor: pointer;
-    transition: color 0.2s;
 }
 
-.close-button:hover {
-    color: var(--color-error);
-}
+.close-button:hover { color: var(--color-error); }
 
-/* Ajuste del título dentro del modal */
-.modal-content h2 {
-    margin-top: 0;
-    border-bottom: 2px solid var(--color-medium-blue);
-    padding-bottom: 10px;
+/* ====================================
+   7. FOOTER
+   ==================================== */
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-text-light);
+    font-size: 0.9rem;
 }

@@ -20,6 +20,8 @@ public class Feria {
     private String descripcion;
     private String estado;
     private String imagenUrl;
+    private Double latitud;
+    private Double longitud;
 
     @OneToMany(mappedBy = "feria", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("feria") // Rompe la recursividad
@@ -29,7 +31,7 @@ public class Feria {
     private boolean eliminado = false;
 
     public Feria(){}
-    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado, String imagenUrl) {
+    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado, String imagenUrl, Double latitud, Double longitud) {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFinal = fechaFinal;
@@ -37,6 +39,8 @@ public class Feria {
         this.descripcion = descripcion;
         this.estado = estado;
         this.imagenUrl = imagenUrl;
+        this.latitud = latitud;
+        this.longitud = longitud;
     }
 
     public int getId() {
@@ -112,5 +116,21 @@ public class Feria {
     }
     public void setEliminado(boolean eliminado) {
         this.eliminado = eliminado;
+    }
+
+    public Double getLatitud() {
+        return latitud;
+    }
+
+    public void setLatitud(Double latitud) {
+        this.latitud = latitud;
+    }
+
+    public Double getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(Double longitud) {
+        this.longitud = longitud;
     }
 }

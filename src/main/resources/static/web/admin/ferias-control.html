@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/ferias-control.css"> 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -36,7 +40,25 @@
                 
                 <label for="lugar">Lugar / Dirección</label>
                 <input type="text" id="lugar" placeholder="Ej: Plaza Central" required>
+
+                <div class="coord-inputs">
+                    <div>
+                        <label for="latitud">Latitud</label>
+                        <input type="text" id="latitud" placeholder="Clic en el mapa" readonly required>
+                    </div>
+                    <div>
+                        <label for="longitud">Longitud</label>
+                        <input type="text" id="longitud" placeholder="Clic en el mapa" readonly required>
+                    </div>
+                </div>
             </div>
+            <div class="form-column">
+                <label>Ubicación en el mapa (Haz clic para marcar)</label>
+                <div id="mapa-crear" class="admin-map"></div>
+            </div>
+        </div>
+
+        <div class="form-grid" style="margin-top: 20px;">
             <div class="form-column">
                 <label for="fechaInicio">Fecha de Inicio</label>
                 <input type="date" id="fechaInicio" required>
@@ -44,13 +66,14 @@
                 <label for="fechaFinal">Fecha de Finalización</label>
                 <input type="date" id="fechaFinal" required>
             </div>
-        </div>
-        
-        <label for="imagenUrl">URL de la Imagen (Portada)</label>
-        <input type="text" id="imagenUrl" placeholder="https://ejemplo.com/imagen.jpg">
+            <div class="form-column">
+                <label for="imagenUrl">URL de la Imagen (Portada)</label>
+                <input type="text" id="imagenUrl" placeholder="https://ejemplo.com/imagen.jpg">
 
-        <label for="descripcion">Descripción del Evento</label>
-        <textarea id="descripcion" placeholder="Escribe una breve reseña de la feria..."></textarea>
+                <label for="descripcion">Descripción del Evento</label>
+                <textarea id="descripcion" placeholder="Escribe una breve reseña de la feria..."></textarea>
+            </div>
+        </div>
         
         <button type="submit" class="btn-submit">Guardar Feria</button>
     </form>
@@ -67,8 +90,7 @@
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody>
-                </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </main>
@@ -80,12 +102,31 @@
         <form id="form-editar">
             <input type="hidden" id="edit-id">
             
-            <label for="edit-nombre">Nombre</label>
-            <input type="text" id="edit-nombre" required>
-            
-            <label for="edit-lugar">Lugar</label>
-            <input type="text" id="edit-lugar" required>
-            
+            <div class="form-grid">
+                <div class="form-column">
+                    <label for="edit-nombre">Nombre</label>
+                    <input type="text" id="edit-nombre" required>
+                    
+                    <label for="edit-lugar">Lugar</label>
+                    <input type="text" id="edit-lugar" required>
+
+                    <div class="coord-inputs">
+                        <div>
+                            <label for="edit-latitud">Latitud</label>
+                            <input type="text" id="edit-latitud" readonly required>
+                        </div>
+                        <div>
+                            <label for="edit-longitud">Longitud</label>
+                            <input type="text" id="edit-longitud" readonly required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-column">
+                    <label>Modificar ubicación</label>
+                    <div id="mapa-editar" class="admin-map"></div>
+                </div>
+            </div>
+
             <div class="form-grid">
                 <div class="form-column">
                     <label for="edit-fechaInicio">Fecha Inicio</label>

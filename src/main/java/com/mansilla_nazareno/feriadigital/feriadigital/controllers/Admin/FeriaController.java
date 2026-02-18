@@ -107,6 +107,9 @@ public class FeriaController {
             feria.setFechaInicio(feriaActualizada.getFechaInicio());
             feria.setFechaFinal(feriaActualizada.getFechaFinal());
             feria.setImagenUrl(feriaActualizada.getImagenUrl());
+            feria.setLatitud(feriaActualizada.getLatitud());
+            feria.setLongitud(feriaActualizada.getLongitud());
+
             feriaRepository.save(feria);
             return ResponseEntity.ok("Feria actualizada correctamente");
         }).orElse(ResponseEntity.notFound().build());

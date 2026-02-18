@@ -77,7 +77,7 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 3. FERIA
 				// =========================================
-				Feria feria = new Feria("Feria Gimnasio Don Bosco", LocalDate.of(2025, 12, 24), LocalDate.of(2025, 12, 27), "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial", "ACTIVA", "/uploads/ferias/Don_Bosco.png");
+				Feria feria = new Feria("Feria Gimnasio Don Bosco", LocalDate.of(2025, 12, 24), LocalDate.of(2025, 12, 2), "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial", "ACTIVA", "/uploads/ferias/Don_Bosco.png", -53.78904155240556,  -67.70062989474968);
 				feriaRepository.save(feria);
 
 				// =========================================
