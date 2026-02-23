@@ -89,24 +89,31 @@ async function cargarStand() {
 
         // 2. Renderizar los productos si el stand está activo 
         if (stand.productos && stand.productos.length > 0) {
-            stand.productos.forEach(producto => {
-                const div = document.createElement("div");
-                div.classList.add("producto-card"); 
-                div.style.cursor = "pointer";
-                div.onclick = () => window.location.href = `producto-detalle.html?id=${producto.id}`;
+        stand.productos.forEach(producto => {
+            const div = document.createElement("div");
+            div.classList.add("producto-card"); 
+            div.onclick = () => window.location.href = `producto-detalle.html?id=${producto.id}`;
 
-                const imagenUrl = producto.imagenUrl ? producto.imagenUrl : "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png"; 
-                
-                div.innerHTML = `
-                    <img src="${imagenUrl}" alt="${producto.nombre}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px 8px 0 0;">
-                    <div class="producto-card-content">
-                        <h3>${producto.nombre}</h3>
-                        <p>${producto.descripcion || "Sin descripción"}</p>
-                        <p><strong>Precio:</strong> $${producto.precio.toFixed(2)}</p>
+            const imagenUrl = producto.imagenUrl || "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png"; 
+            
+            div.innerHTML = `
+                <img src="${imagenUrl}" alt="${producto.nombre}" class="producto-img">
+                <div class="producto-card-content">
+                    <div class="producto-header-row">
+                        <h3 class="producto-titulo">${producto.nombre}</h3>
+                        <div class="badges-container">
+                            <span class="badge-categoria">${producto.categoriaNombre || "Sin categoría"}</span>
+                            <span class="badge-unidad">${producto.tipoVenta || "UNIDAD"}</span>
+                        </div>
                     </div>
-                `; 
-                productosContainer.appendChild(div); 
-            });
+                    <p class="producto-desc">${producto.descripcion || "Sin descripción"}</p>
+                    <div class="producto-precio-info">
+                        <strong class="precio-texto">$${producto.precio.toFixed(2)}</strong>
+                    </div>
+                </div>
+            `; 
+            productosContainer.appendChild(div); 
+    });
         } else {
             productosContainer.innerHTML = `
                 <div class="no-products-container" style="grid-column: 1 / -1; text-align: center; padding: 50px;">

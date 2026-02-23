@@ -67,12 +67,29 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 2. CATEGORÍAS GLOBALES
 				// =========================================
-				CategoriaProducto catIndumentaria = new CategoriaProducto("Indumentaria", "Ropa y telas");
-				CategoriaProducto catCalzado = new CategoriaProducto("Calzado", "Zapatos y zapatillas");
-				CategoriaProducto catAccesorios = new CategoriaProducto("Accesorios", "Complementos varios");
-				CategoriaProducto catMascotas = new CategoriaProducto("Mascotas", "Todo para animales");
+				CategoriaProducto catIndumentaria = new CategoriaProducto("Indumentaria", "Prendas de vestir para todas las edades, ropa de diseño, uniformes y tejidos artesanales listos para usar");
+				CategoriaProducto catBlancoTextil = new CategoriaProducto("Blanco y Textil", "Artículos de tela para el hogar como sábanas, manteles, cortinas y toallas, además de rollos de tela y retazos para confección");
+				CategoriaProducto catCalzado = new CategoriaProducto("Calzado", "Zapatos, zapatillas, sandalias, botas y calzado artesanal o industrial");
+				CategoriaProducto catAccesorios = new CategoriaProducto("Accesorios", "Complementos de moda, joyería, marroquinería, bufandas, cinturones y carteras");
+				CategoriaProducto catMascotas = new CategoriaProducto("Mascotas", "Alimentos, accesorios, juguetes y ropa para mascotas y animales domésticos");
 
-				categoriaRepository.saveAll(List.of(catIndumentaria, catCalzado, catAccesorios, catMascotas));
+
+				CategoriaProducto catGastronomia = new CategoriaProducto("Gastronomía", "Comidas preparadas, minutas y platos regionales");
+				CategoriaProducto catPanaderia = new CategoriaProducto("Panificación", "Pan casero, prepizzas, facturas y productos de repostería");
+				CategoriaProducto catBebidas = new CategoriaProducto("Bebidas", "Jugos naturales, licuados, cervezas artesanales y conservas");
+
+				CategoriaProducto catHogar = new CategoriaProducto("Hogar y Decoración", "Artículos de decoración, velas aromáticas y textiles para el hogar");
+				CategoriaProducto catArtesanias = new CategoriaProducto("Artesanías", "Trabajos en madera, cerámica, tejido a mano y cuero");
+				CategoriaProducto catVivero = new CategoriaProducto("Vivero y Jardín", "Plantas de interior, plantines, macetas decoradas y abonos");
+
+				CategoriaProducto catBelleza = new CategoriaProducto("Belleza y Salud", "Cosmética natural, jabones artesanales y aceites esenciales");
+				CategoriaProducto catJuguetes = new CategoriaProducto("Juguetes", "Juegos de ingenio, muñecos de tela y juguetes de madera");
+				CategoriaProducto catLibreria = new CategoriaProducto("Librería y Arte", "Cuadernos artesanales, láminas decorativas y artículos de papelería");
+
+				categoriaRepository.saveAll(List.of(catIndumentaria, catCalzado, catAccesorios, catMascotas,
+						catGastronomia, catPanaderia, catBebidas,
+						catHogar, catArtesanias, catVivero,
+						catBelleza, catJuguetes, catLibreria,catBlancoTextil));
 
 				// =========================================
 				// 3. FERIA
