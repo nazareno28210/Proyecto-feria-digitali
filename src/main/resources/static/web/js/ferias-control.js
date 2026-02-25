@@ -19,14 +19,66 @@ function showToast(message, type = "info") {
     }).showToast();
 }
 
+// 🟢 FUNCIÓN DE VALIDACIÓN DE FECHAS
+function validarFechas(inicio, fin) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); 
+    const fechaInicio = new Date(inicio + "T00:00:00"); 
+    const fechaFin = fin ? new Date(fin + "T00:00:00") : null;
+
+    if (fechaInicio < hoy) {
+        showToast("La fecha de inicio no puede ser anterior a hoy", "error");
+        return false;
+    }
+    if (fechaFin && fechaFin < fechaInicio) {
+        showToast("La fecha final no puede ser anterior a la de inicio", "error");
+        return false;
+    }
+
+    // 🟡 ADVERTENCIA DE AUTO-CIERRE: Si la fecha fin ya pasó respecto a hoy
+    if (fechaFin && fechaFin < hoy) {
+        const confirmar = confirm("Atención: La fecha de finalización ya pasó. El sistema marcará esta feria como 'Inactiva' automáticamente. ¿Deseas continuar?");
+        if (!confirmar) return false;
+    }
+
+    return true;
+}
+
+// 🟢 FUNCIÓN DE VALIDACIÓN DE UBICACIÓN
+function validarUbicacion(lat, lng) {
+    if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
+        showToast("¡Atención! Debes marcar la ubicación en el mapa", "warning");
+        return false;
+    }
+    return true;
+}
+
+// 🟢 FUNCIÓN DE VALIDACIÓN DE LONGITUD DE TEXTO
+function validarLongitudTexto(nombre, descripcion) {
+    if (nombre.trim().length < 3 || nombre.trim().length > 75) {
+        showToast("El nombre debe tener entre 3 y 75 caracteres", "error");
+        return false;
+    }
+    if (descripcion.trim().length > 300) {
+        showToast("La descripción no puede superar los 300 caracteres", "error");
+        return false;
+    }
+    return true;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const formCrear = document.getElementById("form-feria");
     const tbody = document.querySelector("#tabla-ferias tbody");
     const API_BASE_URL = "http://localhost:8080/api/ferias";
 
+    const hoyInput = new Date().toISOString().split('T')[0];
+    const dateInputs = ["fechaInicio", "fechaFinal", "edit-fechaInicio", "edit-fechaFinal"];
+    dateInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.setAttribute("min", hoyInput);
+    });
+
     // --- LÓGICA DE MAPAS ---
-    
-    // Inicializar mapa de creación
     mapaCrear = L.map('mapa-crear').setView(RIO_GRANDE_COORDS, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
@@ -41,7 +93,6 @@ document.addEventListener("DOMContentLoaded", () => {
         marcadorCrear = L.marker([lat, lng]).addTo(mapaCrear);
     });
 
-    // Inicializar mapa de edición (dentro del modal)
     mapaEditar = L.map('mapa-editar').setView(RIO_GRANDE_COORDS, 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
@@ -56,18 +107,20 @@ document.addEventListener("DOMContentLoaded", () => {
         marcadorEditar = L.marker([lat, lng]).addTo(mapaEditar);
     });
 
-    // 1. Cargar ferias
     async function cargarFerias() {
         try {
+            // El backend ahora ejecuta obtenerFeriasActualizadas() internamente al llamar a este GET
             const res = await axios.get(API_BASE_URL);
             tbody.innerHTML = "";
             res.data.forEach(f => {
                 const row = document.createElement("tr");
+                // Si el backend la marcó como Inactiva por fecha, se verá gris automáticamente
                 if (f.estado === "Inactiva") row.classList.add("fila-inactiva");
+                
                 row.innerHTML = `
                     <td>${f.nombre}</td>
                     <td>${f.lugar}</td>
-                    <td>${f.fechaInicio} / ${f.fechaFinal}</td>
+                    <td>${f.fechaInicio} / ${f.fechaFinal || 'Sin fecha fin'}</td>
                     <td><span class="badge-${f.estado.toLowerCase()}">${f.estado}</span></td>
                     <td>
                         <button class="btn-editar" onclick='abrirModalEditar(${JSON.stringify(f)})'>
@@ -89,19 +142,31 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 2. Crear feria
     formCrear.addEventListener("submit", async e => {
         e.preventDefault();
+        
+        const nombre = document.getElementById("nombre").value;
+        const desc = document.getElementById("descripcion").value;
+        const fInicio = document.getElementById("fechaInicio").value;
+        const fFinal = document.getElementById("fechaFinal").value;
+        const lat = document.getElementById("latitud").value;
+        const lng = document.getElementById("longitud").value;
+
+        if (!validarFechas(fInicio, fFinal)) return;
+        if (!validarUbicacion(lat, lng)) return;
+        if (!validarLongitudTexto(nombre, desc)) return;
+
         const feria = {
-            nombre: document.getElementById("nombre").value,
-            lugar: document.getElementById("lugar").value,
-            latitud: parseFloat(document.getElementById("latitud").value),
-            longitud: parseFloat(document.getElementById("longitud").value),
-            fechaInicio: document.getElementById("fechaInicio").value,
-            fechaFinal: document.getElementById("fechaFinal").value,
-            imagenUrl: document.getElementById("imagenUrl").value,
-            descripcion: document.getElementById("descripcion").value
+                nombre: nombre,
+                lugar: document.getElementById("lugar").value,
+                latitud: parseFloat(lat),
+                longitud: parseFloat(lng),
+                fechaInicio: fInicio,
+                fechaFinal: fFinal,
+                imagenUrl: document.getElementById("imagenUrl").value,
+                descripcion: desc
         };
+            
         try {
             await axios.post(API_BASE_URL, feria);
             showToast("Feria creada correctamente", "success");
@@ -113,13 +178,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 3. Funciones de Estado
     window.activar = async (id) => {
         try {
-            await axios.patch(`${API_BASE_URL}/${id}/activar`);
-            showToast("Feria activada", "success");
+            // La petición ahora puede fallar si el backend detecta fecha vencida
+            const response = await axios.patch(`${API_BASE_URL}/${id}/activar`);
+            showToast("Feria activada correctamente", "success");
             cargarFerias();
-        } catch (err) { showToast("Error al activar", "error"); }
+        } catch (err) {
+            // Si el servidor devuelve el error de fecha pasada (400), lo mostramos aquí
+            const mensajeError = err.response?.data || "Error al activar la feria";
+            showToast(mensajeError, "error");
+            console.error("Error al activar:", err);
+        }
     };
 
     window.darBaja = async (id) => {
@@ -139,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) { showToast("Error al eliminar", "error"); }
     };
 
-    // 4. Modal Edición
     window.abrirModalEditar = (feria) => {
         document.getElementById("edit-id").value = feria.id;
         document.getElementById("edit-nombre").value = feria.nombre;
@@ -153,7 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
         
         document.getElementById("modal-editar").style.display = "block";
         
-        // Actualizar mapa en el modal
         setTimeout(() => {
             mapaEditar.invalidateSize();
             const pos = [feria.latitud, feria.longitud];
@@ -169,16 +237,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("form-editar").addEventListener("submit", async (e) => {
         e.preventDefault();
+        
+        const nombreEdit = document.getElementById("edit-nombre").value;
+        const descEdit = document.getElementById("edit-descripcion").value;
+        const fInicio = document.getElementById("edit-fechaInicio").value;
+        const fFinal = document.getElementById("edit-fechaFinal").value;
+        const lat = document.getElementById("edit-latitud").value;
+        const lng = document.getElementById("edit-longitud").value;
+
+        if (!validarFechas(fInicio, fFinal)) return;
+        if (!validarUbicacion(lat, lng)) return;
+        if (!validarLongitudTexto(nombreEdit, descEdit)) return;
+
         const id = document.getElementById("edit-id").value;
         const feriaEditada = {
-            nombre: document.getElementById("edit-nombre").value,
+            nombre: nombreEdit,
             lugar: document.getElementById("edit-lugar").value,
-            latitud: parseFloat(document.getElementById("edit-latitud").value),
-            longitud: parseFloat(document.getElementById("edit-longitud").value),
-            fechaInicio: document.getElementById("edit-fechaInicio").value,
-            fechaFinal: document.getElementById("edit-fechaFinal").value,
+            latitud: parseFloat(lat),
+            longitud: parseFloat(lng),
+            fechaInicio: fInicio,
+            fechaFinal: fFinal,
             imagenUrl: document.getElementById("edit-imagenUrl").value,
-            descripcion: document.getElementById("edit-descripcion").value
+            descripcion: descEdit
         };
 
         try {

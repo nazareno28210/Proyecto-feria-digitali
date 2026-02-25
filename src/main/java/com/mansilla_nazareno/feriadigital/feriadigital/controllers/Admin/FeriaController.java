@@ -23,14 +23,37 @@ public class FeriaController {
     @Autowired
     private ResenaRepository resenaRepository;
 
-    public FeriaController(FeriaRepository feriaRepository) {this.feriaRepository = feriaRepository;}
+    public FeriaController(FeriaRepository feriaRepository) {
+        this.feriaRepository = feriaRepository;
+    }
+
+    // 🟢 MÉTODO INTERNO DE ACTUALIZACIÓN AUTOMÁTICA
+    // Se ejecuta internamente para cerrar ferias que ya pasaron de fecha
+    private List<Feria> obtenerFeriasActualizadas() {
+        List<Feria> ferias = feriaRepository.findAll();
+        LocalDate hoy = LocalDate.now();
+
+        for (Feria feria : ferias) {
+            // Si la feria está "Activa" pero su fecha final ya pasó, la desactivamos
+            if ("Activa".equals(feria.getEstado()) &&
+                    feria.getFechaFinal() != null &&
+                    feria.getFechaFinal().isBefore(hoy)) {
+
+                feria.setEstado("Inactiva");
+                feriaRepository.save(feria);
+            }
+        }
+        return ferias;
+    }
 
     @GetMapping("/ferias")
     public List<FeriaDTO> getFerias() {
-        // 🟢 CAMBIO: Usamos findByEliminadoFalse() para no mostrar la "papelera" al Admin
+        // 🟢 CAMBIO: Llamamos primero a la lógica de actualización
+        obtenerFeriasActualizadas();
+
         return feriaRepository.findByEliminadoFalse()
                 .stream()
-                .map(feria -> new FeriaDTO(feria))
+                .map(FeriaDTO::new)
                 .collect(Collectors.toList());
     }
 
@@ -38,68 +61,77 @@ public class FeriaController {
     public FeriaDTO getFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id)
                 .map(feria -> {
-                    // 1. Creamos el DTO base
                     FeriaDTO dto = new FeriaDTO(feria);
-
-                    // 2. Calculamos los votos desde el ResenaRepository
                     Long positivos = resenaRepository.countVotosPositivosFeria(id);
                     Long totales = resenaRepository.countTotalVotosFeria(id);
-
-                    // 3. Matemática: (Positivos / Totales) * 100
                     int porcentaje = (totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
 
-                    // 4. Inyectamos los datos al DTO usando los SETTERS que agregamos
                     dto.setPorcentajeAprobacion(porcentaje);
                     dto.setTotalVotos(totales.intValue());
-
                     return dto;
                 })
                 .orElse(null);
     }
 
-    //obtener ferias activas
     @GetMapping("/ferias/activas")
     public List<FeriaDTO> getFeriasActivas() {
+        // 🟢 CAMBIO: Actualizamos estados antes de filtrar las activas para el público
+        obtenerFeriasActualizadas();
+
         return feriaRepository.findByEstadoAndEliminadoFalse("Activa")
                 .stream()
                 .map(FeriaDTO::new)
                 .collect(Collectors.toList());
     }
 
-    //crear feria
     @PostMapping("/ferias")
     public ResponseEntity<?> crearFeria(@RequestBody Feria nuevaFeria) {
-
-        // 🟢 INICIO DE VALIDACIÓN DE BACKEND 🟢
-
-        // 1. Validar que no falten datos (aunque el frontend ya lo hizo)
         if (nuevaFeria.getNombre() == null || nuevaFeria.getNombre().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacío");
         }
         if (nuevaFeria.getFechaInicio() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha de inicio es obligatoria");
         }
-
-        // 2. Validar la lógica de fechas (la misma que en el JS)
         if (nuevaFeria.getFechaInicio().isBefore(LocalDate.now())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha de inicio no puede ser anterior a hoy");
         }
-
         if (nuevaFeria.getFechaFinal() != null && nuevaFeria.getFechaFinal().isBefore(nuevaFeria.getFechaInicio())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la fecha de inicio");
         }
+        if (nuevaFeria.getLatitud() == null || nuevaFeria.getLongitud() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La ubicación geográfica es obligatoria.");
+        }
+        if (nuevaFeria.getNombre().trim().length() < 3 || nuevaFeria.getNombre().trim().length() > 75) {
+            return ResponseEntity.badRequest().body("El nombre debe tener entre 3 y 75 caracteres");
+        }
+        if (nuevaFeria.getDescripcion() != null && nuevaFeria.getDescripcion().trim().length() > 300) {
+            return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
+        }
 
-        // 🟢 FIN DE VALIDACIÓN 🟢
-
-        // Si todo está OK, se procede a guardar:
         nuevaFeria.setEstado("Activa");
         feriaRepository.save(nuevaFeria);
         return ResponseEntity.ok("Feria creada correctamente");
     }
 
-    //actualizar feria
     @PutMapping("/ferias/{id}")
     public ResponseEntity<?> actualizarFeria(@PathVariable Integer id, @RequestBody Feria feriaActualizada) {
+
+        if (feriaActualizada.getFechaFinal() != null &&
+                feriaActualizada.getFechaFinal().isBefore(feriaActualizada.getFechaInicio())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la de inicio");
+        }
+        if (feriaActualizada.getLatitud() == null || feriaActualizada.getLongitud() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede guardar una feria sin coordenadas.");
+        }
+        if (feriaActualizada.getNombre().trim().length() < 3 || feriaActualizada.getNombre().trim().length() > 75) {
+            return ResponseEntity.badRequest().body("El nombre debe tener entre 3 y 75 caracteres");
+        }
+        if (feriaActualizada.getDescripcion() != null && feriaActualizada.getDescripcion().trim().length() > 300) {
+            return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
+        }
+
+
+
         return feriaRepository.findById(id).map(feria -> {
             feria.setNombre(feriaActualizada.getNombre());
             feria.setLugar(feriaActualizada.getLugar());
@@ -109,12 +141,11 @@ public class FeriaController {
             feria.setImagenUrl(feriaActualizada.getImagenUrl());
             feria.setLatitud(feriaActualizada.getLatitud());
             feria.setLongitud(feriaActualizada.getLongitud());
-
             feriaRepository.save(feria);
             return ResponseEntity.ok("Feria actualizada correctamente");
         }).orElse(ResponseEntity.notFound().build());
     }
-    //dar de baja feria
+
     @PatchMapping("/ferias/{id}/baja")
     public ResponseEntity<?> darDeBaja(@PathVariable Integer id) {
         return feriaRepository.findById(id).map(feria -> {
@@ -124,28 +155,33 @@ public class FeriaController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-//  ELIMINAR FERIA (BORRADO LÓGICO)
     @PutMapping("/ferias/{id}/eliminar")
     public ResponseEntity<?> eliminarFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id).map(feria -> {
             feria.setEliminado(true);
-            feria.setEstado("Inactiva"); // Al eliminarla, también la desactivamos para el público
+            feria.setEstado("Inactiva");
             feriaRepository.save(feria);
-            return ResponseEntity.ok("Feria eliminada de la vista correctamente");
+            return ResponseEntity.ok("Feria eliminada correctamente");
         }).orElse(ResponseEntity.notFound().build());
     }
-    //activar feria
+
     @PatchMapping("/ferias/{id}/activar")
     public ResponseEntity<?> activarFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id).map(feria -> {
+            // 🟢 VALIDACIÓN: No permitir activar si la fecha final ya pasó
+            if (feria.getFechaFinal() != null && feria.getFechaFinal().isBefore(LocalDate.now())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("No se puede activar una feria cuya fecha de finalización ya pasó.");
+            }
             feria.setEstado("Activa");
             feriaRepository.save(feria);
             return ResponseEntity.ok("Feria activada correctamente");
         }).orElse(ResponseEntity.notFound().build());
     }
-    // Lista de ferias para el selector (id + nombre) - SOLO las que no estén eliminadas
+
     @GetMapping("/ferias/lista-select")
     public ResponseEntity<List<FeriaSelectorDTO>> getFeriasParaSelector() {
+        obtenerFeriasActualizadas(); // Opcional: Actualizar antes de listar
         List<FeriaSelectorDTO> ferias = feriaRepository.findByEliminadoFalse()
                 .stream()
                 .map(FeriaSelectorDTO::new)
