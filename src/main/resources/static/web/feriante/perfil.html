@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/feriante/perfil.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 </head>
 <body>
 
@@ -117,10 +118,24 @@
     </div>
 </main>
 
+<div id="modal-cropper" class="modal-overlay hidden">
+    <div class="modal-content">
+        <h2>Ajustar Foto de Perfil</h2>
+        <p>Arrastra y ajusta tu foto dentro del círculo</p> <div class="cropper-wrapper">
+            <img id="image-to-crop" src="">
+        </div>
+        <div class="modal-actions">
+            <button id="btn-cancel-crop" class="btn" style="background-color: #e74c3c; color: white;">Cancelar</button>
+            <button id="btn-confirm-crop" class="btn" style="background-color: #2ecc71; color: white;">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
 <footer><p>Proyecto Feria Digital — CENT 35</p></footer>
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script src="/web/feriante/perfil.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script src="/web/feriante/perfil.js"></script> 
 </body>
 </html>

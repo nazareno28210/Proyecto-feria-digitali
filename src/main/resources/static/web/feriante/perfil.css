@@ -293,3 +293,95 @@ input:checked + .slider:before { transform: translateX(22px); }
     font-size: 14px;
     padding: 6px 14px;
 }
+
+/* ====================================
+   ESTILOS PARA EL MODAL DE CROPPER
+   ==================================== */
+
+/* Fondo oscuro del modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000; /* Asegura que esté por encima de todo */
+    transition: opacity 0.3s ease;
+}
+
+/* Caja del modal */
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+
+/* Área donde se carga la imagen para recortar */
+.cropper-wrapper {
+    width: 100%;
+    max-height: 400px;
+    background-color: #f0f0f0;
+    margin-bottom: 20px;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+#image-to-crop {
+    display: block;
+    max-width: 100%;
+}
+
+/* Acciones dentro del modal */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Clase de utilidad para ocultar elementos */
+.hidden {
+    display: none !important;
+}
+
+/* Mejoras visuales para los botones del modal */
+.modal-actions .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Máscara circular para el Cropper (Foto 3) */
+.cropper-view-box,
+.cropper-face {
+    border-radius: 50%;
+}
+
+/* Opcional: Oscurecer los bordes fuera del círculo */
+.cropper-modal {
+    opacity: 0.7;
+    background-color: #000;
+}
+
+.modal-content {
+    border-radius: 20px; /* Bordes más redondeados como en la foto */
+    padding: 30px;
+}
+
+.modal-content p {
+    color: #666;
+    margin-bottom: 20px;
+}

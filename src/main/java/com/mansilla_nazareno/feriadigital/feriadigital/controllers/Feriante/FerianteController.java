@@ -6,6 +6,8 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,8 @@ public class FerianteController {
     private FerianteRepository ferianteRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public FerianteController (FerianteRepository ferianteRepository, UsuarioRepository usuarioRepository){
         this.ferianteRepository=ferianteRepository;
@@ -79,5 +83,29 @@ public class FerianteController {
 
         ferianteRepository.save(feriante);
         return new ResponseEntity<>(Map.of("message", "Perfil de feriante actualizado"), HttpStatus.OK);
+    }
+
+    @PatchMapping("/feriantes/current/imagen")
+    public ResponseEntity<?> updateFerianteImage(Authentication authentication, @RequestParam("imagen") MultipartFile imagen) {
+        Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
+
+        if (usuario == null) {
+            return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
+        }
+
+        try {
+            // Usamos tu método del servicio.
+            // Si ya tenía una foto, podrías usar reemplazarImagen, pero para simplificar:
+            Map<String, String> result = cloudinaryService.subirImagen(imagen);
+            String imageUrl = result.get("url");
+
+            // Guardamos la URL en el objeto Usuario (que es el que tiene la imagen de perfil)
+            usuario.setImagenUrl(imageUrl);
+            usuarioRepository.save(usuario);
+
+            return new ResponseEntity<>(imageUrl, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error al procesar la imagen: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

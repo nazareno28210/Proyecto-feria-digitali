@@ -6,9 +6,11 @@ const STAND_UPDATE_URL = "http://localhost:8080/api/stands/mi-stand";
 const STAND_TOGGLE_URL = "http://localhost:8080/api/stands/mi-stand/toggle-activo";
 const USUARIO_UPDATE_URL = "http://localhost:8080/api/usuarios/current";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
+const IMAGE_UPLOAD_URL = "http://localhost:8080/api/feriantes/current/imagen";
 
 let ferianteActual = null;
 let todasLasFerias = [];
+let cropper = null;
 
 document.addEventListener("DOMContentLoaded", () => {
     cargarPerfil();
@@ -27,17 +29,92 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-edit-stand").addEventListener("click", () => toggleEditStand(true));
     document.getElementById("btn-cancel-stand").addEventListener("click", () => toggleEditStand(false));
     document.getElementById("btn-save-stand").addEventListener("click", guardarStand);
-
+    
     document.getElementById("cerrarSesion").addEventListener("click", cerrarSesion);
     
-    // El error de la línea 25 estaba aquí: aseguramos que la función exista
-    document.getElementById("inputFotoPerfil").addEventListener("change", subirFotoPerfil);
+    // Listener para subir foto (abre modal cropper)
+    document.getElementById("inputFotoPerfil").addEventListener("change", prepararRecorte);
+
+    // Listeners para botones del Modal Cropper
+    document.getElementById("btn-confirm-crop").addEventListener("click", ejecutarRecorteYSubir);
+    document.getElementById("btn-cancel-crop").addEventListener("click", cerrarModalYLimpiar);
 
     const toggleActivo = document.getElementById("toggle-stand-activo");
     if (toggleActivo) toggleActivo.addEventListener("change", toggleEstadoStand);
 });
 
-// Función para centralizar errores (Soluciona el error de la línea 100)
+// --- FUNCIONES DE CROPPER ---
+
+function prepararRecorte(e) {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    if (!archivo.type.startsWith('image/')) {
+        return showToast("Por favor, selecciona una imagen válida.", "error");
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        const imageToCrop = document.getElementById("image-to-crop");
+        const modalCropper = document.getElementById("modal-cropper");
+
+        imageToCrop.src = event.target.result;
+        modalCropper.classList.remove("hidden");
+
+        if (cropper) cropper.destroy();
+
+            cropper = new Cropper(imageToCrop, {
+            aspectRatio: 1, // Proporción cuadrada perfecta 1:1
+            viewMode: 1, // Asegura que no se salga de la imagen
+            dragMode: 'move', // Mover la imagen
+            autoCropArea: 0.8, // Tamaño inicial del recorte
+            cropBoxMovable: false, // Caja de recorte fija
+            cropBoxResizable: false, // No se puede cambiar el tamaño del cuadrado
+            });
+    };
+    reader.readAsDataURL(archivo);
+}
+
+async function ejecutarRecorteYSubir() {
+    if (!cropper) return;
+
+    const canvas = cropper.getCroppedCanvas({ width: 500, height: 500 });
+    
+    canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append("imagen", blob, "perfil.jpg");
+
+        try {
+            showToast("Actualizando foto...", "info");
+            
+            const res = await axios.patch(IMAGE_UPLOAD_URL, formData, { 
+                withCredentials: true, 
+                headers: { "Content-Type": "multipart/form-data" } 
+            });
+
+            // Actualizamos la imagen en la UI con un timestamp para evitar cache
+            const urlImagen = res.data.url || res.data;
+            document.getElementById("fotoPerfil").src = urlImagen + "?t=" + new Date().getTime();
+            
+            showToast("¡Foto actualizada!", "success");
+            cerrarModalYLimpiar();
+        } catch (err) { 
+            manejarError("Error al subir la imagen recortada");
+        }
+    }, 'image/jpeg');
+}
+
+function cerrarModalYLimpiar() {
+    document.getElementById("modal-cropper").classList.add("hidden");
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    document.getElementById("inputFotoPerfil").value = "";
+}
+
+// --- LÓGICA DE PERFIL Y DATOS ---
+
 function manejarError(mensaje) {
     console.error(mensaje);
     showToast(mensaje, "error");
@@ -104,9 +181,9 @@ async function guardarUsuario() {
     try {
         await axios.post(USUARIO_UPDATE_URL, data, { withCredentials: true });
         showToast("Usuario actualizado", "success");
-        cargarPerfil(); 
+        cargarPerfil();
         toggleEditUsuario(false);
-    } catch (e) { manejarError(e.response?.data || "Error al actualizar usuario"); }
+    } catch (e) { manejarError("Error al actualizar usuario"); }
 }
 
 async function guardarFeriante() {
@@ -119,7 +196,7 @@ async function guardarFeriante() {
     try {
         await axios.put(FERIANTE_UPDATE_URL, data, { withCredentials: true });
         showToast("Feriante actualizado", "success");
-        cargarPerfil(); 
+        cargarPerfil();
         toggleEditFeriante(false);
     } catch (e) { manejarError("Error al guardar feriante"); }
 }
@@ -132,12 +209,11 @@ async function guardarStand() {
     try {
         await axios.put(STAND_UPDATE_URL, data, { withCredentials: true });
         showToast("Stand actualizado", "success");
-        cargarPerfil(); 
+        cargarPerfil();
         toggleEditStand(false);
     } catch (e) { manejarError("Error al guardar stand"); }
 }
 
-// TOGGLES DE VISTA
 function toggleEditUsuario(m) { 
     document.getElementById("usuario-view").style.display = m ? 'none' : 'block'; 
     document.getElementById("usuario-edit").style.display = m ? 'block' : 'none'; 
@@ -160,7 +236,7 @@ async function toggleEstadoStand() {
         actualizarUIEstado(res.data.activo);
         showToast("Estado actualizado", "success");
     } catch (e) { 
-        this.checked = !this.checked; 
+        this.checked = !this.checked;
         manejarError("Error al cambiar estado"); 
     }
 }
@@ -169,20 +245,16 @@ function actualizarUIEstado(a) {
     const l = document.getElementById("stand-status-label");
     if (l) { 
         l.textContent = a ? "Stand Abierto (Público)" : "Stand Cerrado (Privado)"; 
-        l.className = a ? "status-badge status-open" : "status-badge status-closed"; 
+        l.className = a ? "status-badge status-open" : "status-badge status-closed";
     }
 }
 
 function renderFeriasAsignadas(s) {
     const feriasCard = document.getElementById("card-mis-ferias");
     const body = document.getElementById("ferias-card-body");
-
-    // Verificamos si el stand tiene una feria asignada [cite: 29]
     if (s && s.feriaId) {
         const f = todasLasFerias.find(f => f.id === s.feriaId);
-        
         if (f) {
-            // 1. Cambiamos el contenido visual [cite: 30]
             const icono = f.estado === 'Activa' ? '🟢' : '🔴';
             body.innerHTML = `
                 <p>Tu stand está asignado a:</p>
@@ -190,36 +262,16 @@ function renderFeriasAsignadas(s) {
                 <p><strong>Lugar:</strong> ${f.lugar}</p>
                 <p><strong>Fechas:</strong> ${f.fechaInicio} al ${f.fechaFinal}</p>
             `;
-
-            // 2. HACEMOS QUE EL ENLACE FUNCIONE 
-            // Ajusta la ruta /web/feria_detalle.html según como se llame tu archivo de destino
-            feriasCard.href = `/web/feria_detalle.html?id=${f.id}`; 
+            feriasCard.href = `/web/feria_detalle.html?id=${f.id}`;
             feriasCard.style.cursor = "pointer";
             feriasCard.style.opacity = "1";
         }
     } else {
-        // Si no hay feria, desactivamos el enlace [cite: 32]
         body.innerHTML = `<p>Tu stand aún no ha sido asignado a ninguna feria.</p>`;
         feriasCard.removeAttribute("href");
         feriasCard.style.cursor = "default";
         feriasCard.style.opacity = "0.7";
     }
-}
-
-// DEFINICIÓN DE SUBIR FOTO (Soluciona el error ReferenceError)
-async function subirFotoPerfil(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const formData = new FormData();
-    formData.append("imagen", file);
-    try {
-        const res = await axios.patch("/api/usuarios/current/imagen", formData, { 
-            withCredentials: true, 
-            headers: { "Content-Type": "multipart/form-data" } 
-        });
-        document.getElementById("fotoPerfil").src = res.data.imagenUrl;
-        showToast("Imagen actualizada", "success");
-    } catch (err) { manejarError("Error al subir imagen"); }
 }
 
 function cerrarSesion() { 
@@ -228,7 +280,6 @@ function cerrarSesion() {
         .catch(() => manejarError("Error al cerrar sesión"));
 }
 
-// HELPERS
 function setText(id, t) { const el = document.getElementById(id); if (el) el.textContent = t || "-"; }
 function setValue(id, v) { const el = document.getElementById(id); if (el) el.value = v || ""; }
 function getValue(id) { const el = document.getElementById(id); return el ? el.value : ""; }
@@ -239,7 +290,7 @@ function showToast(m, t) {
             text: m, 
             duration: 3000, 
             style: { background: t === "success" ? "linear-gradient(to right, #2ecc71, #27ae60)" : "linear-gradient(to right, #e74c3c, #c0392b)" } 
-        }).showToast(); 
+        }).showToast();
     } else {
         alert(m);
     }
