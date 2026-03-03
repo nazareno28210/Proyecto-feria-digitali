@@ -2,7 +2,7 @@
    ESTILOS DE PERFIL (perfil.css)
    ==================================== */
 
-/* 🟢 NUEVO: Layout principal de la página 🟢 */
+/* Layout principal de la página */
 .perfil-layout {
     display: grid;
     /* Dos columnas: la primera (info) toma 2 partes, la segunda (acciones) 1 parte */
@@ -112,10 +112,6 @@ h2 {
 /* ====================================
    BOTONES
    ==================================== */
-
-/* Estilo base para botones (ya está en global.css) */
-/* .btn { ... } */
-
 .btn-edit {
     background-color: #e0e0e0;
     color: #333;
@@ -135,9 +131,6 @@ h2 {
 }
 .btn-cancel:hover { background-color: #e0e0e0; }
 
-/* 🔴 Botón de productos ELIMINADO de aquí 🔴 */
-/* .btn-productos { ... } */
-
 .acciones {
     margin-top: 2rem;
     text-align: center;
@@ -147,15 +140,13 @@ h2 {
 }
 
 .btn-logout {
-    /* (Estilos ya vienen de global.css) */
     width: 100%;
     padding: 12px 20px;
     font-size: 1rem;
 }
 
 /* ====================================
-   🟢 NUEVO: Estilos de Tarjetas de Acción (Columna Derecha)
-   (Inspirado en dashboard.css)
+   Tarjetas de Acción (Columna Derecha)
    ==================================== */
 
 .perfil-acciones {
@@ -169,7 +160,7 @@ h2 {
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    text-decoration: none; /* Para que el <a> no tenga subrayado */
+    text-decoration: none;
     color: inherit;
     transition: transform 0.3s, box-shadow 0.3s;
     border: 1px solid #eee;
@@ -181,7 +172,7 @@ h2 {
 .dashboard-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    border-color: #0078d4; /* Color azul de h1 */
+    border-color: #0078d4;
 }
 
 .dashboard-card .icon {
@@ -243,12 +234,12 @@ h2 {
   border-radius: 50%;
 }
 
-input:checked + .slider { background-color: #2ecc71; } /* Verde de btn-save [cite: 207] */
+input:checked + .slider { background-color: #2ecc71; }
 input:checked + .slider:before { transform: translateX(22px); }
 
 .dashboard-card h3 {
     margin: 0 0 10px 0;
-    color: #0078d4; /* Color azul de h1 */
+    color: #0078d4;
 }
 
 .dashboard-card p {
@@ -257,9 +248,9 @@ input:checked + .slider:before { transform: translateX(22px); }
     font-size: 0.9rem;
 }
 
-/* Estilos para el contenido de la tarjeta "Mis Ferias" */
+/* Contenido de la tarjeta "Mis Ferias" */
 #ferias-card-body h3 {
-    color: #10b981; /* Verde de .btn-primary */
+    color: #10b981;
     font-size: 1.1rem;
     margin-top: 10px;
 }
@@ -277,11 +268,6 @@ input:checked + .slider:before { transform: translateX(22px); }
     color: #3498db;
 }
 
-/* Mejora para el estado de las ferias asignadas */
-#ferias-card-body h3 {
-    margin-top: 5px;
-    font-size: 1.1rem;
-}
 /* ====================================
    FOTO DE PERFIL
    ==================================== */
@@ -291,11 +277,10 @@ input:checked + .slider:before { transform: translateX(22px); }
     flex-direction: column;
     align-items: center;
     gap: 12px;
+    margin-bottom: 20px;
 }
 
-/* Imagen de perfil */
 .perfil-foto {
-
     width: 260px;
     height: 260px;
     border-radius: 50%;
@@ -304,7 +289,6 @@ input:checked + .slider:before { transform: translateX(22px); }
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-/* Botón cambiar foto */
 .perfil-foto-btn {
     font-size: 14px;
     padding: 6px 14px;

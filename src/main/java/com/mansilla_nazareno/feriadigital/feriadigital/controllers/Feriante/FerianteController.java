@@ -62,6 +62,8 @@ public class FerianteController {
     }
     @PutMapping("/feriantes/current")
     public ResponseEntity<?> updateCurrentFeriante(Authentication authentication, @RequestBody FerianteUpdateDTO dto) {
+        System.out.println("Recibiendo actualización para: " + dto.getNombreEmprendimiento()); // 🟢 Debug
+
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
         Feriante feriante = ferianteRepository.findByUsuario(usuario);
 
@@ -69,14 +71,13 @@ public class FerianteController {
             return new ResponseEntity<>("Feriante no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        // Actualizamos los campos
-        feriante.setNombreEmprendimiento(dto.getNombreEmprendimiento());
-        feriante.setDescripcion(dto.getDescripcion());
-        feriante.setTelefono(dto.getTelefono());
-        feriante.setEmailEmprendimiento(dto.getEmailEmprendimiento());
+        // Actualizamos solo si el dato no es nulo
+        if(dto.getNombreEmprendimiento() != null) feriante.setNombreEmprendimiento(dto.getNombreEmprendimiento());
+        if(dto.getDescripcion() != null) feriante.setDescripcion(dto.getDescripcion());
+        if(dto.getTelefono() != null) feriante.setTelefono(dto.getTelefono());
+        if(dto.getEmailEmprendimiento() != null) feriante.setEmailEmprendimiento(dto.getEmailEmprendimiento());
 
         ferianteRepository.save(feriante);
-
-        return new ResponseEntity<>(Map.of("success", "Perfil de feriante actualizado"), HttpStatus.OK);
+        return new ResponseEntity<>(Map.of("message", "Perfil de feriante actualizado"), HttpStatus.OK);
     }
 }

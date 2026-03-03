@@ -21,66 +21,50 @@
     <div class="perfil-layout">
         <div class="perfil-container">
             <div class="perfil-foto-container">
-                <img
-                        src="/img/default-user.png"
-                        alt="Foto de perfil"
-                        class="perfil-foto"
-                        id="fotoPerfil"
-                >
-
-                <input
-                        type="file"
-                        id="inputFotoPerfil"
-                        accept="image/*"
-                        hidden
-                >
-
-                <button
-                        class="btn btn-edit perfil-foto-btn"
-                        onclick="document.getElementById('inputFotoPerfil').click()"
-                >
+                <img src="/img/default-user.png" alt="Foto de perfil" class="perfil-foto" id="fotoPerfil">
+                <input type="file" id="inputFotoPerfil" accept="image/*" hidden>
+                <button class="btn btn-edit perfil-foto-btn" onclick="document.getElementById('inputFotoPerfil').click()">
                     Cambiar foto
                 </button>
             </div>
+            
             <h1>Mi Perfil de Feriante</h1>
 
-            <h2>Datos de Usuario</h2>
-            <div class="perfil-card">
+            <div class="header-card">
+                <h2>Datos de Usuario</h2>
+                <button id="btn-edit-usuario" class="btn btn-edit">Editar Datos Personales</button>
+            </div>
+            <div class="perfil-card" id="usuario-view">
                 <p><strong>Email:</strong> <span id="usuario-email"></span></p>
                 <p><strong>Nombre:</strong> <span id="usuario-nombre"></span></p>
                 <p><strong>Apellido:</strong> <span id="usuario-apellido"></span></p>
                 <p><strong>Fecha de Registro:</strong> <span id="usuario-fecha"></span></p>
+            </div>
+            <div class="perfil-card edit-mode" id="usuario-edit" style="display:none;">
+                <div class="form-group"><label>Nombre</label><input type="text" id="edit-usuario-nombre"></div>
+                <div class="form-group"><label>Apellido</label><input type="text" id="edit-usuario-apellido"></div>
+                <div class="form-group"><label>Email de acceso</label><input type="email" id="edit-usuario-email"></div>
+                <div class="form-actions">
+                    <button id="btn-cancel-usuario" class="btn btn-cancel">Cancelar</button>
+                    <button id="btn-save-usuario" class="btn btn-save">Guardar Cambios</button>
+                </div>
             </div>
 
             <div class="header-card">
                 <h2>Datos de Feriante</h2>
                 <button id="btn-edit-feriante" class="btn btn-edit">Editar</button>
             </div>
-
             <div class="perfil-card" id="feriante-view">
                 <p><strong>Emprendimiento:</strong> <span id="feriante-nombre"></span></p>
                 <p><strong>Descripción:</strong> <span id="feriante-desc"></span></p>
                 <p><strong>Teléfono:</strong> <span id="feriante-tel"></span></p>
                 <p><strong>Email Emprendimiento:</strong> <span id="feriante-email"></span></p>
             </div>
-
-            <div class="perfil-card edit-mode" id="feriante-edit">
-                <div class="form-group">
-                    <label>Nombre Emprendimiento</label>
-                    <input type="text" id="edit-feriante-nombre">
-                </div>
-                <div class="form-group">
-                    <label>Descripción</label>
-                    <textarea id="edit-feriante-desc" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Teléfono</label>
-                    <input type="text" id="edit-feriante-tel">
-                </div>
-                <div class="form-group">
-                    <label>Email Emprendimiento</label>
-                    <input type="email" id="edit-feriante-email">
-                </div>
+            <div class="perfil-card edit-mode" id="feriante-edit" style="display:none;">
+                <div class="form-group"><label>Nombre Emprendimiento</label><input type="text" id="edit-feriante-nombre"></div>
+                <div class="form-group"><label>Descripción</label><textarea id="edit-feriante-desc" rows="3"></textarea></div>
+                <div class="form-group"><label>Teléfono</label><input type="text" id="edit-feriante-tel"></div>
+                <div class="form-group"><label>Email Emprendimiento</label><input type="email" id="edit-feriante-email"></div>
                 <div class="form-actions">
                     <button id="btn-cancel-feriante" class="btn btn-cancel">Cancelar</button>
                     <button id="btn-save-feriante" class="btn btn-save">Guardar Cambios</button>
@@ -98,19 +82,10 @@
                 </div>
                 <button id="btn-edit-stand" class="btn btn-edit">Editar</button>
             </div>
-
-            <div class="perfil-card" id="stand-view">
-                </div>
-
-            <div class="perfil-card edit-mode" id="stand-edit">
-                <div class="form-group">
-                    <label>Nombre del Stand</label>
-                    <input type="text" id="edit-stand-nombre">
-                </div>
-                <div class="form-group">
-                    <label>Descripción del Stand</label>
-                    <textarea id="edit-stand-desc" rows="3"></textarea>
-                </div>
+            <div class="perfil-card" id="stand-view"></div>
+            <div class="perfil-card edit-mode" id="stand-edit" style="display:none;">
+                <div class="form-group"><label>Nombre del Stand</label><input type="text" id="edit-stand-nombre"></div>
+                <div class="form-group"><label>Descripción del Stand</label><textarea id="edit-stand-desc" rows="3"></textarea></div>
                 <div class="form-actions">
                     <button id="btn-cancel-stand" class="btn btn-cancel">Cancelar</button>
                     <button id="btn-save-stand" class="btn btn-save">Guardar Cambios</button>
@@ -126,17 +101,13 @@
             <a href="/web/feriante/misproductos.html" class="dashboard-card">
                 <div class="icon">🛍️</div>
                 <h3>Gestionar Mis Productos</h3>
-                <p>Agregar, editar o eliminar los productos de tu stand.</p>
+                <p>Agrega o edita los productos de tu stand.</p>
             </a>
-
             <a id="card-mis-ferias" class="dashboard-card" href="#">
                 <div class="icon">🎪</div>
                 <h3>Mis Ferias Asignadas</h3>
-                <div id="ferias-card-body">
-                    <p>Cargando información de ferias...</p>
-                </div>
+                <div id="ferias-card-body"><p>Cargando información...</p></div>
             </a>
-
             <a href="/web/cambiar-contrasena.html" class="dashboard-card action-blue">
                 <div class="icon">🔒</div>
                 <h3>Cambiar Contraseña</h3>
@@ -146,12 +117,10 @@
     </div>
 </main>
 
-<footer>
-    <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos CENT 35.</p>
-</footer>
+<footer><p>Proyecto Feria Digital — CENT 35</p></footer>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="/web/feriante/perfil.js"></script>
 </body>
 </html>

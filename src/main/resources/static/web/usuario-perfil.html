@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Feria Digital</title>
 
-    <!-- 1. CSS Global -->
     <link rel="stylesheet" href="/web/css/global.css">
-
-    <!-- 2. CSS Propio de esta página -->
     <link rel="stylesheet" href="/web/css/usuario-perfil.css">
-
-    <!-- 3. CSS de Toastify (para notificaciones) -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
 </head>
 <body>
 
@@ -25,6 +23,27 @@
 
 <main>
     <div class="perfil-container">
+        <div class="perfil-foto-container">
+            <img 
+                src="/img/default-user.png" 
+                alt="Foto de perfil" 
+                class="perfil-foto" 
+                id="fotoPerfil"
+            >
+            <input 
+                type="file" 
+                id="inputFotoPerfil" 
+                accept="image/*" 
+                hidden
+            >
+            <button 
+                class="btn btn-edit perfil-foto-btn" 
+                onclick="document.getElementById('inputFotoPerfil').click()"
+            >
+                Cambiar foto
+            </button>
+        </div>
+
         <h1>Mi Perfil</h1>
 
         <div class="section-header">
@@ -33,7 +52,6 @@
         </div>
 
         <div class="perfil-card relative-container">
-            
             <div id="vista-lectura">
                 <p><strong>Email:</strong> <span id="usuario-email">Cargando...</span></p>
                 <p><strong>Nombre:</strong> <span id="usuario-nombre">Cargando...</span></p>
@@ -46,42 +64,31 @@
                     <label for="edit-email">Email:</label>
                     <input type="email" id="edit-email" name="email" required class="form-input">
                 </div>
-
                 <div class="form-group">
                     <label for="edit-nombre">Nombre:</label>
                     <input type="text" id="edit-nombre" name="nombre" required class="form-input">
                 </div>
-
                 <div class="form-group">
                     <label for="edit-apellido">Apellido:</label>
                     <input type="text" id="edit-apellido" name="apellido" required class="form-input">
                 </div>
-                
                 <p class="mt-4 read-only-text"><strong>Miembro desde:</strong> <span id="usuario-fecha-display"></span></p>
-
                 <div class="form-actions">
                     <button type="button" id="btn-cancelar-edicion" class="btn-cancel">Cancelar</button>
                     <button type="submit" id="btn-guardar-edicion" class="btn-save">Guardar Cambios</button>
                 </div>
             </form>
-             </div>
+        </div>
 
         <h2>Acciones</h2>
         <div id="acciones-container">
-            <div id="feriante-solicitud-container">
-                </div>
+            <div id="feriante-solicitud-container"></div>
+            <a href="/web/cambiar-contrasena.html" class="accion-card accion-card--blue">
+                <div class="icon">🔒</div>
+                <h3>Cambiar Contraseña</h3>
+                <p>Actualiza tu clave de acceso de forma segura.</p>
+            </a>
         </div>
-
-        <div id="acciones-container">
-     <div id="feriante-solicitud-container"></div>
-
-        <a href="/web/cambiar-contrasena.html" class="accion-card accion-card--blue">
-         <div class="icon">🔒</div>
-         <h3>Cambiar Contraseña</h3>
-            <p>Actualiza tu clave de acceso de forma segura.</p>
-        </a>
-        </div>
-
 
         <div class="acciones">
             <button id="cerrarSesion" class="btn-logout">Cerrar sesión</button>
@@ -89,14 +96,29 @@
     </div>
 </main>
 
+<div id="modal-cropper" class="modal-cropper hidden">
+    <div class="modal-cropper-content">
+        <h3>Ajustar Foto de Perfil</h3>
+        <p>Arrastra y ajusta tu foto dentro del círculo</p>
+        <div class="img-cropper-container">
+            <img id="image-to-crop">
+        </div>
+        <div class="modal-cropper-actions">
+            <button id="btn-cancel-crop" class="btn-cancel">Cancelar</button>
+            <button id="btn-confirm-crop" class="btn-save">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
 <footer>
-    <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos de la carrera de Tecnicatura Superior en Desarrollo de Software del CENT 35.</p>
+    <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. Alumnos del CENT 35.</p>
 </footer>
 
-<!-- JS Libs -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<!-- JS Propio -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
 <script src="/web/js/usuario-perfil.js"></script>
 </body>
 </html>
