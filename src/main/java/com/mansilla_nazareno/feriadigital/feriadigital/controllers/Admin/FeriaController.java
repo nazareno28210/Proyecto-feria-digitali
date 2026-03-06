@@ -5,13 +5,16 @@ import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorD
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,6 +25,9 @@ public class FeriaController {
 
     @Autowired
     private ResenaRepository resenaRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     public FeriaController(FeriaRepository feriaRepository) {
         this.feriaRepository = feriaRepository;
@@ -85,64 +91,129 @@ public class FeriaController {
     }
 
     @PostMapping("/ferias")
-    public ResponseEntity<?> crearFeria(@RequestBody Feria nuevaFeria) {
-        if (nuevaFeria.getNombre() == null || nuevaFeria.getNombre().isEmpty()) {
+    public ResponseEntity<?> crearFeria(
+            @RequestParam("nombre") String nombre,
+            @RequestParam("lugar") String lugar,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("fechaInicio") String fechaInicio,
+            @RequestParam("fechaFinal") String fechaFinal,
+            @RequestParam("latitud") Double latitud,
+            @RequestParam("longitud") Double longitud,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
+
+        // 1. Validaciones manuales (Tus reglas de negocio)
+        if (nombre == null || nombre.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacío");
         }
-        if (nuevaFeria.getFechaInicio() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha de inicio es obligatoria");
+        if (nombre.trim().length() < 3 || nombre.trim().length() > 75) {
+            return ResponseEntity.badRequest().body("El nombre debe tener entre 3 y 75 caracteres");
         }
-        if (nuevaFeria.getFechaInicio().isBefore(LocalDate.now())) {
+
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = (fechaFinal != null && !fechaFinal.isEmpty()) ? LocalDate.parse(fechaFinal) : null;
+
+        if (inicio.isBefore(LocalDate.now())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha de inicio no puede ser anterior a hoy");
         }
-        if (nuevaFeria.getFechaFinal() != null && nuevaFeria.getFechaFinal().isBefore(nuevaFeria.getFechaInicio())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la fecha de inicio");
-        }
-        if (nuevaFeria.getLatitud() == null || nuevaFeria.getLongitud() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La ubicación geográfica es obligatoria.");
-        }
-        if (nuevaFeria.getNombre().trim().length() < 3 || nuevaFeria.getNombre().trim().length() > 75) {
-            return ResponseEntity.badRequest().body("El nombre debe tener entre 3 y 75 caracteres");
-        }
-        if (nuevaFeria.getDescripcion() != null && nuevaFeria.getDescripcion().trim().length() > 300) {
-            return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
-        }
-
-        nuevaFeria.setEstado("Activa");
-        feriaRepository.save(nuevaFeria);
-        return ResponseEntity.ok("Feria creada correctamente");
-    }
-
-    @PutMapping("/ferias/{id}")
-    public ResponseEntity<?> actualizarFeria(@PathVariable Integer id, @RequestBody Feria feriaActualizada) {
-
-        if (feriaActualizada.getFechaFinal() != null &&
-                feriaActualizada.getFechaFinal().isBefore(feriaActualizada.getFechaInicio())) {
+        if (fin != null && fin.isBefore(inicio)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la de inicio");
         }
-        if (feriaActualizada.getLatitud() == null || feriaActualizada.getLongitud() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede guardar una feria sin coordenadas.");
+        if (latitud == null || longitud == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La ubicación geográfica es obligatoria.");
         }
-        if (feriaActualizada.getNombre().trim().length() < 3 || feriaActualizada.getNombre().trim().length() > 75) {
-            return ResponseEntity.badRequest().body("El nombre debe tener entre 3 y 75 caracteres");
-        }
-        if (feriaActualizada.getDescripcion() != null && feriaActualizada.getDescripcion().trim().length() > 300) {
+        if (descripcion != null && descripcion.trim().length() > 300) {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
 
+        try {
+            // 2. Creación del objeto Feria
+            Feria nuevaFeria = new Feria();
+            nuevaFeria.setNombre(nombre);
+            nuevaFeria.setLugar(lugar);
+            nuevaFeria.setDescripcion(descripcion);
+            nuevaFeria.setFechaInicio(inicio);
+            nuevaFeria.setFechaFinal(fin);
+            nuevaFeria.setLatitud(latitud);
+            nuevaFeria.setLongitud(longitud);
+            nuevaFeria.setEstado("Activa");
+
+            // 3. Subida a Cloudinary si el administrador seleccionó una foto
+            if (imagen != null && !imagen.isEmpty()) {
+                Map<String, String> result = cloudinaryService.subirImagen(imagen);
+                nuevaFeria.setImagenUrl(result.get("url")); // Guardamos la URL generada
+            }
+
+            feriaRepository.save(nuevaFeria);
+            return ResponseEntity.ok("Feria creada correctamente");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la imagen");
+        }
+    }
 
 
+    @PutMapping("/ferias/{id}")
+    public ResponseEntity<?> actualizarFeria(
+            @PathVariable Integer id,
+            @RequestParam("nombre") String nombre,
+            @RequestParam("lugar") String lugar,
+            @RequestParam("descripcion") String descripcion,
+            @RequestParam("fechaInicio") String fechaInicio,
+            @RequestParam("fechaFinal") String fechaFinal,
+            @RequestParam("latitud") Double latitud,
+            @RequestParam("longitud") Double longitud,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
+
+        // 1. Validaciones de negocio
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = (fechaFinal != null && !fechaFinal.isEmpty()) ? LocalDate.parse(fechaFinal) : null;
+
+        if (fin != null && fin.isBefore(inicio)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la de inicio");
+        }
+        if (latitud == null || longitud == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede guardar una feria sin coordenadas.");
+        }
+        if (nombre.trim().length() < 3 || nombre.trim().length() > 75) {
+            return ResponseEntity.badRequest().body("El nombre debe tener entre 3 y 75 caracteres");
+        }
+        if (descripcion != null && descripcion.trim().length() > 300) {
+            return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
+        }
+
+        // 2. Proceso de actualización
         return feriaRepository.findById(id).map(feria -> {
-            feria.setNombre(feriaActualizada.getNombre());
-            feria.setLugar(feriaActualizada.getLugar());
-            feria.setDescripcion(feriaActualizada.getDescripcion());
-            feria.setFechaInicio(feriaActualizada.getFechaInicio());
-            feria.setFechaFinal(feriaActualizada.getFechaFinal());
-            feria.setImagenUrl(feriaActualizada.getImagenUrl());
-            feria.setLatitud(feriaActualizada.getLatitud());
-            feria.setLongitud(feriaActualizada.getLongitud());
-            feriaRepository.save(feria);
-            return ResponseEntity.ok("Feria actualizada correctamente");
+            try {
+                feria.setNombre(nombre);
+                feria.setLugar(lugar);
+                feria.setDescripcion(descripcion);
+                feria.setFechaInicio(inicio);
+                feria.setFechaFinal(fin);
+                feria.setLatitud(latitud);
+                feria.setLongitud(longitud);
+
+                // 3. Lógica de imagen con Cloudinary
+                if (imagen != null && !imagen.isEmpty()) {
+                    // Si la feria ya tenía una imagen, extraemos el publicId para borrarla
+                    String urlVieja = feria.getImagenUrl();
+                    String publicIdViejo = null;
+
+                    if (urlVieja != null && urlVieja.contains("upload/")) {
+                        // Extrae el ID de la URL de Cloudinary (ej: v123/nombre_archivo)
+                        publicIdViejo = urlVieja.substring(urlVieja.lastIndexOf("/") + 1, urlVieja.lastIndexOf("."));
+                    }
+
+                    // Usamos tu servicio para reemplazar [cite: 59]
+                    Map<String, String> result = cloudinaryService.reemplazarImagen(imagen, publicIdViejo);
+                    feria.setImagenUrl(result.get("url"));
+                }
+
+                feriaRepository.save(feria);
+                return ResponseEntity.ok("Feria actualizada correctamente");
+
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la imagen");
+            }
         }).orElse(ResponseEntity.notFound().build());
     }
 

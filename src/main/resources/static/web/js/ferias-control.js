@@ -19,6 +19,18 @@ function showToast(message, type = "info") {
     }).showToast();
 }
 
+// --- NUEVA FUNCIÓN: Previsualización de Imagen ---
+function previewImagen(event, idImg, idContainer) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        const preview = document.getElementById(idImg);
+        const container = document.getElementById(idContainer);
+        if(preview) preview.src = reader.result;
+        if(container) container.style.display = 'block';
+    }
+    if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+}
+
 // 🟢 FUNCIÓN DE VALIDACIÓN DE FECHAS
 function validarFechas(inicio, fin) {
     const hoy = new Date();
@@ -156,22 +168,34 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!validarUbicacion(lat, lng)) return;
         if (!validarLongitudTexto(nombre, desc)) return;
 
-        const feria = {
-                nombre: nombre,
-                lugar: document.getElementById("lugar").value,
-                latitud: parseFloat(lat),
-                longitud: parseFloat(lng),
-                fechaInicio: fInicio,
-                fechaFinal: fFinal,
-                imagenUrl: document.getElementById("imagenUrl").value,
-                descripcion: desc
-        };
+        // --- CAMBIO AQUÍ: Envío con FormData ---
+        const formData = new FormData();
+        formData.append("nombre", nombre);
+        formData.append("lugar", document.getElementById("lugar").value);
+        formData.append("latitud", parseFloat(lat));
+        formData.append("longitud", parseFloat(lng));
+        formData.append("fechaInicio", fInicio);
+        if (fFinal) formData.append("fechaFinal", fFinal);
+        formData.append("descripcion", desc);
+
+        const inputImagen = document.getElementById("input-feria-imagen");
+        if (inputImagen && inputImagen.files[0]) {
+            formData.append("imagen", inputImagen.files[0]);
+        }
             
         try {
-            await axios.post(API_BASE_URL, feria);
+            showToast("Creando feria...", "info");
+            await axios.post(API_BASE_URL, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true
+            });
             showToast("Feria creada correctamente", "success");
+            
             formCrear.reset();
+            const previewCont = document.getElementById('preview-crear-container');
+            if(previewCont) previewCont.style.display = 'none';
             if (marcadorCrear) mapaCrear.removeLayer(marcadorCrear);
+            
             cargarFerias();
         } catch (err) {
             showToast(err.response?.data || "Error al crear", "error");
@@ -217,8 +241,13 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit-longitud").value = feria.longitud;
         document.getElementById("edit-fechaInicio").value = feria.fechaInicio;
         document.getElementById("edit-fechaFinal").value = feria.fechaFinal;
-        document.getElementById("edit-imagenUrl").value = feria.imagenUrl || "";
         document.getElementById("edit-descripcion").value = feria.descripcion;
+        
+        // Reset preview al abrir
+        const previewCont = document.getElementById('preview-edit-container');
+        if(previewCont) previewCont.style.display = 'none';
+        const fileInput = document.getElementById('input-edit-feria-imagen');
+        if(fileInput) fileInput.value = "";
         
         document.getElementById("modal-editar").style.display = "block";
         
@@ -250,23 +279,34 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!validarLongitudTexto(nombreEdit, descEdit)) return;
 
         const id = document.getElementById("edit-id").value;
-        const feriaEditada = {
-            nombre: nombreEdit,
-            lugar: document.getElementById("edit-lugar").value,
-            latitud: parseFloat(lat),
-            longitud: parseFloat(lng),
-            fechaInicio: fInicio,
-            fechaFinal: fFinal,
-            imagenUrl: document.getElementById("edit-imagenUrl").value,
-            descripcion: descEdit
-        };
+        
+        // --- CAMBIO AQUÍ: Envío con FormData ---
+        const formData = new FormData();
+        formData.append("nombre", nombreEdit);
+        formData.append("lugar", document.getElementById("edit-lugar").value);
+        formData.append("latitud", parseFloat(lat));
+        formData.append("longitud", parseFloat(lng));
+        formData.append("fechaInicio", fInicio);
+        if (fFinal) formData.append("fechaFinal", fFinal);
+        formData.append("descripcion", descEdit);
+
+        const inputImagenEdit = document.getElementById("input-edit-feria-imagen");
+        if (inputImagenEdit && inputImagenEdit.files[0]) {
+            formData.append("imagen", inputImagenEdit.files[0]);
+        }
 
         try {
-            await axios.put(`${API_BASE_URL}/${id}`, feriaEditada);
+            showToast("Actualizando feria...", "info");
+            await axios.put(`${API_BASE_URL}/${id}`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true
+            });
             showToast("Feria actualizada", "success");
             cerrarModal();
             cargarFerias();
-        } catch (err) { showToast("Error al actualizar", "error"); }
+        } catch (err) { 
+            showToast(err.response?.data || "Error al actualizar", "error"); 
+        }
     });
 
     cargarFerias();

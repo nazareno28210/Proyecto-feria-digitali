@@ -292,3 +292,22 @@ footer {
     color: var(--color-text-light);
     font-size: 0.9rem;
 }
+
+.custom-file-upload {
+    border: 2px dashed #d1d5db;
+    padding: 10px;
+    border-radius: 12px;
+    background-color: #f9fafb;
+    transition: border-color 0.3s;
+}
+
+.custom-file-upload:hover {
+    border-color: var(--color-primary);
+}
+
+#img-feria-preview {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 10px;
+}

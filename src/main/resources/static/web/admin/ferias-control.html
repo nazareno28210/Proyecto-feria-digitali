@@ -67,10 +67,15 @@
                 <input type="date" id="fechaFinal" required>
             </div>
             <div class="form-column">
-                <label for="imagenUrl">URL de la Imagen (Portada)</label>
-                <input type="text" id="imagenUrl" placeholder="https://ejemplo.com/imagen.jpg">
+                <label for="input-feria-imagen">Imagen de Portada (Subir foto)</label>
+                <input type="file" id="input-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-crear-preview', 'preview-crear-container')" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box;">
+                
+                <div id="preview-crear-container" style="display:none; margin-top: 10px; text-align: center; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px dashed #ccc;">
+                    <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 0;">Vista previa:</p>
+                    <img id="img-crear-preview" src="" style="max-height: 150px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                </div>
 
-                <label for="descripcion">Descripción del Evento</label>
+                <label for="descripcion" style="margin-top: 15px; display: block;">Descripción del Evento</label>
                 <textarea id="descripcion" placeholder="Escribe una breve reseña de la feria..."></textarea>
             </div>
         </div>
@@ -78,7 +83,7 @@
         <button type="submit" class="btn-submit">Guardar Feria</button>
     </form>
 
-    <h2>Ferias registradas</h2>
+    <h2 style="margin-top: 40px;">Ferias registradas</h2>
     <div class="table-container">
         <table id="tabla-ferias">
             <thead>
@@ -127,7 +132,7 @@
                 </div>
             </div>
 
-            <div class="form-grid">
+            <div class="form-grid" style="margin-top: 15px;">
                 <div class="form-column">
                     <label for="edit-fechaInicio">Fecha Inicio</label>
                     <input type="date" id="edit-fechaInicio" required>
@@ -138,13 +143,18 @@
                 </div>
             </div>
 
-            <label for="edit-imagenUrl">URL de Imagen</label>
-            <input type="text" id="edit-imagenUrl">
+            <label for="input-edit-feria-imagen" style="margin-top: 15px; display: block;">Cambiar Imagen de Portada (Deja vacío para conservar la actual)</label>
+            <input type="file" id="input-edit-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-edit-preview', 'preview-edit-container')" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box;">
             
-            <label for="edit-descripcion">Descripción</label>
+            <div id="preview-edit-container" style="display:none; margin-top: 10px; text-align: center; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px dashed #ccc;">
+                <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 0;">Vista previa de la nueva foto:</p>
+                <img id="img-edit-preview" src="" style="max-height: 150px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            </div>
+            
+            <label for="edit-descripcion" style="margin-top: 15px; display: block;">Descripción</label>
             <textarea id="edit-descripcion"></textarea>
             
-            <button type="submit" class="btn-submit">Guardar Cambios</button>
+            <button type="submit" class="btn-submit" style="margin-top: 20px;">Guardar Cambios</button>
         </form>
     </div>
 </div>
