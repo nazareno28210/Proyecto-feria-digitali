@@ -71,7 +71,7 @@ async function cargarDatosProducto(id) {
     } catch (err) { console.error("Error al cargar producto:", err); }
 }
 
-// 2. Cargar Reseñas y Respuestas (Con Fechas)
+// 2. Cargar Reseñas y Respuestas (Con Fotos de Perfil de Usuario y Feriante)
 async function cargarResenas(id) {
     const lista = document.getElementById("lista-resenas");
     try {
@@ -87,17 +87,18 @@ async function cargarResenas(id) {
             const esMiProducto = usuarioLogueadoId === dueñoProductoId;
             const estrellas = "★".repeat(r.puntaje) + "☆".repeat(5 - r.puntaje);
             
-            // Etiqueta según quién mire: "Tu respuesta" o "Respuesta de [Nombre]"
+            // Fotos con fallback a imagen por defecto
+            const fotoUsuarioUrl = r.fotoPerfil || '/img/default-user.png';
+            const fotoFerianteUrl = r.fotoFeriante || '/img/default-user.png';
+            
             const labelRespuesta = esMiProducto ? "Tu respuesta:" : `Respuesta de ${nombreStandActual}:`;
 
-            // Fecha formateada (Día/Mes/Año Hora:Min)
             const fechaRespHtml = r.fechaRespuesta 
                 ? `<div class="text-end opacity-50" style="font-size: 0.6rem; margin-top: -5px;">
                      Respondido el ${new Date(r.fechaRespuesta).toLocaleString([], {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit'})}
                    </div>` 
                 : "";
 
-            // Botones de gestión para el Feriante
             const botonesDuenio = esMiProducto ? `
                 <div class="mt-2 d-flex gap-2 opacity-75 border-top pt-2">
                     <button class="btn btn-sm btn-link p-0 text-decoration-none small text-primary" onclick="abrirEditorRespuesta(${r.id}, '${r.respuesta}')">
@@ -112,25 +113,34 @@ async function cargarResenas(id) {
             const resenaDiv = document.createElement("div");
             resenaDiv.className = "resena-card shadow-sm p-3 mb-3 bg-white rounded-3";
             resenaDiv.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="fw-bold text-primary">${r.nombreUsuario}</span>
-                    <span class="text-warning small">${estrellas}</span>
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${fotoUsuarioUrl}" class="resena-avatar-mini" alt="Usuario">
+                        <div class="d-flex flex-column">
+                            <span class="fw-bold text-primary" style="line-height: 1;">${r.nombreUsuario}</span>
+                            <span class="text-warning" style="font-size: 0.75rem;">${estrellas}</span>
+                        </div>
+                    </div>
+                    <div class="text-end opacity-50" style="font-size: 0.65rem;">
+                        ${new Date(r.fecha).toLocaleDateString()}
+                    </div>
                 </div>
-                <p class="my-2 small text-dark">${r.comentario || 'Sin comentarios.'}</p>
-                <div class="text-end opacity-50 mb-2" style="font-size: 0.65rem;">
-                    ${new Date(r.fecha).toLocaleDateString()}
-                </div>
+
+                <p class="my-2 small text-dark ps-1">${r.comentario || 'Sin comentarios.'}</p>
                 
                 <div id="contenedor-respuesta-${r.id}">
                     ${r.respuesta 
-                        ? `<div class="ms-4 p-3 bg-light border-start border-4 border-primary rounded">
-                             <small class="fw-bold text-primary d-block mb-1">
-                                <i class="bi bi-reply-fill"></i> ${labelRespuesta}
-                             </small>
-                             <p class="mb-2 small fst-italic text-dark">${r.respuesta}</p>
+                        ? `<div class="ms-4 p-3 bg-light border-start border-4 border-primary rounded mt-2">
+                             <div class="d-flex align-items-center gap-2 mb-2">
+                                <img src="${fotoFerianteUrl}" class="resena-avatar-mini" style="width: 30px; height: 30px;" alt="Feriante">
+                                <small class="fw-bold text-primary">
+                                    <i class="bi bi-reply-fill"></i> ${labelRespuesta}
+                                </small>
+                             </div>
+                             <p class="mb-2 small fst-italic text-dark ps-1">${r.respuesta}</p>
                              ${fechaRespHtml} ${botonesDuenio}
                            </div>`
-                        : (esMiProducto ? `<button class="btn btn-sm btn-outline-primary mt-1 rounded-pill px-3" onclick="abrirEditorRespuesta(${r.id}, '')">Responder</button>` : "")
+                        : (esMiProducto ? `<button class="btn btn-sm btn-outline-primary mt-1 ms-4 rounded-pill px-3" onclick="abrirEditorRespuesta(${r.id}, '')">Responder</button>` : "")
                     }
                 </div>
             `;

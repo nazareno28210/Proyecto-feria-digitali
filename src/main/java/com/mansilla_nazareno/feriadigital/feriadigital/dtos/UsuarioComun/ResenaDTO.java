@@ -12,6 +12,8 @@ public class ResenaDTO {
     private String nombreUsuario; // Solo el nombre para mostrar en la web
     private String respuesta; // El texto del feriante
     private LocalDateTime fechaRespuesta; // Para saber cuándo respondió
+    private String fotoPerfil; // <--- Nuevo campo
+    private String fotoFeriante;
 
     public ResenaDTO(Resena resena) {
         this.id = resena.getId();
@@ -21,6 +23,12 @@ public class ResenaDTO {
         this.nombreUsuario = resena.getUsuario().getNombre(); // Asumiendo que Usuario tiene getNombre()
         this.respuesta = resena.getRespuesta();
         this.fechaRespuesta = resena.getFechaRespuesta();
+        this.fotoPerfil = resena.getUsuario().getImagenUrl();
+
+        // Si la reseña pertenece a un stand, sacamos la foto del dueño del stand
+        if (resena.getStand() != null && resena.getStand().getFeriante() != null) {
+            this.fotoFeriante = resena.getStand().getFeriante().getUsuario().getImagenUrl();
+        }
     }
 
     // Getters
@@ -31,4 +39,6 @@ public class ResenaDTO {
     public String getNombreUsuario() { return nombreUsuario; }
     public String getRespuesta() { return respuesta; }
     public LocalDateTime getFechaRespuesta() { return fechaRespuesta; }
+    public String getFotoPerfil() { return fotoPerfil; }
+    public String getFotoFeriante() { return fotoFeriante; }
 }

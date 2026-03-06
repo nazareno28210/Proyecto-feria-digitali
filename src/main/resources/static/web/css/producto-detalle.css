@@ -59,3 +59,30 @@ body {
 .btn-primary:hover {
     background-color: #0b5ed7;
 }
+
+/* Avatar en las reseñas */
+.resena-avatar-mini {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%; /* Circular */
+    object-fit: cover;
+    border: 1px solid #e0e0e0;
+    flex-shrink: 0; /* Evita que se achique en pantallas chicas */
+}
+
+/* Ajuste de la tarjeta de reseña para que sea más limpia */
+.resena-card {
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.2s;
+}
+
+.resena-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+/* Margen para que el texto del comentario no choque con el borde de la foto */
+.resena-card p {
+    margin-left: 2px;
+}
+
+
