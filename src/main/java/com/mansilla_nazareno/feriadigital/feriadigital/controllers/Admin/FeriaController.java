@@ -2,7 +2,9 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,20 +37,19 @@ public class FeriaController {
     }
 
     @GetMapping("/ferias/{id}")
-    public FeriaDTO getFeria(@PathVariable Integer id) {
+    public ResponseEntity<FeriaDTO> getFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id)
                 .map(feria -> {
                     FeriaDTO dto = new FeriaDTO(feria);
 
-                    // Si tu FeriaDTO aún espera una lista de stands,
-                    // debes mapearla desde las participaciones:
-                /* List<StandDTO> stands = feria.getParticipaciones().stream()
-                    .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO)
-                    .map(p -> new StandDTO(p.getStand()))
-                    .toList();
-                dto.setStands(stands);
-                */
+                    // Mapear stands confirmados explícitamente
+                    List<StandDTO> stands = feria.getParticipaciones().stream()
+                            .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO)
+                            .map(p -> new StandDTO(p.getStand()))
+                            .toList();
+                    dto.setStands(stands);
 
+                    // Cálculos de votos
                     Long positivos = resenaRepository.countVotosPositivosFeria(id);
                     Long totales = resenaRepository.countTotalVotosFeria(id);
                     int porcentaje = (totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
@@ -56,9 +57,9 @@ public class FeriaController {
                     dto.setPorcentajeAprobacion(porcentaje);
                     dto.setTotalVotos(totales.intValue());
 
-                    return dto;
+                    return ResponseEntity.ok(dto);
                 })
-                .orElse(null);
+                .orElse(ResponseEntity.notFound().build());
     }
 
     //obtener ferias activas

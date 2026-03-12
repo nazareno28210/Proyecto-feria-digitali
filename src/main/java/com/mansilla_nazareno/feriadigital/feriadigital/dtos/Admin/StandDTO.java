@@ -14,21 +14,28 @@ public class StandDTO {
     private String imagenUrl;
     private List<ProductoDTO> productos;
     private FerianteDTO feriante;
-    private boolean activo; // 🟢 Se mantiene
+    private boolean activo;
     private Double promedioEstrellas;
     private int cantidadResenas;
     private List<Integer> feriasIds;
 
     // Agregar a StandDTO.java
-    public StandDTO(Stand stand, boolean esParaFerianteDTO) {
+    public StandDTO(Stand stand) {
         this.id = stand.getId();
         this.nombre = stand.getNombre();
         this.descripcion = stand.getDescripcion();
         this.imagenUrl = stand.getImagenUrl();
         this.activo = stand.isActivo();
-        this.feriante = null; // 🟢 IMPORTANTE: Corta la recursividad aquí
+        this.feriante = null;
+        // 1. SOLUCIÓN AL CONFLICTO DE PRODUCTOS:
+        this.productos = (stand.getProductos() != null)
+                ? stand.getProductos().stream()
+                .map(ProductoDTO::new)
+                .collect(Collectors.toList())
+                : List.of();
 
-        this.feriasIds = stand.getParticipaciones() != null
+        // 2. MAPEO DE FERIAS:
+        this.feriasIds = (stand.getParticipaciones() != null)
                 ? stand.getParticipaciones().stream()
                 .map(p -> p.getFeria().getId())
                 .collect(Collectors.toList())
@@ -39,6 +46,7 @@ public class StandDTO {
 
 
     // Getters indispensables
+
     public int getId() { return id; }
     public String getNombre() { return nombre; }
     public String getDescripcion() { return descripcion; }

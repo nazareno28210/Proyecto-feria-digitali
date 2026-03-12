@@ -47,9 +47,13 @@ public class ProductoDTO {
             this.categoriaId = 0;
         }
 
-        // 🟢 Obtenemos el nombre de la feria navegando: Producto -> Stand -> Feria
-        if (producto.getStand() != null && producto.getStand().getFeria() != null) {
-            this.feriaNombre = producto.getStand().getFeria().getNombre();
+        // 🟢 Obtenemos el nombre de la feria navegando: Producto -> Stand -> Participaciones -> Feria
+        if (producto.getStand() != null &&
+                producto.getStand().getParticipaciones() != null &&
+                !producto.getStand().getParticipaciones().isEmpty()) {
+
+            // Obtenemos la feria desde la primera participación
+            this.feriaNombre = producto.getStand().getParticipaciones().get(0).getFeria().getNombre();
         } else {
             this.feriaNombre = "Feria General";
         }

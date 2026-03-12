@@ -33,7 +33,7 @@ public class FerianteDTO {
 
         // Volvemos a la lógica singular para que coincida con tu Feriante.java actual
         if (feriante.getStand() != null) {
-            this.stand = new StandDTO(feriante.getStand(), true);
+            this.stand = new StandDTO(feriante.getStand());
         }
     }
 
