@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -43,8 +44,8 @@ public class Producto {
     private TipoVenta tipoVenta; //delimita la oferta
     private String unidadMedida; // "kg", "g", "m", "un", etc.
 
-
-
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImagenProducto> imagenes = new ArrayList<>();
 
     public Producto(){}
     public Producto(double precio, String descripcion, String nombre) {
@@ -133,4 +134,8 @@ public class Producto {
 
     public String getUnidadMedida() { return unidadMedida; }
     public void setUnidadMedida(String unidadMedida) { this.unidadMedida = unidadMedida; }
+
+    // Getter y Setter
+    public List<ImagenProducto> getImagenes() { return imagenes; }
+    public void setImagenes(List<ImagenProducto> imagenes) { this.imagenes = imagenes; }
 }

@@ -2,10 +2,7 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Feriante;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.ProductoDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.CategoriaProducto;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.TipoVenta;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.*;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
@@ -132,19 +129,18 @@ public class ProductoController {
             @RequestParam("unidadMedida") String unidad,
             @RequestParam("precio") double precio,
             @RequestParam("categoriaId") int categoriaId,
-            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen, // Foto principal
+            @RequestParam(value = "imagenesExtras", required = false) List<MultipartFile> imagenesExtras, // <--- NUEVO
             Authentication authentication
     ) {
-        Stand stand = obtenerStandDelUsuario(authentication.getName()); // 🟢 Obtenemos el stand
-
+        // 1. Validaciones y obtención de dependencias [cite: 408-414]
+        Stand stand = obtenerStandDelUsuario(authentication.getName());
         CategoriaProducto categoria = categoriaRepository.findById(categoriaId).orElse(null);
+
         if (categoria == null) {
             return ResponseEntity.badRequest().body("La categoría seleccionada no existe.");
         }
 
-        Producto producto = new Producto();
-
-        // 1. Validar Tipo de Venta
         TipoVenta tipo;
         try {
             tipo = TipoVenta.valueOf(tipoVentaStr.toUpperCase());
@@ -152,28 +148,49 @@ public class ProductoController {
             return ResponseEntity.badRequest().body("Tipo de venta no válido");
         }
 
-        // 2. Setear datos
+        // 2. Setear datos básicos [cite: 415-418]
+        Producto producto = new Producto();
         producto.setNombre(nombre);
         producto.setDescripcion(descripcion);
         producto.setPrecio(precio);
         producto.setCategoria(categoria);
         producto.setTipoVenta(tipo);
-        producto.setStand(stand); // 🟢 ESTA ES LA LÍNEA QUE FALTABA
+        producto.setStand(stand);
 
-        // 🟢 Lógica de medida unificada
         if (tipo == TipoVenta.UNIDAD) {
-            producto.setUnidadMedida("un"); // Forzamos el "un"
+            producto.setUnidadMedida("un");
         } else {
             producto.setUnidadMedida(unidad != null ? unidad.toLowerCase() : "");
         }
 
-        // 3. Imagen (Cloudinary)
+        // 3. Imagen Principal (Portada) [cite: 419-420]
         if (imagen != null && !imagen.isEmpty()) {
             Map<String, String> result = cloudinaryService.subirImagen(imagen);
             producto.setImagenUrl(result.get("url"));
             producto.setImagenPublicId(result.get("public_id"));
         } else {
             producto.setImagenUrl(Producto.IMAGEN_DEFAULT);
+        }
+
+        // 4. 🟢 NUEVO: Procesar Galería de Imágenes Extras
+        if (imagenesExtras != null && !imagenesExtras.isEmpty()) {
+            for (MultipartFile archivo : imagenesExtras) {
+                if (archivo != null && !archivo.isEmpty()) {
+                    try {
+                        Map<String, String> resultExtra = cloudinaryService.subirImagen(archivo);
+                        // Creamos la entidad ImagenProducto y la vinculamos al producto
+                        ImagenProducto nuevaImagen = new ImagenProducto(
+                                resultExtra.get("url"),
+                                resultExtra.get("public_id"),
+                                producto
+                        );
+                        producto.getImagenes().add(nuevaImagen);
+                    } catch (Exception e) {
+                        // Opcional: Loguear error si una imagen falla pero continuar con las demás
+                        System.err.println("Error subiendo imagen extra: " + e.getMessage());
+                    }
+                }
+            }
         }
 
         productoRepository.save(producto);
@@ -187,9 +204,11 @@ public class ProductoController {
             @RequestParam("descripcion") String descripcion,
             @RequestParam("precio") double precio,
             @RequestParam("categoriaId") int categoriaId,
-            @RequestParam("tipoVenta") String tipoVentaStr, // 🟢 Asegurate de tener esto
-            @RequestParam(value = "unidadMedida", required = false) String unidad, // 🟢 Y esto
+            @RequestParam("tipoVenta") String tipoVentaStr,
+            @RequestParam(value = "unidadMedida", required = false) String unidad,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            @RequestParam(value = "imagenesExtras", required = false) List<MultipartFile> imagenesExtras,
+            @RequestParam(value = "eliminarImagenIds", required = false) List<Long> eliminarIds, // IDs de la tabla ImagenProducto
             Authentication authentication
     ) {
         Stand stand = obtenerStandDelUsuario(authentication.getName());
@@ -215,19 +234,45 @@ public class ProductoController {
             producto.setUnidadMedida(unidad != null ? unidad.toLowerCase() : "");
         }
 
+        // 1. Borrado de imágenes seleccionadas de la galería
+        if (eliminarIds != null && !eliminarIds.isEmpty()) {
+            producto.getImagenes().removeIf(img -> {
+                if (eliminarIds.contains((long)img.getId())) {
+                    cloudinaryService.borrarImagen(img.getPublicId()); // Borrar de la nube
+                    return true; // Eliminar de la lista (el cascade orphanRemoval hará el resto en la DB)
+                }
+                return false;
+            });
+        }
+
+        // 2. Imagen Principal (Portada)
         if (imagen != null && !imagen.isEmpty()) {
             Map<String, String> result;
             if (producto.getImagenPublicId() != null) {
+                // CORRECCIÓN: Capturar el resultado del reemplazo para actualizar URL y PublicID
                 result = cloudinaryService.reemplazarImagen(imagen, producto.getImagenPublicId());
             } else {
                 result = cloudinaryService.subirImagen(imagen);
             }
+            // Actualizamos el producto con los nuevos datos devuelvos por Cloudinary
             producto.setImagenUrl(result.get("url"));
             producto.setImagenPublicId(result.get("public_id"));
         }
 
+        // 3. Agregar nuevas imágenes a la galería
+        if (imagenesExtras != null && !imagenesExtras.isEmpty()) {
+            for (MultipartFile archivo : imagenesExtras) {
+                if (archivo != null && !archivo.isEmpty()) {
+                    Map<String, String> res = cloudinaryService.subirImagen(archivo);
+                    // Aseguramos que la relación bidireccional se mantenga
+                    ImagenProducto nuevaImg = new ImagenProducto(res.get("url"), res.get("public_id"), producto);
+                    producto.getImagenes().add(nuevaImg);
+                }
+            }
+        }
+
         productoRepository.save(producto);
-        return ResponseEntity.ok("Producto actualizado");
+        return ResponseEntity.ok("Producto actualizado correctamente");
     }
 
     @PutMapping("/{id}/estado")

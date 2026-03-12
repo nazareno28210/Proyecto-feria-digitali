@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/misproductos.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
@@ -56,12 +57,24 @@
                 <select id="unidadMedida" class="form-select"></select>
             </div>
 
-            <div class="col-md-8">
-                <label class="form-label small fw-bold">Imagen del producto</label>
-                <input type="file" id="imagen" class="form-control" accept="image/*">
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-primary">Foto Principal (Portada)</label>
+                <input type="file" id="imagen" class="form-control" accept="image/*" onchange="previsualizarTodasLasFotos('crear')">
             </div>
-            <div class="col-md-4 d-grid align-items-end">
-                <button class="btn btn-success fw-bold" onclick="crearProducto()">➕ Agregar Producto</button>
+            
+            <div class="col-md-6">
+                <label class="form-label small fw-bold">Galería de Detalles (Máx. 5 fotos)</label>
+                <input type="file" id="imagenesExtras" class="form-control" accept="image/*" multiple onchange="previsualizarTodasLasFotos('crear')">
+            </div>
+
+            <div class="col-12">
+                <div id="preview-todas-fotos-crear" class="d-flex flex-wrap gap-2 mt-2 p-2 border rounded bg-light" style="min-height: 100px;">
+                    <p class="text-muted small w-100 text-center m-0 align-self-center">Aquí se verán tus fotos...</p>
+                </div>
+            </div>
+
+            <div class="col-md-12 d-grid align-items-end mt-3">
+                <button class="btn btn-success fw-bold py-2" onclick="crearProducto()">➕ Agregar Producto con Galería</button>
             </div>
         </div>
     </div>
@@ -74,8 +87,7 @@
 </footer>
 
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content sombra">
+    <div class="modal-dialog modal-lg"> <div class="modal-content sombra">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">Editar producto</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -83,31 +95,28 @@
             <div class="modal-body">
                 <input type="hidden" id="edit-id">
                 
-                <div class="mb-3">
-                    <label class="fw-bold">Nombre</label>
-                    <input id="edit-nombre" class="form-control">
-                </div>
-                
-                <div class="mb-3">
-                    <label class="fw-bold">Descripción</label>
-                    <textarea id="edit-descripcion" class="form-control"></textarea>
-                </div>
-
                 <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold">Nombre</label>
+                        <input id="edit-nombre" class="form-control">
+                    </div>
                     <div class="col-md-6 mb-3">
                         <label class="fw-bold">Precio</label>
                         <input id="edit-precio" type="number" class="form-control">
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="fw-bold">Categoría</label>
-                        <select id="edit-categoriaId" class="form-select">
-                            <option value="">Seleccione...</option>
-                        </select>
-                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="fw-bold">Descripción</label>
+                    <textarea id="edit-descripcion" class="form-control" rows="2"></textarea>
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="fw-bold">Categoría</label>
+                        <select id="edit-categoriaId" class="form-select"></select>
+                    </div>
+                    <div class="col-md-4 mb-3">
                         <label class="fw-bold">Tipo de Venta</label>
                         <select id="edit-tipoVenta" class="form-select" onchange="toggleMedida('edit-')">
                             <option value="UNIDAD">Unidad</option>
@@ -116,16 +125,40 @@
                             <option value="VOLUMEN">Volumen</option>
                         </select>
                     </div>
-                    <div class="col-md-6 mb-3" id="edit-divMedida" style="display: none;">
+                    <div class="col-md-4 mb-3" id="edit-divMedida" style="display: none;">
                         <label class="fw-bold">Unidad de Medida</label>
                         <select id="edit-unidadMedida" class="form-select"></select>
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="fw-bold">Cambiar Imagen (opcional)</label>
-                    <input type="file" id="edit-imagen" class="form-control" accept="image/*">
+                <hr>
+
+                <div class="row mb-3">
+                    <div class="col-md-4 text-center border-end">
+                        <label class="fw-bold text-primary d-block mb-1">Portada Actual</label>
+                        <img id="edit-img-portada-actual" src="" class="img-thumbnail" style="max-height: 100px;">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="fw-bold d-block mb-1">Galería Actual</label>
+                        <div id="edit-galeria-actual" class="d-flex flex-wrap gap-1 border rounded p-2 bg-light" style="min-height: 100px;">
+                            </div>
+                    </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold text-primary small">Cambiar Portada</label>
+                        <input type="file" id="edit-imagen" class="form-control form-control-sm" accept="image/*" onchange="previsualizarTodasLasFotos('editar')">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="fw-bold small">Añadir a la Galería</label>
+                        <input type="file" id="edit-imagenesExtras" class="form-control form-control-sm" accept="image/*" multiple onchange="previsualizarTodasLasFotos('editar')">
+                    </div>
+                </div>
+
+                <div id="preview-todas-fotos-editar" class="d-flex flex-wrap gap-2 p-2 border rounded bg-light" style="min-height: 60px;">
+                </div>
+
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
