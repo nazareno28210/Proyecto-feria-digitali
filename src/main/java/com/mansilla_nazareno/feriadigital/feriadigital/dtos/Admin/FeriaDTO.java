@@ -31,10 +31,11 @@ public class FeriaDTO {
         this.estado = feria.getEstado();
         this.imagenUrl = feria.getImagenUrl();
         this.eliminado = feria.isEliminado();
-        this.stands = feria.getStands()
-                .stream()
-                .map(StandDTO::new)
-                .collect(Collectors.toList());         // Mapeamos stands filtrando los que no estén eliminados (para cuando hagamos Stands)
+        this.stands = feria.getParticipaciones() != null
+                ? feria.getParticipaciones().stream()
+                .map(participacion -> new StandDTO(participacion.getStand()))
+                .collect(Collectors.toList())
+                : List.of();
     }
 
     public int getId() {

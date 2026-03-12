@@ -7,6 +7,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuar
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Feriante {
@@ -106,7 +107,6 @@ public class Feriante {
         return estadoUsuario;
     }
 
-    // getters y setters
     public Stand getStand() {
         return stand;
     }

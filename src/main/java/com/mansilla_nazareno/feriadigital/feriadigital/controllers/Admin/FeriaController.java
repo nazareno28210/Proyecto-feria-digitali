@@ -38,17 +38,21 @@ public class FeriaController {
     public FeriaDTO getFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id)
                 .map(feria -> {
-                    // 1. Creamos el DTO base
                     FeriaDTO dto = new FeriaDTO(feria);
 
-                    // 2. Calculamos los votos desde el ResenaRepository
+                    // Si tu FeriaDTO aún espera una lista de stands,
+                    // debes mapearla desde las participaciones:
+                /* List<StandDTO> stands = feria.getParticipaciones().stream()
+                    .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO)
+                    .map(p -> new StandDTO(p.getStand()))
+                    .toList();
+                dto.setStands(stands);
+                */
+
                     Long positivos = resenaRepository.countVotosPositivosFeria(id);
                     Long totales = resenaRepository.countTotalVotosFeria(id);
-
-                    // 3. Matemática: (Positivos / Totales) * 100
                     int porcentaje = (totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
 
-                    // 4. Inyectamos los datos al DTO usando los SETTERS que agregamos
                     dto.setPorcentajeAprobacion(porcentaje);
                     dto.setTotalVotos(totales.intValue());
 

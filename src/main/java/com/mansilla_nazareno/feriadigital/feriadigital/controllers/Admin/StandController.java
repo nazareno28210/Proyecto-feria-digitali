@@ -5,10 +5,13 @@ import com.mansilla_nazareno.feriadigital.feriadigital.configurations.Cloudinary
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.StandUpdateDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Participacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
@@ -46,12 +49,16 @@ public class StandController {
     @Autowired
     private ResenaRepository resenaRepository;
 
+    @Autowired
+    private ParticipacionRepository participacionRepository;
+
     public StandController(
             StandRepository standRepository,
             UsuarioRepository usuarioRepository,
             FerianteRepository ferianteRepository,
             FeriaRepository feriaRepository,
-            CloudinaryService cloudinaryService
+            CloudinaryService cloudinaryService,
+            ParticipacionRepository participacionRepository
 
     ){
 
@@ -60,6 +67,7 @@ public class StandController {
         this.ferianteRepository = ferianteRepository;
         this.feriaRepository =feriaRepository;
         this.cloudinaryService = cloudinaryService;
+        this.participacionRepository=participacionRepository;
 
     }
     @GetMapping("/stands")
@@ -112,7 +120,7 @@ public class StandController {
     }
 
 
-    //-------------------------------------------ENDPOINTS PARA ASIGNAR Y DESASIGNAR STANDS A FERIA -----------------------------------------
+    // --- ACTUALIZAR ASIGNACIÓN ---
     @PatchMapping("/stands/{standId}/asignar-feria/{feriaId}")
     public ResponseEntity<?> asignarStandAFeria(@PathVariable Integer standId, @PathVariable Integer feriaId) {
         Stand stand = standRepository.findById(standId).orElse(null);
@@ -121,34 +129,35 @@ public class StandController {
         if (stand == null) return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
         if (feria == null) return new ResponseEntity<>("Feria no encontrada", HttpStatus.NOT_FOUND);
 
-        // 🔴 REGLA DE NEGOCIO: No permitir asignar si el stand está desactivado
         if (!stand.isActivo()) {
-            return new ResponseEntity<>("No se puede asignar un stand que está DESACTIVADO por el feriante.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("No se puede asignar un stand desactivado", HttpStatus.BAD_REQUEST);
         }
 
-        stand.setFeria(feria);
-        standRepository.save(stand);
-        return new ResponseEntity<>("Stand asignado correctamente", HttpStatus.OK);
+        // Validar si ya existe la participación para evitar duplicados
+        if (participacionRepository.existsByFeriaIdAndStandId(feriaId, standId)) {
+            return new ResponseEntity<>("El stand ya está asignado a esta feria", HttpStatus.BAD_REQUEST);
+        }
+
+        // Crear la nueva participación (Estado PENDIENTE por defecto o CONFIRMADO según tu flujo)
+        Participacion participacion = new Participacion(feria, stand, null, EstadoParticipacion.CONFIRMADO);
+        participacionRepository.save(participacion);
+
+        return new ResponseEntity<>("Participación registrada correctamente", HttpStatus.OK);
     }
 
     // ▼▼▼ NUEVO ENDPOINT PARA DESASIGNAR ▼▼▼
-    @PatchMapping("/stands/{standId}/desasignar-feria")
-    public ResponseEntity<?> desasignarStandDeFeria(@PathVariable Integer standId) {
-        Stand stand = standRepository.findById(standId).orElse(null);
-
-        if (stand == null) {
-            return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
-        }
-
-        // Opcional: Verificar si ya está desasignado
-        if (stand.getFeria() == null) {
-            return new ResponseEntity<>("El stand no estaba asignado a ninguna feria", HttpStatus.OK);
-        }
-
-        stand.setFeria(null); // Setea la feria a null
-        standRepository.save(stand);
-
-        return new ResponseEntity<>("Stand desasignado de la feria", HttpStatus.OK);
+    // --- ACTUALIZAR DESASIGNACIÓN ---
+    @DeleteMapping("/stands/{standId}/desasignar-feria/{feriaId}")
+    public ResponseEntity<?> desasignarStandDeFeria(@PathVariable Integer standId, @PathVariable Integer feriaId) {
+        // Buscamos la participación específica entre ese stand y esa feria
+        return participacionRepository.findByFeriaId(feriaId).stream()
+                .filter(p -> p.getStand().getId() == standId)
+                .findFirst()
+                .map(p -> {
+                    participacionRepository.delete(p);
+                    return new ResponseEntity<>("Stand desasignado de la feria", HttpStatus.OK);
+                })
+                .orElse(new ResponseEntity<>("No se encontró la participación", HttpStatus.NOT_FOUND));
     }
 
 

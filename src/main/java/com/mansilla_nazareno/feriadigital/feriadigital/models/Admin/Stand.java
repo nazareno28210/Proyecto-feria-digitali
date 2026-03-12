@@ -21,10 +21,10 @@ public class Stand {
     private boolean activo = true;
     public static final String IMAGEN_DEFAULT = CloudinaryDefaults.FERiante_DEFAULT_URL;
 
-    @ManyToOne
-    @JoinColumn(name = "feria_id", referencedColumnName = "id")
-    @JsonIgnoreProperties("stands")
-    private Feria feria; // cada stand pertenece a una feria
+    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("stand")
+    private List<Participacion> participaciones;
+
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("stand")
@@ -32,6 +32,7 @@ public class Stand {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "feriante_id") // crea la columna en la tabla Stand
+
     @JsonIgnoreProperties("stands")
     private Feriante feriante;
 
@@ -44,13 +45,22 @@ public class Stand {
                 : imagenUrl;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<Participacion> getParticipaciones() {
+        return participaciones;
+    }
+
+    public void setParticipaciones(List<Participacion> participaciones) {
+        this.participaciones = participaciones;
+    }
+
     public void setProductos(List<Producto> productos) {
         this.productos = productos;
     }
 
-    public void setFeria(Feria feria) {
-        this.feria = feria;
-    }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
@@ -72,9 +82,6 @@ public class Stand {
         return descripcion;
     }
 
-    public Feria getFeria() {
-        return feria;
-    }
 
     public List<Producto> getProductos() {
         return productos;
