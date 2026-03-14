@@ -206,9 +206,10 @@ public class ProductoController {
             @RequestParam("categoriaId") int categoriaId,
             @RequestParam("tipoVenta") String tipoVentaStr,
             @RequestParam(value = "unidadMedida", required = false) String unidad,
-            @RequestParam(value = "imagen", required = false) MultipartFile imagen,
-            @RequestParam(value = "imagenesExtras", required = false) List<MultipartFile> imagenesExtras,
-            @RequestParam(value = "eliminarImagenIds", required = false) List<Long> eliminarIds, // IDs de la tabla ImagenProducto
+            @RequestParam(value = "imagen", required = false) MultipartFile imagen, // Nueva portada
+            @RequestParam(value = "imagenesExtras", required = false) List<MultipartFile> imagenesExtras, // Nuevas para galería
+            @RequestParam(value = "eliminarImagenIds", required = false) List<Long> eliminarIds, // IDs de galería a borrar
+            @RequestParam(value = "borrarPortada", required = false, defaultValue = "false") boolean borrarPortada, // 🟢 NUEVO
             Authentication authentication
     ) {
         Stand stand = obtenerStandDelUsuario(authentication.getName());
@@ -218,6 +219,7 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No encontrado");
         }
 
+        // 1. Validaciones básicas de negocio [cite: 95-98]
         CategoriaProducto categoria = categoriaRepository.findById(categoriaId).orElse(null);
         TipoVenta tipo = TipoVenta.valueOf(tipoVentaStr.toUpperCase());
 
@@ -227,44 +229,54 @@ public class ProductoController {
         producto.setCategoria(categoria);
         producto.setTipoVenta(tipo);
 
-        // 🟢 Aplicamos la misma lógica que al crear
         if (tipo == TipoVenta.UNIDAD) {
             producto.setUnidadMedida("un");
         } else {
             producto.setUnidadMedida(unidad != null ? unidad.toLowerCase() : "");
         }
 
-        // 1. Borrado de imágenes seleccionadas de la galería
+        // 2. 🟢 NUEVO: Lógica de eliminación de la Portada Actual
+        // Si el usuario marcó la "X" en la portada, la borramos de Cloudinary
+        if (borrarPortada && producto.getImagenPublicId() != null) {
+            cloudinaryService.borrarImagen(producto.getImagenPublicId());
+            producto.setImagenUrl(Producto.IMAGEN_DEFAULT); // Reset a imagen por defecto [cite: 4]
+            producto.setImagenPublicId(null);
+        }
+
+        // 3. Procesar Nueva Imagen de Portada (si se subió una) [cite: 99-102]
+        if (imagen != null && !imagen.isEmpty()) {
+            Map<String, String> result;
+            // Si hay una portada vieja que NO borramos antes, la reemplazamos
+            if (producto.getImagenPublicId() != null) {
+                result = cloudinaryService.reemplazarImagen(imagen, producto.getImagenPublicId());
+            } else {
+                // Si estaba vacía o la borramos recién, subimos una nueva
+                result = cloudinaryService.subirImagen(imagen);
+            }
+            producto.setImagenUrl(result.get("url"));
+            producto.setImagenPublicId(result.get("public_id"));
+        }
+
+        // 4. Borrado de imágenes seleccionadas de la galería
         if (eliminarIds != null && !eliminarIds.isEmpty()) {
             producto.getImagenes().removeIf(img -> {
-                if (eliminarIds.contains((long)img.getId())) {
-                    cloudinaryService.borrarImagen(img.getPublicId()); // Borrar de la nube
-                    return true; // Eliminar de la lista (el cascade orphanRemoval hará el resto en la DB)
+                if (eliminarIds.contains(img.getId())) {
+                    cloudinaryService.borrarImagen(img.getPublicId());
+                    return true;
                 }
                 return false;
             });
         }
 
-        // 2. Imagen Principal (Portada)
-        if (imagen != null && !imagen.isEmpty()) {
-            Map<String, String> result;
-            if (producto.getImagenPublicId() != null) {
-                // CORRECCIÓN: Capturar el resultado del reemplazo para actualizar URL y PublicID
-                result = cloudinaryService.reemplazarImagen(imagen, producto.getImagenPublicId());
-            } else {
-                result = cloudinaryService.subirImagen(imagen);
-            }
-            // Actualizamos el producto con los nuevos datos devuelvos por Cloudinary
-            producto.setImagenUrl(result.get("url"));
-            producto.setImagenPublicId(result.get("public_id"));
-        }
-
-        // 3. Agregar nuevas imágenes a la galería
+        // 5. Agregar nuevas imágenes a la galería (Validación de límite)
         if (imagenesExtras != null && !imagenesExtras.isEmpty()) {
-            for (MultipartFile archivo : imagenesExtras) {
+            // Validación de seguridad en el backend (Máximo 5 fotos extras en total)
+            int espacioDisponible = 5 - producto.getImagenes().size();
+
+            for (int i = 0; i < Math.min(imagenesExtras.size(), espacioDisponible); i++) {
+                MultipartFile archivo = imagenesExtras.get(i);
                 if (archivo != null && !archivo.isEmpty()) {
                     Map<String, String> res = cloudinaryService.subirImagen(archivo);
-                    // Aseguramos que la relación bidireccional se mantenga
                     ImagenProducto nuevaImg = new ImagenProducto(res.get("url"), res.get("public_id"), producto);
                     producto.getImagenes().add(nuevaImg);
                 }

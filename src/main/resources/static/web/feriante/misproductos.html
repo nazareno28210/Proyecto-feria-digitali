@@ -85,9 +85,9 @@
 <footer>
     <p>Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis. CENT 35.</p>
 </footer>
-
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg"> <div class="modal-content sombra">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content sombra">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">Editar producto</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -136,22 +136,28 @@
                 <div class="row mb-3">
                     <div class="col-md-4 text-center border-end">
                         <label class="fw-bold text-primary d-block mb-1">Portada Actual</label>
-                        <img id="edit-img-portada-actual" src="" class="img-thumbnail" style="max-height: 100px;">
+                        <div class="posicion-relativa d-inline-block" id="contenedor-portada-editar">
+                            <img id="edit-img-portada-actual" src="" class="img-thumbnail" style="max-height: 100px;">
+                            <button type="button" class="btn btn-danger btn-sm posicion-absoluta top-0 end-0 m-1 btn-eliminar-foto" 
+                                    onclick="eliminarPortadaExistente()" title="Eliminar portada">
+                                &times;
+                            </button>
+                        </div>
                     </div>
                     <div class="col-md-8">
                         <label class="fw-bold d-block mb-1">Galería Actual</label>
                         <div id="edit-galeria-actual" class="d-flex flex-wrap gap-1 border rounded p-2 bg-light" style="min-height: 100px;">
-                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="fw-bold text-primary small">Cambiar Portada</label>
+                        <label class="fw-bold text-primary small">Reemplazar Portada (Nueva)</label>
                         <input type="file" id="edit-imagen" class="form-control form-control-sm" accept="image/*" onchange="previsualizarTodasLasFotos('editar')">
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="fw-bold small">Añadir a la Galería</label>
+                        <label class="fw-bold small">Añadir más fotos a la Galería</label>
                         <input type="file" id="edit-imagenesExtras" class="form-control form-control-sm" accept="image/*" multiple onchange="previsualizarTodasLasFotos('editar')">
                     </div>
                 </div>

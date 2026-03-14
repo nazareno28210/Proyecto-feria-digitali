@@ -1,13 +1,28 @@
 const API_URL = "/api/productos";
 const CATEGORIAS_URL = "/api/categorias";
 
+// 🟢 Definición Global (Asegúrate de que el Public ID sea correcto en tu Cloudinary)
+const imgPortadaDefault = "https://res.cloudinary.com/dklkf0fmq/image/upload/v1741823733/NOT_IMAGE_aypskv.png";
+
 // 🔹 Inicialización
 document.addEventListener("DOMContentLoaded", () => {
     cargarCategorias(); 
     cargarProductos();
 });
 
-let idsParaBorrar = []; // Lista temporal para la edición actual
+let idsParaBorrar = []; // Lista temporal para fotos de la galería
+let borrarPortadaActual = false; // 🟢 NUEVO: Rastrear si se marca la portada para borrar
+
+// --- 🟢 NUEVA FUNCIÓN: Para el botón X de la portada actual ---
+function eliminarPortadaExistente() {
+    borrarPortadaActual = true;
+    const imgPortada = document.getElementById("edit-img-portada-actual");
+    if (imgPortada) {
+        imgPortada.style.opacity = "0.3";
+        imgPortada.style.filter = "grayscale(100%)";
+    }
+    showToast("📸 Portada marcada para eliminar. Debes subir una nueva.", "info");
+}
 
 // 🔹 Cargar categorías en los Selects
 async function cargarCategorias() {
@@ -34,16 +49,16 @@ async function cargarCategorias() {
     }
 }
 
-// 🔹 Listar Productos con Scroll Horizontal de Imágenes
+// 🔹 Listar Productos con Scroll Horizontal de Imágenes (Versión Limpia)
 async function cargarProductos() {
     try {
         const res = await axios.get(`${API_URL}/mios`, { withCredentials: true }); 
-        const productos = res.data; 
+        const productos = res.data; // [cite: 12]
         const contenedor = document.getElementById("productos");
         contenedor.innerHTML = "";
 
         if (!productos || productos.length === 0) { 
-            contenedor.innerHTML = `<p class="text-center text-muted">No tienes productos cargados.</p>`;
+            contenedor.innerHTML = `<p class="text-center text-muted">No tienes productos cargados.</p>`; 
             return;
         }
 
@@ -52,24 +67,23 @@ async function cargarProductos() {
             const categoriaLabel = p.categoriaNombre || "General";
             const tipoVentaLabel = p.tipoVenta || "Sin definir";
 
-            // 📸 Lógica de Imágenes para Scroll (Corregida para objetos DTO)
-            const imgPortadaDefault = "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
-            const imgPortada = p.imagenUrl || imgPortadaDefault;
+            // 📸 Usamos la constante global imgPortadaDefault definida al inicio del archivo
+            const imgPortada = p.imagenUrl || imgPortadaDefault; // 
             
             let imagenesHtml = `<img src="${imgPortada}" class="card-img-top img-scroll-item" style="height: 200px; object-fit: cover;">`;
             
-            // Accedemos a p.galeria que ahora contiene objetos {id, url}
-            if (p.galeria && p.galeria.length > 0) {
+            // Renderizamos la galería extra desde los objetos del DTO
+            if (p.galeria && p.galeria.length > 0) { // 
                 p.galeria.forEach(imgObj => {
-                    imagenesHtml += `<img src="${imgObj.url}" class="card-img-top img-scroll-item" style="height: 200px; object-fit: cover;">`;
+                    imagenesHtml += `<img src="${imgObj.url}" class="card-img-top img-scroll-item" style="height: 200px; object-fit: cover;">`; // 
                 });
             }
 
-            const precioSeguro = p.precio ? p.precio.toFixed(2) : "0.00";
+            const precioSeguro = p.precio ? p.precio.toFixed(2) : "0.00"; // [cite: 18]
             let precioHtml = `<strong>$${precioSeguro}</strong>`;
             
             if (p.tipoVenta !== 'UNIDAD' && p.unidadMedida && p.unidadMedida !== 'null') {
-                precioHtml += ` <small class="text-muted">por ${p.unidadMedida}</small>`;
+                precioHtml += ` <small class="text-muted">por ${p.unidadMedida}</small>`; // [cite: 19]
             }
 
             contenedor.innerHTML += `
@@ -106,7 +120,7 @@ async function cargarProductos() {
             `;
         });
     } catch (e) {
-        console.error("Error al cargar productos:", e);
+        console.error("Error al cargar productos:", e); // [cite: 30]
     }
 }
 
@@ -149,33 +163,48 @@ function previsualizarTodasLasFotos(accion) {
     }
 }
 
-// 🔹 Crear Producto
+// 🔹 Crear Producto (Con Validaciones)
 async function crearProducto() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const precio = document.getElementById("precio").value;
+    const categoriaId = document.getElementById("categoriaId").value;
+    const inputPortada = document.getElementById("imagen");
+    const inputExtras = document.getElementById("imagenesExtras");
+
+    // --- 🛑 VALIDACIONES ---
+    if (!nombre || !precio || !categoriaId) {
+        return showToast("⚠️ Nombre, Precio y Categoría son obligatorios", "error");
+    }
+    if (!inputPortada.files || !inputPortada.files[0]) {
+        return showToast("📸 La Foto Principal (Portada) es obligatoria", "error");
+    }
+    if (inputExtras.files && inputExtras.files.length > 5) {
+        return showToast("⚠️ Máximo 5 fotos extras permitidas", "error");
+    }
+
     const formData = new FormData();
-    formData.append("nombre", document.getElementById("nombre").value.trim());
+    formData.append("nombre", nombre);
     formData.append("descripcion", document.getElementById("descripcion").value.trim());
-    formData.append("precio", document.getElementById("precio").value);
-    formData.append("categoriaId", document.getElementById("categoriaId").value);
+    formData.append("precio", precio);
+    formData.append("categoriaId", categoriaId);
     formData.append("tipoVenta", document.getElementById("tipoVenta").value);
     formData.append("unidadMedida", document.getElementById("unidadMedida").value);
 
-    const imagen = document.getElementById("imagen").files[0];
-    if (imagen) formData.append("imagen", imagen);
+    formData.append("imagen", inputPortada.files[0]);
 
-    const fotosExtras = document.getElementById("imagenesExtras").files;
-    if (fotosExtras.length > 0) {
-        Array.from(fotosExtras).forEach(archivo => {
+    if (inputExtras.files.length > 0) {
+        Array.from(inputExtras.files).forEach(archivo => {
             formData.append("imagenesExtras", archivo);
         });
     }
 
     try {
-        showToast("🚀 Subiendo producto y galería...", "info");
+        showToast("🚀 Creando producto...", "info");
         await axios.post(API_URL, formData, {
             withCredentials: true,
             headers: { "Content-Type": "multipart/form-data" }
         });
-        showToast("✅ Producto y galería creados", "success");
+        showToast("✅ Producto creado con éxito", "success");
         limpiarCampos();
         cargarProductos();
     } catch (e) {
@@ -199,8 +228,9 @@ function prepararEdicion(producto) {
     );
 }
 
-// 🔹 Abrir Modal Editar (Corregido para manejar IDs de galería)
+// 🔹 Abrir Modal Editar (Actualizado para gestionar Portada y Galería)
 function abrirModalEditar(id, nombre, descripcion, precio, categoriaId, tipoVenta, unidadMedida, portadaUrl, galeria) {
+    // 1. Cargar datos básicos en los inputs
     document.getElementById("edit-id").value = id;
     document.getElementById("edit-nombre").value = nombre;
     document.getElementById("edit-descripcion").value = descripcion || "";
@@ -208,38 +238,56 @@ function abrirModalEditar(id, nombre, descripcion, precio, categoriaId, tipoVent
     document.getElementById("edit-categoriaId").value = categoriaId || "";
     document.getElementById("edit-tipoVenta").value = tipoVenta || "UNIDAD";
     
+    // 2. Configurar unidades de medida dinámicas
     toggleMedida("edit-");
     document.getElementById("edit-unidadMedida").value = unidadMedida || "";
 
-    idsParaBorrar = []; // Limpiamos la lista de borrado al abrir el modal
+    // 3. 🟢 RESETEAR ESTADOS DE BORRADO
+    idsParaBorrar = []; // Limpiar lista de fotos de galería marcadas
+    borrarPortadaActual = false; // Resetear bandera de borrado de portada
 
+    // 4. 🟢 GESTIÓN DE LA PORTADA ACTUAL
     const imgPortadaActual = document.getElementById("edit-img-portada-actual");
-    if(imgPortadaActual) imgPortadaActual.src = portadaUrl || "";
+    if (imgPortadaActual) {
+        imgPortadaActual.src = portadaUrl || "";
+        // Restaurar estilo visual (por si se marcó para borrar en la edición anterior)
+        imgPortadaActual.style.opacity = "1";
+        imgPortadaActual.style.filter = "none";
+    }
 
+    // 5. 🟢 GESTIÓN DE LA GALERÍA ACTUAL (Fotos con botón X)
     const contenedorGaleriaActual = document.getElementById("edit-galeria-actual");
-    if(contenedorGaleriaActual) {
-        contenedorGaleriaActual.innerHTML = "";
-        if(galeria && galeria.length > 0) {
+    if (contenedorGaleriaActual) {
+        contenedorGaleriaActual.innerHTML = ""; // Limpiar galería previa
+        
+        if (galeria && galeria.length > 0) {
             galeria.forEach(img => {
                 const div = document.createElement("div");
                 div.className = "posicion-relativa m-1";
                 div.id = `contenedor-img-${img.id}`;
                 div.innerHTML = `
                     <img src="${img.url}" class="img-preview-galeria">
-                    <button type="button" class="btn btn-danger btn-sm posicion-absoluta top-0 end-0 m-1" 
+                    <button type="button" class="btn btn-danger btn-sm posicion-absoluta top-0 end-0 m-1 btn-eliminar-foto" 
                             onclick="marcarParaBorrar(${img.id})" 
                             style="padding: 0px 5px; font-size: 12px; border-radius: 50%;">&times;</button>
                 `;
                 contenedorGaleriaActual.appendChild(div);
             });
+        } else {
+            contenedorGaleriaActual.innerHTML = '<p class="text-muted small w-100 text-center m-0">No hay fotos extras.</p>';
         }
     }
 
+    // 6. 🟢 LIMPIAR INPUTS DE ARCHIVOS Y PREVIEWS NUEVOS
     document.getElementById("edit-imagen").value = "";
     document.getElementById("edit-imagenesExtras").value = "";
+    
     const previewNuevas = document.getElementById("preview-todas-fotos-editar");
-    if(previewNuevas) previewNuevas.innerHTML = "";
+    if (previewNuevas) {
+        previewNuevas.innerHTML = ""; // Limpiar miniaturas de la selección anterior
+    }
 
+    // 7. Mostrar el Modal
     new bootstrap.Modal(document.getElementById("modalEditar")).show();
 }
 
@@ -262,11 +310,19 @@ function marcarParaBorrar(id) {
     }
 }
 
-// 🔹 Guardar Edición
+// 🔹 Guardar Edición (Con Validaciones y Borrado de Portada)
 async function guardarEdicion() {
     const id = document.getElementById("edit-id").value;
-    const formData = new FormData();
+    const inputPortadaNueva = document.getElementById("edit-imagen");
+    const inputExtrasNuevos = document.getElementById("edit-imagenesExtras");
 
+    // --- 🛑 VALIDACIONES ---
+    // Si borra la portada actual pero no selecciona una nueva en el input
+    if (borrarPortadaActual && (!inputPortadaNueva.files || !inputPortadaNueva.files[0])) {
+        return showToast("📸 No puedes dejar el producto sin portada", "error");
+    }
+
+    const formData = new FormData();
     formData.append("nombre", document.getElementById("edit-nombre").value.trim());
     formData.append("descripcion", document.getElementById("edit-descripcion").value.trim());
     formData.append("precio", document.getElementById("edit-precio").value);
@@ -274,36 +330,30 @@ async function guardarEdicion() {
     formData.append("tipoVenta", document.getElementById("edit-tipoVenta").value);
     formData.append("unidadMedida", document.getElementById("edit-unidadMedida").value);
 
-    // Enviar IDs de imágenes a eliminar
+    // 🟢 Señal para el backend de borrar portada
+    if (borrarPortadaActual) formData.append("borrarPortada", "true");
+
     if (idsParaBorrar.length > 0) {
-        idsParaBorrar.forEach(idBorrar => {
-            formData.append("eliminarImagenIds", idBorrar);
-        });
+        idsParaBorrar.forEach(idBorrar => formData.append("eliminarImagenIds", idBorrar));
     }
 
-    const imagen = document.getElementById("edit-imagen").files[0];
-    if (imagen) formData.append("imagen", imagen);
+    if (inputPortadaNueva.files[0]) formData.append("imagen", inputPortadaNueva.files[0]);
 
-    const fotosExtras = document.getElementById("edit-imagenesExtras").files;
-    if (fotosExtras.length > 0) {
-        Array.from(fotosExtras).forEach(archivo => {
-            formData.append("imagenesExtras", archivo);
-        });
+    if (inputExtrasNuevos.files.length > 0) {
+        Array.from(inputExtrasNuevos.files).forEach(f => formData.append("imagenesExtras", f));
     }
 
     try {
-        showToast("🔄 Actualizando producto...", "info");
+        showToast("🔄 Guardando cambios...", "info");
         await axios.put(`${API_URL}/${id}`, formData, {
             withCredentials: true,
             headers: { "Content-Type": "multipart/form-data" }
         });
-        showToast("✅ Producto actualizado correctamente", "success");
+        showToast("✅ Producto actualizado", "success");
         bootstrap.Modal.getInstance(document.getElementById("modalEditar")).hide();
-        idsParaBorrar = []; 
         cargarProductos();
     } catch (e) {
-        console.error(e);
-        showToast("❌ Error al actualizar el producto", "error");
+        showToast("❌ Error al actualizar", "error");
     }
 }
 

@@ -1,11 +1,15 @@
 /* ============================================================
-   PRODUCTO-DETALLE.JS - Versión Final con Respuestas y Fechas
+   PRODUCTO-DETALLE.JS - Galería Dinámica con Zoom Pro y Panning
    ============================================================ */
 
 let puntajeSeleccionado = 0;
 let usuarioLogueadoId = null; 
 let dueñoProductoId = null;   
 let nombreStandActual = "";   
+let imagenesTotales = []; // 🟢 Array global para navegar las fotos [cite: 2]
+
+// Placeholder oficial para Feria Digital si la imagen falla [cite: 3]
+const imgPortadaDefault = "https://res.cloudinary.com/dklkf0fmq/image/upload/v1741823733/NOT_IMAGE_aypskv.png";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -16,20 +20,144 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    // 1. Carga inicial sincronizada
+    // Inicializamos el Modal de Bootstrap para el Zoom
+    const miModalZoom = new bootstrap.Modal(document.getElementById('modalZoom'));
+
     await obtenerUsuarioActual();
     await cargarDatosProducto(productoId); 
     cargarResenas(productoId); 
     configurarEstrellas();
+
+    // 🟢 LÓGICA DE ZOOM INTERACTIVO Y PANNING
+    const imgPrincipal = document.getElementById("p-imagen");
+    const imgZoom = document.getElementById("img-zoom");
+
+    // Variables de estado del zoom
+    let isZoomed = false;
+    let isDragging = false;
+    let startX, startY;
+    let currentTranslateX = 0, currentTranslateY = 0;
+    let lastTranslateX = 0, lastTranslateY = 0;
+    const zoomScale = 1.8; // Escala de zoom (e.g., 1.8x)
+
+    // 1. Abrir Modal en el clic [cite: 23-25]
+    imgPrincipal.onclick = function() {
+        const urlActual = this.src;
+        
+        // Evitamos abrir el zoom si es la imagen por defecto
+        if(urlActual && !urlActual.includes("NOT_IMAGE")) {
+            imgZoom.src = urlActual; // Pasamos la URL al modal
+            
+            // Reiniciamos estado antes de mostrar
+            isZoomed = false;
+            currentTranslateX = 0; currentTranslateY = 0;
+            lastTranslateX = 0; lastTranslateY = 0;
+            imgZoom.style.transformOrigin = "center center";
+            imgZoom.style.transform = "translate(0, 0) scale(1)";
+            
+            miModalZoom.show();      // Mostramos el modal
+        } else {
+            showToast("📸 No hay una imagen disponible para ampliar", "info");
+        }
+    };
+
+    // 2. Lógica de Zoom Interactivo en clic dentro del Modal
+    imgZoom.onclick = function(event) {
+        isZoomed = !isZoomed;
+
+        if (isZoomed) {
+            // Calculamos el origen de transformación dinámico basado en el clic
+            const { offsetX, offsetY } = event;
+            const originX = (offsetX / this.width) * 100;
+            const originY = (offsetY / this.height) * 100;
+
+            // 
+
+            // Aplicamos zoom en el punto del clic
+            this.style.transformOrigin = `${originX}% ${originY}%`;
+            this.style.transform = `scale(${zoomScale})`;
+            this.style.cursor = "zoom-out";
+            
+            currentTranslateX = 0; currentTranslateY = 0; // Reiniciamos tras zoom
+            showToast("💡 Podés arrastrar la imagen para moverte", "success");
+        } else {
+            // Zoom out: reset transformaciones
+            this.style.transformOrigin = "center center";
+            this.style.transform = "translate(0, 0) scale(1)";
+            this.style.cursor = "zoom-in";
+            
+            currentTranslateX = 0; currentTranslateY = 0;
+            lastTranslateX = 0; lastTranslateY = 0;
+        }
+    };
+
+    // 3. Lógica de Panning (Arrastrar) cuando hay zoom
+    imgZoom.onmousedown = function(event) {
+        if (!isZoomed) return; // Solo si hay zoom
+        
+        isDragging = true;
+        this.style.cursor = "grabbing";
+        
+        // Coordenadas iniciales del clic
+        startX = event.clientX;
+        startY = event.clientY;
+        
+        // Posición translate actual
+        lastTranslateX = currentTranslateX;
+        lastTranslateY = currentTranslateY;
+    };
+
+    imgZoom.onmousemove = function(event) {
+        if (!isDragging) return; // Solo si estamos arrastrando
+        
+        // Evitamos comportamiento por defecto (selección de texto, etc.)
+        event.preventDefault();
+        
+        const deltaX = event.clientX - startX;
+        const deltaY = event.clientY - startY;
+        
+        // Actualizamos translate
+        currentTranslateX = lastTranslateX + deltaX;
+        currentTranslateY = lastTranslateY + deltaY;
+
+        // 
+
+        // --- 🟢 LÓGICA DE LÍMITES DE DESPLAZAMIENTO ---
+        // Obtenemos dimensiones escaladas de la imagen y del contenedor
+        const scaledWidth = this.naturalWidth * zoomScale;
+        const scaledHeight = this.naturalHeight * zoomScale;
+        const containerWidth = this.parentElement.offsetWidth;
+        const containerHeight = this.parentElement.offsetHeight;
+
+        // Calculamos los límites máximos de desplazamiento
+        // Si el contenedor es mayor que la imagen escalada (no debería pasar con object-fit), no limitamos
+        const maxXTranslate = Math.max(0, (scaledWidth - containerWidth) / 2);
+        const maxYTranslate = Math.max(0, (scaledHeight - containerHeight) / 2);
+
+        // Clampeamos el desplazamiento dentro de los límites
+        currentTranslateX = Math.max(-maxXTranslate, Math.min(maxXTranslate, currentTranslateX));
+        currentTranslateY = Math.max(-maxYTranslate, Math.min(maxYTranslate, currentTranslateY));
+
+        // Aplicamos el translate y mantenemos la escala
+        this.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${zoomScale})`;
+    };
+
+    imgZoom.onmouseup = imgZoom.onmouseleave = function() {
+        if (!isZoomed || !isDragging) return;
+        
+        isDragging = false;
+        this.style.cursor = "zoom-out";
+    };
+
 });
 
-// 0. Obtener sesión del usuario
+// 0. Obtener sesión del usuario (Se mantiene igual)
 async function obtenerUsuarioActual() {
     try {
         const res = await axios.get("/api/usuarios/current", { withCredentials: true });
         if (res.data) {
             usuarioLogueadoId = res.data.id;
-            // Mostrar formulario de reseña solo si es cliente o feriante ajeno
+            // Mostrar formulario solo a clientes o feriantes ajenos
             if (res.data.tipoUsuario === "NORMAL" || res.data.tipoUsuario === "FERIANTE") {
                 const sec = document.getElementById("seccion-dejar-resena");
                 if (sec) sec.style.display = "block";
@@ -38,7 +166,7 @@ async function obtenerUsuarioActual() {
     } catch (err) { console.log("Navegando como visitante."); }
 }
 
-// 1. Cargar Información del Producto
+// 1. Cargar Información del Producto (Se mantiene igual) [cite: 50]
 async function cargarDatosProducto(id) {
     try {
         const res = await axios.get(`/api/productos/${id}`);
@@ -46,6 +174,7 @@ async function cargarDatosProducto(id) {
         dueñoProductoId = p.usuarioDueñoId;
         nombreStandActual = p.standNombre || "Feriante"; 
 
+        // Inyección de textos básicos [cite: 51-52]
         document.getElementById("p-nombre").textContent = p.nombre;
         document.getElementById("p-precio").textContent = `$${p.precio.toLocaleString()}`;
         document.getElementById("p-unidad").textContent = p.tipoVenta === 'UNIDAD' ? '/ unidad' : `/ ${p.unidadMedida}`;
@@ -53,11 +182,18 @@ async function cargarDatosProducto(id) {
         document.getElementById("p-categoria").textContent = p.categoriaNombre;
         document.getElementById("p-stand").textContent = p.standNombre || "Stand Autorizado";
         document.getElementById("p-descripcion").textContent = p.descripcion || "Sin descripción.";
-        document.getElementById("p-imagen").src = p.imagenUrl || "https://res.cloudinary.com/dklkf0fmq/image/upload/v1769030533/NOT_IMAGE_aypskv.png";
 
+        // 📸 GESTIÓN DE GALERÍA (ESTILO MERCADO LIBRE) [cite: 58-61]
+        // Armamos el array único: Portada + Fotos de la Galería
+        imagenesTotales = [p.imagenUrl || imgPortadaDefault];
+        if (p.galeria && p.galeria.length > 0) {
+            p.galeria.forEach(imgObj => imagenesTotales.push(imgObj.url));
+        }
+
+        renderizarGaleria();
         renderizarEstrellasCabecera(p.promedioEstrellas, p.cantidadResenas);
 
-        // Bloque de aviso para el dueño
+        // Bloque de aviso para el dueño [cite: 63]
         if (usuarioLogueadoId && dueñoProductoId === usuarioLogueadoId) {
             const formContainer = document.getElementById("seccion-dejar-resena");
             if (formContainer) {
@@ -69,6 +205,52 @@ async function cargarDatosProducto(id) {
             }
         }
     } catch (err) { console.error("Error al cargar producto:", err); }
+}
+
+// 🟢 Dibuja las miniaturas y configura el visor [cite: 71-92] (Se mantiene igual)
+function renderizarGaleria() {
+    const contenedorMiniaturas = document.getElementById("p-galeria-miniaturas");
+    const imgPrincipal = document.getElementById("p-imagen");
+    const indicador = document.getElementById("indicador-foto");
+    const totalFotosLabel = document.getElementById("foto-total");
+
+    contenedorMiniaturas.innerHTML = "";
+    imgPrincipal.src = imagenesTotales[0]; 
+
+    if (imagenesTotales.length > 1) {
+        indicador.style.display = "block";
+        totalFotosLabel.textContent = imagenesTotales.length;
+
+        imagenesTotales.forEach((url, index) => {
+            const div = document.createElement("div");
+            div.className = `miniatura-item ${index === 0 ? 'active' : ''}`;
+            div.innerHTML = `<img src="${url}" alt="Foto ${index + 1}">`;
+            
+            // Al hacer clic, cambia la imagen grande
+            div.onclick = () => cambiarImagenPrincipal(url, index, div);
+            contenedorMiniaturas.appendChild(div);
+        });
+    } else {
+        indicador.style.display = "none";
+    }
+}
+
+// 🟢 Cambia la imagen con efecto de opacidad (Se mantiene igual)
+function cambiarImagenPrincipal(url, index, elementoClicado) {
+    const imgPrincipal = document.getElementById("p-imagen");
+    const fotoActualLabel = document.getElementById("foto-actual");
+
+    imgPrincipal.style.opacity = "0.5"; // Inicio de transición
+    
+    setTimeout(() => {
+        imgPrincipal.src = url;
+        imgPrincipal.style.opacity = "1";
+        fotoActualLabel.textContent = index + 1;
+    }, 150);
+
+    // Actualizar clase 'active' para resaltar la miniatura seleccionada
+    document.querySelectorAll(".miniatura-item").forEach(item => item.classList.remove("active"));
+    elementoClicado.classList.add("active");
 }
 
 // 2. Cargar Reseñas y Respuestas (Con Fotos de Perfil de Usuario y Feriante)

@@ -94,3 +94,18 @@
     width: 100%;
     scroll-snap-align: start; /* Efecto de 'imán' al scrollear */
 }
+
+.posicion-relativa { position: relative; }
+.posicion-absoluta { position: absolute; }
+.btn-eliminar-foto { border-radius: 50%; padding: 0 6px; line-height: 1.2; }
+
+.img-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+
+.img-scroll-item {
+    flex: 0 0 100%; /* Cada imagen ocupa el ancho total de la tarjeta */
+    scroll-snap-align: start;
+}
