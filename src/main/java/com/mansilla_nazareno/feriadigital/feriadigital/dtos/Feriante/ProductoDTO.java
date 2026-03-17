@@ -20,6 +20,7 @@ public class ProductoDTO {
     private int usuarioDueñoId;
     private Double promedioEstrellas;
     private int cantidadResenas;
+    private String contactoTelefono; // 🟢 NUEVO: Teléfono del feriante
 
     // 🟢 Ahora la galería usa el DTO interno con ID
     private List<ImagenDetalleDTO> galeria;
@@ -70,6 +71,9 @@ public class ProductoDTO {
 
         if (producto.getStand() != null && producto.getStand().getFeriante() != null) {
             this.usuarioDueñoId = producto.getStand().getFeriante().getUsuario().getId();
+            // 🟢 NUEVO: Obtenemos el teléfono.
+            // ATENCIÓN: Ajustá el ".getTelefono()" si en tu modelo se llama distinto o si está en la clase Usuario.
+            this.contactoTelefono = producto.getStand().getFeriante().getTelefono();
         }
     }
 
@@ -103,4 +107,5 @@ public class ProductoDTO {
     public void setCantidadResenas(int cantidadResenas) { this.cantidadResenas = cantidadResenas; }
     public void setPromedioEstrellas(Double promedioEstrellas) { this.promedioEstrellas = promedioEstrellas; }
     public List<ImagenDetalleDTO> getGaleria() { return galeria; }
+    public String getContactoTelefono() { return contactoTelefono; } // 🟢 NUEVO
 }

@@ -166,7 +166,7 @@ async function obtenerUsuarioActual() {
     } catch (err) { console.log("Navegando como visitante."); }
 }
 
-// 1. Cargar Información del Producto (Se mantiene igual) [cite: 50]
+// 1. Cargar Información del Producto 
 async function cargarDatosProducto(id) {
     try {
         const res = await axios.get(`/api/productos/${id}`);
@@ -174,7 +174,7 @@ async function cargarDatosProducto(id) {
         dueñoProductoId = p.usuarioDueñoId;
         nombreStandActual = p.standNombre || "Feriante"; 
 
-        // Inyección de textos básicos [cite: 51-52]
+        // Inyección de textos básicos
         document.getElementById("p-nombre").textContent = p.nombre;
         document.getElementById("p-precio").textContent = `$${p.precio.toLocaleString()}`;
         document.getElementById("p-unidad").textContent = p.tipoVenta === 'UNIDAD' ? '/ unidad' : `/ ${p.unidadMedida}`;
@@ -183,7 +183,44 @@ async function cargarDatosProducto(id) {
         document.getElementById("p-stand").textContent = p.standNombre || "Stand Autorizado";
         document.getElementById("p-descripcion").textContent = p.descripcion || "Sin descripción.";
 
-        // 📸 GESTIÓN DE GALERÍA (ESTILO MERCADO LIBRE) [cite: 58-61]
+        // --- 🟢 LÓGICA DE WHATSAPP ---
+        const btnWhatsapp = document.getElementById("btn-whatsapp");
+        
+        if (btnWhatsapp) {
+            // Verificamos si el feriante tiene un número registrado
+            if (p.contactoTelefono && p.contactoTelefono.trim() !== "") {
+                
+                // 1. Limpiamos el número (quita espacios, guiones, símbolos)
+                let numeroLimpio = p.contactoTelefono.replace(/\D/g, ''); 
+                
+                // 2. 🟢 TRUCO: Si el número tiene 10 dígitos (ej: 2964123456), le agregamos el 549
+                if (numeroLimpio.length === 10) {
+                    numeroLimpio = '549' + numeroLimpio;
+                }
+                
+                // 3. Armamos el mensaje automático
+                const mensaje = `¡Hola! Vi tu producto "${p.nombre}" en la web Feria Digital y me interesa. El precio es $${p.precio.toLocaleString()}.`;
+                const mensajeCodificado = encodeURIComponent(mensaje);
+                
+                // 4. Le damos la acción al botón para que abra WhatsApp
+                btnWhatsapp.onclick = () => {
+                    window.open(`https://wa.me/${numeroLimpio}?text=${mensajeCodificado}`, '_blank');
+                };
+            } else {
+                // Si NO hay teléfono, cambiamos la apariencia del botón a "Deshabilitado"
+                btnWhatsapp.classList.replace("btn-primary", "btn-secondary"); 
+                btnWhatsapp.innerHTML = `<i class="bi bi-telephone-x"></i> Sin teléfono`;
+                btnWhatsapp.style.cursor = "not-allowed"; 
+                
+                // Aviso de por qué no funciona
+                btnWhatsapp.onclick = (e) => {
+                    e.preventDefault();
+                    showToast("Este feriante no posee un número de WhatsApp registrado.", "info");
+                };
+            }
+        }
+
+        // 📸 GESTIÓN DE GALERÍA (ESTILO MERCADO LIBRE)
         // Armamos el array único: Portada + Fotos de la Galería
         imagenesTotales = [p.imagenUrl || imgPortadaDefault];
         if (p.galeria && p.galeria.length > 0) {
@@ -193,7 +230,7 @@ async function cargarDatosProducto(id) {
         renderizarGaleria();
         renderizarEstrellasCabecera(p.promedioEstrellas, p.cantidadResenas);
 
-        // Bloque de aviso para el dueño [cite: 63]
+        // Bloque de aviso para el dueño
         if (usuarioLogueadoId && dueñoProductoId === usuarioLogueadoId) {
             const formContainer = document.getElementById("seccion-dejar-resena");
             if (formContainer) {
