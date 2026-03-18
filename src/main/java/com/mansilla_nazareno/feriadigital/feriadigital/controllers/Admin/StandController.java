@@ -79,6 +79,7 @@ public class StandController {
     }
 
     // Para que el público solo vea stands abiertos
+    /*
     @GetMapping("/stands/activos")
     public List<StandDTO> getStandsActivos() {
         return standRepository.findByActivoTrue()
@@ -86,7 +87,7 @@ public class StandController {
                 .map(StandDTO::new)
                 .toList();
     }
-
+*/
     @GetMapping("/stands/{id}")
     public StandDTO getStandDTO(@PathVariable Integer id) {
         return standRepository.findById(id)

@@ -13,6 +13,7 @@ public class Stand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String nombre;
     private String descripcion;
     private String imagenUrl;
@@ -20,6 +21,7 @@ public class Stand {
     //ESTADO DE ACTIVACIÓN
     private boolean activo = true;
     public static final String IMAGEN_DEFAULT = CloudinaryDefaults.FERiante_DEFAULT_URL;
+    private boolean estado = true;
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("stand")
@@ -36,6 +38,10 @@ public class Stand {
     @JsonIgnoreProperties("stands")
     private Feriante feriante;
 
+    @ManyToOne
+    @JoinColumn(name = "feria_id")
+    private Feria feria;
+
     public Stand(){}
     public Stand(String nombre, String descripcion, String imagenUrl) {
         this.nombre = nombre;
@@ -43,6 +49,14 @@ public class Stand {
         this.imagenUrl =  (imagenUrl == null || imagenUrl.isBlank())
                 ? IMAGEN_DEFAULT
                 : imagenUrl;
+    }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
     }
 
     public void setId(int id) {
@@ -82,6 +96,13 @@ public class Stand {
         return descripcion;
     }
 
+    public Feria getFeria() {
+        return feria;
+    }
+
+    public void setFeria(Feria feria) {
+        this.feria = feria;
+    }
 
     public List<Producto> getProductos() {
         return productos;

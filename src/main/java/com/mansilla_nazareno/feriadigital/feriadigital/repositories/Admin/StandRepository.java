@@ -13,7 +13,9 @@ public interface StandRepository extends JpaRepository<Stand,Integer> {
     Stand findByFeriante(Feriante feriante);
 
     // 🟢 Para el público: Solo traer los que el feriante tenga "abiertos"
-    List<Stand> findByActivoTrue();
-    // Ejemplo para obtener solo stands confirmados en una feria específica
+    List<Stand> findDistinctByParticipaciones_Feria_IdAndParticipaciones_Estado(
+            int feriaId,
+            EstadoParticipacion estado
+    );    // Ejemplo para obtener solo stands confirmados en una feria específica
     List<Participacion> findByFeriaIdAndEstado(int feriaId, EstadoParticipacion estado);
 }

@@ -74,6 +74,10 @@ public class FeriaDTO {
         return stands;
     }
 
+    public void setStands(List<StandDTO> stands) {
+        this.stands = stands;
+    }
+
     public boolean isEliminado() {
         return eliminado;
     }
