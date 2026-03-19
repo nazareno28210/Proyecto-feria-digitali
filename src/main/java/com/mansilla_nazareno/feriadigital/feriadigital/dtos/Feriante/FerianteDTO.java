@@ -6,6 +6,8 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class FerianteDTO {
 
@@ -28,8 +30,10 @@ public class FerianteDTO {
         this.fechaRegistro = feriante.getFechaRegistro();
         this.estadoUsuario = feriante.getUserEstate();
         this.usuario = feriante.getUsuario();
+
+        // Volvemos a la lógica singular para que coincida con tu Feriante.java actual
         if (feriante.getStand() != null) {
-            this.stand = new StandDTO(feriante.getStand(), true);
+            this.stand = new StandDTO(feriante.getStand());
         }
     }
 

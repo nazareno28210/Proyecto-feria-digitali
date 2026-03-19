@@ -2,7 +2,9 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.StandDTO; // 🟢 Importado para la lógica de tu amigo
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoParticipacion; // 🟢 Importado para la lógica de tu amigo
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
@@ -33,14 +35,11 @@ public class FeriaController {
         this.feriaRepository = feriaRepository;
     }
 
-    // 🟢 MÉTODO INTERNO DE ACTUALIZACIÓN AUTOMÁTICA
-    // Se ejecuta internamente para cerrar ferias que ya pasaron de fecha
     private List<Feria> obtenerFeriasActualizadas() {
         List<Feria> ferias = feriaRepository.findAll();
         LocalDate hoy = LocalDate.now();
 
         for (Feria feria : ferias) {
-            // Si la feria está "Activa" pero su fecha final ya pasó, la desactivamos
             if ("Activa".equals(feria.getEstado()) &&
                     feria.getFechaFinal() != null &&
                     feria.getFechaFinal().isBefore(hoy)) {
@@ -54,7 +53,6 @@ public class FeriaController {
 
     @GetMapping("/ferias")
     public List<FeriaDTO> getFerias() {
-        // 🟢 CAMBIO: Llamamos primero a la lógica de actualización
         obtenerFeriasActualizadas();
 
         return feriaRepository.findByEliminadoFalse()
@@ -68,12 +66,24 @@ public class FeriaController {
         return feriaRepository.findById(id)
                 .map(feria -> {
                     FeriaDTO dto = new FeriaDTO(feria);
+
+                    // 🟢 LÓGICA DE TU AMIGO (Integrada): Mapear stands confirmados explícitamente desde Participaciones
+                    if (feria.getParticipaciones() != null) {
+                        List<StandDTO> standsConfirmados = feria.getParticipaciones().stream()
+                                .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO)
+                                .map(p -> new StandDTO(p.getStand()))
+                                .collect(Collectors.toList());
+                        dto.setStands(standsConfirmados);
+                    }
+
+                    // 🟢 TU LÓGICA (Mantenida): Cálculos de reseñas
                     Long positivos = resenaRepository.countVotosPositivosFeria(id);
                     Long totales = resenaRepository.countTotalVotosFeria(id);
-                    int porcentaje = (totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
+                    int porcentaje = (totales != null && totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
 
                     dto.setPorcentajeAprobacion(porcentaje);
-                    dto.setTotalVotos(totales.intValue());
+                    dto.setTotalVotos(totales != null ? totales.intValue() : 0);
+
                     return dto;
                 })
                 .orElse(null);
@@ -81,7 +91,6 @@ public class FeriaController {
 
     @GetMapping("/ferias/activas")
     public List<FeriaDTO> getFeriasActivas() {
-        // 🟢 CAMBIO: Actualizamos estados antes de filtrar las activas para el público
         obtenerFeriasActualizadas();
 
         return feriaRepository.findByEstadoAndEliminadoFalse("Activa")
@@ -101,7 +110,6 @@ public class FeriaController {
             @RequestParam("longitud") Double longitud,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
-        // 1. Validaciones manuales (Tus reglas de negocio)
         if (nombre == null || nombre.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El nombre no puede estar vacío");
         }
@@ -126,7 +134,6 @@ public class FeriaController {
         }
 
         try {
-            // 2. Creación del objeto Feria
             Feria nuevaFeria = new Feria();
             nuevaFeria.setNombre(nombre);
             nuevaFeria.setLugar(lugar);
@@ -137,10 +144,9 @@ public class FeriaController {
             nuevaFeria.setLongitud(longitud);
             nuevaFeria.setEstado("Activa");
 
-            // 3. Subida a Cloudinary si el administrador seleccionó una foto
             if (imagen != null && !imagen.isEmpty()) {
                 Map<String, String> result = cloudinaryService.subirImagen(imagen);
-                nuevaFeria.setImagenUrl(result.get("url")); // Guardamos la URL generada
+                nuevaFeria.setImagenUrl(result.get("url"));
             }
 
             feriaRepository.save(nuevaFeria);
@@ -164,7 +170,6 @@ public class FeriaController {
             @RequestParam("longitud") Double longitud,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
-        // 1. Validaciones de negocio
         LocalDate inicio = LocalDate.parse(fechaInicio);
         LocalDate fin = (fechaFinal != null && !fechaFinal.isEmpty()) ? LocalDate.parse(fechaFinal) : null;
 
@@ -181,7 +186,6 @@ public class FeriaController {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
 
-        // 2. Proceso de actualización
         return feriaRepository.findById(id).map(feria -> {
             try {
                 feria.setNombre(nombre);
@@ -192,18 +196,14 @@ public class FeriaController {
                 feria.setLatitud(latitud);
                 feria.setLongitud(longitud);
 
-                // 3. Lógica de imagen con Cloudinary
                 if (imagen != null && !imagen.isEmpty()) {
-                    // Si la feria ya tenía una imagen, extraemos el publicId para borrarla
                     String urlVieja = feria.getImagenUrl();
                     String publicIdViejo = null;
 
                     if (urlVieja != null && urlVieja.contains("upload/")) {
-                        // Extrae el ID de la URL de Cloudinary (ej: v123/nombre_archivo)
                         publicIdViejo = urlVieja.substring(urlVieja.lastIndexOf("/") + 1, urlVieja.lastIndexOf("."));
                     }
 
-                    // Usamos tu servicio para reemplazar [cite: 59]
                     Map<String, String> result = cloudinaryService.reemplazarImagen(imagen, publicIdViejo);
                     feria.setImagenUrl(result.get("url"));
                 }
@@ -239,7 +239,6 @@ public class FeriaController {
     @PatchMapping("/ferias/{id}/activar")
     public ResponseEntity<?> activarFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id).map(feria -> {
-            // 🟢 VALIDACIÓN: No permitir activar si la fecha final ya pasó
             if (feria.getFechaFinal() != null && feria.getFechaFinal().isBefore(LocalDate.now())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("No se puede activar una feria cuya fecha de finalización ya pasó.");
@@ -252,7 +251,7 @@ public class FeriaController {
 
     @GetMapping("/ferias/lista-select")
     public ResponseEntity<List<FeriaSelectorDTO>> getFeriasParaSelector() {
-        obtenerFeriasActualizadas(); // Opcional: Actualizar antes de listar
+        obtenerFeriasActualizadas();
         List<FeriaSelectorDTO> ferias = feriaRepository.findByEliminadoFalse()
                 .stream()
                 .map(FeriaSelectorDTO::new)

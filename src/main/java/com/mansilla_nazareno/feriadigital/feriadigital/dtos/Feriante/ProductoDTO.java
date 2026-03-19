@@ -40,13 +40,11 @@ public class ProductoDTO {
                     .collect(Collectors.toList());
         }
 
-        // Tipo de venta y unidad [cite: 148, 149]
         if (producto.getTipoVenta() != null) {
             this.tipoVenta = producto.getTipoVenta().name();
         }
         this.unidadMedida = producto.getUnidadMedida();
 
-        // Datos de categoría [cite: 150-152]
         if (producto.getCategoria() != null) {
             this.categoriaNombre = producto.getCategoria().getNombre();
             this.categoriaId = producto.getCategoria().getId();
@@ -55,24 +53,27 @@ public class ProductoDTO {
             this.categoriaId = 0;
         }
 
-        // Navegación Stand -> Feria [cite: 152, 153]
-        if (producto.getStand() != null && producto.getStand().getFeria() != null) {
-            this.feriaNombre = producto.getStand().getFeria().getNombre();
+        // 🟢 NAVEGACIÓN ACTUALIZADA (Lógica de tu amigo): Stand -> Participaciones -> Feria
+        if (producto.getStand() != null &&
+                producto.getStand().getParticipaciones() != null &&
+                !producto.getStand().getParticipaciones().isEmpty()) {
+
+            // Obtenemos el nombre de la feria desde la primera participación
+            this.feriaNombre = producto.getStand().getParticipaciones().get(0).getFeria().getNombre();
         } else {
             this.feriaNombre = "Feria General";
         }
 
-        // Nombre del Stand [cite: 154, 155]
+        // Nombre del Stand
         if (producto.getStand() != null) {
             this.standNombre = producto.getStand().getNombre();
         } else {
             this.standNombre = "Stand General";
         }
 
+        // 🟢 TU LÓGICA MANTENIDA: Obtener Teléfono y Dueño
         if (producto.getStand() != null && producto.getStand().getFeriante() != null) {
             this.usuarioDueñoId = producto.getStand().getFeriante().getUsuario().getId();
-            // 🟢 NUEVO: Obtenemos el teléfono.
-            // ATENCIÓN: Ajustá el ".getTelefono()" si en tu modelo se llama distinto o si está en la clase Usuario.
             this.contactoTelefono = producto.getStand().getFeriante().getTelefono();
         }
     }
@@ -107,5 +108,5 @@ public class ProductoDTO {
     public void setCantidadResenas(int cantidadResenas) { this.cantidadResenas = cantidadResenas; }
     public void setPromedioEstrellas(Double promedioEstrellas) { this.promedioEstrellas = promedioEstrellas; }
     public List<ImagenDetalleDTO> getGaleria() { return galeria; }
-    public String getContactoTelefono() { return contactoTelefono; } // 🟢 NUEVO
+    public String getContactoTelefono() { return contactoTelefono; }
 }

@@ -13,6 +13,7 @@ public class Stand {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String nombre;
     private String descripcion;
     private String imagenUrl;
@@ -20,11 +21,12 @@ public class Stand {
     //ESTADO DE ACTIVACIÓN
     private boolean activo = true;
     public static final String IMAGEN_DEFAULT = CloudinaryDefaults.FERiante_DEFAULT_URL;
+    private boolean estado = true;
 
-    @ManyToOne
-    @JoinColumn(name = "feria_id", referencedColumnName = "id")
-    @JsonIgnoreProperties("stands")
-    private Feria feria; // cada stand pertenece a una feria
+    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("stand")
+    private List<Participacion> participaciones;
+
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("stand")
@@ -32,8 +34,13 @@ public class Stand {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "feriante_id") // crea la columna en la tabla Stand
+
     @JsonIgnoreProperties("stands")
     private Feriante feriante;
+
+    @ManyToOne
+    @JoinColumn(name = "feria_id")
+    private Feria feria;
 
     public Stand(){}
     public Stand(String nombre, String descripcion, String imagenUrl) {
@@ -44,13 +51,30 @@ public class Stand {
                 : imagenUrl;
     }
 
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public List<Participacion> getParticipaciones() {
+        return participaciones;
+    }
+
+    public void setParticipaciones(List<Participacion> participaciones) {
+        this.participaciones = participaciones;
+    }
+
     public void setProductos(List<Producto> productos) {
         this.productos = productos;
     }
 
-    public void setFeria(Feria feria) {
-        this.feria = feria;
-    }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
@@ -74,6 +98,10 @@ public class Stand {
 
     public Feria getFeria() {
         return feria;
+    }
+
+    public void setFeria(Feria feria) {
+        this.feria = feria;
     }
 
     public List<Producto> getProductos() {

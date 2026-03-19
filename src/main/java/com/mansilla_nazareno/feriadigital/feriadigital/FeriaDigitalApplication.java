@@ -4,14 +4,16 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.*;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.AdministradorDeFeria;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Participacion; // 🟢 Importado
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.CategoriaProducto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.TipoVenta; // 🟢 Importado
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.TipoVenta;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.AdministradorDeFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository; // 🟢 Importado
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
@@ -29,9 +31,6 @@ import java.util.List;
 @SpringBootApplication
 public class FeriaDigitalApplication {
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-
 	public static void main(String[] args) {
 		SpringApplication.run(FeriaDigitalApplication.class, args);
 	}
@@ -44,7 +43,9 @@ public class FeriaDigitalApplication {
 			FeriaRepository feriaRepository,
 			StandRepository standRepository,
 			CategoriaProductoRepository categoriaRepository,
-			ProductoRepository productoRepository
+			ProductoRepository productoRepository,
+			ParticipacionRepository participacionRepository, // 🟢 Inyectado
+			PasswordEncoder passwordEncoder
 	) {
 		return (args) -> {
 			if (usuarioRepository.findAll().isEmpty()) {
@@ -72,16 +73,12 @@ public class FeriaDigitalApplication {
 				CategoriaProducto catCalzado = new CategoriaProducto("Calzado", "Zapatos, zapatillas, sandalias, botas y calzado artesanal o industrial");
 				CategoriaProducto catAccesorios = new CategoriaProducto("Accesorios", "Complementos de moda, joyería, marroquinería, bufandas, cinturones y carteras");
 				CategoriaProducto catMascotas = new CategoriaProducto("Mascotas", "Alimentos, accesorios, juguetes y ropa para mascotas y animales domésticos");
-
-
 				CategoriaProducto catGastronomia = new CategoriaProducto("Gastronomía", "Comidas preparadas, minutas y platos regionales");
 				CategoriaProducto catPanaderia = new CategoriaProducto("Panificación", "Pan casero, prepizzas, facturas y productos de repostería");
 				CategoriaProducto catBebidas = new CategoriaProducto("Bebidas", "Jugos naturales, licuados, cervezas artesanales y conservas");
-
 				CategoriaProducto catHogar = new CategoriaProducto("Hogar y Decoración", "Artículos de decoración, velas aromáticas y textiles para el hogar");
 				CategoriaProducto catArtesanias = new CategoriaProducto("Artesanías", "Trabajos en madera, cerámica, tejido a mano y cuero");
 				CategoriaProducto catVivero = new CategoriaProducto("Vivero y Jardín", "Plantas de interior, plantines, macetas decoradas y abonos");
-
 				CategoriaProducto catBelleza = new CategoriaProducto("Belleza y Salud", "Cosmética natural, jabones artesanales y aceites esenciales");
 				CategoriaProducto catJuguetes = new CategoriaProducto("Juguetes", "Juegos de ingenio, muñecos de tela y juguetes de madera");
 				CategoriaProducto catLibreria = new CategoriaProducto("Librería y Arte", "Cuadernos artesanales, láminas decorativas y artículos de papelería");
@@ -101,7 +98,7 @@ public class FeriaDigitalApplication {
 				// 4. STAND 1 E INDUMENTARIA
 				// =========================================
 				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana", null);
-				stand1.setFeria(feria);
+				// ❌ stand1.setFeria(feria); -> Borramos esto, ahora se usa Participacion
 
 				Feriante feriante1 = new Feriante("Indumentaria Francisco", "Venta de ropa", "2964-555999", "falco@gmail.com", EstadoUsuario.ACTIVO);
 				feriante1.setUsuario(francisco);
@@ -138,11 +135,13 @@ public class FeriaDigitalApplication {
 				productosStand1.forEach(p -> p.setStand(stand1));
 				stand1.setProductos(productosStand1);
 
+				standRepository.save(stand1); // 🟢 Guardamos el stand independientemente
+
 				// =========================================
 				// 5. STAND 2 Y MASCOTAS
 				// =========================================
 				Stand stand2 = new Stand("Mascotas Felices", "Todo para tu perro y gato", "/uploads/stands/mascota.png");
-				stand2.setFeria(feria);
+				// ❌ stand2.setFeria(feria); -> Borramos esto
 
 				Feriante feriante2 = new Feriante("Emprendimiento Mascotas", "Accesorios para mascotas", "2964-444555", "mascotas@gmail.com", EstadoUsuario.ACTIVO);
 				feriante2.setUsuario(maria);
@@ -164,11 +163,24 @@ public class FeriaDigitalApplication {
 				productosStand2.forEach(p -> p.setStand(stand2));
 				stand2.setProductos(productosStand2);
 
-				// Guardado final
-				feria.setStands(List.of(stand1, stand2));
-				feriaRepository.save(feria);
+				standRepository.save(stand2); // 🟢 Guardamos el stand
 
-				System.out.println("--- DATOS DE PRUEBA CARGADOS EXITOSAMENTE ---");
+				// =========================================
+				// 6. 🟢 LÓGICA NUEVA: VINCULAR CON PARTICIPACIONES
+				// =========================================
+				Participacion part1 = new Participacion();
+				part1.setFeria(feria);
+				part1.setStand(stand1);
+				part1.setEstado(EstadoParticipacion.CONFIRMADO); // Lo marcamos confirmado para que aparezca en el frontend
+				participacionRepository.save(part1);
+
+				Participacion part2 = new Participacion();
+				part2.setFeria(feria);
+				part2.setStand(stand2);
+				part2.setEstado(EstadoParticipacion.CONFIRMADO);
+				participacionRepository.save(part2);
+
+				System.out.println("--- DATOS DE PRUEBA CARGADOS EXITOSAMENTE CON LA NUEVA ARQUITECTURA ---");
 			}
 		};
 	}

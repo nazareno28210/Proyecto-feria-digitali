@@ -24,8 +24,9 @@ public class Feria {
     private Double longitud;
 
     @OneToMany(mappedBy = "feria", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("feria") // Rompe la recursividad
-    private List<Stand> stands;
+    @JsonIgnoreProperties("feria")
+    private List<Participacion> participaciones;
+
 
     @Column(nullable = false)
     private boolean eliminado = false;
@@ -41,6 +42,14 @@ public class Feria {
         this.imagenUrl = imagenUrl;
         this.latitud = latitud;
         this.longitud = longitud;
+    }
+
+    public List<Participacion> getParticipaciones() {
+        return participaciones;
+    }
+
+    public void setParticipaciones(List<Participacion> participaciones) {
+        this.participaciones = participaciones;
     }
 
     public int getId() {
@@ -71,9 +80,6 @@ public class Feria {
         this.lugar = lugar;
     }
 
-    public void setStands(List<Stand> stands) {
-        this.stands = stands;
-    }
 
     public LocalDate getFechaFinal() {
         return fechaFinal;
@@ -99,9 +105,6 @@ public class Feria {
         this.nombre = nombre;
     }
 
-    public List<Stand> getStands() {
-        return stands;
-    }
 
     public String getImagenUrl() {
         return imagenUrl;
