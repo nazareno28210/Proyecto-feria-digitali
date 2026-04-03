@@ -6,8 +6,6 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class FerianteDTO {
 
@@ -21,7 +19,13 @@ public class FerianteDTO {
     private Usuario usuario;
     private StandDTO stand;
 
+    // 1. Constructor Principal (Por defecto, intenta cargar el stand)
     public FerianteDTO(Feriante feriante) {
+        this(feriante, false);
+    }
+
+    // 2. 🟢 CONSTRUCTOR ANTI-RECURSIVIDAD: Permite decidir si cargar o no el Stand
+    public FerianteDTO(Feriante feriante, boolean ignorarStand) {
         this.id = feriante.getId();
         this.nombreEmprendimiento = feriante.getNombreEmprendimiento();
         this.descripcion = feriante.getDescripcion();
@@ -31,12 +35,16 @@ public class FerianteDTO {
         this.estadoUsuario = feriante.getUserEstate();
         this.usuario = feriante.getUsuario();
 
-        // Volvemos a la lógica singular para que coincida con tu Feriante.java actual
-        if (feriante.getStand() != null) {
-            this.stand = new StandDTO(feriante.getStand());
+        // Solo cargamos el stand si explícitamente se permite
+        if (!ignorarStand && feriante.getStand() != null) {
+            // Llamamos al constructor del Stand pasándole "true" para que no vuelva a cargar al Feriante
+            this.stand = new StandDTO(feriante.getStand(), true);
+        } else {
+            this.stand = null;
         }
     }
 
+    // --- Getters ---
     public int getId() {
         return id;
     }
