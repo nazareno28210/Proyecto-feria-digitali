@@ -1,7 +1,7 @@
 :root{
-  --bg:#f4f6f8;
+  --bg:#f0fdf4;
   --card:#ffffff;
-  --accent:#2b7cff;
+  --accent:#22c55e;
   --danger:#e74c3c;
   --text:#222;
   --muted:#666;
@@ -15,7 +15,7 @@
 html,body{height:100%;}
 body{
   margin:0;
-  background:linear-gradient(180deg,#eef2fb 0%, var(--bg) 100%);
+  background:linear-gradient(180deg,#dcfce7 0%, var(--bg) 100%);
   color:var(--text);
   display:flex;
   align-items:center;
@@ -58,7 +58,7 @@ button{
 button.small{
   background:#fff;
   color:var(--accent);
-  border:1px solid #d9e6ff;
+  border:1px solid #bbf7d0;
   padding:6px 10px;
   font-size:14px;
 }
@@ -69,8 +69,8 @@ button.small{
   border-radius:10px;
   padding:12px;
   margin-top:10px;
-  background:#f8fbff;
-  border:1px dashed #e4f0ff;
+  background:#f0fdf4;
+  border:1px dashed #bbf7d0;
 }
 .badge{
   display:inline-block;
@@ -83,8 +83,8 @@ button.small{
   font-size:13px;
 }
 .badge.feriante{background:#ff9f1c}
-.badge.usuario{background:#2b7cff}
-.badge.administrador{background:#6b46c1}
+.badge.usuario{background:#22c55e}
+.badge.administrador{background:#15803d}
 @media (max-width:800px){
   .container{grid-template-columns:1fr; max-width:420px}
 }

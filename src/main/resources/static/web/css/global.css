@@ -6,16 +6,16 @@
 
 /* 1. Definición de la paleta de colores del logo */
 :root {
-  --color-dark-blue: #1a3a5a;
-  --color-medium-blue: #3b82f6;
-  --color-light-accent: #67e8f9;
-  --color-background: #eef6ff; /* Fondo azul claro para el body */
+  --color-dark-blue: #1a5a3a;
+  --color-medium-blue: #22c55e;
+  --color-light-accent: #86efac;
+  --color-background: #f0fdf4; /* Fondo verde claro para el body */
   --color-card: #ffffff;
   --color-text-dark: #1f2937;
   --color-text-light: #6b7280;
   
   /* Colores de Alerta (Toastify) */
-  --color-success: #24778b; /* Verde (para "Deseo ser Feriante") */
+  --color-success: #16a34a; /* Verde (para "Deseo ser Feriante") */
   --color-error: #dc3545; /* Rojo (para "Cerrar Sesión") */
 }
 

@@ -5,10 +5,10 @@
  */
 
 :root {
-  --color-dark-blue: #1a3a5a;
-  --color-medium-blue: #3b82f6;
-  --color-light-accent: #67e8f9;
-  --color-background: #eef6ff;
+  --color-dark-blue: #1a5a3a;
+  --color-medium-blue: #22c55e;
+  --color-light-accent: #86efac;
+  --color-background: #f0fdf4;
   --color-card: #ffffff;
   --color-text-dark: #1f2937;
   --color-text-light: #6b7280;
@@ -19,9 +19,9 @@ body {
   font-family: "Poppins", sans-serif;
   background: linear-gradient(
     180deg,
-    #f5faff 0%,
-    #eef6ff 60%,
-    #e8f1fb 100%
+    #f0fdf4 0%,
+    #dcfce7 60%,
+    #bbf7d0 100%
   );
   display: flex;
   justify-content: center;
@@ -115,7 +115,7 @@ input:hover {
 input:focus {
   border-color: var(--color-medium-blue);
   background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
 }
 
 button {
@@ -139,19 +139,19 @@ button {
 button:hover {
   background-color: var(--color-medium-blue);
   transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.4);
 }
 
 /* 👇 RESPUESTA AL HACER CLICK */
 button:active {
   transform: translateY(0) scale(0.99);
-  box-shadow: 0 6px 15px rgba(59, 130, 246, 0.25);
+  box-shadow: 0 6px 15px rgba(34, 197, 94, 0.25);
 }
 
 button:hover {
   background-color: var(--color-medium-blue);
   transform: translateY(-1px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 10px 25px rgba(34, 197, 94, 0.35);
 }
 
 /* Footer */

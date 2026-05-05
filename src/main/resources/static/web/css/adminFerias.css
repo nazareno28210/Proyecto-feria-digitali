@@ -29,7 +29,7 @@ form input, form textarea {
 
 /* Botón "Guardar Feria" del formulario */
 form button {
-    background-color: #3498db;
+    background-color: #22c55e;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -40,7 +40,7 @@ form button {
 }
 
 form button:hover {
-    background-color: #2980b9;
+    background-color: #16a34a;
 }
 
 /* Tabla de ferias */
@@ -60,7 +60,7 @@ th, td {
 }
 
 th {
-    background-color: #3498db;
+    background-color: #1a5a3a;
     color: white;
     font-weight: 600;
 }

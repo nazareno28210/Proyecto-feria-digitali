@@ -23,7 +23,7 @@
 
 /* Título principal DENTRO del container */
 .perfil-container h1 {
-    color: #0078d4;
+    color: #1a5a3a;
     margin-top: 0;
     margin-bottom: 1.5rem;
     text-align: center;
@@ -172,7 +172,7 @@ h2 {
 .dashboard-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    border-color: #0078d4;
+    border-color: #1a5a3a;
 }
 
 .dashboard-card .icon {
@@ -239,7 +239,7 @@ input:checked + .slider:before { transform: translateX(22px); }
 
 .dashboard-card h3 {
     margin: 0 0 10px 0;
-    color: #0078d4;
+    color: #1a5a3a;
 }
 
 .dashboard-card p {
@@ -261,11 +261,11 @@ input:checked + .slider:before { transform: translateX(22px); }
 }
 
 .dashboard-card.action-blue:hover {
-    border-color: #3498db;
+    border-color: #22c55e;
 }
 
 .dashboard-card.action-blue h3 {
-    color: #3498db;
+    color: #22c55e;
 }
 
 /* ====================================

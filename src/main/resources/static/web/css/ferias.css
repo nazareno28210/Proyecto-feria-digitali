@@ -48,11 +48,11 @@ header h1 {
 header input {
   padding: 10px 15px;
   width: 100%; 
-  border: 1px solid #5a7a9a; 
+  border: 1px solid #3d7a5a; 
   border-radius: 8px;
   font-size: 0.95rem;
   outline: none;
-  background-color: #1a3a5a; 
+  background-color: #1a5a3a; 
   color: white;
   transition: all 0.3s ease;
 }
@@ -112,7 +112,7 @@ header input:focus {
   /* Hereda estilos de .btn en global.css */
 }
 .btn-admin:hover {
-  background-color: #1e6ae3; /* Un poco más oscuro */
+  background-color: #16a34a; /* Un poco más oscuro */
   transform: translateY(-2px);
 }
 /* =================================== */
@@ -259,7 +259,7 @@ header input:focus {
     height: 600px; /* Altura fija o relativa */
     width: 100%;
     border-radius: 15px;
-    border: 3px solid #1a3a5a;
+    border: 3px solid #1a5a3a;
 }
 
 .cards-section {

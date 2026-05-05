@@ -80,7 +80,7 @@ input, textarea {
 }
 input:focus, textarea:focus {
   border-color: var(--color-medium-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.3);
 }
 
 button[type="submit"] {
@@ -99,5 +99,5 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
   background-color: var(--color-medium-blue);
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
 }

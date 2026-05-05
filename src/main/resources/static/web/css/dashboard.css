@@ -52,16 +52,16 @@
   transition: all 0.2s ease-in-out;
 }
 
-/* Botón "Ver Ferias" (Azul de la paleta) */
+/* Botón "Ver Ferias" (Verde de la paleta) */
 .btn-ver-ferias {
-  background-color: #3b82f6;
+  background-color: #22c55e;
   color: white !important;
 }
 
 /* BOTÓN "MI PERFIL" (Fondo blanco con texto oscuro) */
 .btn-perfil-admin {
   background-color: #ffffff !important;
-  color: #1a3a5a !important; /* Azul oscuro para el texto */
+  color: #1a5a3a !important; /* Verde oscuro para el texto */
   border: 1px solid #ddd !important; /* Borde sutil para resaltar sobre el fondo */
 }
 
