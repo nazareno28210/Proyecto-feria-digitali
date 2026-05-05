@@ -1,10 +1,7 @@
 package com.mansilla_nazareno.feriadigital.feriadigital;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.models.*;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.AdministradorDeFeria;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Participacion; // 🟢 Importado
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.*;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.CategoriaProducto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
@@ -18,7 +15,6 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.Cat
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -91,7 +87,7 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 3. FERIA
 				// =========================================
-				Feria feria = new Feria("Feria Gimnasio Don Bosco", LocalDate.of(2026, 2, 20), LocalDate.of(2026, 2, 22), "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial", "Activa", "/uploads/ferias/Don_Bosco.png", -53.78904155240556,  -67.70062989474968);
+				Feria feria = new Feria("Feria Gimnasio Don Bosco", LocalDate.of(2026, 2, 20), LocalDate.of(2026, 2, 22), "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial", "Activa", "/uploads/ferias/Don_Bosco.png", -53.78904155240556,  -67.70062989474968, 25);
 				feriaRepository.save(feria);
 
 				// =========================================

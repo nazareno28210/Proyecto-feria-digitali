@@ -2,16 +2,42 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Asignar Stands</title>
+    <title>Gestión de Participantes - Panel Admin</title>
     <link rel="icon" href="/web/assets/logo.png" />
-    
+
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/asignar-stands.css">
 
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        .tabs-container { margin-top: 20px; border-bottom: 2px solid #ddd; display: flex; gap: 10px; }
+        .tab-btn { 
+            padding: 10px 20px; cursor: pointer; background: #f1f1f1; border: none; 
+            border-radius: 8px 8px 0 0; font-weight: bold; color: #555; transition: 0.3s;
+        }
+        .tab-btn:hover { background: #e2e2e2; }
+        .tab-btn.active { background: #1a3a5a; color: white; }
+        
+        .tab-content { display: none; padding: 20px 0; }
+        .tab-content.active { display: block; }
+
+        .table-admin { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .table-admin th, .table-admin td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        .table-admin th { background-color: #f8f9fa; font-weight: 600; color: #333; }
+        
+        .btn-aceptar { background: #10b981; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-rechazar { background: #ef4444; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px; }
+        .btn-cobrar { background: #3b82f6; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+        
+        .badge-debe { background: #fee2e2; color: #b91c1c; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; }
+        .badge-senado { background: #fef3c7; color: #b45309; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; }
+        .badge-pagado { background: #d1fae5; color: #047857; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; }
+    </style>
 </head>
 <body>
 <header>
@@ -20,7 +46,7 @@
             <a href="/web/ferias.html" class="header-logo-link">
                 <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
             </a>
-            <h1>Asignar Stands a Ferias</h1>
+            <h1>Gestión de Participantes y Pagos</h1>
         </div>
         <div class="header-right">
             <a href="/web/admin/dashboard.html" class="btn btn-header">← Volver al panel</a>
@@ -30,26 +56,104 @@
 
 <main>
     <h2>1. Selecciona una Feria</h2>
-    <select id="feria-select">
+    <select id="feria-select" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px;">
         <option value="">Cargando ferias...</option>
-        </select>
+    </select>
 
-    <div id="gestion-stands" class="hidden">
-        <h2>2. Agrega o quita stands de la feria</h2>
+    <div id="gestion-stands" style="display: none;">
 
-        <div class="stands-container">
-            <div class="stand-list" id="stands-disponibles">
-                <h3>Stands Disponibles</h3>
-                </div>
+        <!-- PESTAÑAS: AHORA SON 3 -->
+        <div class="tabs-container">
+            <button class="tab-btn active" id="btn-tab-pendientes" onclick="cambiarTab('pendientes')">
+                <i class="fas fa-clock"></i> 1. Solicitudes
+            </button>
+            <button class="tab-btn" id="btn-tab-cobros" onclick="cambiarTab('cobros')">
+                <i class="fas fa-cash-register"></i> 2. Caja (Deudores)
+            </button>
+            <button class="tab-btn" id="btn-tab-distribucion" onclick="cambiarTab('distribucion')">
+                <i class="fas fa-map-marked-alt"></i> 3. Distribución Final
+            </button>
+        </div>
 
-            <div class="stand-list" id="stands-en-feria">
-                <h3>Stands en esta Feria</h3>
-                </div>
-        </div> 
-        
-        <button id="btn-guardar" class="btn">Confirmar Cambios</button>
-    </div> 
+        <!-- TAB 1: SOLICITUDES (PENDIENTES) -->
+        <div id="tab-pendientes" class="tab-content active">
+            <h3>Feriantes esperando aprobación</h3>
+            <p style="color: #666; font-size: 0.9em;">Acepta a los feriantes para habilitarlos al cobro.</p>
+            <table class="table-admin" id="tabla-pendientes">
+                <thead>
+                <tr>
+                    <th>Emprendimiento</th>
+                    <th>Estado Actual</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- TAB 2: CAJA (CONFIRMADOS QUE DEBEN TODO) -->
+        <div id="tab-cobros" class="tab-content">
+            <h3>Control de Cobros</h3>
+            <p style="color: #666; font-size: 0.9em;">Registra señas o pagos totales. Al cobrar, pasarán a Distribución.</p>
+            <table class="table-admin" id="tabla-cobros">
+                <thead>
+                <tr>
+                    <th>Emprendimiento</th>
+                    <th>Estado Financiero</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <!-- TAB 3: DISTRIBUCIÓN (CONFIRMADOS CON PAGO/SEÑA) -->
+        <div id="tab-distribucion" class="tab-content">
+            <h3>Ubicaciones y Stands</h3>
+            <p style="color: #666; font-size: 0.9em;">Asigna el número de mesa o sector físico a los feriantes que ya pagaron.</p>
+            <table class="table-admin" id="tabla-distribucion">
+                <thead>
+                <tr>
+                    <th>Emprendimiento</th>
+                    <th>Abonado</th>
+                    <th>Ubicación (Mesa)</th>
+                    <th>Acciones</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+    </div>
 </main>
+
+<div id="modal-pago" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close-button" onclick="cerrarModalPago()">&times;</span>
+        <h2><i class="fas fa-cash-register"></i> Actualizar Pago y Stand</h2>
+        <form id="form-pago" style="margin-top: 15px;">
+            <input type="hidden" id="pago-participacion-id">
+
+            <label for="pago-estado" style="display:block; margin-bottom:5px; font-weight:bold;">Estado del Pago</label>
+            <select id="pago-estado" required style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
+                <option value="DEBE">Debe</option>
+                <option value="SENADO">Señado (Pago parcial)</option>
+                <option value="PAGADO">Pagado (Totalidad)</option>
+            </select>
+
+            <label for="pago-monto" style="display:block; margin-bottom:5px; font-weight:bold;">Monto Abonado ($)</label>
+            <input type="number" id="pago-monto" step="0.01" min="0" placeholder="Ej: 5000" required style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
+
+            <!-- 🟢 ENVOLVEMOS ESTO EN UN DIV CON ID -->
+            <div id="grupo-ubicacion" style="display: none;">
+                <label for="pago-ubicacion" style="display:block; margin-bottom:5px; font-weight:bold;">Nº de Mesa o Sector</label>
+                <input type="number" id="pago-ubicacion" placeholder="Ej: 12" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
+            </div>
+
+            <button type="submit" class="btn-submit" style="width:100%; padding:10px;">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
 
 <footer>
     <p>Proyecto Feria Digital — Panel de Control</p>

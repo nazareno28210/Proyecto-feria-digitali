@@ -114,6 +114,11 @@
                 <h3>Cambiar Contraseña</h3>
                 <p>Actualiza tu clave de acceso de forma segura.</p>
             </a>
+            <a href="javascript:void(0)" class="dashboard-card action-green" onclick="abrirModalPostulacion()">
+                <div class="icon">🎡</div>
+                <h3>Postularme a Feria</h3>
+                <p>Busca ferias abiertas y solicita un lugar para tu stand.</p>
+            </a>
         </div>
     </div>
 </main>
@@ -127,6 +132,18 @@
         <div class="modal-actions">
             <button id="btn-cancel-crop" class="btn" style="background-color: #e74c3c; color: white;">Cancelar</button>
             <button id="btn-confirm-crop" class="btn" style="background-color: #2ecc71; color: white;">Guardar Cambios</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-postulacion" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 600px;">
+        <span class="close-button" onclick="cerrarModalPostulacion()">&times;</span>
+        <h2><i class="fas fa-magic"></i> Ferias Disponibles</h2>
+        <p>Selecciona una feria para enviar tu solicitud de participación.</p>
+        
+        <div id="lista-ferias-disponibles" class="modal-lista-ferias">
+            <p>Cargando ferias...</p>
         </div>
     </div>
 </div>

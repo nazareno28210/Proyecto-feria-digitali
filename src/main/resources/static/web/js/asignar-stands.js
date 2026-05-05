@@ -1,6 +1,6 @@
 /*
  * ====================================
- * ASIGNAR-STANDS.JS (Actualizado: Restricción por Stand Inactivo)
+ * ASIGNAR-STANDS.JS (FLUJO DE 3 PASOS)
  * ====================================
  */
 
@@ -8,202 +8,267 @@ document.addEventListener("DOMContentLoaded", () => {
     // Referencias al DOM
     const feriaSelect = document.getElementById("feria-select");
     const gestionContainer = document.getElementById("gestion-stands");
-    const disponiblesList = document.getElementById("stands-disponibles");
-    const enFeriaList = document.getElementById("stands-en-feria");
-    const guardarBtn = document.getElementById("btn-guardar");
 
-    // Almacenes de datos
-    let todasLasFerias = [];
-    let todosLosStands = [];
-    let originalStandsEnFeria = []; 
-    let selectedFeriaId = null;
+    // Referencias a los 3 cuerpos de tabla
+    const tbodyPendientes = document.querySelector("#tabla-pendientes tbody");
+    const tbodyCobros = document.querySelector("#tabla-cobros tbody");
+    const tbodyDistribucion = document.querySelector("#tabla-distribucion tbody");
+
+    const modalPago = document.getElementById("modal-pago");
+    const formPago = document.getElementById("form-pago");
+    const inputMonto = document.getElementById("pago-monto"); // 🟢 Agregamos referencia clara
+    const selectEstado = document.getElementById("pago-estado"); // 🟢 Agregamos referencia clara
 
     // ========================================================
     // INICIALIZACIÓN
     // ========================================================
 
-    async function init() {
-        await cargarDatosIniciales();
-        feriaSelect.addEventListener("change", mostrarListas);
-        guardarBtn.addEventListener("click", guardarCambios);
-        initClickListeners();
+async function init() {
+    await cargarFerias();
+    feriaSelect.addEventListener("change", cargarParticipantes);
+    configurarAutomatizacionPago(); 
+}
+
+// 🤖 AYUDANTE: Cambia el estado automáticamente según el monto
+function configurarAutomatizacionPago() {
+    // Verificamos que los elementos existan antes de colgarles el listener
+    if (inputMonto && selectEstado) {
+        inputMonto.addEventListener("input", (e) => {
+            const monto = parseFloat(e.target.value) || 0;
+            const estadoActual = selectEstado.value;
+
+            // Si pone plata y dice DEBE, lo sugerimos como SEÑADO
+            if (monto > 0 && estadoActual === "DEBE") {
+                selectEstado.value = "SENADO"; 
+            } else if (monto === 0) {
+                selectEstado.value = "DEBE";
+            }
+        });
     }
-
-    async function cargarDatosIniciales() {
+}
+    async function cargarFerias() {
         try {
-            const [resFerias, resStands] = await Promise.all([
-                axios.get("/api/ferias"),
-                axios.get("/api/stands")
-            ]);
-            
-            todasLasFerias = resFerias.data;
-            todosLosStands = resStands.data; // Aquí ya viene el campo 'activo' del DTO
-
-            // Poblar selector de ferias
+            const res = await axios.get("/api/ferias");
             feriaSelect.innerHTML = '<option value="">Selecciona una feria...</option>';
-            todasLasFerias.forEach(feria => {
-                const estado = feria.estado === 'Activa' ? '🟢' : '🔴';
+            res.data.forEach(feria => {
+                const estadoIcon = feria.estado === 'Activa' ? '🟢' : '🔴';
                 feriaSelect.innerHTML += `
-                    <option value="${feria.id}">${estado} ${feria.nombre} (${feria.estado})</option>
+                    <option value="${feria.id}">${estadoIcon} ${feria.nombre} (${feria.estado})</option>
                 `;
             });
         } catch (error) {
-            console.error("Error fatal al cargar datos:", error);
-            showToast("Error al cargar datos iniciales", "error");
+            showToast("Error al cargar ferias", "error");
         }
     }
 
     // ========================================================
-    // LÓGICA DE RENDERIZADO (CON FILTRO DE ACTIVACIÓN)
+    // LÓGICA DE FILTRADO Y RENDERIZADO
     // ========================================================
 
-    function mostrarListas() {
-        selectedFeriaId = parseInt(feriaSelect.value);
-        if (!selectedFeriaId) {
-            gestionContainer.classList.add("hidden");
-            return;
-        }
-
-        disponiblesList.innerHTML = '<h3>Stands Disponibles</h3>';
-        enFeriaList.innerHTML = '<h3>Stands en esta Feria</h3>';
-
-        const feriaSeleccionada = todasLasFerias.find(f => f.id === selectedFeriaId);
-        const idsStandsEnFeria = feriaSeleccionada ? feriaSeleccionada.stands.map(s => s.id) : [];
-
-        todosLosStands.forEach(stand => {
-            if (idsStandsEnFeria.includes(stand.id)) {
-                renderStandItem(stand, enFeriaList);
-            } else {
-                renderStandItem(stand, disponiblesList);
-            }
-        });
-        
-        originalStandsEnFeria = idsStandsEnFeria;
-        gestionContainer.classList.remove("hidden");
-    }
-
-    function renderStandItem(stand, lista) {
-        const ferianteNombre = stand.feriante ? stand.feriante.nombreEmprendimiento : "Sin feriante";
-        const item = document.createElement("div");
-        item.className = "stand-item";
-        item.dataset.standId = stand.id;
-
-        const isAvailableList = (lista.id === 'stands-disponibles');
-        
-        // 🟢 LÓGICA DE ESTADO: Verificar si el stand está desactivado por el feriante
-        const estaDesactivado = !stand.activo;
-        const statusBadge = estaDesactivado 
-            ? '<span class="status-badge-mini closed">Cerrado</span>' 
-            : '<span class="status-badge-mini open">Abierto</span>';
-
-        // 🟢 RESTRICCIÓN: Si está desactivado y está en la lista de disponibles, deshabilitamos el botón
-        const disabledAttr = (isAvailableList && estaDesactivado) ? 'disabled' : '';
-        const titleAttr = (isAvailableList && estaDesactivado) ? 'title="El feriante desactivó su stand y no puede ser asignado"' : '';
-
-        const btnClass = isAvailableList ? 'btn-primary' : 'btn-logout';
-        const btnText = isAvailableList ? '+ Agregar' : 'Quitar';
-
-        item.innerHTML = `
-            <div class="stand-info">
-                <strong>${stand.nombre}</strong>
-                <small>${ferianteNombre}</small>
-                ${statusBadge}
-            </div>
-            <button class="btn ${btnClass} btn-accion" ${disabledAttr} ${titleAttr}>
-                ${btnText}
-            </button>
-        `;
-        
-        // Añadimos una clase visual a la fila si está desactivada
-        if (estaDesactivado) item.classList.add("item-inactivo");
-        
-        lista.appendChild(item);
-    }
-
-    // ========================================================
-    // LÓGICA DE CLIC
-    // ========================================================
-
-    function initClickListeners() {
-        gestionContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('btn-accion')) {
-                const item = e.target.closest('.stand-item');
-
-                // Mover a la lista de "En Feria"
-                if (e.target.classList.contains('btn-primary')) {
-                    enFeriaList.appendChild(item); 
-                    e.target.textContent = 'Quitar';
-                    e.target.classList.remove('btn-primary');
-                    e.target.classList.add('btn-logout'); 
-                } 
-                // Mover a la lista de "Disponibles"
-                else if (e.target.classList.contains('btn-logout')) {
-                    disponiblesList.appendChild(item); 
-                    e.target.textContent = '+ Agregar';
-                    e.target.classList.remove('btn-logout');
-                    e.target.classList.add('btn-primary');
-                }
-            }
-        });
-    }
-
-    // ========================================================
-    // LÓGICA DE GUARDADO
-    // ========================================================
-
-    async function guardarCambios() {
-        if (!selectedFeriaId) return;
-
-        const finalStandIdsEnFeria = Array.from(enFeriaList.querySelectorAll(".stand-item"))
-                                          .map(item => parseInt(item.dataset.standId));
-
-        const standsToAssign = finalStandIdsEnFeria.filter(
-            id => !originalStandsEnFeria.includes(id)
-        );
-        const standsToUnassign = originalStandsEnFeria.filter(
-            id => !finalStandIdsEnFeria.includes(id)
-        );
-
-        const promises = [];
-        standsToAssign.forEach(standId => {
-            promises.push(axios.patch(`/api/stands/${standId}/asignar-feria/${selectedFeriaId}`));
-        });
-        standsToUnassign.forEach(standId => {
-            promises.push(axios.patch(`/api/stands/${standId}/desasignar-feria`));
-        });
-
-        if (promises.length === 0) {
-            showToast("No se detectaron cambios.", "warning");
+async function cargarParticipantes() {
+        const feriaId = feriaSelect.value;
+        if (!feriaId) {
+            gestionContainer.style.display = "none";
             return;
         }
 
         try {
-            await Promise.all(promises);
-            showToast(`Cambios guardados correctamente.`, "success");
-            await cargarDatosIniciales();
-            mostrarListas(); 
+            const res = await axios.get(`/api/participaciones/feria/${feriaId}`);
+
+            // 🟢 Corregido: Una sola declaración que ya trae los datos filtrados
+            const participaciones = res.data.filter(p => p.estado !== 'CANCELADO');
+
+            // 1. Solicitudes (Aún no aprobadas)
+            const pendientes = participaciones.filter(p => p.estado === 'PENDIENTE');
+
+            // 2. Caja (Aprobados que no han pagado nada)
+            const paraCobrar = participaciones.filter(p => p.estado === 'CONFIRMADO' && p.estadoPago === 'DEBE');
+
+            // 3. Distribución (Aprobados que ya señaron o pagaron total)
+            const paraDistribuir = participaciones.filter(p => p.estado === 'CONFIRMADO' && p.estadoPago !== 'DEBE');
+
+            renderPendientes(pendientes);
+            renderCobros(paraCobrar);
+            renderDistribucion(paraDistribuir);
+
+            gestionContainer.style.display = "block";
         } catch (error) {
-            // Si el backend lanza el error que configuramos por stand desactivado 
-            const errorMsg = error.response?.data || "Error al guardar los cambios.";
-            showToast(errorMsg, "error");
+            showToast("Error al cargar participantes", "error");
         }
     }
 
-    function showToast(message, type = "info") {
-        let color;
-        switch (type) {
-            case "success": color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; break;
-            case "error": color = "linear-gradient(to right, #ef4444, #b91c1c)"; break;
-            case "warning": color = "linear-gradient(to right, #3b82f6, #67e8f9)"; break;
-            default: color = "linear-gradient(to right, #3b82f6, #67e8f9)";
+    function renderPendientes(lista) {
+        tbodyPendientes.innerHTML = "";
+        if (lista.length === 0) {
+            tbodyPendientes.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay solicitudes pendientes.</td></tr>";
+            return;
         }
+
+        lista.forEach(p => {
+            tbodyPendientes.innerHTML += `
+                <tr>
+                    <td><strong>${p.stand}</strong></td>
+                    <td><span class="badge-debe">Pendiente</span></td>
+                    <td>
+                        <button class="btn-aceptar" onclick="cambiarEstadoAsistencia(${p.id}, 'CONFIRMADO')"><i class="fas fa-check"></i> Aceptar</button>
+                        <button class="btn-rechazar" onclick="cambiarEstadoAsistencia(${p.id}, 'CANCELADO')"><i class="fas fa-times"></i> Rechazar</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderCobros(lista) {
+        tbodyCobros.innerHTML = "";
+        if (lista.length === 0) {
+            tbodyCobros.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay cobros pendientes.</td></tr>";
+            return;
+        }
+
+        lista.forEach(p => {
+            tbodyCobros.innerHTML += `
+                <tr>
+                    <td><strong>${p.stand}</strong></td>
+                    <td><span class="badge-debe">Debe Pago</span></td>
+                    <td>
+                        <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${p.estadoPago}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}')">
+                            <i class="fas fa-dollar-sign"></i> Registrar Pago
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+  // 🟢 2. Agregamos el botón "Quitar" en el render de Distribución
+  function renderDistribucion(lista) {
+      tbodyDistribucion.innerHTML = lista.length === 0 ? "<tr><td colspan='4' style='text-align:center;'>Nadie listo para ubicar.</td></tr>" : "";
+      lista.forEach(p => {
+          let badgeClass = p.estadoPago === "SENADO" ? "badge-senado" : "badge-pagado";
+          let textoPago = p.estadoPago === "SENADO" ? "Señado" : "Pagado";
+          const ubicacionTexto = p.numeroStand ? `Mesa ${p.numeroStand}` : `<span style="color:#f59e0b;">Sin asignar</span>`;
+
+          tbodyDistribucion.innerHTML += `
+              <tr>
+                  <td><strong>${p.stand}</strong></td>
+                  <td><span class="${badgeClass}">${textoPago} ($${p.montoAbonado})</span></td>
+                  <td>${ubicacionTexto}</td>
+                  <td>
+                      <!-- Pasamos 'true' al final para que muestre el campo de mesa -->
+                      <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${p.estadoPago}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}', true)">
+                          <i class="fas fa-map-marker-alt"></i> Ubicar
+                      </button>
+                      <!-- BOTÓN QUITAR: Lo vuelve a poner en PENDIENTE o lo CANCELA -->
+                      <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id})">
+                          <i class="fas fa-undo"></i> Quitar
+                      </button>
+                  </td>
+              </tr>
+          `;
+      });
+  }
+
+    // ========================================================
+    // ACCIONES GLOBALES
+    // ========================================================
+
+    window.cambiarEstadoAsistencia = async (participacionId, nuevoEstado) => {
+        try {
+            await axios.patch(`/api/participaciones/${participacionId}/estado-asistencia?estado=${nuevoEstado}`);
+            showToast("Estado de solicitud actualizado", "success");
+            cargarParticipantes();
+        } catch (error) {
+            showToast("Error al actualizar estado", "error");
+        }
+    };
+
+    window.cambiarTab = (tabName) => {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        document.getElementById(`btn-tab-${tabName}`).classList.add('active');
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+    };
+
+   // 🟢 1. Modificamos abrirModalPago para que acepte un nuevo parámetro: "esDistribucion"
+   window.abrirModalPago = (id, estadoPago, monto, ubicacion, esDistribucion = false) => {
+       document.getElementById("pago-participacion-id").value = id;
+       document.getElementById("pago-estado").value = estadoPago || "DEBE";
+       document.getElementById("pago-monto").value = monto;
+       document.getElementById("pago-ubicacion").value = ubicacion;
+
+       // Si estamos en la Tab 3 (Distribución), mostramos el campo de mesa. Si no, lo ocultamos.
+       const grupoUbicacion = document.getElementById("grupo-ubicacion");
+       grupoUbicacion.style.display = esDistribucion ? "block" : "none";
+
+       modalPago.style.display = "block";
+   };
+
+   // 🟢 3. Función para "bajar" a un feriante de la feria
+   window.quitarDeDistribucion = async (id) => {
+       if(!confirm("¿Estás seguro de quitar a este feriante de la feria? Volverá a estar disponible para postularse.")) return;
+
+       try {
+           // Al pasarlo a CANCELADO, el sistema lo saca de todas las tablas y libera el cupo
+           await axios.patch(`/api/participaciones/${id}/estado-asistencia?estado=CANCELADO`);
+           showToast("Feriante quitado de la feria", "info");
+           cargarParticipantes();
+       } catch (error) {
+           showToast("Error al quitar feriante", "error");
+       }
+   }
+
+window.cerrarModalPago = () => { modalPago.style.display = "none"; };
+
+// 🟢 SUBMIT CON DOBLE VALIDACIÓN (Frontend + Backend)
+formPago.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById("pago-participacion-id").value;
+    const monto = parseFloat(document.getElementById("pago-monto").value) || 0;
+    const estado = document.getElementById("pago-estado").value;
+    const ubicacion = document.getElementById("pago-ubicacion").value;
+
+    // 🛡️ 1. Validación de consistencia lógica
+    if (monto > 0 && estado === "DEBE") {
+        return showToast("Si hay un monto abonado, el estado no puede ser 'DEBE'.", "error");
+    }
+    
+    if (monto === 0 && estado !== "DEBE") {
+        return showToast("Para estados 'SEÑADO' o 'PAGADO', el monto debe ser mayor a 0.", "error");
+    }
+
+    // 🛡️ 2. NUEVA: Validación de "Operación Nula"
+    // Si intenta guardar (DEBE + 0) y no está asignando una mesa, no tiene sentido el guardado
+    if (monto === 0 && estado === "DEBE" && (!ubicacion || ubicacion.trim() === "")) {
+        return showToast("No se han registrado cambios. Ingrese un monto o asigne una mesa.", "warning");
+    }
+
+    const payload = {
+        estadoPago: estado,
+        montoAbonado: monto,
+        numeroStand: ubicacion
+    };
+
+    try {
+        await axios.patch(`/api/participaciones/${id}/pago`, payload);
+        showToast("Datos actualizados correctamente", "success");
+        cerrarModalPago();
+        cargarParticipantes();
+    } catch (error) {
+        const mensajeError = error.response?.data?.error || "Error al guardar cambios";
+        showToast(mensajeError, "error");
+    }
+});
+
+    function showToast(message, type = "info") {
+        let color = type === "success" ? "#10b981" : (type === "warning" ? "#f59e0b" : "#ef4444");
         Toastify({
             text: message,
             duration: 3000,
             gravity: "top",
             position: "right",
             style: { background: color },
-            stopOnFocus: true,
         }).showToast();
     }
 

@@ -8,9 +8,11 @@ const USUARIO_UPDATE_URL = "http://localhost:8080/api/usuarios/current";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
 const IMAGE_UPLOAD_URL = "http://localhost:8080/api/feriantes/current/imagen";
 
+
 let ferianteActual = null;
 let todasLasFerias = [];
 let cropper = null;
+
 
 document.addEventListener("DOMContentLoaded", () => {
     cargarPerfil();
@@ -38,6 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Listeners para botones del Modal Cropper
     document.getElementById("btn-confirm-crop").addEventListener("click", ejecutarRecorteYSubir);
     document.getElementById("btn-cancel-crop").addEventListener("click", cerrarModalYLimpiar);
+    
+    document.querySelector(".action-green").addEventListener("click", abrirModalPostulacion);
 
     const toggleActivo = document.getElementById("toggle-stand-activo");
     if (toggleActivo) toggleActivo.addEventListener("change", toggleEstadoStand);
@@ -294,4 +298,109 @@ function showToast(m, t) {
     } else {
         alert(m);
     }
+}
+
+// --- LÓGICA DE POSTULACIÓN A FERIAS ---
+
+async function abrirModalPostulacion() {
+    // 1. Validación de Stand (UX previa)
+    if (!ferianteActual || !ferianteActual.stand) {
+        return showToast("Necesitas tener un stand asignado para postularte.", "error");
+    }
+
+    // 2. 🛡️ VALIDACIÓN DE PERFIL COMPLETO (Frontend)
+    // Lo ponemos acá para que sea instantáneo
+    if (!ferianteActual.stand.descripcion || ferianteActual.stand.descripcion.trim() === "" || !ferianteActual.stand.imagenUrl) {
+        return showToast("Debes completar la descripción y foto de tu emprendimiento en 'Mi Perfil' para postularte.", "warning");
+    }
+
+    const modal = document.getElementById("modal-postulacion");
+    const contenedor = document.getElementById("lista-ferias-disponibles");
+    
+    modal.classList.remove("hidden");
+    contenedor.innerHTML = "<p>Buscando ferias disponibles...</p>";
+
+    try {
+        // 2. Traemos ferias y participaciones en paralelo
+        const [resFerias, resMisParticipaciones] = await Promise.all([
+            axios.get(FERIAS_URL), // Usamos la ruta base: /api/ferias
+            axios.get(`http://localhost:8080/api/participaciones/stand/${ferianteActual.stand.id}`)
+        ]); 
+
+        const ferias = resFerias.data;
+        const misParticipaciones = resMisParticipaciones.data;
+        
+        // 3. Preparación para validación temporal
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0); // Seteamos a medianoche para comparar solo fechas
+
+        // 4. Obtenemos IDs de ferias donde ya hay una solicitud NO cancelada (Doble Postulación)
+        const IDsParticipando = misParticipaciones
+            .filter(p => p.estado !== 'CANCELADO')
+            .map(p => p.feriaId);
+
+        // 5. Filtrado final (Vigencia Temporal + Doble Postulación + Estado Activa)
+        const disponibles = ferias.filter(f => {
+            const fechaFeria = new Date(f.fechaInicio);
+            fechaFeria.setHours(0, 0, 0, 0);
+            
+            const esVigente = fechaFeria >= hoy;
+            const noEstaInscrito = !IDsParticipando.includes(f.id);
+            const estaActiva = f.estado === 'Activa';
+
+            return estaActiva && noEstaInscrito && esVigente;
+        });
+        
+        // 6. Renderizado
+        contenedor.innerHTML = "";
+        
+        if (disponibles.length === 0) {
+            contenedor.innerHTML = "<p>No hay ferias nuevas disponibles por el momento.</p>";
+            return;
+        }
+
+        disponibles.forEach(f => {
+            const div = document.createElement("div");
+            div.className = "feria-item-modal";
+            div.innerHTML = `
+                <div class="feria-item-info">
+                    <h4>${f.nombre}</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> ${f.lugar}</p>
+                    <p><i class="fas fa-calendar"></i> ${f.fechaInicio}</p>
+                </div>
+                <button class="btn-solicitar" onclick="enviarSolicitud(${f.id})">Postularme</button>
+            `;
+            contenedor.appendChild(div);
+        });
+
+
+    } catch (error) {
+        console.error("Error en postulación:", error);
+        showToast("Error al cargar ferias disponibles.", "error");
+        cerrarModalPostulacion();
+    }
+}
+
+async function enviarSolicitud(feriaId) {
+    try {
+        const payload = {
+            feriaId: feriaId,
+            standId: ferianteActual.stand.id
+        };
+        
+        await axios.post("http://localhost:8080/api/participaciones/inscribir", payload);
+        
+        showToast("¡Solicitud enviada con éxito!", "success");
+        cerrarModalPostulacion();
+        // Opcional: recargar perfil para actualizar la tarjeta de "Mis Ferias"
+        cargarPerfil(); 
+        
+    } catch (error) {
+        const msg = error.response?.data?.error || "Error al enviar la solicitud";
+        showToast(msg, "error");
+    }
+}
+
+function cerrarModalPostulacion() {
+    document.getElementById("modal-postulacion").classList.add("hidden");
 }

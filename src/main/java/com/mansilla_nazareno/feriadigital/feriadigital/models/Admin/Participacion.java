@@ -1,7 +1,8 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.Admin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoParticipacion;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion; // 🟢 Enum 1 (Logística)
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoPago;          // 🟢 Enum 2 (Dinero)
 import jakarta.persistence.*;
 
 @Entity
@@ -22,12 +23,17 @@ public class Participacion {
     @JsonIgnoreProperties("participaciones")
     private Stand stand;
 
-    private Integer numeroStand;
+    private Integer numeroStand; // La ubicación (Ej: Mesa 12)
 
+    // 🚦 SEMÁFORO 1: Logística
     @Enumerated(EnumType.STRING)
     private EstadoParticipacion estado;
 
-    private Double ventas;
+    // 🚦 SEMÁFORO 2: Dinero
+    @Enumerated(EnumType.STRING)
+    private EstadoPago estadoPago = EstadoPago.DEBE;
+
+    private Double montoAbonado = 0.0;
 
     public Participacion() {}
 
@@ -36,18 +42,25 @@ public class Participacion {
         this.stand = stand;
         this.numeroStand = numeroStand;
         this.estado = estado;
+        this.estadoPago = EstadoPago.DEBE; // Siempre arranca debiendo
+        this.montoAbonado = 0.0;
     }
 
-    // Getters y setters
+    // --- Getters y setters ---
 
     public int getId() { return id; }
 
-    public EstadoParticipacion getEstado() {return estado;}
-    public void setEstado(EstadoParticipacion estado) {this.estado = estado;}
+    public EstadoParticipacion getEstado() { return estado; }
+    public void setEstado(EstadoParticipacion estado) { this.estado = estado; }
 
+    public EstadoPago getEstadoPago() { return estadoPago; }
+    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
 
-    public void setFeria(Feria feria) {this.feria = feria;}
-    public Feria getFeria() {return feria;}
+    public Double getMontoAbonado() { return montoAbonado; }
+    public void setMontoAbonado(Double montoAbonado) { this.montoAbonado = montoAbonado; }
+
+    public void setFeria(Feria feria) { this.feria = feria; }
+    public Feria getFeria() { return feria; }
 
     public Stand getStand() { return stand; }
     public void setStand(Stand stand) { this.stand = stand; }
@@ -55,6 +68,4 @@ public class Participacion {
     public Integer getNumeroStand() { return numeroStand; }
     public void setNumeroStand(Integer numeroStand) { this.numeroStand = numeroStand; }
 
-    public Double getVentas() { return ventas; }
-    public void setVentas(Double ventas) { this.ventas = ventas; }
 }

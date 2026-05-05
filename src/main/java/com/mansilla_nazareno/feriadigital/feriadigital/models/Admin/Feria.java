@@ -22,6 +22,7 @@ public class Feria {
     private String imagenUrl;
     private Double latitud;
     private Double longitud;
+    private Integer capacidad;
 
     @OneToMany(mappedBy = "feria", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("feria")
@@ -32,7 +33,7 @@ public class Feria {
     private boolean eliminado = false;
 
     public Feria(){}
-    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado, String imagenUrl, Double latitud, Double longitud) {
+    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado, String imagenUrl, Double latitud, Double longitud, Integer capacidad) {
         this.nombre = nombre;
         this.fechaInicio = fechaInicio;
         this.fechaFinal = fechaFinal;
@@ -42,6 +43,7 @@ public class Feria {
         this.imagenUrl = imagenUrl;
         this.latitud = latitud;
         this.longitud = longitud;
+        this.capacidad = capacidad;
     }
 
     public List<Participacion> getParticipaciones() {
@@ -136,4 +138,8 @@ public class Feria {
     public void setLongitud(Double longitud) {
         this.longitud = longitud;
     }
+
+    public Integer getCapacidad() { return capacidad; }
+
+    public void setCapacidad(Integer capacidad) { this.capacidad = capacidad; }
 }

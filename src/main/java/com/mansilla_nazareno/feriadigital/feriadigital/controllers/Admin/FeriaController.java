@@ -2,9 +2,9 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.StandDTO; // 🟢 Importado para la lógica de tu amigo
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoParticipacion; // 🟢 Importado para la lógica de tu amigo
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
@@ -67,16 +67,17 @@ public class FeriaController {
                 .map(feria -> {
                     FeriaDTO dto = new FeriaDTO(feria);
 
-                    // 🟢 LÓGICA DE TU AMIGO (Integrada): Mapear stands confirmados explícitamente desde Participaciones
                     if (feria.getParticipaciones() != null) {
-                        List<StandDTO> standsConfirmados = feria.getParticipaciones().stream()
-                                .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO)
+                        List<StandDTO> standsConfirmadosYPagos = feria.getParticipaciones().stream()
+                                // 🛡️ MODIFICACIÓN AQUÍ: Filtramos por estado CONFIRMADO Y que NO deba (o sea, Señado/Pagado)
+                                .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO &&
+                                        p.getEstadoPago() != com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoPago.DEBE)
                                 .map(p -> new StandDTO(p.getStand()))
                                 .collect(Collectors.toList());
-                        dto.setStands(standsConfirmados);
+
+                        dto.setStands(standsConfirmadosYPagos);
                     }
 
-                    // 🟢 TU LÓGICA (Mantenida): Cálculos de reseñas
                     Long positivos = resenaRepository.countVotosPositivosFeria(id);
                     Long totales = resenaRepository.countTotalVotosFeria(id);
                     int porcentaje = (totales != null && totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
@@ -108,6 +109,7 @@ public class FeriaController {
             @RequestParam("fechaFinal") String fechaFinal,
             @RequestParam("latitud") Double latitud,
             @RequestParam("longitud") Double longitud,
+            @RequestParam(value = "capacidad", required = false) Integer capacidad, // 🟢 NUEVO
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -132,6 +134,10 @@ public class FeriaController {
         if (descripcion != null && descripcion.trim().length() > 300) {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
+        // 🟢 NUEVO: Validación de capacidad
+        if (capacidad != null && capacidad <= 0) {
+            return ResponseEntity.badRequest().body("La capacidad de stands debe ser mayor a 0");
+        }
 
         try {
             Feria nuevaFeria = new Feria();
@@ -143,6 +149,7 @@ public class FeriaController {
             nuevaFeria.setLatitud(latitud);
             nuevaFeria.setLongitud(longitud);
             nuevaFeria.setEstado("Activa");
+            nuevaFeria.setCapacidad(capacidad); // 🟢 NUEVO: Asignamos el valor
 
             if (imagen != null && !imagen.isEmpty()) {
                 Map<String, String> result = cloudinaryService.subirImagen(imagen);
@@ -168,6 +175,7 @@ public class FeriaController {
             @RequestParam("fechaFinal") String fechaFinal,
             @RequestParam("latitud") Double latitud,
             @RequestParam("longitud") Double longitud,
+            @RequestParam(value = "capacidad", required = false) Integer capacidad, // 🟢 NUEVO
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         LocalDate inicio = LocalDate.parse(fechaInicio);
@@ -185,6 +193,10 @@ public class FeriaController {
         if (descripcion != null && descripcion.trim().length() > 300) {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
+        // 🟢 NUEVO: Validación de capacidad
+        if (capacidad != null && capacidad <= 0) {
+            return ResponseEntity.badRequest().body("La capacidad de stands debe ser mayor a 0");
+        }
 
         return feriaRepository.findById(id).map(feria -> {
             try {
@@ -195,6 +207,7 @@ public class FeriaController {
                 feria.setFechaFinal(fin);
                 feria.setLatitud(latitud);
                 feria.setLongitud(longitud);
+                feria.setCapacidad(capacidad); // 🟢 NUEVO: Asignamos el valor
 
                 if (imagen != null && !imagen.isEmpty()) {
                     String urlVieja = feria.getImagenUrl();

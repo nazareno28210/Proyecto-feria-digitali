@@ -7,7 +7,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.StandUpdate
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Participacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoParticipacion;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;

@@ -154,3 +154,107 @@ main > h2:first-of-type {
 .status-badge-mini.open { background: #d1e7dd; color: #0f5132; }
 .status-badge-mini.closed { background: #f8d7da; color: #842029; }
 .item-inactivo { opacity: 0.7; }
+
+/* =========================================
+   ESTILOS PARA EL MODAL DE PAGOS
+   ========================================= */
+
+/* Fondo oscuro que cubre toda la pantalla */
+.modal {
+    display: none; /* Se activa con JS */
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Oscurece el fondo */
+    backdrop-filter: blur(3px); /* Efecto de desenfoque muy moderno */
+}
+
+/* La cajita blanca del formulario */
+.modal-content {
+    background-color: #fff;
+    margin: 5% auto; /* Centrado vertical y horizontal */
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 450px; /* Tamaño ideal para un ticket de cobro */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    position: relative;
+    animation: slideDown 0.3s ease-out;
+}
+
+/* Animación de entrada */
+@keyframes slideDown {
+    from { transform: translateY(-50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Botón de cerrar (X) */
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+/* Título del Modal */
+.modal-content h2 {
+    margin-top: 0;
+    color: #1a3a5a;
+    font-size: 22px;
+    border-bottom: 2px solid #f1f1f1;
+    padding-bottom: 10px;
+}
+
+/* Estilo de los inputs dentro del modal */
+#form-pago label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #444;
+}
+
+#form-pago input, #form-pago select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box; /* Importante para que no se salga del borde */
+}
+
+#form-pago input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.btn-submit {
+    margin-top: 25px;
+    background: #1a3a5a;
+    color: white;
+    padding: 14px;
+    border: none;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-submit:hover {
+    background: #2c527a;
+    transform: translateY(-2px);
+}

@@ -20,6 +20,7 @@ public class FeriaDTO {
     private Integer totalVotos;
     private Double latitud;
     private Double longitud;
+    private Integer capacidad;
 
     private List<StandDTO> stands;
 
@@ -35,6 +36,7 @@ public class FeriaDTO {
         this.estado = feria.getEstado();
         this.imagenUrl = feria.getImagenUrl();
         this.eliminado = feria.isEliminado();
+        this.capacidad = feria.getCapacidad();
 
         // 🟢 LÓGICA DE TU AMIGO: Cargamos los stands a través de las participaciones
         this.stands = feria.getParticipaciones() != null
@@ -115,4 +117,7 @@ public class FeriaDTO {
     public Double getLongitud() {
         return longitud;
     }
+    public Integer getCapacidad() { return capacidad; }
+
+    public void setCapacidad(Integer capacidad) { this.capacidad = capacidad; }
 }

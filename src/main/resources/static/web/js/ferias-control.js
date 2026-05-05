@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${f.nombre}</td>
                     <td>${f.lugar}</td>
                     <td>${f.fechaInicio} / ${f.fechaFinal || 'Sin fecha fin'}</td>
-                    <td><span class="badge-${f.estado.toLowerCase()}">${f.estado}</span></td>
+                    <td>${f.capacidad ? f.capacidad : 'Sin límite'}</td> <td><span class="badge-${f.estado.toLowerCase()}">${f.estado}</span></td>
                     <td>
                         <button class="btn-editar" onclick='abrirModalEditar(${JSON.stringify(f)})'>
                             <i class="fas fa-edit"></i>
@@ -163,10 +163,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const fFinal = document.getElementById("fechaFinal").value;
         const lat = document.getElementById("latitud").value;
         const lng = document.getElementById("longitud").value;
+        const capacidad = document.getElementById("capacidad").value; // 🟢 CAPTURAMOS LA CAPACIDAD
 
         if (!validarFechas(fInicio, fFinal)) return;
         if (!validarUbicacion(lat, lng)) return;
         if (!validarLongitudTexto(nombre, desc)) return;
+        if (capacidad < 1) {
+            showToast("La capacidad debe ser de al menos 1 stand", "error");
+            return;
+        }
 
         // --- CAMBIO AQUÍ: Envío con FormData ---
         const formData = new FormData();
@@ -177,6 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("fechaInicio", fInicio);
         if (fFinal) formData.append("fechaFinal", fFinal);
         formData.append("descripcion", desc);
+        formData.append("capacidad", parseInt(capacidad)); // 🟢 AGREGAMOS AL FORM DATA
 
         const inputImagen = document.getElementById("input-feria-imagen");
         if (inputImagen && inputImagen.files[0]) {
@@ -243,6 +249,9 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit-fechaFinal").value = feria.fechaFinal;
         document.getElementById("edit-descripcion").value = feria.descripcion;
         
+        // 🟢 NUEVO: Auto-completamos el cupo en el modal de edición
+        document.getElementById("edit-capacidad").value = feria.capacidad || ''; 
+        
         // Reset preview al abrir
         const previewCont = document.getElementById('preview-edit-container');
         if(previewCont) previewCont.style.display = 'none';
@@ -273,10 +282,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const fFinal = document.getElementById("edit-fechaFinal").value;
         const lat = document.getElementById("edit-latitud").value;
         const lng = document.getElementById("edit-longitud").value;
+        const capacidadEdit = document.getElementById("edit-capacidad").value; // 🟢 CAPTURAMOS LA EDICIÓN DE CAPACIDAD
 
         if (!validarFechas(fInicio, fFinal)) return;
         if (!validarUbicacion(lat, lng)) return;
         if (!validarLongitudTexto(nombreEdit, descEdit)) return;
+        if (capacidadEdit < 1) {
+            showToast("La capacidad debe ser de al menos 1 stand", "error");
+            return;
+        }
 
         const id = document.getElementById("edit-id").value;
         
@@ -289,6 +303,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("fechaInicio", fInicio);
         if (fFinal) formData.append("fechaFinal", fFinal);
         formData.append("descripcion", descEdit);
+        formData.append("capacidad", parseInt(capacidadEdit)); // 🟢 AGREGAMOS AL FORM DATA EN EDICIÓN
 
         const inputImagenEdit = document.getElementById("input-edit-feria-imagen");
         if (inputImagenEdit && inputImagenEdit.files[0]) {

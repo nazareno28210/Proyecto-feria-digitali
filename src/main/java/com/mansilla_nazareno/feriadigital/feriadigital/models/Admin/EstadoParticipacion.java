@@ -1,4 +1,4 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.models;
+package com.mansilla_nazareno.feriadigital.feriadigital.models.Admin;
 
 public enum EstadoParticipacion {
     PENDIENTE,
