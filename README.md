@@ -16,11 +16,7 @@ D- ifusión de la feria a través de redes sociales sin una estructura organizad
 - Falta de un sistema centralizado para consultar información (ubicación de puestos, productos, horarios, etc.).
 - Escaso control sobre asistencia, historial de feriantes y gestión de eventos.
 
-##  Objetivo General
-Desarrollar un sistema digital (Feria Digital) que permita gestionar de manera eficiente la organización de ferias, centralizando la información y facilitando la interacción entre organizadores, feriantes y clientes.
-
 ## Alcance del Proyecto
-
 El proyecto “Feria Digital” tendrá como alcance el desarrollo de una plataforma digital destinada a mejorar la organización y gestión de ferias, permitiendo centralizar la información y optimizar la interacción entre organizadores, feriantes y clientes. Esto se aplicara por ahora en la ciudad de Rio Grande.
 
 ---
