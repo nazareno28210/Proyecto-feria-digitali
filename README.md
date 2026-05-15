@@ -2,9 +2,26 @@
 
 Sistema web para la gestion y visualizacion de ferias locales, desarrollado como proyecto del CENT 35.
 
-## Descripcion
 
-Feria Digital es una plataforma que conecta a feriantes con usuarios, permitiendo la gestion de ferias, stands y productos. Los administradores pueden crear y gestionar ferias, mientras que los feriantes pueden registrar sus productos y participar en eventos.
+## Definir Problema:
+Actualmente, la gestión de las ferias se realiza de manera manual o con herramientas poco integradas (como papel, WhatsApp o Facebook), lo que genera múltiples inconvenientes. Entre ellos se destacan la desorganización en la asignación de puestos, la dificultad para acceder a información actualizada, la falta de visibilidad para los feriantes y la ausencia de un canal centralizado para los usuarios.
+Además, los clientes no cuentan con información clara sobre los productos, precios, ubicación de los puestos o fechas de las ferias, lo que limita la experiencia y reduce el alcance comercial de los emprendedores.
+En consecuencia, esto provoca una gestión irregular, pérdida de oportunidades de venta y una experiencia poco optimizada tanto para organizadores como para feriantes y clientes.
+
+##  Sistema Actual
+El sistema actual se basa principalmente en procesos manuales y herramientas no específicas:
+- Inscripción de feriantes mediante mensajes a través de WhatsApp.
+- Asignación de puestos realizada de forma manual.
+D- ifusión de la feria a través de redes sociales sin una estructura organizada.
+- Falta de un sistema centralizado para consultar información (ubicación de puestos, productos, horarios, etc.).
+- Escaso control sobre asistencia, historial de feriantes y gestión de eventos.
+
+##  Objetivo General
+Desarrollar un sistema digital (Feria Digital) que permita gestionar de manera eficiente la organización de ferias, centralizando la información y facilitando la interacción entre organizadores, feriantes y clientes.
+
+## Alcance del Proyecto
+
+El proyecto “Feria Digital” tendrá como alcance el desarrollo de una plataforma digital destinada a mejorar la organización y gestión de ferias, permitiendo centralizar la información y optimizar la interacción entre organizadores, feriantes y clientes. Esto se aplicara por ahora en la ciudad de Rio Grande.
 
 ---
 
