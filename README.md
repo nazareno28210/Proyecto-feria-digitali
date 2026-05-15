@@ -134,74 +134,6 @@ src/main/resources/static/web/
 
 ---
 
-## Instalacion y Ejecucion
-
-### Prerrequisitos
-
-- **Java 17** o superior
-- **MySQL 8.0** o superior
-- **Gradle 8.x** (incluido via wrapper)
-
-### Configuracion de Base de Datos
-
-1. Crear la base de datos:
-```sql
-CREATE DATABASE feriadigital;
-```
-
-2. Configurar credenciales en `application.properties`:
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/feriadigital?useSSL=false&serverTimezone=UTC
-spring.datasource.username=tu_usuario
-spring.datasource.password=tu_contrasena
-```
-
-### Variables de Entorno (Opcionales)
-
-Para mayor seguridad, usar variables de entorno en lugar de valores hardcodeados:
-
-```properties
-# Cloudinary
-cloudinary.cloud-name=${CLOUDINARY_CLOUD_NAME}
-cloudinary.api-key=${CLOUDINARY_API_KEY}
-cloudinary.api-secret=${CLOUDINARY_API_SECRET}
-
-# Email
-spring.mail.username=${MAIL_USERNAME}
-spring.mail.password=${MAIL_PASSWORD}
-```
-
-### Ejecucion
-
-```bash
-# Clonar repositorio
-git clone https://github.com/nazareno28210/Proyecto-feria-digitali.git
-cd Proyecto-feria-digitali
-
-# Ejecutar con Gradle
-./gradlew bootRun
-```
-
-La aplicacion estara disponible en: `http://localhost:8080`
-
-### Ejecucion con Docker (Opcional)
-
-```bash
-# Construir imagen
-docker build -t feria-digital .
-
-# Ejecutar contenedor
-docker run -p 8080:8080 \
-  -e DB_HOST=host.docker.internal \
-  -e DB_PORT=3306 \
-  -e DB_NAME=feriadigital \
-  -e DB_USER=root \
-  -e DB_PASS=password \
-  feria-digital
-```
-
----
-
 ## Endpoints Principales
 
 ### Autenticacion
@@ -325,11 +257,3 @@ Producto
 ## Licencia
 
 Este proyecto es de uso educativo y fue desarrollado como parte del curriculum del CENT 35.
-
----
-
-## Notas Adicionales
-
-- El sistema usa `spring.jpa.hibernate.ddl-auto=create-drop` en desarrollo, lo que recrea las tablas en cada reinicio. Cambiar a `update` o `validate` en produccion.
-- Las credenciales de Cloudinary y Gmail en `application.properties` deben ser reemplazadas por variables de entorno en produccion.
-- El puerto por defecto es 8080, configurable en `application.properties`.
