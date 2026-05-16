@@ -250,10 +250,4 @@ Producto
 
 **Proyecto realizado por estudiantes del CENT 35**
 
-- Nazareno Mansilla
-
----
-
-## Licencia
-
-Este proyecto es de uso educativo y fue desarrollado como parte del curriculum del CENT 35.
+- Nazareno y Mansilla
