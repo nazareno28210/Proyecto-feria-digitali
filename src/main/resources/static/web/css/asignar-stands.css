@@ -258,3 +258,13 @@ main > h2:first-of-type {
     background: #2c527a;
     transform: translateY(-2px);
 }
+
+.badge-preferencia {
+    background-color: #e0e7ff; /* Azul muy clarito */
+    color: #4338ca;            /* Texto azul oscuro */
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: 500;
+    border: 1px dashed #4338ca; /* Borde punteado para indicar "sugerencia" */
+}

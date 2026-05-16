@@ -140,33 +140,39 @@ async function cargarParticipantes() {
         });
     }
 
-  // 🟢 2. Agregamos el botón "Quitar" en el render de Distribución
-  function renderDistribucion(lista) {
-      tbodyDistribucion.innerHTML = lista.length === 0 ? "<tr><td colspan='4' style='text-align:center;'>Nadie listo para ubicar.</td></tr>" : "";
-      lista.forEach(p => {
-          let badgeClass = p.estadoPago === "SENADO" ? "badge-senado" : "badge-pagado";
-          let textoPago = p.estadoPago === "SENADO" ? "Señado" : "Pagado";
-          const ubicacionTexto = p.numeroStand ? `Mesa ${p.numeroStand}` : `<span style="color:#f59e0b;">Sin asignar</span>`;
+ // 🟢 MODIFICACIÓN: Agregamos el campo de preferencia a la tabla
+function renderDistribucion(lista) {
+    // Aumentamos el colspan a 5 porque agregamos una columna
+    tbodyDistribucion.innerHTML = lista.length === 0 ? 
+        "<tr><td colspan='5' style='text-align:center;'>Nadie listo para ubicar.</td></tr>" : "";
 
-          tbodyDistribucion.innerHTML += `
-              <tr>
-                  <td><strong>${p.stand}</strong></td>
-                  <td><span class="${badgeClass}">${textoPago} ($${p.montoAbonado})</span></td>
-                  <td>${ubicacionTexto}</td>
-                  <td>
-                      <!-- Pasamos 'true' al final para que muestre el campo de mesa -->
-                      <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${p.estadoPago}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}', true)">
-                          <i class="fas fa-map-marker-alt"></i> Ubicar
-                      </button>
-                      <!-- BOTÓN QUITAR: Lo vuelve a poner en PENDIENTE o lo CANCELA -->
-                      <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id})">
-                          <i class="fas fa-undo"></i> Quitar
-                      </button>
-                  </td>
-              </tr>
-          `;
-      });
-  }
+    lista.forEach(p => {
+        let badgeClass = p.estadoPago === "SENADO" ? "badge-senado" : "badge-pagado";
+        let textoPago = p.estadoPago === "SENADO" ? "Señado" : "Pagado";
+        const ubicacionTexto = p.numeroStand ? `Mesa ${p.numeroStand}` : `<span style="color:#f59e0b;">Sin asignar</span>`;
+        
+        // 🛠️ Nueva lógica para mostrar la sugerencia del feriante
+        const sugerencia = p.numeroStandPreferido ? 
+            `<span class="badge-preferencia">Mesa ${p.numeroStandPreferido}</span>` : 
+            `<small style="color:gray;">Sin preferencia</small>`;
+
+        tbodyDistribucion.innerHTML += `
+            <tr>
+                <td><strong>${p.stand}</strong></td>
+                <td><span class="${badgeClass}">${textoPago} ($${p.montoAbonado})</span></td>
+                <td>${sugerencia}</td> <td>${ubicacionTexto}</td>
+                <td>
+                    <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${p.estadoPago}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}', true, ${p.numeroStandPreferido})">
+                        <i class="fas fa-map-marker-alt"></i> Ubicar
+                    </button>
+                    <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id})">
+                        <i class="fas fa-undo"></i> Quitar
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
 
     // ========================================================
     // ACCIONES GLOBALES
@@ -191,18 +197,38 @@ async function cargarParticipantes() {
     };
 
    // 🟢 1. Modificamos abrirModalPago para que acepte un nuevo parámetro: "esDistribucion"
-   window.abrirModalPago = (id, estadoPago, monto, ubicacion, esDistribucion = false) => {
-       document.getElementById("pago-participacion-id").value = id;
-       document.getElementById("pago-estado").value = estadoPago || "DEBE";
-       document.getElementById("pago-monto").value = monto;
-       document.getElementById("pago-ubicacion").value = ubicacion;
+  // 🟢 MODIFICACIÓN: Aceptamos el parámetro 'preferencia'
+window.abrirModalPago = (id, estadoPago, monto, ubicacion, esDistribucion = false, preferencia = null) => {
+    document.getElementById("pago-participacion-id").value = id;
+    document.getElementById("pago-estado").value = estadoPago || "DEBE"; 
+    document.getElementById("pago-monto").value = monto;
+    document.getElementById("pago-ubicacion").value = ubicacion;
 
-       // Si estamos en la Tab 3 (Distribución), mostramos el campo de mesa. Si no, lo ocultamos.
-       const grupoUbicacion = document.getElementById("grupo-ubicacion");
-       grupoUbicacion.style.display = esDistribucion ? "block" : "none";
+    const grupoUbicacion = document.getElementById("grupo-ubicacion"); 
+    grupoUbicacion.style.display = esDistribucion ? "block" : "none";
 
-       modalPago.style.display = "block";
-   };
+    // 🛠️ Mostrar sugerencia en el modal
+    const helpText = document.getElementById("ayuda-preferencia");
+    if (helpText) {
+        if (preferencia && preferencia !== "null" && preferencia !== "undefined") {
+            helpText.innerHTML = `Sugerido por feriante: <strong>Mesa ${preferencia}</strong> 
+                <a href="#" onclick="aplicarPreferencia(${preferencia}); return false;" style="margin-left:10px; color:#3b82f6;">[Usar esta]</a>`;
+        } else {
+            helpText.innerHTML = "";
+        }
+    }
+
+    modalPago.style.display = "block";
+};
+
+// 🤖 FUNCIÓN EXTRA: Autocompleta el campo de ubicación
+window.aplicarPreferencia = (num) => {
+    const inputUbicacion = document.getElementById("pago-ubicacion");
+    if (inputUbicacion) {
+        inputUbicacion.value = num;
+        showToast(`Se aplicó la sugerencia: Mesa ${num}`, "info");
+    }
+};
 
    // 🟢 3. Función para "bajar" a un feriante de la feria
    window.quitarDeDistribucion = async (id) => {

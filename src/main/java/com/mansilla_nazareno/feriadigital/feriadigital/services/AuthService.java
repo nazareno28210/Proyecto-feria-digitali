@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,13 +18,10 @@ public class AuthService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
-
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
-
     @Autowired
     private EmailService emailService;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired

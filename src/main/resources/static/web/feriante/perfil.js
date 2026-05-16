@@ -359,17 +359,29 @@ async function abrirModalPostulacion() {
             return;
         }
 
+        // Actualización del renderizado en el modal dentro de abrirModalPostulacion
         disponibles.forEach(f => {
             const div = document.createElement("div");
             div.className = "feria-item-modal";
+            // Dentro de tu bucle disponibles.forEach en abrirModalPostulacion
+            const standsOcupados = f.participantes ? f.participantes.map(p => p.numeroStand) : [];
+
             div.innerHTML = `
                 <div class="feria-item-info">
                     <h4>${f.nombre}</h4>
+                    <p><strong>Descripción:</strong> ${f.descripcion || 'Feria local en Río Grande'}</p>
                     <p><i class="fas fa-map-marker-alt"></i> ${f.lugar}</p>
-                    <p><i class="fas fa-calendar"></i> ${f.fechaInicio}</p>
+                    <p><i class="fas fa-calendar"></i> ${f.fechaInicio} al ${f.fechaFinal}</p>
+                    
+                    <div class="preferencia-container" style="margin-top: 10px;">
+                        <label style="display:block; font-size: 0.9em; color: #666;">¿Tenés alguna mesa de preferencia?</label>
+                        <select id="select-preferencia-${f.id}" class="input-select">
+                            ${generarOpcionesStands(f.capacidad, standsOcupados)}
+                        </select>
+                    </div>
                 </div>
-                <button class="btn-solicitar" onclick="enviarSolicitud(${f.id})">Postularme</button>
-            `;
+                <button class="btn-solicitar" onclick="enviarSolicitudConPreferencia(${f.id})">Postularme</button>
+`;
             contenedor.appendChild(div);
         });
 
@@ -403,4 +415,41 @@ async function enviarSolicitud(feriaId) {
 
 function cerrarModalPostulacion() {
     document.getElementById("modal-postulacion").classList.add("hidden");
+}
+
+// Genera las opciones del select basándose en la capacidad de la feria
+function generarOpcionesStands(capacidad, standsOcupados = []) {
+    let opciones = '<option value="">-- Sin preferencia --</option>';
+    
+    for (let i = 1; i <= capacidad; i++) {
+        // Opcional: Podés deshabilitar los que ya están ocupados físicamente
+        const estaOcupado = standsOcupados.includes(i);
+        const disabled = estaOcupado ? 'disabled' : '';
+        const texto = estaOcupado ? `${i} (Ocupado)` : `Mesa ${i}`;
+        
+        opciones += `<option value="${i}" ${disabled}>${texto}</option>`;
+    }
+    return opciones;
+}
+
+async function enviarSolicitudConPreferencia(feriaId) {
+    const select = document.getElementById(`select-preferencia-${feriaId}`);
+    const preferencia = select.value; // El número de mesa elegido
+
+    try {
+        const payload = {
+            feriaId: feriaId,
+            standId: ferianteActual.stand.id,
+            numeroStandPreferido: preferencia ? parseInt(preferencia) : null
+        };
+
+        await axios.post("http://localhost:8080/api/participaciones/inscribir", payload);
+        
+        showToast("¡Solicitud enviada con tu preferencia!", "success");
+        cerrarModalPostulacion();
+        cargarPerfil();
+    } catch (error) {
+        const msg = error.response?.data?.error || "Error al enviar la solicitud";
+        showToast(msg, "error");
+    }
 }

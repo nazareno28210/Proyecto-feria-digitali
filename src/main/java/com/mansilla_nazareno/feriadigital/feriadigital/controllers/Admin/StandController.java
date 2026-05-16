@@ -140,7 +140,7 @@ public class StandController {
         }
 
         // Crear la nueva participación (Estado PENDIENTE por defecto o CONFIRMADO según tu flujo)
-        Participacion participacion = new Participacion(feria, stand, null, EstadoParticipacion.CONFIRMADO);
+        Participacion participacion = new Participacion(feria, stand, null, EstadoParticipacion.CONFIRMADO, null);
         participacionRepository.save(participacion);
 
         return new ResponseEntity<>("Participación registrada correctamente", HttpStatus.OK);

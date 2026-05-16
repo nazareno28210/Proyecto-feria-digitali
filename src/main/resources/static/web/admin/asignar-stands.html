@@ -116,7 +116,7 @@
                 <tr>
                     <th>Emprendimiento</th>
                     <th>Abonado</th>
-                    <th>Ubicación (Mesa)</th>
+                    <th>Preferencia</th> <th>Ubicación Actual</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
@@ -144,10 +144,10 @@
             <label for="pago-monto" style="display:block; margin-bottom:5px; font-weight:bold;">Monto Abonado ($)</label>
             <input type="number" id="pago-monto" step="0.01" min="0" placeholder="Ej: 5000" required style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
 
-            <!-- 🟢 ENVOLVEMOS ESTO EN UN DIV CON ID -->
             <div id="grupo-ubicacion" style="display: none;">
                 <label for="pago-ubicacion" style="display:block; margin-bottom:5px; font-weight:bold;">Nº de Mesa o Sector</label>
                 <input type="number" id="pago-ubicacion" placeholder="Ej: 12" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
+                <small id="ayuda-preferencia" style="color: #6366f1; font-weight: 500; display: block; margin-top: -10px; margin-bottom: 15px;"></small>
             </div>
 
             <button type="submit" class="btn-submit" style="width:100%; padding:10px;">Guardar Cambios</button>

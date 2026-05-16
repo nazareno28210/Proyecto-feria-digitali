@@ -34,15 +34,17 @@ public class Participacion {
     private EstadoPago estadoPago = EstadoPago.DEBE;
 
     private Double montoAbonado = 0.0;
+    private Integer numeroStandPreferido; // La sugerencia del feriante
 
     public Participacion() {}
 
-    public Participacion(Feria feria, Stand stand, Integer numeroStand, EstadoParticipacion estado) {
+    public Participacion(Feria feria, Stand stand, Integer numeroStand, EstadoParticipacion estado, Integer numeroStandPreferido) {
         this.feria = feria;
         this.stand = stand;
         this.numeroStand = numeroStand;
         this.estado = estado;
-        this.estadoPago = EstadoPago.DEBE; // Siempre arranca debiendo
+        this.numeroStandPreferido = numeroStandPreferido; // Agregamos la asignación
+        this.estadoPago = EstadoPago.DEBE;
         this.montoAbonado = 0.0;
     }
 
@@ -68,4 +70,10 @@ public class Participacion {
     public Integer getNumeroStand() { return numeroStand; }
     public void setNumeroStand(Integer numeroStand) { this.numeroStand = numeroStand; }
 
+    public Integer getNumeroStandPreferido() {
+        return numeroStandPreferido;
+    }
+    public void setNumeroStandPreferido(Integer numeroStandPreferido) {
+        this.numeroStandPreferido = numeroStandPreferido;
+    }
 }

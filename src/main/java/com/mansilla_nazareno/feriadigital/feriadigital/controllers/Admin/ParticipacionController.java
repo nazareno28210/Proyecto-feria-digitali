@@ -144,11 +144,12 @@ public class ParticipacionController {
         }).orElse(new ResponseEntity<>(Map.of("error", "Participación no encontrada"), HttpStatus.NOT_FOUND));
     }
 
-    // 🟢 6. INSCRIPCIÓN: Con validación de cupo y existencia
+    // 🟢 6. INSCRIPCIÓN: Ahora usando ParticipacionDTO para recibir los datos
     @PostMapping("/inscribir")
-    public ResponseEntity<?> inscribirFeriante(@RequestBody Map<String, Integer> request) {
-        Integer feriaId = request.get("feriaId");
-        Integer standId = request.get("standId");
+    public ResponseEntity<?> inscribirFeriante(@RequestBody ParticipacionDTO dto) {
+        // Usamos el DTO para obtener los datos en lugar del Map
+        Integer feriaId = dto.getFeriaId();
+        Integer standId = dto.getStandId();
         LocalDate hoy = LocalDate.now();
 
         // 1. VALIDACIÓN DE DOBLE POSTULACIÓN
@@ -158,11 +159,14 @@ public class ParticipacionController {
             if (existente.getEstado() != EstadoParticipacion.CANCELADO) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Ya enviaste una solicitud para esta feria"));
             }
-            // Lógica de reseteo (se mantiene igual)...
+
+            // 🟢 Reseteamos y también actualizamos la nueva preferencia
             existente.setEstado(EstadoParticipacion.PENDIENTE);
             existente.setEstadoPago(EstadoPago.DEBE);
             existente.setMontoAbonado(0.0);
             existente.setNumeroStand(null);
+            existente.setNumeroStandPreferido(dto.getNumeroStandPreferido()); // Actualizamos preferencia
+
             participacionRepository.save(existente);
             return ResponseEntity.ok(Map.of("mensaje", "Solicitud enviada nuevamente con éxito."));
         }
@@ -173,20 +177,18 @@ public class ParticipacionController {
 
         if (feria == null || stand == null) return ResponseEntity.notFound().build();
 
-        // 🛡️ VALIDACIÓN DE VIGENCIA TEMPORAL (Ya implementada)
+        // 🛡️ VALIDACIÓN DE VIGENCIA TEMPORAL
         if (feria.getFechaInicio() != null && feria.getFechaInicio().isBefore(hoy)) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "No puedes inscribirte a una feria que ya ha comenzado."));
         }
 
-        // 🛡️ NUEVA: VALIDACIÓN DE PERFIL COMPLETO
-        // Verificamos que el emprendimiento tenga descripción y foto cargada
+        // 🛡️ VALIDACIÓN DE PERFIL COMPLETO
         if (stand.getDescripcion() == null || stand.getDescripcion().trim().isEmpty()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Debes completar la descripción de tu emprendimiento antes de postularte."));
         }
 
-        // Suponiendo que el campo en tu entidad Stand se llama imagenUrl o fotoUrl
         if (stand.getImagenUrl() == null || stand.getImagenUrl().trim().isEmpty()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Debes subir un logo o imagen representativa de tu stand."));
@@ -201,9 +203,15 @@ public class ParticipacionController {
             return ResponseEntity.badRequest().body(Map.of("error", "La feria ha alcanzado su capacidad máxima."));
         }
 
-        Participacion nueva = new Participacion(feria, stand, null, EstadoParticipacion.PENDIENTE);
-        participacionRepository.save(nueva);
+        Participacion nueva = new Participacion();
+        nueva.setFeria(feria);
+        nueva.setStand(stand);
+        nueva.setEstado(EstadoParticipacion.PENDIENTE);
 
-        return ResponseEntity.ok(Map.of("mensaje", "Solicitud enviada con éxito."));
+        // 🟢 Seteamos la preferencia que viene del DTO (ahora sí lo reconoce)
+        nueva.setNumeroStandPreferido(dto.getNumeroStandPreferido());
+
+        participacionRepository.save(nueva);
+        return ResponseEntity.ok(Map.of("mensaje", "Solicitud enviada con preferencia"));
     }
 }
