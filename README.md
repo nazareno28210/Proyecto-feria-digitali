@@ -70,7 +70,7 @@ src/main/resources/static/web/
 
 ---
 
-## Requerimientos Funcionales
+##  Algunos Requerimientos Funcionales
 
 ### RF01 - Gestion de Usuarios
 - Registro de usuarios con verificacion por email
@@ -105,7 +105,7 @@ src/main/resources/static/web/
 
 ---
 
-## Requerimientos No Funcionales
+## Algunos Requerimientos No Funcionales
 
 ### RNF01 - Seguridad
 - Contrasenas hasheadas con BCrypt
