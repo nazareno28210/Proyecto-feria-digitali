@@ -170,49 +170,6 @@ src/main/resources/static/web/
 | POST | `/auth/reset-password` | Cambiar contrasena |
 
 ---
-
-## Modelo de Datos
-
-### Entidades Principales
-
-```
-Usuario
-├── id (int)
-├── nombre (string)
-├── apellido (string)
-├── email (string, unique)
-├── contrasena (string, bcrypt)
-├── tipoUsuario (NORMAL | FERIANTE | ADMINISTRADOR)
-├── estadoUsuario (ACTIVO | INACTIVO | SUSPENDIDO)
-├── enabled (boolean)
-└── fechaRegistro (date)
-
-Feria
-├── id (int)
-├── nombre (string)
-├── descripcion (string)
-├── lugar (string)
-├── fechaInicio (date)
-├── fechaFinal (date)
-├── estado (string)
-├── latitud (double)
-├── longitud (double)
-├── imagenUrl (string)
-└── eliminado (boolean)
-
-Producto
-├── id (int)
-├── nombre (string)
-├── descripcion (string)
-├── precio (double)
-├── categoria (CategoriaProducto)
-├── tipoVenta (UNIDAD | PESO | MEDIDA)
-├── unidadMedida (string)
-├── activo (boolean)
-├── eliminado (boolean)
-└── imagenes (List<ImagenProducto>)
-```
-
 ---
 
 ## Roles y Permisos
