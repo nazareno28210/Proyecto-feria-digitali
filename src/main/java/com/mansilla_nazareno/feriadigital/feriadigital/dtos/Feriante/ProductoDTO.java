@@ -20,9 +20,8 @@ public class ProductoDTO {
     private int usuarioDueñoId;
     private Double promedioEstrellas;
     private int cantidadResenas;
-    private String contactoTelefono; // 🟢 NUEVO: Teléfono del feriante
+    private String contactoTelefono;
 
-    // 🟢 Ahora la galería usa el DTO interno con ID
     private List<ImagenDetalleDTO> galeria;
 
     public ProductoDTO(Producto producto) {
@@ -33,7 +32,6 @@ public class ProductoDTO {
         this.activo = producto.isActivo();
         this.imagenUrl = producto.getImagenUrl();
 
-        // 🟢 Mapeo corregido: Convertimos la lista de objetos ImagenProducto a ImagenDetalleDTO
         if (producto.getImagenes() != null) {
             this.galeria = producto.getImagenes().stream()
                     .map(img -> new ImagenDetalleDTO((long) img.getId(), img.getUrl()))
@@ -53,32 +51,29 @@ public class ProductoDTO {
             this.categoriaId = 0;
         }
 
-        // 🟢 NAVEGACIÓN ACTUALIZADA (Lógica de tu amigo): Stand -> Participaciones -> Feria
+        // 🟢 RELACIÓN CORREGIDA: Stand -> Participaciones -> Edición -> Feria
         if (producto.getStand() != null &&
                 producto.getStand().getParticipaciones() != null &&
                 !producto.getStand().getParticipaciones().isEmpty()) {
 
-            // Obtenemos el nombre de la feria desde la primera participación
-            this.feriaNombre = producto.getStand().getParticipaciones().get(0).getFeria().getNombre();
+            // Pasamos de forma segura por la edición cronológica antes de pedir el nombre de la feria base
+            this.feriaNombre = producto.getStand().getParticipaciones().get(0).getEdicion().getFeria().getNombre();
         } else {
             this.feriaNombre = "Feria General";
         }
 
-        // Nombre del Stand
         if (producto.getStand() != null) {
             this.standNombre = producto.getStand().getNombre();
         } else {
             this.standNombre = "Stand General";
         }
 
-        // 🟢 TU LÓGICA MANTENIDA: Obtener Teléfono y Dueño
         if (producto.getStand() != null && producto.getStand().getFeriante() != null) {
             this.usuarioDueñoId = producto.getStand().getFeriante().getUsuario().getId();
             this.contactoTelefono = producto.getStand().getFeriante().getTelefono();
         }
     }
 
-    // 🟢 Clase interna para transportar ID y URL al Frontend
     public static class ImagenDetalleDTO {
         public long id;
         public String url;

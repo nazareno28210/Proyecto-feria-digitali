@@ -1,8 +1,8 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.Admin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion; // 🟢 Enum 1 (Logística)
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoPago;          // 🟢 Enum 2 (Dinero)
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion; // 🚦 Semáforo 1 (Logística)
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoPago;          // 🚦 Semáforo 2 (Dinero)
 import jakarta.persistence.*;
 
 @Entity
@@ -14,22 +14,20 @@ public class Participacion {
     private int id;
 
     @ManyToOne
-    @JoinColumn(name = "feria_id", nullable = false)
+    @JoinColumn(name = "edicion_id", nullable = false) // 🟢 CAMBIO CRÍTICO: Ahora apunta a la edición del evento
     @JsonIgnoreProperties("participaciones")
-    private Feria feria;
+    private EdicionFeria edicion;
 
     @ManyToOne
     @JoinColumn(name = "stand_id", nullable = false)
     @JsonIgnoreProperties("participaciones")
     private Stand stand;
 
-    private Integer numeroStand; // La ubicación (Ej: Mesa 12)
+    private Integer numeroStand; // La ubicación asignada (Ej: Mesa 12)
 
-    // 🚦 SEMÁFORO 1: Logística
     @Enumerated(EnumType.STRING)
     private EstadoParticipacion estado;
 
-    // 🚦 SEMÁFORO 2: Dinero
     @Enumerated(EnumType.STRING)
     private EstadoPago estadoPago = EstadoPago.DEBE;
 
@@ -38,12 +36,13 @@ public class Participacion {
 
     public Participacion() {}
 
-    public Participacion(Feria feria, Stand stand, Integer numeroStand, EstadoParticipacion estado, Integer numeroStandPreferido) {
-        this.feria = feria;
+    // Constructor actualizado con EdicionFeria
+    public Participacion(EdicionFeria edicion, Stand stand, Integer numeroStand, EstadoParticipacion estado, Integer numeroStandPreferido) {
+        this.edicion = edicion;
         this.stand = stand;
         this.numeroStand = numeroStand;
         this.estado = estado;
-        this.numeroStandPreferido = numeroStandPreferido; // Agregamos la asignación
+        this.numeroStandPreferido = numeroStandPreferido;
         this.estadoPago = EstadoPago.DEBE;
         this.montoAbonado = 0.0;
     }
@@ -61,8 +60,9 @@ public class Participacion {
     public Double getMontoAbonado() { return montoAbonado; }
     public void setMontoAbonado(Double montoAbonado) { this.montoAbonado = montoAbonado; }
 
-    public void setFeria(Feria feria) { this.feria = feria; }
-    public Feria getFeria() { return feria; }
+    // 🟢 CAMBIO: Getters y Setters de Edición en vez de Feria
+    public void setEdicion(EdicionFeria edicion) { this.edicion = edicion; }
+    public EdicionFeria getEdicion() { return edicion; }
 
     public Stand getStand() { return stand; }
     public void setStand(Stand stand) { this.stand = stand; }
@@ -70,10 +70,6 @@ public class Participacion {
     public Integer getNumeroStand() { return numeroStand; }
     public void setNumeroStand(Integer numeroStand) { this.numeroStand = numeroStand; }
 
-    public Integer getNumeroStandPreferido() {
-        return numeroStandPreferido;
-    }
-    public void setNumeroStandPreferido(Integer numeroStandPreferido) {
-        this.numeroStandPreferido = numeroStandPreferido;
-    }
+    public Integer getNumeroStandPreferido() { return numeroStandPreferido; }
+    public void setNumeroStandPreferido(Integer numeroStandPreferido) { this.numeroStandPreferido = numeroStandPreferido; }
 }

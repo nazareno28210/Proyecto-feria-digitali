@@ -34,7 +34,6 @@ public class StandDTO {
 
         // Si explícitamente pedimos NO ignorarlo, lo cargamos
         if (!ignorarFeriante && stand.getFeriante() != null) {
-            // Se asume que FerianteDTO también tiene un constructor que ignora al Stand
             this.feriante = new FerianteDTO(stand.getFeriante(), true);
         } else {
             this.feriante = null;
@@ -46,13 +45,13 @@ public class StandDTO {
                 .collect(Collectors.toList())
                 : List.of();
 
+        // 🟢 RELACIÓN CORREGIDA: Pasamos a través de la edición para llegar a la feria base
         this.feriasIds = (stand.getParticipaciones() != null)
                 ? stand.getParticipaciones().stream()
-                .map(p -> p.getFeria().getId())
+                .map(p -> p.getEdicion().getFeria().getId())
                 .collect(Collectors.toList())
                 : List.of();
     }
-
 
     public int getId() { return id; }
     public String getNombre() { return nombre; }

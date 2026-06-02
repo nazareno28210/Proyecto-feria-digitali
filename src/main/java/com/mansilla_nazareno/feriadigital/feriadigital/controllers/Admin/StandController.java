@@ -1,16 +1,15 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.configurations.CloudinaryDefaults;
-
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.StandUpdateDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EdicionFeria; // 🟢 Nuevo Import
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Participacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository; // 🟢 Nuevo Import
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
@@ -31,6 +30,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class StandController {
+
     @Autowired
     private StandRepository standRepository;
 
@@ -41,7 +41,7 @@ public class StandController {
     private FerianteRepository ferianteRepository;
 
     @Autowired
-    private FeriaRepository feriaRepository;
+    private EdicionFeriaRepository edicionFeriaRepository; // 🟢 Cambiado: Ahora manejamos ediciones
 
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -56,43 +56,30 @@ public class StandController {
             StandRepository standRepository,
             UsuarioRepository usuarioRepository,
             FerianteRepository ferianteRepository,
-            FeriaRepository feriaRepository,
+            EdicionFeriaRepository edicionFeriaRepository, // 🟢 Actualizado
             CloudinaryService cloudinaryService,
             ParticipacionRepository participacionRepository
-
-    ){
-
-        this.standRepository= standRepository;
+    ) {
+        this.standRepository = standRepository;
         this.usuarioRepository = usuarioRepository;
         this.ferianteRepository = ferianteRepository;
-        this.feriaRepository =feriaRepository;
+        this.edicionFeriaRepository = edicionFeriaRepository; // 🟢 Actualizado
         this.cloudinaryService = cloudinaryService;
-        this.participacionRepository=participacionRepository;
-
+        this.participacionRepository = participacionRepository;
     }
+
     @GetMapping("/stands")
-    public List<StandDTO> getStands(){
+    public List<StandDTO> getStands() {
         return standRepository.findAll()
-                .stream()
-                .map(stand-> new StandDTO(stand))
-                .toList();
-    }
-
-    // Para que el público solo vea stands abiertos
-    /*
-    @GetMapping("/stands/activos")
-    public List<StandDTO> getStandsActivos() {
-        return standRepository.findByActivoTrue()
                 .stream()
                 .map(StandDTO::new)
                 .toList();
     }
-*/
+
     @GetMapping("/stands/{id}")
     public StandDTO getStandDTO(@PathVariable Integer id) {
         return standRepository.findById(id)
                 .map(stand -> {
-                    // Calculamos promedio y cantidad desde la DB
                     Double promedio = resenaRepository.getPromedioPorStand(id);
                     Long cantidad = resenaRepository.getCantidadResenasPorStand(id);
 
@@ -103,6 +90,7 @@ public class StandController {
                 })
                 .orElse(null);
     }
+
     @PutMapping("/stands/mi-stand")
     public ResponseEntity<?> updateMyStand(Authentication authentication, @RequestBody StandUpdateDTO dto) {
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
@@ -120,57 +108,50 @@ public class StandController {
         return new ResponseEntity<>(Map.of("success", "Stand actualizado correctamente"), HttpStatus.OK);
     }
 
-
-    // --- ACTUALIZAR ASIGNACIÓN ---
-    @PatchMapping("/stands/{standId}/asignar-feria/{feriaId}")
-    public ResponseEntity<?> asignarStandAFeria(@PathVariable Integer standId, @PathVariable Integer feriaId) {
+    // --- 🟢 ACTUALIZAR ASIGNACIÓN A EDICIÓN ---
+    @PatchMapping("/stands/{standId}/asignar-edicion/{edicionId}") // 🟢 Cambiado el Path
+    public ResponseEntity<?> asignarStandAEdicion(@PathVariable Integer standId, @PathVariable Integer edicionId) {
         Stand stand = standRepository.findById(standId).orElse(null);
-        Feria feria = feriaRepository.findById(feriaId).orElse(null);
+        EdicionFeria edicion = edicionFeriaRepository.findById(edicionId).orElse(null); // Buscamos la edición cronológica
 
         if (stand == null) return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
-        if (feria == null) return new ResponseEntity<>("Feria no encontrada", HttpStatus.NOT_FOUND);
+        if (edicion == null) return new ResponseEntity<>("Edición de feria no encontrada", HttpStatus.NOT_FOUND);
 
         if (!stand.isActivo()) {
             return new ResponseEntity<>("No se puede asignar un stand desactivado", HttpStatus.BAD_REQUEST);
         }
 
-        // Validar si ya existe la participación para evitar duplicados
-        if (participacionRepository.existsByFeriaIdAndStandId(feriaId, standId)) {
-            return new ResponseEntity<>("El stand ya está asignado a esta feria", HttpStatus.BAD_REQUEST);
+        // Validar si ya existe la participación para evitar duplicados en este evento específico
+        if (participacionRepository.existsByEdicionIdAndStandId(edicionId, standId)) {
+            return new ResponseEntity<>("El stand ya está asignado a esta edición de la feria", HttpStatus.BAD_REQUEST);
         }
 
-        // Crear la nueva participación (Estado PENDIENTE por defecto o CONFIRMADO según tu flujo)
-        Participacion participacion = new Participacion(feria, stand, null, EstadoParticipacion.CONFIRMADO, null);
+        // Crear la nueva participación vinculada a la edición correspondiente
+        Participacion participacion = new Participacion(edicion, stand, null, EstadoParticipacion.CONFIRMADO, null);
         participacionRepository.save(participacion);
 
         return new ResponseEntity<>("Participación registrada correctamente", HttpStatus.OK);
     }
 
-    // ▼▼▼ NUEVO ENDPOINT PARA DESASIGNAR ▼▼▼
-    // --- ACTUALIZAR DESASIGNACIÓN ---
-    @DeleteMapping("/stands/{standId}/desasignar-feria/{feriaId}")
-    public ResponseEntity<?> desasignarStandDeFeria(@PathVariable Integer standId, @PathVariable Integer feriaId) {
-        // Buscamos la participación específica entre ese stand y esa feria
-        return participacionRepository.findByFeriaId(feriaId).stream()
+    // --- 🟢 ACTUALIZAR DESASIGNACIÓN DE EDICIÓN ---
+    @DeleteMapping("/stands/{standId}/desasignar-edicion/{edicionId}") // 🟢 Cambiado el Path
+    public ResponseEntity<?> desasignarStandDeEdicion(@PathVariable Integer standId, @PathVariable Integer edicionId) {
+        // Buscamos la participación específica filtrando por el ID de la edición
+        return participacionRepository.findByEdicionId(edicionId).stream()
                 .filter(p -> p.getStand().getId() == standId)
                 .findFirst()
                 .map(p -> {
                     participacionRepository.delete(p);
-                    return new ResponseEntity<>("Stand desasignado de la feria", HttpStatus.OK);
+                    return new ResponseEntity<>("Stand desasignado de la edición correctamente", HttpStatus.OK);
                 })
-                .orElse(new ResponseEntity<>("No se encontró la participación", HttpStatus.NOT_FOUND));
+                .orElse(new ResponseEntity<>("No se encontró la participación para esta edición", HttpStatus.NOT_FOUND));
     }
 
-
-
-
-    // ▼▼▼cambiar imagen ▼▼▼
     @PostMapping("/stands/mi-stand/imagen")
     public ResponseEntity<?> cambiarImagenStand(
             Authentication authentication,
             @RequestParam("imagen") MultipartFile imagen
     ) {
-
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
         Feriante feriante = ferianteRepository.findByUsuario(usuario);
         Stand stand = standRepository.findByFeriante(feriante);
@@ -179,15 +160,10 @@ public class StandController {
             return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        Map<String, String> resultado =
-                cloudinaryService.reemplazarImagen(
-                        imagen,
-                        stand.getImagenPublicId()
-                );
+        Map<String, String> resultado = cloudinaryService.reemplazarImagen(imagen, stand.getImagenPublicId());
 
         stand.setImagenUrl(resultado.get("url"));
         stand.setImagenPublicId(resultado.get("public_id"));
-
         standRepository.save(stand);
 
         return ResponseEntity.ok(Map.of(
@@ -198,7 +174,6 @@ public class StandController {
 
     @DeleteMapping("/stands/mi-stand/imagen")
     public ResponseEntity<?> borrarImagenStand(Authentication authentication) {
-
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
         Feriante feriante = ferianteRepository.findByUsuario(usuario);
         Stand stand = standRepository.findByFeriante(feriante);
@@ -207,17 +182,13 @@ public class StandController {
             return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        // ⚠️ Solo borrar si NO es la imagen default
         if (stand.getImagenPublicId() != null &&
                 !stand.getImagenPublicId().equals(CloudinaryDefaults.STAND_DEFAULT_PUBLIC_ID)) {
-
             cloudinaryService.borrarImagen(stand.getImagenPublicId());
         }
 
-        // 👇 Volver a la default
         stand.setImagenPublicId(CloudinaryDefaults.STAND_DEFAULT_PUBLIC_ID);
         stand.setImagenUrl(CloudinaryDefaults.STAND_DEFAULT_URL);
-
         standRepository.save(stand);
 
         return ResponseEntity.ok(Map.of(
@@ -235,12 +206,10 @@ public class StandController {
             return new ResponseEntity<>("Stand no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        stand.setActivo(!stand.isActivo()); // Cambia de true a false o viceversa
+        stand.setActivo(!stand.isActivo());
         standRepository.save(stand);
 
         String estado = stand.isActivo() ? "Abierto" : "Cerrado";
         return ResponseEntity.ok(Map.of("mensaje", "Tu stand ahora está " + estado, "activo", stand.isActivo()));
     }
-
-
 }

@@ -1,6 +1,6 @@
 /*
  * ====================================
- * FERIA-DETALLE.JS (Versión con Votación de Pulgares)
+ * FERIA-DETALLE.JS 
  * ====================================
  */
 
@@ -22,117 +22,149 @@ function showToast(message, type = "info") {
   }).showToast();
 }
 
-const API_URL = "http://localhost:8080/api/ferias";
+// 🟢 1. Apuntamos al nuevo endpoint de ediciones
+const API_URL = "http://localhost:8080/api/ediciones";
 const params = new URLSearchParams(window.location.search);
-const feriaId = params.get("id");
+const edicionId = params.get("id"); 
 
 document.addEventListener("DOMContentLoaded", () => {
     cargarFeria();
-    verificarAccesoVoto(); // Verificamos si el usuario puede votar
+    verificarAccesoVoto(); 
 });
 
 async function cargarFeria() {
   try {
-    const response = await axios.get(`${API_URL}/${feriaId}`);
-    const feria = response.data; 
+    const response = await axios.get(`${API_URL}/${edicionId}`);
+    const edicion = response.data;
 
-    // 1. Renderizado de Info de la Feria
+    // 🟢 2. Renderizado de Info de la Edición (Usando tu misma estructura HTML)
     const infoGrid = document.getElementById("info-feria-grid");
+    
+    // Formatear horas ("14:00:00" -> "14:00")
+    const horaApertura = edicion.horaInicio ? edicion.horaInicio.substring(0, 5) : "??:??";
+    const horaCierre = edicion.horaFin ? edicion.horaFin.substring(0, 5) : "??:??";
+
     infoGrid.innerHTML = `
       <div class="info-item">
         <i class="fas fa-map-marker-alt"></i>
         <div class="info-item-content">
           <strong>Lugar</strong>
-          <span>${feria.lugar}</span>
+          <span>${edicion.feriaLugar || "Lugar a definir"}</span>
         </div>
       </div>
       <div class="info-item">
         <i class="fas fa-calendar-check"></i>
         <div class="info-item-content">
           <strong>Fecha inicio</strong>
-          <span>${feria.fechaInicio}</span>
+          <span>${edicion.fechaInicio}</span>
         </div>
       </div>
       <div class="info-item">
         <i class="fas fa-calendar-times"></i>
         <div class="info-item-content">
           <strong>Fecha fin</strong>
-          <span>${feria.fechaFinal}</span>
+          <span>${edicion.fechaFinal ?? "..."}</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-clock"></i>
+        <div class="info-item-content">
+          <strong>Horarios</strong>
+          <span>${horaApertura} a ${horaCierre} hs</span>
         </div>
       </div>
     `;
 
     const infoDesc = document.getElementById("info-feria-desc");
-    infoDesc.innerHTML = `<p><strong>Descripción:</strong></p><p>${feria.descripcion}</p>`;
+    infoDesc.innerHTML = `<p><strong>Descripción:</strong></p><p>${edicion.feriaDescripcion || ""}</p>`;
 
-    document.getElementById("nombre-feria").textContent = feria.nombre; 
+    // 🟢 Título con nombre de molde y nombre de edición
+    document.getElementById("nombre-feria").innerHTML = `${edicion.feriaNombre || "Feria General"} <br><span style="font-size:0.6em; color:#e67e22;">(${edicion.nombreEdicion})</span>`;
 
-    // ⭐ NUEVO: Renderizar el porcentaje de aprobación en la cabecera
-    renderizarAprobacionFeria(feria.porcentajeAprobacion, feria.totalVotos);
+    // Pasamos el ID del molde para los votos
+    renderizarAprobacionFeria(edicion.feriaId);
 
-    // 2. Lógica de Stands
+    // 🟢 3. Lógica de Stands: Ahora buscamos las participaciones de esta edición
     const standsContainer = document.getElementById("stands-container");
     standsContainer.innerHTML = "";
     
-    const standsVisibles = (feria.stands || []).filter(stand => stand.activo === true);
+    try {
+        const participacionesRes = await axios.get(`http://localhost:8080/api/participaciones/edicion/${edicionId}`);
+        const participacionesConfirmadas = participacionesRes.data.filter(p => p.estado === "CONFIRMADO");
 
-    if (standsVisibles.length > 0) {
-      standsVisibles.forEach((stand) => {
-        const div = document.createElement("div");
-        div.classList.add("stand-card");
-        const imagenHtml = stand.imagenUrl
-          ? `<div class="stand-image-container"><img src="${stand.imagenUrl}" alt="Logo de ${stand.nombre}"></div>`
-          : ''; 
+        if (participacionesConfirmadas.length > 0) {
+            participacionesConfirmadas.forEach((participacion) => {
+                const stand = participacion.stand;
+                if (stand && stand.activo) {
+                    const div = document.createElement("div");
+                    div.classList.add("stand-card");
+                    const imagenHtml = stand.imagenUrl
+                    ? `<div class="stand-image-container"><img src="${stand.imagenUrl}" alt="Logo de ${stand.nombre}"></div>`
+                    : ''; 
 
-        div.innerHTML = `
-          ${imagenHtml} 
-          <div class="stand-content">
-            <h3>${stand.nombre}</h3>
-            <p>${stand.descripcion ?? "Sin descripción"}</p>
-            <p><strong>Feriante:</strong> ${stand.feriante ? stand.feriante.nombreEmprendimiento : "No asignado"}</p>
-          </div>
-          <button class="btn-stand" onclick="verProductos(${stand.id})">Ver productos</button>
-        `; 
-        standsContainer.appendChild(div);
-      });
-    } else {
-      standsContainer.innerHTML = "<p class='no-stands-msg'>Actualmente no hay stands disponibles para visitar en esta feria.</p>";
+                    div.innerHTML = `
+                    ${imagenHtml} 
+                    <div class="stand-content">
+                        <h3>${stand.nombre}</h3>
+                        <p>${stand.descripcion ?? "Sin descripción"}</p>
+                        <p><strong>Feriante:</strong> ${stand.feriante ? stand.feriante.nombreEmprendimiento : "No asignado"}</p>
+                    </div>
+                    <button class="btn-stand" onclick="verProductos(${stand.id})">Ver productos</button>
+                    `; 
+                    standsContainer.appendChild(div);
+                }
+            });
+        } else {
+            standsContainer.innerHTML = "<p class='no-stands-msg'>Actualmente no hay stands disponibles para visitar en esta feria.</p>";
+        }
+    } catch(e) {
+        standsContainer.innerHTML = "<p class='no-stands-msg'>No se pudieron cargar los stands.</p>";
     }
   } catch (error) {
-    console.error("Error al cargar la feria:", error); 
+    console.error("Error al cargar la feria:", error);
     showToast("❌ Error al cargar los datos.", "error"); 
   }
 }
 
-// ⭐ NUEVA FUNCIÓN: Dibuja el porcentaje de aprobación
-function renderizarAprobacionFeria(porcentaje, total) {
+// ⭐ Dibuja el porcentaje de aprobación (busca directo de la feria molde)
+async function renderizarAprobacionFeria(feriaId) {
     const contenedor = document.getElementById("aprobacion-header");
-    if (!contenedor) return;
+    if (!contenedor || !feriaId) return;
 
-    if (!total || total === 0) {
-        contenedor.innerHTML = '<span class="badge bg-secondary opacity-75">Sin votos aún</span>';
-        return;
+    try {
+        const res = await axios.get(`http://localhost:8080/api/ferias/${feriaId}`);
+        const porcentaje = res.data.porcentajeAprobacion;
+        const total = res.data.totalVotos;
+
+        if (!total || total === 0) {
+            contenedor.innerHTML = '<span class="badge bg-secondary opacity-75">Sin votos aún</span>';
+            return;
+        }
+
+        let colorClase = "bg-success";
+        if (porcentaje < 70) colorClase = "bg-warning text-dark";
+        if (porcentaje < 40) colorClase = "bg-danger";
+
+        contenedor.innerHTML = `
+            <span class="badge ${colorClase} shadow-sm">
+                <i class="bi bi-hand-thumbs-up-fill me-1"></i> 
+                ${porcentaje}% lo recomienda (${total} votos)
+            </span>
+        `;
+    } catch(err) {
+         contenedor.innerHTML = '<span class="badge bg-secondary opacity-75">Votos no disponibles</span>';
     }
-
-    // Color del badge según aprobación
-    let colorClase = "bg-success";
-    if (porcentaje < 70) colorClase = "bg-warning text-dark";
-    if (porcentaje < 40) colorClase = "bg-danger";
-
-    contenedor.innerHTML = `
-        <span class="badge ${colorClase} shadow-sm">
-            <i class="bi bi-hand-thumbs-up-fill me-1"></i> 
-            ${porcentaje}% lo recomienda (${total} votos)
-        </span>
-    `;
 }
 
-// ⭐ NUEVA FUNCIÓN: Envía el voto (5 para SI, 1 para NO)
+// ⭐ Envía el voto (5 para SI, 1 para NO) a la feria molde
 async function votarFeria(valor) {
     try {
+        const responseEdicion = await axios.get(`${API_URL}/${edicionId}`);
+        const realFeriaId = responseEdicion.data.feriaId;
+
         await axios.post("/api/resenas", {
             puntaje: valor,
-            feria: { id: parseInt(feriaId) }
+            feria: { id: realFeriaId }
         }, { withCredentials: true });
 
         showToast("👍 ¡Gracias por tu voto!", "success");
@@ -143,7 +175,6 @@ async function votarFeria(valor) {
     }
 }
 
-// ⭐ NUEVA FUNCIÓN: Muestra la sección de voto solo a usuarios logueados
 async function verificarAccesoVoto() {
     try {
         const res = await axios.get("/api/usuarios/current", { withCredentials: true });

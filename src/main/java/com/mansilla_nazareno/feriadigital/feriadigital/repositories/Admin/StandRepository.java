@@ -4,17 +4,18 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoPartic
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface StandRepository extends JpaRepository<Stand,Integer> {
+@Repository
+public interface StandRepository extends JpaRepository<Stand, Integer> {
 
     Stand findByFeriante(Feriante feriante);
 
-    // 🟢 CORRECTO: Busca los stands navegando a través de las participaciones
-    List<Stand> findDistinctByParticipaciones_Feria_IdAndParticipaciones_Estado(
-            int feriaId,
+    // 🟢 CORREGIDO: Ahora navega de forma segura a través de la edición cronológica (edicion_id)
+    List<Stand> findDistinctByParticipaciones_Edicion_IdAndParticipaciones_Estado(
+            int edicionId,
             EstadoParticipacion estado
     );
-
 }

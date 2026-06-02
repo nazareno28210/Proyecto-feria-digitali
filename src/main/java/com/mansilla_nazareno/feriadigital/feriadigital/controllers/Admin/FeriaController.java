@@ -2,9 +2,7 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
@@ -14,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,49 +32,23 @@ public class FeriaController {
         this.feriaRepository = feriaRepository;
     }
 
-    private List<Feria> obtenerFeriasActualizadas() {
-        List<Feria> ferias = feriaRepository.findAll();
-        LocalDate hoy = LocalDate.now();
-
-        for (Feria feria : ferias) {
-            if ("Activa".equals(feria.getEstado()) &&
-                    feria.getFechaFinal() != null &&
-                    feria.getFechaFinal().isBefore(hoy)) {
-
-                feria.setEstado("Inactiva");
-                feriaRepository.save(feria);
-            }
-        }
-        return ferias;
-    }
-
+    // 🟢 1. Obtener todas las ferias plantilla (Para el listado del Admin)
     @GetMapping("/ferias")
     public List<FeriaDTO> getFerias() {
-        obtenerFeriasActualizadas();
-
         return feriaRepository.findByEliminadoFalse()
                 .stream()
                 .map(FeriaDTO::new)
                 .collect(Collectors.toList());
     }
 
+    // 🟢 2. Obtener una plantilla específica con sus estadísticas de reseñas
     @GetMapping("/ferias/{id}")
     public FeriaDTO getFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id)
                 .map(feria -> {
                     FeriaDTO dto = new FeriaDTO(feria);
 
-                    if (feria.getParticipaciones() != null) {
-                        List<StandDTO> standsConfirmadosYPagos = feria.getParticipaciones().stream()
-                                // 🛡️ MODIFICACIÓN AQUÍ: Filtramos por estado CONFIRMADO Y que NO deba (o sea, Señado/Pagado)
-                                .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO &&
-                                        p.getEstadoPago() != com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoPago.DEBE)
-                                .map(p -> new StandDTO(p.getStand()))
-                                .collect(Collectors.toList());
-
-                        dto.setStands(standsConfirmadosYPagos);
-                    }
-
+                    // Mantenemos tus estadísticas de reseñas vinculadas a la plantilla base
                     Long positivos = resenaRepository.countVotosPositivosFeria(id);
                     Long totales = resenaRepository.countTotalVotosFeria(id);
                     int porcentaje = (totales != null && totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
@@ -90,26 +61,15 @@ public class FeriaController {
                 .orElse(null);
     }
 
-    @GetMapping("/ferias/activas")
-    public List<FeriaDTO> getFeriasActivas() {
-        obtenerFeriasActualizadas();
-
-        return feriaRepository.findByEstadoAndEliminadoFalse("Activa")
-                .stream()
-                .map(FeriaDTO::new)
-                .collect(Collectors.toList());
-    }
-
+    // 🟢 3. Crear una nueva plantilla de feria (Sin fechas ni estados)
     @PostMapping("/ferias")
     public ResponseEntity<?> crearFeria(
             @RequestParam("nombre") String nombre,
             @RequestParam("lugar") String lugar,
             @RequestParam("descripcion") String descripcion,
-            @RequestParam("fechaInicio") String fechaInicio,
-            @RequestParam("fechaFinal") String fechaFinal,
             @RequestParam("latitud") Double latitud,
             @RequestParam("longitud") Double longitud,
-            @RequestParam(value = "capacidad", required = false) Integer capacidad, // 🟢 NUEVO
+            @RequestParam(value = "capacidad", required = false) Integer capacidad,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -118,23 +78,12 @@ public class FeriaController {
         if (nombre.trim().length() < 3 || nombre.trim().length() > 75) {
             return ResponseEntity.badRequest().body("El nombre debe tener entre 3 y 75 caracteres");
         }
-
-        LocalDate inicio = LocalDate.parse(fechaInicio);
-        LocalDate fin = (fechaFinal != null && !fechaFinal.isEmpty()) ? LocalDate.parse(fechaFinal) : null;
-
-        if (inicio.isBefore(LocalDate.now())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha de inicio no puede ser anterior a hoy");
-        }
-        if (fin != null && fin.isBefore(inicio)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la de inicio");
-        }
         if (latitud == null || longitud == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La ubicación geográfica es obligatoria.");
         }
         if (descripcion != null && descripcion.trim().length() > 300) {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
-        // 🟢 NUEVO: Validación de capacidad
         if (capacidad != null && capacidad <= 0) {
             return ResponseEntity.badRequest().body("La capacidad de stands debe ser mayor a 0");
         }
@@ -144,12 +93,9 @@ public class FeriaController {
             nuevaFeria.setNombre(nombre);
             nuevaFeria.setLugar(lugar);
             nuevaFeria.setDescripcion(descripcion);
-            nuevaFeria.setFechaInicio(inicio);
-            nuevaFeria.setFechaFinal(fin);
             nuevaFeria.setLatitud(latitud);
             nuevaFeria.setLongitud(longitud);
-            nuevaFeria.setEstado("Activa");
-            nuevaFeria.setCapacidad(capacidad); // 🟢 NUEVO: Asignamos el valor
+            nuevaFeria.setCapacidad(capacidad);
 
             if (imagen != null && !imagen.isEmpty()) {
                 Map<String, String> result = cloudinaryService.subirImagen(imagen);
@@ -157,33 +103,25 @@ public class FeriaController {
             }
 
             feriaRepository.save(nuevaFeria);
-            return ResponseEntity.ok("Feria creada correctamente");
+            return ResponseEntity.ok("Feria plantilla creada correctamente");
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la imagen");
         }
     }
 
-
+    // 🟢 4. Actualizar los datos estructurales del molde
     @PutMapping("/ferias/{id}")
     public ResponseEntity<?> actualizarFeria(
             @PathVariable Integer id,
             @RequestParam("nombre") String nombre,
             @RequestParam("lugar") String lugar,
             @RequestParam("descripcion") String descripcion,
-            @RequestParam("fechaInicio") String fechaInicio,
-            @RequestParam("fechaFinal") String fechaFinal,
             @RequestParam("latitud") Double latitud,
             @RequestParam("longitud") Double longitud,
-            @RequestParam(value = "capacidad", required = false) Integer capacidad, // 🟢 NUEVO
+            @RequestParam(value = "capacidad", required = false) Integer capacidad,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
-        LocalDate inicio = LocalDate.parse(fechaInicio);
-        LocalDate fin = (fechaFinal != null && !fechaFinal.isEmpty()) ? LocalDate.parse(fechaFinal) : null;
-
-        if (fin != null && fin.isBefore(inicio)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La fecha final no puede ser anterior a la de inicio");
-        }
         if (latitud == null || longitud == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede guardar una feria sin coordenadas.");
         }
@@ -193,7 +131,6 @@ public class FeriaController {
         if (descripcion != null && descripcion.trim().length() > 300) {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
-        // 🟢 NUEVO: Validación de capacidad
         if (capacidad != null && capacidad <= 0) {
             return ResponseEntity.badRequest().body("La capacidad de stands debe ser mayor a 0");
         }
@@ -203,11 +140,9 @@ public class FeriaController {
                 feria.setNombre(nombre);
                 feria.setLugar(lugar);
                 feria.setDescripcion(descripcion);
-                feria.setFechaInicio(inicio);
-                feria.setFechaFinal(fin);
                 feria.setLatitud(latitud);
                 feria.setLongitud(longitud);
-                feria.setCapacidad(capacidad); // 🟢 NUEVO: Asignamos el valor
+                feria.setCapacidad(capacidad);
 
                 if (imagen != null && !imagen.isEmpty()) {
                     String urlVieja = feria.getImagenUrl();
@@ -222,7 +157,7 @@ public class FeriaController {
                 }
 
                 feriaRepository.save(feria);
-                return ResponseEntity.ok("Feria actualizada correctamente");
+                return ResponseEntity.ok("Feria plantilla actualizada correctamente");
 
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la imagen");
@@ -230,41 +165,19 @@ public class FeriaController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/ferias/{id}/baja")
-    public ResponseEntity<?> darDeBaja(@PathVariable Integer id) {
-        return feriaRepository.findById(id).map(feria -> {
-            feria.setEstado("Inactiva");
-            feriaRepository.save(feria);
-            return ResponseEntity.ok("Feria dada de baja");
-        }).orElse(ResponseEntity.notFound().build());
-    }
-
+    // 🟢 5. Borrado lógico de la plantilla (Va a la papelera)
     @PutMapping("/ferias/{id}/eliminar")
     public ResponseEntity<?> eliminarFeria(@PathVariable Integer id) {
         return feriaRepository.findById(id).map(feria -> {
             feria.setEliminado(true);
-            feria.setEstado("Inactiva");
             feriaRepository.save(feria);
-            return ResponseEntity.ok("Feria eliminada correctamente");
+            return ResponseEntity.ok("Feria plantilla enviada a la papelera correctamente");
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    @PatchMapping("/ferias/{id}/activar")
-    public ResponseEntity<?> activarFeria(@PathVariable Integer id) {
-        return feriaRepository.findById(id).map(feria -> {
-            if (feria.getFechaFinal() != null && feria.getFechaFinal().isBefore(LocalDate.now())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("No se puede activar una feria cuya fecha de finalización ya pasó.");
-            }
-            feria.setEstado("Activa");
-            feriaRepository.save(feria);
-            return ResponseEntity.ok("Feria activada correctamente");
-        }).orElse(ResponseEntity.notFound().build());
-    }
-
+    // 🟢 6. Endpoint para alimentar el select cuando el Admin crea una Edición Nueva
     @GetMapping("/ferias/lista-select")
     public ResponseEntity<List<FeriaSelectorDTO>> getFeriasParaSelector() {
-        obtenerFeriasActualizadas();
         List<FeriaSelectorDTO> ferias = feriaRepository.findByEliminadoFalse()
                 .stream()
                 .map(FeriaSelectorDTO::new)

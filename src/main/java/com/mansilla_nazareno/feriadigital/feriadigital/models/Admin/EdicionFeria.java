@@ -4,6 +4,7 @@ package com.mansilla_nazareno.feriadigital.feriadigital.models.Admin;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
 @Table(name = "ediciones_feria")
@@ -25,6 +26,12 @@ public class EdicionFeria {
 
     @Column(name = "fecha_final", nullable = false)
     private LocalDate fechaFinal;
+
+    @Column(name = "hora_inicio")
+    private LocalTime horaInicio;
+
+    @Column(name = "hora_fin")
+    private LocalTime horaFin;
 
     @Column(name = "estado", nullable = false)
     private String estado; // "ACTIVA", "FINALIZADA", "CANCELADA"
@@ -79,6 +86,15 @@ public class EdicionFeria {
     public void setFechaFinal(LocalDate fechaFinal) {
         this.fechaFinal = fechaFinal;
     }
+
+    // Y sus getters y setters correspondientes:
+    public LocalTime getHoraInicio() { return horaInicio; }
+
+    public void setHoraInicio(LocalTime horaInicio) { this.horaInicio = horaInicio; }
+
+    public LocalTime getHoraFin() { return horaFin; }
+
+    public void setHoraFin(LocalTime horaFin) { this.horaFin = horaFin; }
 
     public String getEstado() {
         return estado;

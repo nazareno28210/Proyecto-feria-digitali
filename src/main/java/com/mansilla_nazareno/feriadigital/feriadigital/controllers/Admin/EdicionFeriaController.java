@@ -55,6 +55,11 @@ public class EdicionFeriaController {
         nuevaEdicion.setNombreEdicion(dto.getNombreEdicion());
         nuevaEdicion.setFechaInicio(dto.getFechaInicio());
         nuevaEdicion.setFechaFinal(dto.getFechaFinal());
+
+        // 🟢 NUEVO: Atrapamos los horarios que vienen del JSON del Frontend
+        nuevaEdicion.setHoraInicio(dto.getHoraInicio());
+        nuevaEdicion.setHoraFin(dto.getHoraFin());
+
         nuevaEdicion.setEstado("ACTIVA"); // Arranca activa por defecto para recibir postulaciones
 
         EdicionFeria guardada = edicionFeriaRepository.save(nuevaEdicion);
@@ -70,5 +75,15 @@ public class EdicionFeriaController {
         edicion.setEstado(nuevoEstado.toUpperCase());
         edicionFeriaRepository.save(edicion);
         return ResponseEntity.ok(Map.of("mensaje", "Estado de la edición actualizado con éxito"));
+    }
+
+    // 🟢 NUEVO: Obtener una edición específica por su ID
+    @GetMapping("/{id}")
+    public ResponseEntity<EdicionFeriaDTO> obtenerPorId(@PathVariable Integer id) {
+        EdicionFeria edicion = edicionFeriaRepository.findById(id).orElse(null);
+        if (edicion == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new EdicionFeriaDTO(edicion));
     }
 }

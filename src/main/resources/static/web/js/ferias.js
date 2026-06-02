@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8080/api/ferias/activas";
+const API_URL = "http://localhost:8080/api/ediciones/activas"; // 🟢 Endpoint actualizado
 const AUTH_URL = "http://localhost:8080/api/usuarios/current";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
 const SOLICITUD_URL = "http://localhost:8080/api/solicitudes";
@@ -48,7 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
     inputBusqueda.addEventListener("input", () => {
         const texto = inputBusqueda.value.toLowerCase();
         const filtradas = feriasGlobal.filter((f) =>
-            f.nombre.toLowerCase().includes(texto)
+            // 🟢 Busca tanto por el nombre de la feria como por la edición
+            (f.nombre || "").toLowerCase().includes(texto) || 
+            (f.nombreEdicion || "").toLowerCase().includes(texto)
         );
         mostrarFerias(filtradas);
         actualizarMarcadoresMapa(filtradas); // El mapa se filtra en tiempo real
@@ -58,47 +60,49 @@ document.addEventListener("DOMContentLoaded", () => {
 // ========================= SECCIÓN MAPAS =========================
 
 function inicializarMapa() {
-    // Inicializa el mapa centrado en Río Grande [cite: 85]
     mapa = L.map('mapa-ferias').setView(RIO_GRANDE_COORDS, 13);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(mapa);
     
-    // Grupo para manejar los pines de forma independiente
     markersGroup = L.layerGroup().addTo(mapa);
 }
 
 function actualizarMarcadoresMapa(lista) {
-    // Limpia los pines actuales antes de poner los nuevos para evitar duplicados al filtrar
     markersGroup.clearLayers();
 
-    lista.forEach(feria => {
-        // Verificamos que la feria tenga coordenadas válidas antes de intentar ubicarla [cite: 89, 90]
-        if (feria.latitud && feria.longitud) {
-            const marcador = L.marker([feria.latitud, feria.longitud]);
+    lista.forEach(edicion => {
+        // 🟢 Leemos directo desde el DTO plano
+        const lat = edicion.latitud;
+        const lng = edicion.longitud;
+        
+        if (lat && lng) {
+            const marcador = L.marker([lat, lng]);
             
-            // Configuramos el contenido del Popup con el estilo de tu proyecto [cite: 90, 91, 92]
+            const horaApertura = edicion.horaInicio ? edicion.horaInicio.substring(0, 5) : "??:??";
+            const horaCierre = edicion.horaFin ? edicion.horaFin.substring(0, 5) : "??:??";
+            
+            const nombreBase = edicion.feriaNombre || "Feria General";
+            const lugarBase = edicion.feriaLugar || "Lugar a definir";
+
             marcador.bindPopup(`
                 <div style="text-align: center; font-family: sans-serif;">
-                    <strong style="color: #1a3a5a; font-size: 1.1rem;">${feria.nombre}</strong><br>
-                    <small style="color: #666;">${feria.lugar}</small><br>
-                    <button onclick="verDetalles(${feria.id})" 
+                    <strong style="color: #1a3a5a; font-size: 1.1rem;">${nombreBase}</strong><br>
+                    <span style="color: #e67e22; font-size: 0.9rem; font-weight: bold;">${edicion.nombreEdicion}</span><br>
+                    <small style="color: #666;">${lugarBase}</small><br>
+                    <small style="color: #2c3e50; font-weight: bold;">⏰ ${horaApertura} a ${horaCierre} hs</small><br>
+                    <button onclick="verDetalles(${edicion.id})" 
                             style="margin-top: 10px; background: #1a3a5a; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
                         Ver detalles
                     </button>
                 </div>
             `);
             
-            // EFECTO VISUAL: Al hacer clic, el mapa se desplaza suavemente hacia la feria
             marcador.on('click', function() {
-                mapa.flyTo([feria.latitud, feria.longitud], 16, {
-                    animate: true,
-                    duration: 1.5 // segundos que tarda el desplazamiento
-                });
+                mapa.flyTo([lat, lng], 16, { animate: true, duration: 1.5 });
             });
             
-            // Añadimos el marcador al grupo para que sea gestionable [cite: 89]
             markersGroup.addLayer(marcador);
         }
     });
@@ -110,11 +114,8 @@ async function cargarDatosFerias() {
     try {
         const res = await axios.get(API_URL); 
         feriasGlobal = res.data;
-
-        // Renderiza ambos componentes visuales
         mostrarFerias(feriasGlobal);
         actualizarMarcadoresMapa(feriasGlobal);
-
     } catch (err) {
         console.error("Error al cargar las ferias:", err);
         showToast("❌ Error al cargar las ferias", "error");
@@ -126,30 +127,40 @@ function mostrarFerias(lista) {
   container.innerHTML = "";
   
   if (lista.length === 0) {
-      container.innerHTML = "<p class='no-ferias-msg'>No se encontraron ferias que coincidan con la búsqueda.</p>";
+      container.innerHTML = "<p class='no-ferias-msg'>No se encontraron ferias activas.</p>";
       return;
   }
 
-  lista.forEach((feria) => {
+  lista.forEach((edicion) => {
     const card = document.createElement("div");
     card.classList.add("card");
     
-    const imagenHtml = feria.imagenUrl
+    // 🟢 Leemos directo desde el DTO plano
+    const imagenBase = edicion.feriaImagenUrl || "";
+    const nombreBase = edicion.feriaNombre || "Feria General";
+    const lugarBase = edicion.feriaLugar || "Lugar a definir";
+    const descBase = edicion.feriaDescripcion || "";
+
+    const imagenHtml = imagenBase
       ? `<div class="card-image-container">
-           <img src="${feria.imagenUrl}" alt="Imagen de ${feria.nombre}">
+           <img src="${imagenBase}" alt="Imagen de ${nombreBase}">
          </div>`
       : '';
+
+    const horaApertura = edicion.horaInicio ? edicion.horaInicio.substring(0, 5) : "A definir";
+    const horaCierre = edicion.horaFin ? edicion.horaFin.substring(0, 5) : "A definir";
 
     card.innerHTML = `
       ${imagenHtml} 
       <div class="card-content">
-        <h2>${feria.nombre}</h2>
-        <p><strong>Lugar:</strong> ${feria.lugar}</p>
-        <p><strong>Fecha inicio:</strong> ${feria.fechaInicio}</p>
-        <p><strong>Fecha fin:</strong> ${feria.fechaFinal ?? "Sin definir"}</p>
-        <p>${feria.descripcion ?? ""}</p>
+        <h2>${nombreBase} <span style="font-size: 0.8em; color: #666;">(${edicion.nombreEdicion})</span></h2>
+        <p><strong>Lugar:</strong> ${lugarBase}</p>
+        <p><strong>Fecha inicio:</strong> ${edicion.fechaInicio}</p>
+        <p><strong>Fecha fin:</strong> ${edicion.fechaFinal ?? "Sin definir"}</p>
+        <p><strong>Horario:</strong> ${horaApertura} a ${horaCierre} hs</p>
+        <p>${descBase}</p>
       </div>
-      <button onclick="verDetalles(${feria.id})">Ver detalles</button>
+      <button onclick="verDetalles(${edicion.id})">Ver detalles</button>
     `;
     container.appendChild(card);
   }); 

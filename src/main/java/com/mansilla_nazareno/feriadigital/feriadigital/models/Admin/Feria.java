@@ -7,96 +7,48 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity
+@Table(name = "ferias")
 public class Feria {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-
     private String nombre;
-    private LocalDate fechaInicio;
-    private LocalDate fechaFinal;
     private String lugar;
+
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
-    private String estado;
+
     private String imagenUrl;
     private Double latitud;
     private Double longitud;
     private Integer capacidad;
 
-    @OneToMany(mappedBy = "feria", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties("feria")
-    private List<Participacion> participaciones;
-
-
     @Column(nullable = false)
     private boolean eliminado = false;
 
-    public Feria(){}
-    public Feria(String nombre, LocalDate fechaInicio, LocalDate fechaFinal, String lugar, String descripcion, String estado, String imagenUrl, Double latitud, Double longitud, Integer capacidad) {
+    // Constructor vacío obligatorio para JPA
+    public Feria() {}
+
+    // Constructor actualizado (sin campos temporales)
+    public Feria(String nombre, String lugar, String descripcion, String imagenUrl, Double latitud, Double longitud, Integer capacidad) {
         this.nombre = nombre;
-        this.fechaInicio = fechaInicio;
-        this.fechaFinal = fechaFinal;
         this.lugar = lugar;
         this.descripcion = descripcion;
-        this.estado = estado;
         this.imagenUrl = imagenUrl;
         this.latitud = latitud;
         this.longitud = longitud;
         this.capacidad = capacidad;
     }
 
-    public List<Participacion> getParticipaciones() {
-        return participaciones;
-    }
-
-    public void setParticipaciones(List<Participacion> participaciones) {
-        this.participaciones = participaciones;
-    }
-
+    // Getters y Setters
     public int getId() {
         return id;
     }
 
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
-
-    public String getLugar() {
-        return lugar;
-    }
-
-    public void setLugar(String lugar) {
-        this.lugar = lugar;
-    }
-
-
-    public LocalDate getFechaFinal() {
-        return fechaFinal;
-    }
-
-    public void setFechaFinal(LocalDate fechaFinal) {
-        this.fechaFinal = fechaFinal;
-    }
-
-    public LocalDate getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public void setFechaInicio(LocalDate fechaInicio) {
-        this.fechaInicio = fechaInicio;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -107,6 +59,21 @@ public class Feria {
         this.nombre = nombre;
     }
 
+    public String getLugar() {
+        return lugar;
+    }
+
+    public void setLugar(String lugar) {
+        this.lugar = lugar;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
 
     public String getImagenUrl() {
         return imagenUrl;
@@ -114,13 +81,6 @@ public class Feria {
 
     public void setImagenUrl(String imagenUrl) {
         this.imagenUrl = imagenUrl;
-    }
-
-    public boolean isEliminado() {
-        return eliminado;
-    }
-    public void setEliminado(boolean eliminado) {
-        this.eliminado = eliminado;
     }
 
     public Double getLatitud() {
@@ -139,7 +99,20 @@ public class Feria {
         this.longitud = longitud;
     }
 
-    public Integer getCapacidad() { return capacidad; }
+    public Integer getCapacidad() {
+        return capacidad;
+    }
 
-    public void setCapacidad(Integer capacidad) { this.capacidad = capacidad; }
+    public void setCapacidad(Integer capacidad) {
+        this.capacidad = capacidad;
+    }
+
+    public boolean isEliminado() {
+        return eliminado;
+    }
+
+    public void setEliminado(boolean eliminado) {
+        this.eliminado = eliminado;
+    }
 }
+

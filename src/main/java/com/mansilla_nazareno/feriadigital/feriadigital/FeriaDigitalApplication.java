@@ -10,7 +10,8 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuar
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.AdministradorDeFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository; // 🟢 Importado
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository; // 🟢 Importado
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @SpringBootApplication
@@ -37,10 +39,11 @@ public class FeriaDigitalApplication {
 			AdministradorDeFeriaRepository administradorDeFeriaRepository,
 			FerianteRepository ferianteRepository,
 			FeriaRepository feriaRepository,
+			EdicionFeriaRepository edicionFeriaRepository, // 🟢 Inyectado para inicializar eventos
 			StandRepository standRepository,
 			CategoriaProductoRepository categoriaRepository,
 			ProductoRepository productoRepository,
-			ParticipacionRepository participacionRepository, // 🟢 Inyectado
+			ParticipacionRepository participacionRepository,
 			PasswordEncoder passwordEncoder
 	) {
 		return (args) -> {
@@ -64,37 +67,50 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 2. CATEGORÍAS GLOBALES
 				// =========================================
-				CategoriaProducto catIndumentaria = new CategoriaProducto("Indumentaria", "Prendas de vestir para todas las edades, ropa de diseño, uniformes y tejidos artesanales listos para usar");
-				CategoriaProducto catBlancoTextil = new CategoriaProducto("Blanco y Textil", "Artículos de tela para el hogar como sábanas, manteles, cortinas y toallas, además de rollos de tela y retazos para confección");
-				CategoriaProducto catCalzado = new CategoriaProducto("Calzado", "Zapatos, zapatillas, sandalias, botas y calzado artesanal o industrial");
-				CategoriaProducto catAccesorios = new CategoriaProducto("Accesorios", "Complementos de moda, joyería, marroquinería, bufandas, cinturones y carteras");
-				CategoriaProducto catMascotas = new CategoriaProducto("Mascotas", "Alimentos, accesorios, juguetes y ropa para mascotas y animales domésticos");
-				CategoriaProducto catGastronomia = new CategoriaProducto("Gastronomía", "Comidas preparadas, minutas y platos regionales");
-				CategoriaProducto catPanaderia = new CategoriaProducto("Panificación", "Pan casero, prepizzas, facturas y productos de repostería");
-				CategoriaProducto catBebidas = new CategoriaProducto("Bebidas", "Jugos naturales, licuados, cervezas artesanales y conservas");
-				CategoriaProducto catHogar = new CategoriaProducto("Hogar y Decoración", "Artículos de decoración, velas aromáticas y textiles para el hogar");
-				CategoriaProducto catArtesanias = new CategoriaProducto("Artesanías", "Trabajos en madera, cerámica, tejido a mano y cuero");
-				CategoriaProducto catVivero = new CategoriaProducto("Vivero y Jardín", "Plantas de interior, plantines, macetas decoradas y abonos");
-				CategoriaProducto catBelleza = new CategoriaProducto("Belleza y Salud", "Cosmética natural, jabones artesanales y aceites esenciales");
-				CategoriaProducto catJuguetes = new CategoriaProducto("Juguetes", "Juegos de ingenio, muñecos de tela y juguetes de madera");
-				CategoriaProducto catLibreria = new CategoriaProducto("Librería y Arte", "Cuadernos artesanales, láminas decorativas y artículos de papelería");
+				CategoriaProducto catIndumentaria = new CategoriaProducto("Indumentaria", "Prendas de vestir para todas las edades");
+				CategoriaProducto catBlancoTextil = new CategoriaProducto("Blanco y Textil", "Artículos de tela para el hogar");
+				CategoriaProducto catCalzado = new CategoriaProducto("Calzado", "Zapatos y zapatillas");
+				CategoriaProducto catAccesorios = new CategoriaProducto("Accesorios", "Complementos de moda");
+				CategoriaProducto catMascotas = new CategoriaProducto("Mascotas", "Alimentos y juguetes para animales");
+				CategoriaProducto catGastronomia = new CategoriaProducto("Gastronomía", "Comidas preparadas");
+				CategoriaProducto catPanaderia = new CategoriaProducto("Panificación", "Pan casero y repostería");
+				CategoriaProducto catBebidas = new CategoriaProducto("Bebidas", "Jugos y cervezas artesanales");
+				CategoriaProducto catHogar = new CategoriaProducto("Hogar y Decoración", "Artículos de decoración y velas");
+				CategoriaProducto catArtesanias = new CategoriaProducto("Artesanías", "Trabajos en madera y cerámica");
+				CategoriaProducto catVivero = new CategoriaProducto("Vivero y Jardín", "Plantas de interior y macetas");
+				CategoriaProducto catBelleza = new CategoriaProducto("Belleza y Salud", "Cosmética natural");
+				CategoriaProducto catJuguetes = new CategoriaProducto("Juguetes", "Juegos de madera y tela");
+				CategoriaProducto catLibreria = new CategoriaProducto("Librería y Arte", "Cuadernos artesanales");
 
 				categoriaRepository.saveAll(List.of(catIndumentaria, catCalzado, catAccesorios, catMascotas,
-						catGastronomia, catPanaderia, catBebidas,
-						catHogar, catArtesanias, catVivero,
-						catBelleza, catJuguetes, catLibreria,catBlancoTextil));
+						catGastronomia, catPanaderia, catBebidas, catHogar, catArtesanias, catVivero,
+						catBelleza, catJuguetes, catLibreria, catBlancoTextil));
 
 				// =========================================
-				// 3. FERIA
+				// 3. FERIA (PLANTILLA BASE)
 				// =========================================
-				Feria feria = new Feria("Feria Gimnasio Don Bosco", LocalDate.of(2026, 2, 20), LocalDate.of(2026, 2, 22), "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial", "Activa", "/uploads/ferias/Don_Bosco.png", -53.78904155240556,  -67.70062989474968, 25);
-				feriaRepository.save(feria);
+				// 🟢 CORREGIDO: Constructor de plantilla pura (7 parámetros)
+				Feria feriaBase = new Feria("Feria Gimnasio Don Bosco", "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial", "/uploads/ferias/Don_Bosco.png", -53.78904155240556, -67.70062989474968, 25);
+				feriaRepository.save(feriaBase);
+
+				// =========================================
+				// 3.B EDICIÓN CRONOLÓGICA (EL EVENTO REAL)
+				// =========================================
+				// 🟢 NUEVO: Guardamos el fin de semana del evento en la tabla de ediciones
+				EdicionFeria edicionFebrero = new EdicionFeria();
+				edicionFebrero.setFeria(feriaBase);
+				edicionFebrero.setNombreEdicion("Edición Febrero Semana 3 2026");
+				edicionFebrero.setFechaInicio(LocalDate.of(2026, 6, 20));
+				edicionFebrero.setFechaFinal(LocalDate.of(2026, 6, 22));
+				edicionFebrero.setHoraInicio(LocalTime.of(14, 0));
+				edicionFebrero.setHoraFin(LocalTime.of(20, 0));
+				edicionFebrero.setEstado("ACTIVA");
+				edicionFeriaRepository.save(edicionFebrero);
 
 				// =========================================
 				// 4. STAND 1 E INDUMENTARIA
 				// =========================================
 				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana", null);
-				// ❌ stand1.setFeria(feria); -> Borramos esto, ahora se usa Participacion
 
 				Feriante feriante1 = new Feriante("Indumentaria Francisco", "Venta de ropa", "2964-555999", "falco@gmail.com", EstadoUsuario.ACTIVO);
 				feriante1.setUsuario(francisco);
@@ -117,27 +133,16 @@ public class FeriaDigitalApplication {
 				p3.setTipoVenta(TipoVenta.UNIDAD);
 				p3.setUnidadMedida("un");
 
-				Producto p4 = new Producto(20000, "Remera estampada Messi", "Remera 10");
-				p4.setCategoria(catIndumentaria);
-				p4.setTipoVenta(TipoVenta.UNIDAD);
-				p4.setUnidadMedida("un");
-
-				Producto p5 = new Producto(18000, "Bufanda de lana tejida", "Bufanda Artesanal");
-				p5.setCategoria(catAccesorios);
-				p5.setTipoVenta(TipoVenta.UNIDAD);
-				p5.setUnidadMedida("un");
-
-				List<Producto> productosStand1 = List.of(p1, p2, p3, p4, p5);
+				List<Producto> productosStand1 = List.of(p1, p2, p3);
 				productosStand1.forEach(p -> p.setStand(stand1));
 				stand1.setProductos(productosStand1);
 
-				standRepository.save(stand1); // 🟢 Guardamos el stand independientemente
+				standRepository.save(stand1);
 
 				// =========================================
 				// 5. STAND 2 Y MASCOTAS
 				// =========================================
 				Stand stand2 = new Stand("Mascotas Felices", "Todo para tu perro y gato", "/uploads/stands/mascota.png");
-				// ❌ stand2.setFeria(feria); -> Borramos esto
 
 				Feriante feriante2 = new Feriante("Emprendimiento Mascotas", "Accesorios para mascotas", "2964-444555", "mascotas@gmail.com", EstadoUsuario.ACTIVO);
 				feriante2.setUsuario(maria);
@@ -150,28 +155,24 @@ public class FeriaDigitalApplication {
 				p10.setTipoVenta(TipoVenta.UNIDAD);
 				p10.setUnidadMedida("un");
 
-				Producto p11 = new Producto(12000, "Collar ajustable reflectivo", "Collar perro");
-				p11.setCategoria(catMascotas);
-				p11.setTipoVenta(TipoVenta.UNIDAD);
-				p11.setUnidadMedida("un");
-
-				List<Producto> productosStand2 = List.of(p10, p11);
+				List<Producto> productosStand2 = List.of(p10);
 				productosStand2.forEach(p -> p.setStand(stand2));
 				stand2.setProductos(productosStand2);
 
-				standRepository.save(stand2); // 🟢 Guardamos el stand
+				standRepository.save(stand2);
 
 				// =========================================
-				// 6. 🟢 LÓGICA NUEVA: VINCULAR CON PARTICIPACIONES
+				// 6. VINCULAR CON PARTICIPACIONES A LA EDICIÓN
 				// =========================================
+				// 🟢 CORREGIDO: Asociamos las postulaciones directas a edicionFebrero usando .setEdicion()
 				Participacion part1 = new Participacion();
-				part1.setFeria(feria);
+				part1.setEdicion(edicionFebrero);
 				part1.setStand(stand1);
-				part1.setEstado(EstadoParticipacion.CONFIRMADO); // Lo marcamos confirmado para que aparezca en el frontend
+				part1.setEstado(EstadoParticipacion.CONFIRMADO);
 				participacionRepository.save(part1);
 
 				Participacion part2 = new Participacion();
-				part2.setFeria(feria);
+				part2.setEdicion(edicionFebrero);
 				part2.setStand(stand2);
 				part2.setEstado(EstadoParticipacion.CONFIRMADO);
 				participacionRepository.save(part2);
