@@ -105,7 +105,7 @@ public class AuthService {
                 usuario.getEmail(),
                 "Recuperación de contraseña - Feria Digital",
                 "Click aquí para cambiar tu contraseña:\n" +
-                        "http://localhost:8080/auth/reset-password?token=" + token );
+                        "http://localhost:8080/web/reset-password.html?token=" + token );
     }
     public ResponseEntity<?> resetearPassword(String token, String nuevaPassword) {
 
