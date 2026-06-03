@@ -2,22 +2,9 @@
 
 Sistema web para la gestion y visualizacion de ferias locales, desarrollado como proyecto del CENT 35.
 
+## Descripcion
 
-## Definir Problema:
-Actualmente, la gestión de las ferias se realiza de manera manual o con herramientas poco integradas (como papel, WhatsApp o Facebook), lo que genera múltiples inconvenientes. Entre ellos se destacan la desorganización en la asignación de puestos, la dificultad para acceder a información actualizada, la falta de visibilidad para los feriantes y la ausencia de un canal centralizado para los usuarios.
-Además, los clientes no cuentan con información clara sobre los productos, precios, ubicación de los puestos o fechas de las ferias, lo que limita la experiencia y reduce el alcance comercial de los emprendedores.
-En consecuencia, esto provoca una gestión irregular, pérdida de oportunidades de venta y una experiencia poco optimizada tanto para organizadores como para feriantes y clientes.
-
-##  Sistema Actual
-El sistema actual se basa principalmente en procesos manuales y herramientas no específicas:
-- Inscripción de feriantes mediante mensajes a través de WhatsApp.
-- Asignación de puestos realizada de forma manual.
-D- ifusión de la feria a través de redes sociales sin una estructura organizada.
-- Falta de un sistema centralizado para consultar información (ubicación de puestos, productos, horarios, etc.).
-- Escaso control sobre asistencia, historial de feriantes y gestión de eventos.
-
-## Alcance del Proyecto
-El proyecto “Feria Digital” tendrá como alcance el desarrollo de una plataforma digital destinada a mejorar la organización y gestión de ferias, permitiendo centralizar la información y optimizar la interacción entre organizadores, feriantes y clientes. Esto se aplicara por ahora en la ciudad de Rio Grande.
+Feria Digital es una plataforma que conecta a feriantes con usuarios, permitiendo la gestion de ferias, stands y productos. Los administradores pueden crear y gestionar ferias, mientras que los feriantes pueden registrar sus productos y participar en eventos.
 
 ---
 
@@ -70,7 +57,7 @@ src/main/resources/static/web/
 
 ---
 
-##  Algunos Requerimientos Funcionales
+## Requerimientos Funcionales
 
 ### RF01 - Gestion de Usuarios
 - Registro de usuarios con verificacion por email
@@ -105,7 +92,7 @@ src/main/resources/static/web/
 
 ---
 
-## Algunos Requerimientos No Funcionales
+## Requerimientos No Funcionales
 
 ### RNF01 - Seguridad
 - Contrasenas hasheadas con BCrypt
@@ -131,6 +118,74 @@ src/main/resources/static/web/
 - Arquitectura MVC
 - Separacion de responsabilidades por capas
 - Codigo organizado por dominio (Admin, Feriante, Usuario)
+
+---
+
+## Instalacion y Ejecucion
+
+### Prerrequisitos
+
+- **Java 17** o superior
+- **MySQL 8.0** o superior
+- **Gradle 8.x** (incluido via wrapper)
+
+### Configuracion de Base de Datos
+
+1. Crear la base de datos:
+```sql
+CREATE DATABASE feriadigital;
+```
+
+2. Configurar credenciales en `application.properties`:
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/feriadigital?useSSL=false&serverTimezone=UTC
+spring.datasource.username=tu_usuario
+spring.datasource.password=tu_contrasena
+```
+
+### Variables de Entorno (Opcionales)
+
+Para mayor seguridad, usar variables de entorno en lugar de valores hardcodeados:
+
+```properties
+# Cloudinary
+cloudinary.cloud-name=${CLOUDINARY_CLOUD_NAME}
+cloudinary.api-key=${CLOUDINARY_API_KEY}
+cloudinary.api-secret=${CLOUDINARY_API_SECRET}
+
+# Email
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
+```
+
+### Ejecucion
+
+```bash
+# Clonar repositorio
+git clone https://github.com/nazareno28210/Proyecto-feria-digitali.git
+cd Proyecto-feria-digitali
+
+# Ejecutar con Gradle
+./gradlew bootRun
+```
+
+La aplicacion estara disponible en: `http://localhost:8080`
+
+### Ejecucion con Docker (Opcional)
+
+```bash
+# Construir imagen
+docker build -t feria-digital .
+
+# Ejecutar contenedor
+docker run -p 8080:8080 \
+  -e DB_HOST=host.docker.internal \
+  -e DB_PORT=3306 \
+  -e DB_NAME=feriadigital \
+  -e DB_USER=root \
+  -e DB_PASS=password \
+  feria-digital
+```
 
 ---
 
@@ -170,6 +225,49 @@ src/main/resources/static/web/
 | POST | `/auth/reset-password` | Cambiar contrasena |
 
 ---
+
+## Modelo de Datos
+
+### Entidades Principales
+
+```
+Usuario
+├── id (int)
+├── nombre (string)
+├── apellido (string)
+├── email (string, unique)
+├── contrasena (string, bcrypt)
+├── tipoUsuario (NORMAL | FERIANTE | ADMINISTRADOR)
+├── estadoUsuario (ACTIVO | INACTIVO | SUSPENDIDO)
+├── enabled (boolean)
+└── fechaRegistro (date)
+
+Feria
+├── id (int)
+├── nombre (string)
+├── descripcion (string)
+├── lugar (string)
+├── fechaInicio (date)
+├── fechaFinal (date)
+├── estado (string)
+├── latitud (double)
+├── longitud (double)
+├── imagenUrl (string)
+└── eliminado (boolean)
+
+Producto
+├── id (int)
+├── nombre (string)
+├── descripcion (string)
+├── precio (double)
+├── categoria (CategoriaProducto)
+├── tipoVenta (UNIDAD | PESO | MEDIDA)
+├── unidadMedida (string)
+├── activo (boolean)
+├── eliminado (boolean)
+└── imagenes (List<ImagenProducto>)
+```
+
 ---
 
 ## Roles y Permisos
@@ -207,4 +305,18 @@ src/main/resources/static/web/
 
 **Proyecto realizado por estudiantes del CENT 35**
 
-- Nazareno y Mansilla
+- Nazareno Mansilla
+
+---
+
+## Licencia
+
+Este proyecto es de uso educativo y fue desarrollado como parte del curriculum del CENT 35.
+
+---
+
+## Notas Adicionales
+
+- El sistema usa `spring.jpa.hibernate.ddl-auto=create-drop` en desarrollo, lo que recrea las tablas en cada reinicio. Cambiar a `update` o `validate` en produccion.
+- Las credenciales de Cloudinary y Gmail en `application.properties` deben ser reemplazadas por variables de entorno en produccion.
+- El puerto por defecto es 8080, configurable en `application.properties`.

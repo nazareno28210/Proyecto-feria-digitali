@@ -1,32 +1,38 @@
 function showToast(message, type = "info") {
   let color;
-  // Colores actualizados a la paleta de la app
   switch (type) {
     case "success":
-      // Gradiente del azul oscuro al medio
-      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
+      color = "linear-gradient(to right, #166534, #22c55e)"; 
       break;
     case "error":
-      // Gradiente de rojos
       color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
       break;
     case "warning":
-      // Gradiente de naranjas/ámbar
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)";
+      color = "linear-gradient(to right, #f59e0b, #d97706)";
       break;
     default:
-      // Gradiente del azul medio al cian
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      color = "linear-gradient(to right, #22c55e, #86efac)"; 
   }
 
   Toastify({
     text: message,
     duration: 4000,
-    gravity: "top", // top or bottom
-    position: "right", // left, center or right
+    gravity: "top",
+    position: "right",
     backgroundColor: color,
     stopOnFocus: true,
   }).showToast();
+}
+
+function setLoading(isLoading) {
+  const btn = document.getElementById("submitBtn");
+  if (isLoading) {
+    btn.classList.add("loading");
+    btn.disabled = true;
+  } else {
+    btn.classList.remove("loading");
+    btn.disabled = false;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -35,48 +41,53 @@ document.addEventListener("DOMContentLoaded", () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // 1. Obtenemos todos los valores del formulario
     const nombre = document.getElementById("nombre").value;
     const apellido = document.getElementById("apellido").value;
     const email = document.getElementById("email").value;
     const contrasena = document.getElementById("password").value;
     const confirmContrasena = document.getElementById("confirmPassword").value;
+    const terms = document.getElementById("terms").checked;
 
-    // 2. Validación RÁPIDA en el frontend (para mejor UX)
-    if (contrasena !== confirmContrasena) {
-      showToast("⚠️ Las contraseñas no coinciden", "warning");
-      return; // Detiene el envío
+    if (!terms) {
+      showToast("Debes aceptar los terminos de servicio", "warning");
+      return;
     }
 
+    if (contrasena !== confirmContrasena) {
+      showToast("Las contrasenas no coinciden", "warning");
+      return;
+    }
+
+    if (contrasena.length < 8) {
+      showToast("La contrasena debe tener al menos 8 caracteres", "warning");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      // 3. Enviamos el objeto completo al backend (coincide con RegistroDTO)
       await axios.post("/api/usuarios", {
         nombre,
         apellido,
         email,
         contrasena,
-        confirmContrasena // Se envía también la confirmación
+        confirmContrasena
       });
 
-      // 4. Éxito
-      showToast("✅ Usuario registrado correctamente", "success");
+      showToast("Cuenta creada correctamente", "success");
 
       setTimeout(() => {
         window.location.href = "/web/login.html";
       }, 1500);
 
     } catch (error) {
-      // 5. Manejo de errores (ahora lee el mensaje del backend)
+      setLoading(false);
       if (error.response?.status === 409) {
-        // Conflicto (Email ya existe)
-        showToast("⚠️ El correo ya está registrado", "warning");
+        showToast("El correo ya esta registrado", "warning");
       } else if (error.response?.status === 400) {
-        // Bad Request (Contraseñas no coinciden, o no es segura)
-        // Usamos el mensaje específico que envía el backend
-        showToast("⚠️ " + (error.response.data || "Error en los datos"), "warning");
+        showToast(error.response.data || "Error en los datos", "warning");
       } else {
-        // Otro error
-        showToast("❌ Error al registrar usuario", "error");
+        showToast("Error al registrar usuario", "error");
       }
     }
   });

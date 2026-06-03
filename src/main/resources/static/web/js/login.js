@@ -1,31 +1,38 @@
 function showToast(message, type = "info") {
   let color;
-   switch (type) {
+  switch (type) {
     case "success":
-      // Gradiente del azul oscuro al medio
-      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
+      color = "linear-gradient(to right, #166534, #22c55e)"; 
       break;
     case "error":
-      // Gradiente de rojos
       color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
       break;
     case "warning":
-      // Gradiente de naranjas/ámbar
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)";
+      color = "linear-gradient(to right, #f59e0b, #d97706)";
       break;
     default:
-      // Gradiente del azul medio al cian
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      color = "linear-gradient(to right, #22c55e, #86efac)"; 
   }
 
   Toastify({
     text: message,
     duration: 4000,
-    gravity: "top", // top or bottom
-    position: "right", // left, center or right
+    gravity: "top",
+    position: "right",
     backgroundColor: color,
     stopOnFocus: true,
   }).showToast();
+}
+
+function setLoading(isLoading) {
+  const btn = document.getElementById("submitBtn");
+  if (isLoading) {
+    btn.classList.add("loading");
+    btn.disabled = true;
+  } else {
+    btn.classList.remove("loading");
+    btn.disabled = false;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -37,8 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const email = document.getElementById("email").value;
     const contrasena = document.getElementById("contrasena").value;
 
+    setLoading(true);
+
     try {
-      // Enviar login
       await axios.post(
         "/api/login",
         new URLSearchParams({ email, password: contrasena }),
@@ -48,38 +56,40 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       );
 
-      // Obtener usuario actual
       const res = await axios.get("/api/usuarios/current", {
         withCredentials: true,
       });
       const usuario = res.data;
 
       if (!usuario || !usuario.tipoUsuario) {
-        showToast("⚠️ No se pudo obtener el tipo de usuario.", "warning");
+        showToast("No se pudo obtener el tipo de usuario.", "warning");
+        setLoading(false);
         return;
       }
 
-      showToast("✅ Sesión iniciada correctamente", "success");
+      showToast("Sesion iniciada correctamente", "success");
 
-      // Redirigir según tipo de usuario
-      switch (usuario.tipoUsuario) {
-        case "ADMINISTRADOR":
-          window.location.href = "/web/admin/dashboard.html";
-          break;
-        case "FERIANTE":
-          window.location.href = "/web/feriante/perfil.html";
-          break;
-        case "NORMAL":
-          window.location.href = "/web/ferias.html";
-          break;
-        default:
-          showToast("Tipo de usuario desconocido: " + usuario.tipoUsuario, "warning");
-      }
+      setTimeout(() => {
+        switch (usuario.tipoUsuario) {
+          case "ADMINISTRADOR":
+            window.location.href = "/web/admin/dashboard.html";
+            break;
+          case "FERIANTE":
+            window.location.href = "/web/feriante/perfil.html";
+            break;
+          case "NORMAL":
+            window.location.href = "/web/ferias.html";
+            break;
+          default:
+            showToast("Tipo de usuario desconocido: " + usuario.tipoUsuario, "warning");
+        }
+      }, 1000);
     } catch (error) {
+      setLoading(false);
       if (error.response?.status === 401)
-        showToast("❌ Credenciales incorrectas", "error");
+        showToast("Credenciales incorrectas", "error");
       else
-        showToast("❌ Error en el servidor", "error");
+        showToast("Error en el servidor", "error");
     }
   });
 });
