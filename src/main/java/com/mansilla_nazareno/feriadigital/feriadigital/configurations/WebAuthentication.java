@@ -21,19 +21,25 @@ public class WebAuthentication extends GlobalAuthenticationConfigurerAdapter {
     @Override
     public void init(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(inputName -> {
-            Usuario usuario = usuarioRepository.findByEmail(inputName);
+            Usuario usuario = usuarioRepository.findByNombreUsuario(inputName);
 
             if (usuario == null) {
                 throw new UsernameNotFoundException("Usuario desconocido: " + inputName);
             }
 
-            // Asigna rol según tipoUsuario
-            String rol = usuario.getTipoUsuario().name(); // NORMAL, FERIANTE, ADMINISTRADOR
+            // Carga todos los roles asignados en la relación ManyToMany
+            String[] roles = usuario.getRoles().stream()
+                    .map(rol -> "ROLE_" + rol.getNombre())
+                    .toArray(String[]::new);
 
             return new User(
-                    usuario.getEmail(),
+                    usuario.getNombreUsuario(),
                     usuario.getContrasena(),
-                    AuthorityUtils.createAuthorityList("ROLE_" + rol)
+                    usuario.isActivo(),
+                    true,
+                    true,
+                    true,
+                    AuthorityUtils.createAuthorityList(roles)
             );
         });
     }

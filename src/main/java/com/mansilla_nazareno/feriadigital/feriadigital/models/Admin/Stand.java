@@ -1,66 +1,124 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.Admin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Participante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Producto;
 import com.mansilla_nazareno.feriadigital.feriadigital.configurations.CloudinaryDefaults;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "stand")
 public class Stand {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id_stand")
+    private int idStand;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_edicion_feria")
+    private EdicionFeria edicionFeria;
+
+    @Column(name = "codigo", length = 20)
+    private String codigo; // Ej: A1, B2
+
+    @Column(name = "metros_cuadrados", columnDefinition = "DECIMAL(5,2)")
+    private double metrosCuadrados;
+
+    @Column(name = "estado", length = 30)
+    private String estadoStand = "DISPONIBLE"; // DISPONIBLE, RESERVADO, OCUPADO
+
+    // ===================================================
+    // CAMPOS DE COMPATIBILIDAD ANTERIOR (DEPRECATED)
+    // ===================================================
+    @Deprecated
     private String nombre;
+    @Deprecated
     private String descripcion;
+    @Deprecated
     private String imagenUrl;
+    @Deprecated
     private String imagenPublicId;
-    //ESTADO DE ACTIVACIÓN
+    @Deprecated
     private boolean activo = true;
+    @Deprecated
+    private boolean javaEstado = true; // antiguo boolean estado
+
     public static final String IMAGEN_DEFAULT = CloudinaryDefaults.FERiante_DEFAULT_URL;
-    private boolean estado = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "feria_id")
+    @Deprecated
+    private Feria feria;
 
     @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties("stand")
     private List<Participacion> participaciones;
 
-
-    @OneToMany(mappedBy = "stand", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("stand")
-    private List<Producto> productos; // un stand puede tener muchos productos
-
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "feriante_id") // crea la columna en la tabla Stand
-
+    @JoinColumn(name = "feriante_id") // apunta a id_participante
     @JsonIgnoreProperties("stands")
-    private Feriante feriante;
+    private Participante feriante;
 
-    @ManyToOne
-    @JoinColumn(name = "feria_id")
-    private Feria feria;
+    public Stand() {
+    }
 
-    public Stand(){}
     public Stand(String nombre, String descripcion, String imagenUrl) {
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.imagenUrl =  (imagenUrl == null || imagenUrl.isBlank())
-                ? IMAGEN_DEFAULT
-                : imagenUrl;
+        this.imagenUrl = (imagenUrl == null || imagenUrl.isBlank()) ? IMAGEN_DEFAULT : imagenUrl;
     }
 
-    public boolean isEstado() {
-        return estado;
+    public int getIdStand() {
+        return idStand;
     }
 
-    public void setEstado(boolean estado) {
-        this.estado = estado;
+    public void setIdStand(int idStand) {
+        this.idStand = idStand;
+    }
+
+    // Método bridge de compatibilidad para getId()
+    public int getId() {
+        return idStand;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idStand = id;
+    }
+
+    public EdicionFeria getEdicionFeria() {
+        return edicionFeria;
+    }
+
+    public void setEdicionFeria(EdicionFeria edicionFeria) {
+        this.edicionFeria = edicionFeria;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
+    }
+
+    public double getMetrosCuadrados() {
+        return metrosCuadrados;
+    }
+
+    public void setMetrosCuadrados(double metrosCuadrados) {
+        this.metrosCuadrados = metrosCuadrados;
+    }
+
+    public String getEstadoStand() {
+        return estadoStand;
+    }
+
+    public void setEstadoStand(String estadoStand) {
+        this.estadoStand = estadoStand;
     }
 
     public List<Participacion> getParticipaciones() {
@@ -71,70 +129,89 @@ public class Stand {
         this.participaciones = participaciones;
     }
 
-    public void setProductos(List<Producto> productos) {
-        this.productos = productos;
+    public Participante getFeriante() {
+        return feriante;
     }
 
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setFeriante(Participante feriante) {
+        this.feriante = feriante;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    // ===================================================
+    // MÉTODOS DE COMPATIBILIDAD ANTERIOR (DEPRECATED)
+    // ===================================================
+    @Deprecated
+    public boolean isEstado() {
+        return javaEstado;
     }
 
-    public int getId() {
-        return id;
+    @Deprecated
+    public void setEstado(boolean estado) {
+        this.javaEstado = estado;
     }
 
+    @Deprecated
     public String getNombre() {
         return nombre;
     }
 
+    @Deprecated
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    @Deprecated
     public String getDescripcion() {
         return descripcion;
     }
 
+    @Deprecated
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    @Deprecated
     public Feria getFeria() {
         return feria;
     }
 
+    @Deprecated
     public void setFeria(Feria feria) {
         this.feria = feria;
     }
 
-    public List<Producto> getProductos() {
-        return productos;
-    }
-
-    public Feriante getFeriante() {
-        return feriante;
-    }
-
-    public void setFeriante(Feriante feriante) {
-        this.feriante = feriante;
-    }
-
+    @Deprecated
     public String getImagenUrl() {
         return imagenUrl;
     }
 
+    @Deprecated
     public void setImagenUrl(String imagenUrl) {
-        this.imagenUrl =
-                (imagenUrl == null || imagenUrl.isBlank())
-                        ? IMAGEN_DEFAULT
-                        : imagenUrl;
+        this.imagenUrl = (imagenUrl == null || imagenUrl.isBlank()) ? IMAGEN_DEFAULT : imagenUrl;
     }
+
+    @Deprecated
     public String getImagenPublicId() {
         return imagenPublicId;
     }
 
+    @Deprecated
     public void setImagenPublicId(String imagenPublicId) {
         this.imagenPublicId = imagenPublicId;
     }
 
-    public boolean isActivo() { return activo; }
-    public void setActivo(boolean activo) { this.activo = activo; }
+    @Deprecated
+    public boolean isActivo() {
+        return activo;
+    }
 
+    @Deprecated
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    @Deprecated
+    public List<Producto> getProductos() {
+        return getFeriante() != null ? getFeriante().getProductos() : new ArrayList<>();
+    }
 }

@@ -49,6 +49,8 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
     // 🔐 POR AUTENTICACIÓN (rápido)
     // =============================
     // Obtener productos del feriante logueado
+    @Query("SELECT p FROM Producto p WHERE p.participante.idParticipante IN " +
+           "(SELECT pp.idParticipante FROM ParticipantePersona pp WHERE pp.persona.usuario.nombreUsuario = ?1)")
     List<Producto> findByStand_Feriante_Usuario_Email(String email);
 
     List<Producto> findByCategoria_IdAndActivoTrue(int categoriaId);

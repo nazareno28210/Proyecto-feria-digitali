@@ -3,90 +3,85 @@ package com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
 import jakarta.persistence.*;
-import jakarta.persistence.Id;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
+@Table(name = "usuario")
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id_usuario")
+    private int idUsuario;
 
-    private String nombre;
-    private String apellido;
-    private String email;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_persona", nullable = false)
+    private Persona persona;
+
+    @Column(name = "nombre_usuario", length = 50, nullable = false, unique = true)
+    private String nombreUsuario;
+
+    @Column(name = "contraseña", length = 255, nullable = false)
     private String contrasena;
-    private LocalDate fechaRegistro;
-    @Column(nullable = false)
-    private boolean enabled;
 
-    @Enumerated(EnumType.STRING)
-    private EstadoUsuario estadoUsuario;
+    @Column(name = "ultimo_acceso")
+    private LocalDateTime ultimoAcceso;
 
-    @Enumerated(EnumType.STRING)
-    private TipoUsuario tipoUsuario;
+    @Column(name = "activo", nullable = false)
+    private boolean activo;
 
-    @Column(name = "imagen_url")
-    private String imagenUrl;
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+        name = "usuario_rol",
+        joinColumns = @JoinColumn(name = "id_usuario"),
+        inverseJoinColumns = @JoinColumn(name = "id_rol")
+    )
+    private Set<Rol> roles = new HashSet<>();
 
-    @Column(name = "imagen_public_id")
-    private String imagenPublicId;
+    public Usuario() {
+    }
 
-    public Usuario() {}
-
-    public Usuario(String nombre, String apellido, String email, String contrasena, EstadoUsuario estadoUsuario) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.email = email;
+    public Usuario(Persona persona, String nombreUsuario, String contrasena) {
+        this.persona = persona;
+        this.nombreUsuario = nombreUsuario;
         this.contrasena = contrasena;
-        this.fechaRegistro = LocalDate.now();
-        this.estadoUsuario = estadoUsuario;
-        this.tipoUsuario = TipoUsuario.NORMAL;
-
-        this.enabled=false;
-
-
+        this.activo = false;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    // ==========================================
+    // CONSTRUCTOR DE COMPATIBILIDAD
+    // ==========================================
+    public Usuario(String nombre, String apellido, String email, String contrasena, EstadoUsuario estadoUsuario) {
+        this.persona = new Persona(nombre, apellido, null, null, null);
+        this.nombreUsuario = email;
+        this.contrasena = contrasena;
+        this.activo = (estadoUsuario == EstadoUsuario.ACTIVO);
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public int getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setFechaRegistro(LocalDate fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
-    public int getId() {
-        return id;
+    public Persona getPersona() {
+        return persona;
     }
 
-    public String getNombre() {
-        return nombre;
+    public void setPersona(Persona persona) {
+        this.persona = persona;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public String getNombreUsuario() {
+        return nombreUsuario;
     }
 
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setNombreUsuario(String nombreUsuario) {
+        this.nombreUsuario = nombreUsuario;
     }
 
     public String getContrasena() {
@@ -97,31 +92,120 @@ public class Usuario {
         this.contrasena = contrasena;
     }
 
-    public EstadoUsuario getEstadoUsuario() {
-        return estadoUsuario;
+    public LocalDateTime getUltimoAcceso() {
+        return ultimoAcceso;
+    }
+
+    public void setUltimoAcceso(LocalDateTime ultimoAcceso) {
+        this.ultimoAcceso = ultimoAcceso;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
+    }
+
+    public Set<Rol> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Rol> roles) {
+        this.roles = roles;
+    }
+
+    // ==========================================
+    // MÉTODOS DE COMPATIBILIDAD (PUENTE)
+    // ==========================================
+    public int getId() {
+        return idUsuario;
+    }
+
+    public String getEmail() {
+        return nombreUsuario;
+    }
+
+    public void setEmail(String email) {
+        this.nombreUsuario = email;
+    }
+
+    public String getNombre() {
+        return persona != null ? persona.getNombre() : null;
+    }
+
+    public void setNombre(String nombre) {
+        if (this.persona == null) {
+            this.persona = new Persona();
+        }
+        this.persona.setNombre(nombre);
+    }
+
+    public String getApellido() {
+        return persona != null ? persona.getApellido() : null;
+    }
+
+    public void setApellido(String apellido) {
+        if (this.persona == null) {
+            this.persona = new Persona();
+        }
+        this.persona.setApellido(apellido);
+    }
+
+    public String getImagenUrl() {
+        return persona != null ? persona.getImagenUrl() : null;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        if (this.persona == null) {
+            this.persona = new Persona();
+        }
+        this.persona.setImagenUrl(imagenUrl);
+    }
+
+    public String getImagenPublicId() {
+        return persona != null ? persona.getImagenPublicId() : null;
+    }
+
+    public void setImagenPublicId(String imagenPublicId) {
+        if (this.persona == null) {
+            this.persona = new Persona();
+        }
+        this.persona.setImagenPublicId(imagenPublicId);
+    }
+
+    public boolean isEnabled() {
+        return activo;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.activo = enabled;
     }
 
     public void setUserEstate(EstadoUsuario estadoUsuario) {
-        this.estadoUsuario = estadoUsuario;
+        this.activo = (estadoUsuario == EstadoUsuario.ACTIVO);
     }
 
-    public LocalDate getFechaRegistro() {
-        return fechaRegistro;
+    public EstadoUsuario getEstadoUsuario() {
+        return activo ? EstadoUsuario.ACTIVO : EstadoUsuario.INACTIVO;
     }
 
     public TipoUsuario getTipoUsuario() {
-        return tipoUsuario;
+        if (roles.stream().anyMatch(r -> r.getNombre().equalsIgnoreCase("ADMINISTRADOR") || r.getNombre().equalsIgnoreCase("ADMIN"))) {
+            return TipoUsuario.ADMINISTRADOR;
+        }
+        if (roles.stream().anyMatch(r -> r.getNombre().equalsIgnoreCase("FERIANTE"))) {
+            return TipoUsuario.FERIANTE;
+        }
+        return TipoUsuario.NORMAL;
     }
 
     public void setTipoUsuario(TipoUsuario tipoUsuario) {
-        this.tipoUsuario = tipoUsuario;
+        if (tipoUsuario == null) return;
+        String roleName = tipoUsuario == TipoUsuario.ADMINISTRADOR ? "ADMINISTRADOR" :
+                          tipoUsuario == TipoUsuario.FERIANTE ? "FERIANTE" : "VISITANTE";
+        this.roles.clear();
+        this.roles.add(new Rol(roleName));
     }
-
-    public String getImagenUrl() { return imagenUrl; }
-
-    public void setImagenUrl(String imagenUrl) { this.imagenUrl = imagenUrl; }
-
-    public String getImagenPublicId() {return imagenPublicId;}
-
-    public void setImagenPublicId(String imagenPublicId) {this.imagenPublicId = imagenPublicId;}
 }

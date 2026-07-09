@@ -1,53 +1,38 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.ParticipantePersona;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
-import java.util.List;
-
 @Entity
-public class Feriante {
+@Table(name = "feriante_compat")
+@PrimaryKeyJoinColumn(name = "id_participante")
+@DiscriminatorValue("FERIANTE")
+@Deprecated
+public class Feriante extends ParticipantePersona {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
+    @Column(name = "nombre_emprendimiento", length = 150)
     private String nombreEmprendimiento;
+
+    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
+
+    @Column(name = "telefono", length = 20)
     private String telefono;
+
+    @Column(name = "email_emprendimiento", length = 100)
     private String emailEmprendimiento;
-    private LocalDate fechaRegistro;
 
-    @Enumerated(EnumType.STRING)
-    private EstadoUsuario estadoUsuario;
+    public Feriante() {
+    }
 
-    @OneToOne
-    @JoinColumn(name = "fk_id_usuario", referencedColumnName = "id")
-    private Usuario usuario;
-
-    @OneToOne(mappedBy = "feriante")
-    @JsonIgnoreProperties("feriante")
-    private Stand stand;
-
-    public Feriante() {}
-
-    public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento,
-             EstadoUsuario estadoUsuario) {
+    public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento, EstadoUsuario estadoUsuario) {
+        super("MONOTRIBUTO", estadoUsuario == EstadoUsuario.ACTIVO ? "ACTIVO" : "PENDIENTE", null);
         this.nombreEmprendimiento = nombreEmprendimiento;
         this.descripcion = descripcion;
         this.telefono = telefono;
         this.emailEmprendimiento = emailEmprendimiento;
-        this.fechaRegistro =  LocalDate.now();
-        this.estadoUsuario = estadoUsuario;
-
-    }
-
-    public int getId() {
-        return id;
     }
 
     public String getNombreEmprendimiento() {
@@ -82,36 +67,9 @@ public class Feriante {
         this.emailEmprendimiento = emailEmprendimiento;
     }
 
-    public LocalDate getFechaRegistro() {
-        return fechaRegistro;
-    }
-
-
-    public EstadoUsuario getUserEstate() {
-        return estadoUsuario;
-    }
-
-    public void setUserEstate(EstadoUsuario estadoUsuario) {
-        this.estadoUsuario = estadoUsuario;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
     public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
-
-    public EstadoUsuario getEstadoUsuario() {
-        return estadoUsuario;
-    }
-
-    public Stand getStand() {
-        return stand;
-    }
-
-    public void setStand(Stand stand) {
-        this.stand = stand;
+        if (usuario != null) {
+            setPersona(usuario.getPersona());
+        }
     }
 }

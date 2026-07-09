@@ -1,23 +1,22 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.Admin;
 
-import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "administrador_de_feria")
 public class AdministradorDeFeria {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
-    @OneToOne
-    @JoinColumn(name = "fk_id_usuario", referencedColumnName = "id")
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_id_usuario", referencedColumnName = "id_usuario")
     private Usuario usuario;
 
-
-    public AdministradorDeFeria(){}
-
+    public AdministradorDeFeria() {}
 
     public int getId() {
         return id;
@@ -28,9 +27,6 @@ public class AdministradorDeFeria {
     }
 
     public void setUsuario(Usuario usuario) {
-        if (usuario.getTipoUsuario() == TipoUsuario.NORMAL) {
-            usuario.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
-        }
         this.usuario = usuario;
     }
 }

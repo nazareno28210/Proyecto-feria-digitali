@@ -9,6 +9,7 @@ public class SolicitudParaFeriante {
     private int id;
 
     @OneToOne
+    @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
     private boolean aprobada = false;

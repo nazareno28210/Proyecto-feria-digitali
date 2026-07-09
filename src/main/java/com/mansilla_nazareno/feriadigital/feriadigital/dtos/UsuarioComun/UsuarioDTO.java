@@ -1,32 +1,30 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioComun;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
-
-import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class UsuarioDTO {
     private int id;
-    private  String nombre;
-    private  String apellido;
-    private  String email;
-    private  String contrasena;
-    private EstadoUsuario estadoUsuario;
-    private LocalDate DayRegistrer;
-    private TipoUsuario tipoUsuario;
+    private String nombre;
+    private String apellido;
+    private String email;
+    private boolean activo;
+    private List<String> roles;
     private String imagenUrl;
 
     public UsuarioDTO(Usuario usuario) {
-        this.id= usuario.getId();
-        this.nombre = usuario.getNombre();
-        this.apellido = usuario.getApellido();
-        this.email = usuario.getEmail();
-        this.contrasena = usuario.getContrasena();
-        this.estadoUsuario = usuario.getEstadoUsuario();
-        this.DayRegistrer = usuario.getFechaRegistro();
-        this.tipoUsuario = usuario.getTipoUsuario();
-        this.imagenUrl = usuario.getImagenUrl();
+        this.id = usuario.getIdUsuario();
+        if (usuario.getPersona() != null) {
+            this.nombre = usuario.getPersona().getNombre();
+            this.apellido = usuario.getPersona().getApellido();
+            this.imagenUrl = usuario.getPersona().getImagenUrl();
+        }
+        this.email = usuario.getNombreUsuario();
+        this.activo = usuario.isActivo();
+        this.roles = usuario.getRoles().stream()
+                .map(rol -> rol.getNombre())
+                .collect(Collectors.toList());
     }
 
     public int getId() {
@@ -45,21 +43,15 @@ public class UsuarioDTO {
         return email;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public boolean isActivo() {
+        return activo;
     }
 
-    public EstadoUsuario getEstadoUsuario() {
-        return estadoUsuario;
+    public List<String> getRoles() {
+        return roles;
     }
 
-    public LocalDate getDayRegistrer() {
-        return DayRegistrer;
+    public String getImagenUrl() {
+        return imagenUrl;
     }
-
-    public TipoUsuario getTipoUsuario() {
-        return tipoUsuario;
-    }
-
-    public String getImagenUrl() {return imagenUrl;}
 }

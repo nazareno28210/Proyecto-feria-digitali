@@ -1,12 +1,10 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.ResetPasswordDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.PasswordResetToken;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.VerificationToken;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.PasswordResetTokenRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.TokenSeguridad;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.VerificationTokenRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.TokenSeguridadRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,18 +17,18 @@ import java.time.LocalDateTime;
 public class AuthController {
 
     private final AuthService authService;
-    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final TokenSeguridadRepository tokenSeguridadRepository;
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
     public AuthController(AuthService authService,
-                          PasswordResetTokenRepository passwordResetTokenRepository,
+                          TokenSeguridadRepository tokenSeguridadRepository,
                           UsuarioRepository usuarioRepository,
                           PasswordEncoder passwordEncoder) {
         this.authService = authService;
-        this.passwordResetTokenRepository =passwordResetTokenRepository;
-        this.usuarioRepository=usuarioRepository;
-        this.passwordEncoder=passwordEncoder;
+        this.tokenSeguridadRepository = tokenSeguridadRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/verificar")
@@ -47,13 +45,15 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDTO dto) {
 
-        PasswordResetToken token = passwordResetTokenRepository.findByToken(dto.getToken());
+        TokenSeguridad token = tokenSeguridadRepository
+                .findByTokenAndTipoToken(dto.getToken(), "RECUPERAR_PASSWORD")
+                .orElse(null);
 
         if (token == null) {
             return ResponseEntity.badRequest().body("Token inválido");
         }
 
-        if (token.getFechaExpiracion().isBefore(LocalDateTime.now())) {
+        if (token.isExpired()) {
             return ResponseEntity.badRequest().body("Token expirado");
         }
 
@@ -62,9 +62,8 @@ public class AuthController {
         usuario.setContrasena(passwordEncoder.encode(dto.getNuevaPassword()));
         usuarioRepository.save(usuario);
 
-        passwordResetTokenRepository.delete(token);
+        tokenSeguridadRepository.delete(token);
 
         return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
-
 }
