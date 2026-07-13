@@ -1,11 +1,10 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.services;
-
-import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Rol;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.TokenSeguridad;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.RolRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.TokenSeguridadRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Rol;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.TokenSeguridad;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.auth.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.auth.RolRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.auth.TokenSeguridadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;

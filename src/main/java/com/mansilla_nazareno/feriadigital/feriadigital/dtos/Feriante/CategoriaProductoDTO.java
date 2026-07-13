@@ -1,6 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante;
-
-import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.CategoriaProducto;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.product.CategoriaProducto;
 
 public class CategoriaProductoDTO {
     private int id;

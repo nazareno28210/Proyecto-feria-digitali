@@ -1,6 +1,5 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin;
-
-import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.SolicitudParaFeriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.SolicitudParaFeriante;
 
 public class SolicitudPendienteDTO {
     private int id;

@@ -1,5 +1,5 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.configurations;
-
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;

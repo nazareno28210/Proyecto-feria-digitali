@@ -1,6 +1,5 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.Admin;
-
-import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import jakarta.persistence.*;
 
 @Entity
