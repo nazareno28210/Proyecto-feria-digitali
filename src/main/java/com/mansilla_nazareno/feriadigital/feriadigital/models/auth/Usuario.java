@@ -1,5 +1,4 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.auth;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.TipoUsuario;
 import jakarta.persistence.*;

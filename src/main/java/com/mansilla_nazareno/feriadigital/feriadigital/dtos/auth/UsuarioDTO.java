@@ -12,6 +12,20 @@ public class UsuarioDTO {
     private boolean activo;
     private List<String> roles;
     private String imagenUrl;
+    private String tipoUsuario;
+
+    public UsuarioDTO() {}
+
+    public UsuarioDTO(int id, String nombre, String apellido, String email, String imagenUrl) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.email = email;
+        this.activo = true;
+        this.roles = java.util.Collections.singletonList("FERIANTE");
+        this.imagenUrl = imagenUrl;
+        this.tipoUsuario = "FERIANTE";
+    }
 
     public UsuarioDTO(Usuario usuario) {
         this.id = usuario.getIdUsuario();
@@ -25,6 +39,7 @@ public class UsuarioDTO {
         this.roles = usuario.getRoles().stream()
                 .map(rol -> rol.getNombre())
                 .collect(Collectors.toList());
+        this.tipoUsuario = usuario.getTipoUsuario() != null ? usuario.getTipoUsuario().name() : "NORMAL";
     }
 
     public int getId() {
@@ -53,5 +68,9 @@ public class UsuarioDTO {
 
     public String getImagenUrl() {
         return imagenUrl;
+    }
+
+    public String getTipoUsuario() {
+        return tipoUsuario;
     }
 }

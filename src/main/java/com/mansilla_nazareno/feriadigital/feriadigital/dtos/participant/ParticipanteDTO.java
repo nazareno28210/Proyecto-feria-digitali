@@ -1,16 +1,15 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.ParticipantePersona;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.ParticipanteEmpresa;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Empresa;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.auth.UsuarioDTO;
 
 import java.time.LocalDate;
 
-public class FerianteDTO {
+public class ParticipanteDTO {
 
     private int id;
     private String nombreEmprendimiento;
@@ -19,22 +18,33 @@ public class FerianteDTO {
     private String emailEmprendimiento;
     private LocalDate fechaRegistro;
     private EstadoUsuario estadoUsuario;
-    private Usuario usuario;
+    private UsuarioDTO usuario;
     private StandDTO stand;
 
     // 1. Constructor Principal
-    public FerianteDTO(Participante participante) {
+    public ParticipanteDTO(Participante participante) {
         this(participante, false);
     }
 
     // 2. CONSTRUCTOR ANTI-RECURSIVIDAD
-    public FerianteDTO(Participante participante, boolean ignorarStand) {
+    public ParticipanteDTO(Participante participante, boolean ignorarStand) {
         if (participante == null) return;
 
         this.id = participante.getId();
         this.fechaRegistro = participante.getFechaRegistro();
         this.estadoUsuario = participante.getUserEstate();
-        this.usuario = participante.getUsuario();
+        if (participante.getUsuario() != null) {
+            this.usuario = new UsuarioDTO(participante.getUsuario());
+        } else {
+            // Fallback for corporate participant (no direct user mapping)
+            this.usuario = new UsuarioDTO(
+                participante.getId(),
+                participante.getNombreEmprendimiento() != null ? participante.getNombreEmprendimiento() : "Empresa",
+                "Jurídica",
+                participante.getEmailEmprendimiento() != null ? participante.getEmailEmprendimiento() : "empresa@feriadigital.com",
+                "/img/default-user.png"
+            );
+        }
         this.nombreEmprendimiento = participante.getNombreEmprendimiento();
         this.descripcion = participante.getDescripcion();
         this.emailEmprendimiento = participante.getEmailEmprendimiento();
@@ -110,7 +120,7 @@ public class FerianteDTO {
         return estadoUsuario;
     }
 
-    public Usuario getUsuario() {
+    public UsuarioDTO getUsuario() {
         return usuario;
     }
 

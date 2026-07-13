@@ -1,6 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.controllers.participant;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.FerianteDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.FerianteUpdateDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.ParticipanteDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.ParticipanteUpdateDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.ParticipanteRepository;
@@ -31,17 +31,17 @@ public class FerianteController {
         this.usuarioRepository = usuarioRepository;
     }
     @GetMapping("/feriantes")
-    public List<FerianteDTO>getFeriantes(){
+    public List<ParticipanteDTO>getFeriantes(){
         return participanteRepository.findAll()
                 .stream()
-                .map(feriante -> new FerianteDTO(feriante))
+                .map(feriante -> new ParticipanteDTO(feriante))
                 .toList();
     }
 
     @GetMapping("/feriantes/{id}")
-    public FerianteDTO getFerianteDTO(@PathVariable Integer id){
+    public ParticipanteDTO getFerianteDTO(@PathVariable Integer id){
         return participanteRepository.findById(id)
-                .map(FerianteDTO::new)
+                .map(ParticipanteDTO::new)
                 .orElse(null);
     }
     @GetMapping("/feriantes/current")
@@ -60,11 +60,11 @@ public class FerianteController {
             return new ResponseEntity<>("Este usuario no es un feriante", HttpStatus.FORBIDDEN);
         }
 
-        FerianteDTO ferianteDTO = new FerianteDTO(feriante);
-        return new ResponseEntity<>(ferianteDTO, HttpStatus.OK);
+        ParticipanteDTO participanteDTO = new ParticipanteDTO(feriante);
+        return new ResponseEntity<>(participanteDTO, HttpStatus.OK);
     }
     @PutMapping("/feriantes/current")
-    public ResponseEntity<?> updateCurrentFeriante(Authentication authentication, @RequestBody FerianteUpdateDTO dto) {
+    public ResponseEntity<?> updateCurrentFeriante(Authentication authentication, @RequestBody ParticipanteUpdateDTO dto) {
         System.out.println("Recibiendo actualización para: " + dto.getNombreEmprendimiento()); // 🟢 Debug
 
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
