@@ -1,5 +1,5 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Feria;
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
 
 public class FeriaSelectorDTO {
     private int id;

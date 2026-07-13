@@ -1,9 +1,10 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.models.participant;
+package com.mansilla_nazareno.feriadigital.feriadigital.models.participant;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Persona;
 import jakarta.persistence.*;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Producto;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,6 +36,18 @@ public abstract class Participante {
     @Column(name = "fecha_de_alta")
     private LocalDateTime fechaDeAlta;
 
+    @Column(name = "nombre_emprendimiento", length = 150)
+    private String nombreEmprendimiento;
+
+    @Column(name = "descripcion", columnDefinition = "TEXT")
+    private String descripcion;
+
+    @Column(name = "telefono", length = 20)
+    private String telefono;
+
+    @Column(name = "email_emprendimiento", length = 100)
+    private String emailEmprendimiento;
+
     @OneToMany(mappedBy = "participante", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Producto> productos = new ArrayList<>();
 
@@ -44,6 +57,16 @@ public abstract class Participante {
     public Participante(String nivelRegistracion, String estadoGeneral) {
         this.nivelRegistracion = nivelRegistracion;
         this.estadoGeneral = estadoGeneral;
+        this.fechaDeAlta = LocalDateTime.now();
+    }
+
+    public Participante(String nivelRegistracion, String estadoGeneral, String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento) {
+        this.nivelRegistracion = nivelRegistracion;
+        this.estadoGeneral = estadoGeneral;
+        this.nombreEmprendimiento = nombreEmprendimiento;
+        this.descripcion = descripcion;
+        this.telefono = telefono;
+        this.emailEmprendimiento = emailEmprendimiento;
         this.fechaDeAlta = LocalDateTime.now();
     }
 
@@ -103,11 +126,42 @@ public abstract class Participante {
     }
 
     public String getTelefono() {
+        if (this.telefono != null) {
+            return this.telefono;
+        }
         if (this instanceof ParticipantePersona) {
             Persona p = ((ParticipantePersona) this).getPersona();
             return p != null ? p.getTelefono() : null;
         }
         return null;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getNombreEmprendimiento() {
+        return nombreEmprendimiento;
+    }
+
+    public void setNombreEmprendimiento(String nombreEmprendimiento) {
+        this.nombreEmprendimiento = nombreEmprendimiento;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getEmailEmprendimiento() {
+        return emailEmprendimiento;
+    }
+
+    public void setEmailEmprendimiento(String emailEmprendimiento) {
+        this.emailEmprendimiento = emailEmprendimiento;
     }
 
     public Stand getStand() {

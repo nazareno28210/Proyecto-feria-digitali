@@ -1,4 +1,8 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.repositories.product;
+package com.mansilla_nazareno.feriadigital.feriadigital.repositories.product;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Producto;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Resena;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

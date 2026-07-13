@@ -1,7 +1,7 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair;
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.FerianteDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.product.ProductoDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 
 import java.util.List;
 import java.util.stream.Collectors;

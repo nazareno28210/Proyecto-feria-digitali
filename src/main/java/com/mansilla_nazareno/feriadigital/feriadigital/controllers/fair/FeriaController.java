@@ -1,9 +1,9 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.controllers.feria;
+package com.mansilla_nazareno.feriadigital.feriadigital.controllers.fair;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair.FeriaSelectorDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair.StandDTO; // 🟢 Importado para la lógica de tu amigo
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Feria;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.EstadoParticipacion; // 🟢 Importado para la lógica de tu amigo
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.EstadoParticipacion; // 🟢 Importado para la lógica de tu amigo
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.product.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;

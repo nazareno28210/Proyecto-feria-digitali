@@ -1,5 +1,5 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.models.product;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import jakarta.persistence.*;
 import java.util.ArrayList;

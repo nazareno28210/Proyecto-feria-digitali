@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Participacion;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
 
 import java.time.LocalDate;
 import java.util.List;

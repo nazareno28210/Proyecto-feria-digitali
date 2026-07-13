@@ -1,9 +1,9 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.controllers.participante;
+package com.mansilla_nazareno.feriadigital.feriadigital.controllers.participant;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.FerianteDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.FerianteUpdateDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.FerianteUpdateDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.FerianteRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.ParticipanteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.auth.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,19 +20,19 @@ import java.util.Map;
 @RequestMapping("/api")
 public class FerianteController {
     @Autowired
-    private FerianteRepository ferianteRepository;
+    private ParticipanteRepository participanteRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    public FerianteController (FerianteRepository ferianteRepository, UsuarioRepository usuarioRepository){
-        this.ferianteRepository=ferianteRepository;
+    public FerianteController (ParticipanteRepository participanteRepository, UsuarioRepository usuarioRepository){
+        this.participanteRepository=participanteRepository;
         this.usuarioRepository = usuarioRepository;
     }
     @GetMapping("/feriantes")
     public List<FerianteDTO>getFeriantes(){
-        return ferianteRepository.findAll()
+        return participanteRepository.findAll()
                 .stream()
                 .map(feriante -> new FerianteDTO(feriante))
                 .toList();
@@ -40,7 +40,7 @@ public class FerianteController {
 
     @GetMapping("/feriantes/{id}")
     public FerianteDTO getFerianteDTO(@PathVariable Integer id){
-        return ferianteRepository.findById(id)
+        return participanteRepository.findById(id)
                 .map(FerianteDTO::new)
                 .orElse(null);
     }
@@ -55,7 +55,7 @@ public class FerianteController {
             return new ResponseEntity<>("Usuario no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Participante feriante = participanteRepository.findByUsuario(usuario).orElse(null);
         if (feriante == null) {
             return new ResponseEntity<>("Este usuario no es un feriante", HttpStatus.FORBIDDEN);
         }
@@ -68,7 +68,7 @@ public class FerianteController {
         System.out.println("Recibiendo actualización para: " + dto.getNombreEmprendimiento()); // 🟢 Debug
 
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Participante feriante = participanteRepository.findByUsuario(usuario).orElse(null);
 
         if (feriante == null) {
             return new ResponseEntity<>("Feriante no encontrado", HttpStatus.NOT_FOUND);
@@ -80,7 +80,7 @@ public class FerianteController {
         if(dto.getTelefono() != null) feriante.setTelefono(dto.getTelefono());
         if(dto.getEmailEmprendimiento() != null) feriante.setEmailEmprendimiento(dto.getEmailEmprendimiento());
 
-        ferianteRepository.save(feriante);
+        participanteRepository.save(feriante);
         return new ResponseEntity<>(Map.of("message", "Perfil de feriante actualizado"), HttpStatus.OK);
     }
 

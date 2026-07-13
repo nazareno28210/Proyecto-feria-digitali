@@ -1,4 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos.product;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Resena;
 
 import java.time.LocalDateTime;
@@ -25,7 +27,7 @@ public class ResenaDTO {
         this.fotoPerfil = resena.getUsuario().getImagenUrl();
 
         // Si la reseña pertenece a un stand, sacamos la foto del dueño del stand
-        if (resena.getStand() != null && resena.getStand().getFeriante() != null) {
+        if (resena.getStand() != null && resena.getStand().getFeriante() != null && resena.getStand().getFeriante().getUsuario() != null) {
             this.fotoFeriante = resena.getStand().getFeriante().getUsuario().getImagenUrl();
         }
     }

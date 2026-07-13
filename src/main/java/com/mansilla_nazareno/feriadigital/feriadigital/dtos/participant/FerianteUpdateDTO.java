@@ -1,5 +1,4 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant;
 // Este DTO solo lleva los campos que el feriante puede editar de sí mismo.
 public class FerianteUpdateDTO {
     private String nombreEmprendimiento;

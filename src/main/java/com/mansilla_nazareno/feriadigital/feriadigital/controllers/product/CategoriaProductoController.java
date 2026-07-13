@@ -1,5 +1,5 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.controllers.producto;
-import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.CategoriaProductoDTO;
+package com.mansilla_nazareno.feriadigital.feriadigital.controllers.product;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.product.CategoriaProductoDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.product.CategoriaProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

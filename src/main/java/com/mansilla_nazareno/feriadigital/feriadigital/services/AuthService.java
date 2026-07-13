@@ -1,4 +1,5 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.services;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Rol;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.TokenSeguridad;

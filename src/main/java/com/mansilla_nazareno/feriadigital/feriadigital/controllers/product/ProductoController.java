@@ -1,15 +1,15 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.controllers.producto;
+package com.mansilla_nazareno.feriadigital.feriadigital.controllers.product;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Producto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.ImagenProducto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.CategoriaProducto;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.TipoVenta;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.product.ProductoDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.product.CategoriaProductoRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.FerianteRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.ParticipanteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.product.ProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.product.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.auth.UsuarioRepository;
@@ -30,25 +30,24 @@ public class ProductoController {
 
     private final ProductoRepository productoRepository;
     private final UsuarioRepository usuarioRepository;
-    private final FerianteRepository ferianteRepository;
+    private final ParticipanteRepository participanteRepository;
     private final StandRepository standRepository;
     private final CloudinaryService cloudinaryService;
     private final CategoriaProductoRepository categoriaRepository;
     @Autowired
     private ResenaRepository resenaRepository;
 
-
     public ProductoController(
             ProductoRepository productoRepository,
             UsuarioRepository usuarioRepository,
-            FerianteRepository ferianteRepository,
+            ParticipanteRepository participanteRepository,
             StandRepository standRepository,
             CloudinaryService cloudinaryService,
             CategoriaProductoRepository categoriaRepository
     ) {
         this.productoRepository = productoRepository;
         this.usuarioRepository = usuarioRepository;
-        this.ferianteRepository = ferianteRepository;
+        this.participanteRepository = participanteRepository;
         this.standRepository = standRepository;
         this.cloudinaryService = cloudinaryService;
         this.categoriaRepository = categoriaRepository;
@@ -333,7 +332,7 @@ public class ProductoController {
         Usuario usuario = usuarioRepository.findByEmail(email);
         if (usuario == null) throw new RuntimeException("Usuario no encontrado");
 
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Participante feriante = participanteRepository.findByUsuario(usuario).orElse(null);
         if (feriante == null) throw new RuntimeException("El usuario no es feriante");
 
         Stand stand = standRepository.findByFeriante(feriante);

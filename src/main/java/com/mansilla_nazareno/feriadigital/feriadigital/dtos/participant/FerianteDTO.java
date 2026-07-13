@@ -1,7 +1,7 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant;
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.EstadoUsuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.ParticipantePersona;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.ParticipanteEmpresa;
@@ -35,31 +35,41 @@ public class FerianteDTO {
         this.fechaRegistro = participante.getFechaRegistro();
         this.estadoUsuario = participante.getUserEstate();
         this.usuario = participante.getUsuario();
+        this.nombreEmprendimiento = participante.getNombreEmprendimiento();
+        this.descripcion = participante.getDescripcion();
+        this.emailEmprendimiento = participante.getEmailEmprendimiento();
         this.telefono = participante.getTelefono();
 
-        // Lógica de mapeo según tipo de participante para campos antiguos
-        if (participante instanceof Feriante) {
-            Feriante oldFeriante = (Feriante) participante;
-            this.nombreEmprendimiento = oldFeriante.getNombreEmprendimiento();
-            this.descripcion = oldFeriante.getDescripcion();
-            this.emailEmprendimiento = oldFeriante.getEmailEmprendimiento();
-        } else if (participante instanceof ParticipantePersona) {
-            ParticipantePersona partPersona = (ParticipantePersona) participante;
-            if (partPersona.getPersona() != null) {
-                this.nombreEmprendimiento = partPersona.getPersona().getNombre() + " " + partPersona.getPersona().getApellido();
-                this.descripcion = "Feriante Individual";
-                this.emailEmprendimiento = partPersona.getPersona().getUsuario() != null 
-                        ? partPersona.getPersona().getUsuario().getNombreUsuario() 
-                        : null;
-            }
-        } else if (participante instanceof ParticipanteEmpresa) {
-            ParticipanteEmpresa partEmpresa = (ParticipanteEmpresa) participante;
-            Empresa emp = partEmpresa.getEmpresa();
-            if (emp != null) {
-                this.nombreEmprendimiento = emp.getNombreFantasia();
-                this.descripcion = emp.getRazonSocial();
-                this.emailEmprendimiento = emp.getEmail();
-                this.telefono = emp.getTelefono();
+        // Lógica de fallback para participantes que no tienen cargados los campos comercial en Participante
+        if (this.nombreEmprendimiento == null || this.nombreEmprendimiento.trim().isEmpty()) {
+            if (participante instanceof ParticipantePersona) {
+                ParticipantePersona partPersona = (ParticipantePersona) participante;
+                if (partPersona.getPersona() != null) {
+                    this.nombreEmprendimiento = partPersona.getPersona().getNombre() + " " + partPersona.getPersona().getApellido();
+                    if (this.descripcion == null || this.descripcion.trim().isEmpty()) {
+                        this.descripcion = "Feriante Individual";
+                    }
+                    if (this.emailEmprendimiento == null || this.emailEmprendimiento.trim().isEmpty()) {
+                        this.emailEmprendimiento = partPersona.getPersona().getUsuario() != null 
+                                ? partPersona.getPersona().getUsuario().getNombreUsuario() 
+                                : null;
+                    }
+                }
+            } else if (participante instanceof ParticipanteEmpresa) {
+                ParticipanteEmpresa partEmpresa = (ParticipanteEmpresa) participante;
+                Empresa emp = partEmpresa.getEmpresa();
+                if (emp != null) {
+                    this.nombreEmprendimiento = emp.getNombreFantasia();
+                    if (this.descripcion == null || this.descripcion.trim().isEmpty()) {
+                        this.descripcion = emp.getRazonSocial();
+                    }
+                    if (this.emailEmprendimiento == null || this.emailEmprendimiento.trim().isEmpty()) {
+                        this.emailEmprendimiento = emp.getEmail();
+                    }
+                    if (this.telefono == null || this.telefono.trim().isEmpty()) {
+                        this.telefono = emp.getTelefono();
+                    }
+                }
             }
         }
 

@@ -1,7 +1,7 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.models.product;
+package com.mansilla_nazareno.feriadigital.feriadigital.models.product;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Feria;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

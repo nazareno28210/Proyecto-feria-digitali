@@ -1,6 +1,6 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Participacion;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.EstadoParticipacion;
+package com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Participacion;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.EstadoParticipacion;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,6 +1,8 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Participacion;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.EstadoParticipacion;
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Participacion;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.EstadoParticipacion;
 
 public class ParticipacionDTO {
 

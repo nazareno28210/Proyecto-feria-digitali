@@ -1,4 +1,4 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.models.feria;
+package com.mansilla_nazareno.feriadigital.feriadigital.models.fair;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import jakarta.persistence.*;

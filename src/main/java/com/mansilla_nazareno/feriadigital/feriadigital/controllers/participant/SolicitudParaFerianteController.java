@@ -1,15 +1,16 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.controllers.participante;
+package com.mansilla_nazareno.feriadigital.feriadigital.controllers.participant;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.TipoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.participant.SolicitudParaFerianteDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.SolicitudPendienteDTO;
 
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.ParticipantePersona;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.SolicitudParaFeriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair.StandRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.FerianteRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.ParticipanteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.SolicitudParaFerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.auth.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class SolicitudParaFerianteController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private FerianteRepository ferianteRepository;
+    private ParticipanteRepository participanteRepository;
 
     @Autowired
     private StandRepository standRepository;
@@ -124,20 +125,20 @@ public class SolicitudParaFerianteController {
         // Guardamos el cambio en la base de datos
         usuarioRepository.save(usuario);
 
-        // 1. Crear Feriante (IGUAL QUE ANTES)
-        Feriante nuevoFeriante = new Feriante(
-                solicitud.getNombreEmprendimiento(),
-                solicitud.getDescripcion(),
-                solicitud.getTelefono(),
-                solicitud.getEmailEmprendimiento(),
-                EstadoUsuario.ACTIVO
+        // 1. Crear ParticipantePersona (Expositor Individual)
+        ParticipantePersona nuevoFeriante = new ParticipantePersona(
+                "MONOTRIBUTO",
+                "ACTIVO",
+                usuario.getPersona()
         );
-        nuevoFeriante.setUsuario(solicitud.getUsuario());
-        ferianteRepository.save(nuevoFeriante);
+        nuevoFeriante.setNombreEmprendimiento(solicitud.getNombreEmprendimiento());
+        nuevoFeriante.setDescripcion(solicitud.getDescripcion());
+        nuevoFeriante.setTelefono(solicitud.getTelefono());
+        nuevoFeriante.setEmailEmprendimiento(solicitud.getEmailEmprendimiento());
+        participanteRepository.save(nuevoFeriante);
 
         // 2. NUEVO: Crear el Stand automáticamente
         Stand nuevoStand = new Stand();
-        // Puedes usar el mismo nombre del emprendimiento para el stand inicialmente
         nuevoStand.setNombre(solicitud.getNombreEmprendimiento());
         nuevoStand.setDescripcion("Stand de " + solicitud.getNombreEmprendimiento());
 

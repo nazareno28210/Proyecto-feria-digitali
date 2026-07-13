@@ -1,5 +1,4 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.product;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.TipoVenta;
 public class ProductoCrearDTO {
     private String nombre;

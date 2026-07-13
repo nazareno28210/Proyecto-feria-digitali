@@ -1,18 +1,18 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.controllers.feria;
+package com.mansilla_nazareno.feriadigital.feriadigital.controllers.fair;
 import com.mansilla_nazareno.feriadigital.feriadigital.configurations.CloudinaryDefaults;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair.StandDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.fair.StandUpdateDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Feria;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Participacion;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.EstadoParticipacion;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Feriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Participacion;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.EstadoParticipacion;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.participant.Participante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair.ParticipacionRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.fair.StandRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.FerianteRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.participant.ParticipanteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.product.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.auth.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
@@ -37,7 +37,7 @@ public class StandController {
     private UsuarioRepository usuarioRepository;
 
     @Autowired
-    private FerianteRepository ferianteRepository;
+    private ParticipanteRepository participanteRepository;
 
     @Autowired
     private FeriaRepository feriaRepository;
@@ -54,7 +54,7 @@ public class StandController {
     public StandController(
             StandRepository standRepository,
             UsuarioRepository usuarioRepository,
-            FerianteRepository ferianteRepository,
+            ParticipanteRepository participanteRepository,
             FeriaRepository feriaRepository,
             CloudinaryService cloudinaryService,
             ParticipacionRepository participacionRepository
@@ -63,7 +63,7 @@ public class StandController {
 
         this.standRepository= standRepository;
         this.usuarioRepository = usuarioRepository;
-        this.ferianteRepository = ferianteRepository;
+        this.participanteRepository = participanteRepository;
         this.feriaRepository =feriaRepository;
         this.cloudinaryService = cloudinaryService;
         this.participacionRepository=participacionRepository;
@@ -105,7 +105,7 @@ public class StandController {
     @PutMapping("/stands/mi-stand")
     public ResponseEntity<?> updateMyStand(Authentication authentication, @RequestBody StandUpdateDTO dto) {
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Participante feriante = participanteRepository.findByUsuario(usuario).orElse(null);
         Stand stand = standRepository.findByFeriante(feriante);
 
         if (stand == null) {
@@ -171,7 +171,7 @@ public class StandController {
     ) {
 
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Participante feriante = participanteRepository.findByUsuario(usuario).orElse(null);
         Stand stand = standRepository.findByFeriante(feriante);
 
         if (stand == null) {
@@ -199,7 +199,7 @@ public class StandController {
     public ResponseEntity<?> borrarImagenStand(Authentication authentication) {
 
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Participante feriante = participanteRepository.findByUsuario(usuario).orElse(null);
         Stand stand = standRepository.findByFeriante(feriante);
 
         if (stand == null) {
@@ -227,7 +227,7 @@ public class StandController {
     @PatchMapping("/stands/mi-stand/toggle-activo")
     public ResponseEntity<?> toggleActivo(Authentication authentication) {
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
-        Feriante feriante = ferianteRepository.findByUsuario(usuario);
+        Participante feriante = participanteRepository.findByUsuario(usuario).orElse(null);
         Stand stand = standRepository.findByFeriante(feriante);
 
         if (stand == null) {

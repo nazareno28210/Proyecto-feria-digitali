@@ -1,6 +1,7 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.controllers.producto;
+package com.mansilla_nazareno.feriadigital.feriadigital.controllers.product;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.product.ResenaDTO;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.feria.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Producto;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.auth.TipoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Resena;

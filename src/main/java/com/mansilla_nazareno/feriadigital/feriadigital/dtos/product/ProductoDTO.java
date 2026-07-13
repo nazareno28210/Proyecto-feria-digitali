@@ -1,4 +1,8 @@
-﻿package com.mansilla_nazareno.feriadigital.feriadigital.dtos.product;
+package com.mansilla_nazareno.feriadigital.feriadigital.dtos.product;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Stand;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.product.ImagenProducto;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.fair.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.product.TipoVenta;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.product.Producto;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,7 +76,9 @@ public class ProductoDTO {
 
         // 🟢 TU LÓGICA MANTENIDA: Obtener Teléfono y Dueño
         if (producto.getStand() != null && producto.getStand().getFeriante() != null) {
-            this.usuarioDueñoId = producto.getStand().getFeriante().getUsuario().getId();
+            if (producto.getStand().getFeriante().getUsuario() != null) {
+                this.usuarioDueñoId = producto.getStand().getFeriante().getUsuario().getId();
+            }
             this.contactoTelefono = producto.getStand().getFeriante().getTelefono();
         }
     }
