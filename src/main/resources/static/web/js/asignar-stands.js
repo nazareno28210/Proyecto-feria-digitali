@@ -1,6 +1,6 @@
 /*
  * ====================================
- * ASIGNAR-STANDS.JS (FLUJO DE 3 PASOS)
+ * ASIGNAR-STANDS.JS (ACTUALIZADO CON FIX DE NOMBRES Y ESTADOS)
  * ====================================
  */
 
@@ -16,48 +16,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const modalPago = document.getElementById("modal-pago");
     const formPago = document.getElementById("form-pago");
-    const inputMonto = document.getElementById("pago-monto"); // 🟢 Agregamos referencia clara
-    const selectEstado = document.getElementById("pago-estado"); // 🟢 Agregamos referencia clara
+    const inputMonto = document.getElementById("pago-monto");
+    const selectEstado = document.getElementById("pago-estado");
 
     // ========================================================
     // INICIALIZACIÓN
     // ========================================================
 
-async function init() {
-    await cargarFerias();
-    feriaSelect.addEventListener("change", cargarParticipantes);
-    configurarAutomatizacionPago(); 
-}
-
-// 🤖 AYUDANTE: Cambia el estado automáticamente según el monto
-function configurarAutomatizacionPago() {
-    // Verificamos que los elementos existan antes de colgarles el listener
-    if (inputMonto && selectEstado) {
-        inputMonto.addEventListener("input", (e) => {
-            const monto = parseFloat(e.target.value) || 0;
-            const estadoActual = selectEstado.value;
-
-            // Si pone plata y dice DEBE, lo sugerimos como SEÑADO
-            if (monto > 0 && estadoActual === "DEBE") {
-                selectEstado.value = "SENADO"; 
-            } else if (monto === 0) {
-                selectEstado.value = "DEBE";
-            }
-        });
+    async function init() {
+        await cargarFerias();
+        feriaSelect.addEventListener("change", cargarParticipantes);
     }
-}
+
+    // 🟢 1. TRAEMOS LAS EDICIONES Y LAS AGRUPAMOS
     async function cargarFerias() {
         try {
-            const res = await axios.get("/api/ferias");
-            feriaSelect.innerHTML = '<option value="">Selecciona una feria...</option>';
-            res.data.forEach(feria => {
-                const estadoIcon = feria.estado === 'Activa' ? '🟢' : '🔴';
-                feriaSelect.innerHTML += `
-                    <option value="${feria.id}">${estadoIcon} ${feria.nombre} (${feria.estado})</option>
-                `;
-            });
+            const res = await axios.get("/api/ediciones"); 
+            feriaSelect.innerHTML = '<option value="">Selecciona una edición...</option>';
+            
+            // Filtramos las eliminadas para que ni aparezcan
+            const validas = res.data.filter(e => e.estado !== 'ELIMINADO');
+            
+            // Separamos las activas de las inactivas (historial)
+            const activas = validas.filter(e => e.estado === 'ACTIVA');
+            const inactivas = validas.filter(e => e.estado !== 'ACTIVA');
+
+            // Renderizamos el grupo de Activas primero
+            if (activas.length > 0) {
+                const groupActivas = document.createElement('optgroup');
+                groupActivas.label = "🟢 EDICIONES ACTIVAS (Moderar hoy)";
+                activas.forEach(edicion => {
+                    const nombreCompleto = `${edicion.feriaNombre} - ${edicion.nombreEdicion}`;
+                    groupActivas.innerHTML += `<option value="${edicion.id}">${nombreCompleto}</option>`;
+                });
+                feriaSelect.appendChild(groupActivas);
+            }
+
+            // Renderizamos el grupo de Historial abajo
+            if (inactivas.length > 0) {
+                const groupInactivas = document.createElement('optgroup');
+                groupInactivas.label = "🔴 HISTORIAL (Ediciones cerradas)";
+                inactivas.forEach(edicion => {
+                    const nombreCompleto = `${edicion.feriaNombre} - ${edicion.nombreEdicion}`;
+                    groupInactivas.innerHTML += `<option value="${edicion.id}">${nombreCompleto}</option>`;
+                });
+                feriaSelect.appendChild(groupInactivas);
+            }
+
         } catch (error) {
-            showToast("Error al cargar ferias", "error");
+            showToast("Error al cargar las ediciones", "error");
         }
     }
 
@@ -65,26 +72,20 @@ function configurarAutomatizacionPago() {
     // LÓGICA DE FILTRADO Y RENDERIZADO
     // ========================================================
 
-async function cargarParticipantes() {
-        const feriaId = feriaSelect.value;
-        if (!feriaId) {
+    async function cargarParticipantes() {
+        const edicionId = feriaSelect.value;
+        if (!edicionId) {
             gestionContainer.style.display = "none";
             return;
         }
 
         try {
-            const res = await axios.get(`/api/participaciones/feria/${feriaId}`);
-
-            // 🟢 Corregido: Una sola declaración que ya trae los datos filtrados
+            const res = await axios.get(`/api/participaciones/edicion/${edicionId}`);
+            
             const participaciones = res.data.filter(p => p.estado !== 'CANCELADO');
-
-            // 1. Solicitudes (Aún no aprobadas)
+            
             const pendientes = participaciones.filter(p => p.estado === 'PENDIENTE');
-
-            // 2. Caja (Aprobados que no han pagado nada)
             const paraCobrar = participaciones.filter(p => p.estado === 'CONFIRMADO' && p.estadoPago === 'DEBE');
-
-            // 3. Distribución (Aprobados que ya señaron o pagaron total)
             const paraDistribuir = participaciones.filter(p => p.estado === 'CONFIRMADO' && p.estadoPago !== 'DEBE');
 
             renderPendientes(pendientes);
@@ -97,6 +98,21 @@ async function cargarParticipantes() {
         }
     }
 
+// 🟢 3. BUSCADOR ROBUSTO DE NOMBRES (Corregido para leer String)
+    function obtenerNombreStand(p) {
+        // Tu DTO manda la variable "stand" como un String directo con el nombre
+        if (p.stand && typeof p.stand === 'string') {
+            return p.stand;
+        }
+
+        // Mantenemos estas opciones extra como red de seguridad
+        if (p.nombreEmprendimiento) return p.nombreEmprendimiento;
+        if (p.emprendimiento && p.emprendimiento.nombre) return p.emprendimiento.nombre;
+        if (p.stand && p.stand.nombre) return p.stand.nombre;
+        
+        return "Emprendimiento sin nombre";
+    }
+
     function renderPendientes(lista) {
         tbodyPendientes.innerHTML = "";
         if (lista.length === 0) {
@@ -105,9 +121,10 @@ async function cargarParticipantes() {
         }
 
         lista.forEach(p => {
+            const nombreStand = obtenerNombreStand(p);
             tbodyPendientes.innerHTML += `
                 <tr>
-                    <td><strong>${p.stand}</strong></td>
+                    <td><strong>${nombreStand}</strong></td>
                     <td><span class="badge-debe">Pendiente</span></td>
                     <td>
                         <button class="btn-aceptar" onclick="cambiarEstadoAsistencia(${p.id}, 'CONFIRMADO')"><i class="fas fa-check"></i> Aceptar</button>
@@ -126,9 +143,10 @@ async function cargarParticipantes() {
         }
 
         lista.forEach(p => {
+            const nombreStand = obtenerNombreStand(p);
             tbodyCobros.innerHTML += `
                 <tr>
-                    <td><strong>${p.stand}</strong></td>
+                    <td><strong>${nombreStand}</strong></td>
                     <td><span class="badge-debe">Debe Pago</span></td>
                     <td>
                         <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${p.estadoPago}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}')">
@@ -140,39 +158,43 @@ async function cargarParticipantes() {
         });
     }
 
- // 🟢 MODIFICACIÓN: Agregamos el campo de preferencia a la tabla
-function renderDistribucion(lista) {
-    // Aumentamos el colspan a 5 porque agregamos una columna
-    tbodyDistribucion.innerHTML = lista.length === 0 ? 
-        "<tr><td colspan='5' style='text-align:center;'>Nadie listo para ubicar.</td></tr>" : "";
+    function renderDistribucion(lista) {
+        tbodyDistribucion.innerHTML = lista.length === 0 ?
+            "<tr><td colspan='5' style='text-align:center;'>Nadie listo para ubicar.</td></tr>" : "";
 
-    lista.forEach(p => {
-        let badgeClass = p.estadoPago === "SENADO" ? "badge-senado" : "badge-pagado";
-        let textoPago = p.estadoPago === "SENADO" ? "Señado" : "Pagado";
-        const ubicacionTexto = p.numeroStand ? `Mesa ${p.numeroStand}` : `<span style="color:#f59e0b;">Sin asignar</span>`;
-        
-        // 🛠️ Nueva lógica para mostrar la sugerencia del feriante
-        const sugerencia = p.numeroStandPreferido ? 
-            `<span class="badge-preferencia">Mesa ${p.numeroStandPreferido}</span>` : 
-            `<small style="color:gray;">Sin preferencia</small>`;
+        lista.forEach(p => {
+            const nombreStand = obtenerNombreStand(p);
+            
+            // Protección contra mayúsculas/minúsculas del backend
+            const estadoStr = p.estadoPago ? p.estadoPago.toUpperCase() : "DEBE";
+            
+            let badgeClass = estadoStr === "SENADO" ? "badge-senado" : "badge-pagado";
+            let textoPago = estadoStr === "SENADO" ? "Señado" : "Pagado";
+            
+            const ubicacionTexto = p.numeroStand ? `Mesa ${p.numeroStand}` : `<span style="color:#f59e0b;">Sin asignar</span>`;
+            
+            const sugerencia = p.numeroStandPreferido ? 
+                `<span class="badge-preferencia">Mesa ${p.numeroStandPreferido}</span>` : 
+                `<small style="color:gray;">Sin preferencia</small>`;
 
-        tbodyDistribucion.innerHTML += `
-            <tr>
-                <td><strong>${p.stand}</strong></td>
-                <td><span class="${badgeClass}">${textoPago} ($${p.montoAbonado})</span></td>
-                <td>${sugerencia}</td> <td>${ubicacionTexto}</td>
-                <td>
-                    <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${p.estadoPago}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}', true, ${p.numeroStandPreferido})">
-                        <i class="fas fa-map-marker-alt"></i> Ubicar
-                    </button>
-                    <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id})">
-                        <i class="fas fa-undo"></i> Quitar
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-}
+            tbodyDistribucion.innerHTML += `
+                <tr>
+                    <td><strong>${nombreStand}</strong></td>
+                    <td><span class="${badgeClass}">${textoPago} ($${p.montoAbonado})</span></td>
+                    <td>${sugerencia}</td> 
+                    <td>${ubicacionTexto}</td>
+                    <td>
+                        <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${estadoStr}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}', true, ${p.numeroStandPreferido})">
+                            <i class="fas fa-map-marker-alt"></i> Ubicar
+                        </button>
+                        <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id})">
+                            <i class="fas fa-undo"></i> Quitar
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
 
     // ========================================================
     // ACCIONES GLOBALES
@@ -184,7 +206,8 @@ function renderDistribucion(lista) {
             showToast("Estado de solicitud actualizado", "success");
             cargarParticipantes();
         } catch (error) {
-            showToast("Error al actualizar estado", "error");
+            const msg = error.response?.data?.error || "Error al actualizar estado";
+            showToast(msg, "error");
         }
     };
 
@@ -196,96 +219,92 @@ function renderDistribucion(lista) {
         document.getElementById(`tab-${tabName}`).classList.add('active');
     };
 
-   // 🟢 1. Modificamos abrirModalPago para que acepte un nuevo parámetro: "esDistribucion"
-  // 🟢 MODIFICACIÓN: Aceptamos el parámetro 'preferencia'
-window.abrirModalPago = (id, estadoPago, monto, ubicacion, esDistribucion = false, preferencia = null) => {
-    document.getElementById("pago-participacion-id").value = id;
-    document.getElementById("pago-estado").value = estadoPago || "DEBE"; 
-    document.getElementById("pago-monto").value = monto;
-    document.getElementById("pago-ubicacion").value = ubicacion;
+    window.abrirModalPago = (id, estadoPago, monto, ubicacion, esDistribucion = false, preferencia = null) => {
+        document.getElementById("pago-participacion-id").value = id;
+        
+        // Forzamos la asignación correcta del estado
+        const estadoSeguro = estadoPago ? estadoPago.toUpperCase() : "DEBE";
+        document.getElementById("pago-estado").value = estadoSeguro; 
+        
+        document.getElementById("pago-monto").value = monto;
+        document.getElementById("pago-ubicacion").value = ubicacion;
 
-    const grupoUbicacion = document.getElementById("grupo-ubicacion"); 
-    grupoUbicacion.style.display = esDistribucion ? "block" : "none";
+        const grupoUbicacion = document.getElementById("grupo-ubicacion"); 
+        grupoUbicacion.style.display = esDistribucion ? "block" : "none";
 
-    // 🛠️ Mostrar sugerencia en el modal
-    const helpText = document.getElementById("ayuda-preferencia");
-    if (helpText) {
-        if (preferencia && preferencia !== "null" && preferencia !== "undefined") {
-            helpText.innerHTML = `Sugerido por feriante: <strong>Mesa ${preferencia}</strong> 
-                <a href="#" onclick="aplicarPreferencia(${preferencia}); return false;" style="margin-left:10px; color:#3b82f6;">[Usar esta]</a>`;
-        } else {
-            helpText.innerHTML = "";
+        const helpText = document.getElementById("ayuda-preferencia");
+        if (helpText) {
+            if (preferencia && preferencia !== "null" && preferencia !== "undefined") {
+                helpText.innerHTML = `Sugerido por feriante: <strong>Mesa ${preferencia}</strong> 
+                    <a href="#" onclick="aplicarPreferencia(${preferencia}); return false;" style="margin-left:10px; color:#3b82f6;">[Usar esta]</a>`;
+            } else {
+                helpText.innerHTML = "";
+            }
+        }
+
+        modalPago.style.display = "block";
+    };
+
+    window.aplicarPreferencia = (num) => {
+        const inputUbicacion = document.getElementById("pago-ubicacion");
+        if (inputUbicacion) {
+            inputUbicacion.value = num;
+            showToast(`Se aplicó la sugerencia: Mesa ${num}`, "info");
+        }
+    };
+
+    window.quitarDeDistribucion = async (id) => {
+        if(!confirm("¿Estás seguro de quitar a este feriante de la feria? Volverá a estar disponible para postularse.")) return;
+        try {
+            await axios.patch(`/api/participaciones/${id}/estado-asistencia?estado=CANCELADO`);
+            showToast("Feriante quitado de la feria", "info");
+            cargarParticipantes();
+        } catch (error) {
+            showToast("Error al quitar feriante", "error");
         }
     }
 
-    modalPago.style.display = "block";
-};
+    window.cerrarModalPago = () => { modalPago.style.display = "none"; };
 
-// 🤖 FUNCIÓN EXTRA: Autocompleta el campo de ubicación
-window.aplicarPreferencia = (num) => {
-    const inputUbicacion = document.getElementById("pago-ubicacion");
-    if (inputUbicacion) {
-        inputUbicacion.value = num;
-        showToast(`Se aplicó la sugerencia: Mesa ${num}`, "info");
-    }
-};
+    formPago.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-   // 🟢 3. Función para "bajar" a un feriante de la feria
-   window.quitarDeDistribucion = async (id) => {
-       if(!confirm("¿Estás seguro de quitar a este feriante de la feria? Volverá a estar disponible para postularse.")) return;
+        const id = document.getElementById("pago-participacion-id").value;
+        const monto = parseFloat(document.getElementById("pago-monto").value) || 0;
+        const estado = document.getElementById("pago-estado").value.toUpperCase();
+        const ubicacionValue = document.getElementById("pago-ubicacion").value.trim();
 
-       try {
-           // Al pasarlo a CANCELADO, el sistema lo saca de todas las tablas y libera el cupo
-           await axios.patch(`/api/participaciones/${id}/estado-asistencia?estado=CANCELADO`);
-           showToast("Feriante quitado de la feria", "info");
-           cargarParticipantes();
-       } catch (error) {
-           showToast("Error al quitar feriante", "error");
-       }
-   }
+        if (monto > 0 && estado === "DEBE") {
+            return showToast("Si hay un monto abonado, el estado no puede ser 'DEBE'.", "error");
+        }
+        
+        if (monto === 0 && estado !== "DEBE") {
+            return showToast("Para estados 'SEÑADO' o 'PAGADO', el monto debe ser mayor a 0.", "error");
+        }
 
-window.cerrarModalPago = () => { modalPago.style.display = "none"; };
+        if (monto === 0 && estado === "DEBE" && ubicacionValue === "") {
+            return showToast("No se han registrado cambios. Ingrese un monto o asigne una mesa.", "warning");
+        }
 
-// 🟢 SUBMIT CON DOBLE VALIDACIÓN (Frontend + Backend)
-formPago.addEventListener("submit", async (e) => {
-    e.preventDefault();
+        // Parseo seguro para el backend (Integer)
+        const numeroStandInt = ubicacionValue !== "" ? parseInt(ubicacionValue, 10) : null;
 
-    const id = document.getElementById("pago-participacion-id").value;
-    const monto = parseFloat(document.getElementById("pago-monto").value) || 0;
-    const estado = document.getElementById("pago-estado").value;
-    const ubicacion = document.getElementById("pago-ubicacion").value;
+        const payload = {
+            estadoPago: estado,
+            montoAbonado: monto,
+            numeroStand: numeroStandInt
+        };
 
-    // 🛡️ 1. Validación de consistencia lógica
-    if (monto > 0 && estado === "DEBE") {
-        return showToast("Si hay un monto abonado, el estado no puede ser 'DEBE'.", "error");
-    }
-    
-    if (monto === 0 && estado !== "DEBE") {
-        return showToast("Para estados 'SEÑADO' o 'PAGADO', el monto debe ser mayor a 0.", "error");
-    }
-
-    // 🛡️ 2. NUEVA: Validación de "Operación Nula"
-    // Si intenta guardar (DEBE + 0) y no está asignando una mesa, no tiene sentido el guardado
-    if (monto === 0 && estado === "DEBE" && (!ubicacion || ubicacion.trim() === "")) {
-        return showToast("No se han registrado cambios. Ingrese un monto o asigne una mesa.", "warning");
-    }
-
-    const payload = {
-        estadoPago: estado,
-        montoAbonado: monto,
-        numeroStand: ubicacion
-    };
-
-    try {
-        await axios.patch(`/api/participaciones/${id}/pago`, payload);
-        showToast("Datos actualizados correctamente", "success");
-        cerrarModalPago();
-        cargarParticipantes();
-    } catch (error) {
-        const mensajeError = error.response?.data?.error || "Error al guardar cambios";
-        showToast(mensajeError, "error");
-    }
-});
+        try {
+            await axios.patch(`/api/participaciones/${id}/pago`, payload);
+            showToast("Datos actualizados correctamente", "success");
+            cerrarModalPago();
+            cargarParticipantes();
+        } catch (error) {
+            const mensajeError = error.response?.data?.error || "Error al guardar cambios";
+            showToast(mensajeError, "error");
+        }
+    });
 
     function showToast(message, type = "info") {
         let color = type === "success" ? "#10b981" : (type === "warning" ? "#f59e0b" : "#ef4444");

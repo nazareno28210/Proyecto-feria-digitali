@@ -35,55 +35,76 @@
     <form id="form-feria" class="form-card">
         <div class="form-grid">
             <div class="form-column">
-                <label for="nombre">Nombre de la Feria</label>
-                <input type="text" id="nombre" placeholder="Ej: Feria Gastronómica 2026" required>
                 
-                <label for="lugar">Lugar / Dirección</label>
-                <input type="text" id="lugar" placeholder="Ej: Plaza Central" required>
-
-                <label for="capacidad">Capacidad / Cupo de Stands</label>
-                <input type="number" id="capacidad" placeholder="Ej: 20" min="1" required>
+                <div class="coord-inputs">
+                    <div>
+                        <label for="nombre">Nombre de la Feria</label>
+                        <input type="text" id="nombre" placeholder="Ej: Feria de Artesanos" required>
+                    </div>
+                    <div>
+                        <label for="nombre-edicion">Edición de la feria</label>
+                        <input type="text" id="nombre-edicion" placeholder="Ej: Semana 1 de Junio 2026" required>
+                    </div>
+                </div>
+                
+                <label for="lugar" style="margin-top: 15px; display: block;">Lugar / Dirección</label>
+                <input type="text" id="lugar" placeholder="Calle, Número, Ciudad" required>
 
                 <div class="coord-inputs" style="margin-top: 15px;">
                     <div>
-                        <label for="latitud">Latitud</label>
-                        <input type="text" id="latitud" placeholder="Clic en el mapa" readonly required>
+                        <label for="fechaInicio">Fecha de Inicio</label>
+                        <input type="date" id="fechaInicio" required>
                     </div>
                     <div>
-                        <label for="longitud">Longitud</label>
-                        <input type="text" id="longitud" placeholder="Clic en el mapa" readonly required>
+                        <label for="fechaFinal">Fecha de Fin</label>
+                        <input type="date" id="fechaFinal" required>
                     </div>
                 </div>
-            </div>
-            <div class="form-column">
-                <label>Ubicación en el mapa (Haz clic para marcar)</label>
-                <div id="mapa-crear" class="admin-map"></div>
-            </div>
-        </div>
 
-        <div class="form-grid" style="margin-top: 20px;">
-            <div class="form-column">
-                <label for="fechaInicio">Fecha de Inicio</label>
-                <input type="date" id="fechaInicio" required>
-                
-                <label for="fechaFinal">Fecha de Finalización</label>
-                <input type="date" id="fechaFinal" required>
+                <div class="coord-inputs" style="margin-top: 15px;">
+                    <div>
+                        <label for="horaInicio">Hora Inicio</label>
+                        <input type="time" id="horaInicio" required>
+                    </div>
+                    <div>
+                        <label for="horaFin">Hora Fin</label>
+                        <input type="time" id="horaFin" required>
+                    </div>
+                </div>
+
+                <label for="capacidad" style="margin-top: 15px; display: block;">Capacidad / Cupo de Stands</label>
+                <input type="number" id="capacidad" placeholder="20" min="1" required>
             </div>
+
             <div class="form-column">
-                <label for="input-feria-imagen">Imagen de Portada (Subir foto)</label>
-                <input type="file" id="input-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-crear-preview', 'preview-crear-container')" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box;">
+                <div id="mapa-crear" class="admin-map" style="height: 200px; border-radius: 8px;"></div>
                 
-                <div id="preview-crear-container" style="display:none; margin-top: 10px; text-align: center; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px dashed #ccc;">
-                    <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 0;">Vista previa:</p>
-                    <img id="img-crear-preview" src="" style="max-height: 150px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="coord-inputs" style="margin-top: 10px;">
+                    <div>
+                        <label style="font-size: 0.8em;">LATITUD</label>
+                        <input type="text" id="latitud" placeholder="-53.786" readonly required style="background: #f0f0f0;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8em;">LONGITUD</label>
+                        <input type="text" id="longitud" placeholder="-67.702" readonly required style="background: #f0f0f0;">
+                    </div>
                 </div>
 
                 <label for="descripcion" style="margin-top: 15px; display: block;">Descripción del Evento</label>
-                <textarea id="descripcion" placeholder="Escribe una breve reseña de la feria..."></textarea>
+                <textarea id="descripcion" placeholder="Describe los detalles de la feria, requisitos para artesanos y actividades..."></textarea>
+
+                <label for="input-feria-imagen" style="margin-top: 15px; display: block;">Imagen de Portada</label>
+                <input type="file" id="input-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-crear-preview', 'preview-crear-container')" style="padding: 10px; border: 2px dashed #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; text-align: center; cursor: pointer;">
+                
+                <div id="preview-crear-container" style="display:none; margin-top: 10px; text-align: center;">
+                    <img id="img-crear-preview" src="" style="max-height: 120px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                </div>
             </div>
         </div>
         
-        <button type="submit" class="btn-submit">Guardar Feria</button>
+        <div style="text-align: right; margin-top: 20px;">
+            <button type="submit" class="btn-submit" style="background-color: #10b981; border: none; padding: 12px 24px; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;"><i class="fas fa-save"></i> Guardar Feria</button>
+        </div>
     </form>
 
     <h2 style="margin-top: 40px;">Ferias registradas</h2>
@@ -91,11 +112,12 @@
         <table id="tabla-ferias">
             <thead>
                 <tr>
-                    <th>Nombre</th>
-                    <th>Lugar</th>
-                    <th>Fechas</th>
-                    <th>Cupo</th> <th>Estado</th>
-                    <th>Acciones</th>
+                    <th>NOMBRE</th>
+                    <th>LUGAR</th>
+                    <th>FECHAS Y HORAS</th>
+                    <th>CUPO</th> 
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -103,64 +125,131 @@
     </div>
 </main>
 
+<!-- MODAL EDITAR EXISTENTE -->
 <div id="modal-editar" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="cerrarModal()">&times;</span>
-        <h2><i class="fas fa-edit"></i> Editar Feria</h2>
+        <h2><i class="fas fa-edit"></i> Editar Feria y Edición</h2>
         <form id="form-editar">
-            <input type="hidden" id="edit-id">
+            <input type="hidden" id="edit-edicion-id">
+            <input type="hidden" id="edit-feria-id">
             
             <div class="form-grid">
                 <div class="form-column">
-                    <label for="edit-nombre">Nombre</label>
-                    <input type="text" id="edit-nombre" required>
+                    <div class="coord-inputs">
+                        <div>
+                            <label for="edit-nombre">Nombre de la Feria</label>
+                            <input type="text" id="edit-nombre" required>
+                        </div>
+                        <div>
+                            <label for="edit-nombre-edicion">Edición</label>
+                            <input type="text" id="edit-nombre-edicion" required>
+                        </div>
+                    </div>
                     
-                    <label for="edit-lugar">Lugar</label>
+                    <label for="edit-lugar" style="margin-top: 15px; display: block;">Lugar</label>
                     <input type="text" id="edit-lugar" required>
-
-                    <label for="edit-capacidad">Capacidad / Cupo de Stands</label>
-                    <input type="number" id="edit-capacidad" min="1" required>
 
                     <div class="coord-inputs" style="margin-top: 15px;">
                         <div>
-                            <label for="edit-latitud">Latitud</label>
-                            <input type="text" id="edit-latitud" readonly required>
+                            <label for="edit-fechaInicio">Fecha Inicio</label>
+                            <input type="date" id="edit-fechaInicio" required>
                         </div>
                         <div>
-                            <label for="edit-longitud">Longitud</label>
-                            <input type="text" id="edit-longitud" readonly required>
+                            <label for="edit-fechaFinal">Fecha Fin</label>
+                            <input type="date" id="edit-fechaFinal" required>
                         </div>
                     </div>
+
+                    <div class="coord-inputs" style="margin-top: 15px;">
+                        <div>
+                            <label for="edit-horaInicio">Hora Inicio</label>
+                            <input type="time" id="edit-horaInicio" required>
+                        </div>
+                        <div>
+                            <label for="edit-horaFin">Hora Fin</label>
+                            <input type="time" id="edit-horaFin" required>
+                        </div>
+                    </div>
+
+                    <label for="edit-capacidad" style="margin-top: 15px; display: block;">Capacidad / Cupo</label>
+                    <input type="number" id="edit-capacidad" min="1" required>
                 </div>
+
                 <div class="form-column">
                     <label>Modificar ubicación</label>
-                    <div id="mapa-editar" class="admin-map"></div>
+                    <div id="mapa-editar" class="admin-map" style="height: 180px; border-radius: 8px;"></div>
+                    
+                    <div class="coord-inputs" style="margin-top: 10px;">
+                        <div>
+                            <label style="font-size: 0.8em;">LATITUD</label>
+                            <input type="text" id="edit-latitud" readonly required style="background: #f0f0f0;">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8em;">LONGITUD</label>
+                            <input type="text" id="edit-longitud" readonly required style="background: #f0f0f0;">
+                        </div>
+                    </div>
+                    
+                    <label for="edit-descripcion" style="margin-top: 15px; display: block;">Descripción</label>
+                    <textarea id="edit-descripcion"></textarea>
+                    
+                    <label for="input-edit-feria-imagen" style="margin-top: 15px; display: block;">Cambiar Imagen de Portada</label>
+                    <input type="file" id="input-edit-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-edit-preview', 'preview-edit-container')" style="padding: 8px; border: 1px dashed #ccc; width: 100%; box-sizing: border-box;">
+                    
+                    <div id="preview-edit-container" style="display:none; margin-top: 10px; text-align: center;">
+                        <img id="img-edit-preview" src="" style="max-height: 100px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="submit" class="btn-submit" style="background-color: #3b82f6; border: none; padding: 12px 24px; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;">Guardar Cambios</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL LANZAR NUEVA EDICIÓN (NUEVO) -->
+<div id="modal-nueva-edicion" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <span class="close-button" onclick="cerrarModalNuevaEdicion()">&times;</span>
+        <h2><i class="fas fa-calendar-plus" style="color: #8b5cf6;"></i> Lanzar Nueva Edición</h2>
+        <p style="color: #64748b; margin-bottom: 15px;">Feria Base: <strong id="new-nombre-base" style="color: #1e293b;"></strong></p>
+        
+        <form id="form-nueva-edicion">
+            <input type="hidden" id="new-feria-id">
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="new-nombre-edicion">Nombre de la Nueva Edición</label>
+                <input type="text" id="new-nombre-edicion" placeholder="Ej: Especial Día del Padre 2026" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+            </div>
+
+            <div class="coord-inputs" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <div style="flex: 1;">
+                    <label for="new-fechaInicio">Fecha Inicio</label>
+                    <input type="date" id="new-fechaInicio" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+                </div>
+                <div style="flex: 1;">
+                    <label for="new-fechaFinal">Fecha Fin (Opcional)</label>
+                    <input type="date" id="new-fechaFinal" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
                 </div>
             </div>
 
-            <div class="form-grid" style="margin-top: 15px;">
-                <div class="form-column">
-                    <label for="edit-fechaInicio">Fecha Inicio</label>
-                    <input type="date" id="edit-fechaInicio" required>
+            <div class="coord-inputs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <div style="flex: 1;">
+                    <label for="new-horaInicio">Hora Apertura</label>
+                    <input type="time" id="new-horaInicio" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
                 </div>
-                <div class="form-column">
-                    <label for="edit-fechaFinal">Fecha Fin</label>
-                    <input type="date" id="edit-fechaFinal" required>
+                <div style="flex: 1;">
+                    <label for="new-horaFin">Hora Cierre</label>
+                    <input type="time" id="new-horaFin" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
                 </div>
             </div>
-
-            <label for="input-edit-feria-imagen" style="margin-top: 15px; display: block;">Cambiar Imagen de Portada (Deja vacío para conservar la actual)</label>
-            <input type="file" id="input-edit-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-edit-preview', 'preview-edit-container')" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box;">
             
-            <div id="preview-edit-container" style="display:none; margin-top: 10px; text-align: center; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px dashed #ccc;">
-                <p style="font-size: 12px; color: #666; margin-bottom: 5px; margin-top: 0;">Vista previa de la nueva foto:</p>
-                <img id="img-edit-preview" src="" style="max-height: 150px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <div style="text-align: right;">
+                <button type="submit" class="btn-submit" style="background-color: #8b5cf6; border: none; padding: 12px 24px; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;">Crear Evento</button>
             </div>
-            
-            <label for="edit-descripcion" style="margin-top: 15px; display: block;">Descripción</label>
-            <textarea id="edit-descripcion"></textarea>
-            
-            <button type="submit" class="btn-submit" style="margin-top: 20px;">Guardar Cambios</button>
         </form>
     </div>
 </div>

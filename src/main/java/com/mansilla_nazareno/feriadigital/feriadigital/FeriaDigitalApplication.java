@@ -11,7 +11,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.Admini
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository; // 🟢 Importado
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
@@ -39,7 +39,7 @@ public class FeriaDigitalApplication {
 			AdministradorDeFeriaRepository administradorDeFeriaRepository,
 			FerianteRepository ferianteRepository,
 			FeriaRepository feriaRepository,
-			EdicionFeriaRepository edicionFeriaRepository, // 🟢 Inyectado para inicializar eventos
+			EdicionFeriaRepository edicionFeriaRepository,
 			StandRepository standRepository,
 			CategoriaProductoRepository categoriaRepository,
 			ProductoRepository productoRepository,
@@ -56,6 +56,7 @@ public class FeriaDigitalApplication {
 				Usuario denis = new Usuario("Denis", "Mansilla", "denis@gmail.com", passwordEncoder.encode("123"), EstadoUsuario.ACTIVO);
 				Usuario francisco = new Usuario("Francisco", "García", "francisco@gmail.com", passwordEncoder.encode("123"), EstadoUsuario.ACTIVO);
 				Usuario maria = new Usuario("María", "González", "maria.perros@gmail.com", passwordEncoder.encode("123"), EstadoUsuario.ACTIVO);
+
 				nazareno.setTipoUsuario(TipoUsuario.ADMINISTRADOR);
 				francisco.setTipoUsuario(TipoUsuario.FERIANTE);
 				usuarioRepository.saveAll(List.of(nazareno, denis, francisco, maria));
@@ -89,14 +90,12 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 3. FERIA (PLANTILLA BASE)
 				// =========================================
-				// 🟢 CORREGIDO: Constructor de plantilla pura (7 parámetros)
 				Feria feriaBase = new Feria("Feria Gimnasio Don Bosco", "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial", "/uploads/ferias/Don_Bosco.png", -53.78904155240556, -67.70062989474968, 25);
 				feriaRepository.save(feriaBase);
 
 				// =========================================
 				// 3.B EDICIÓN CRONOLÓGICA (EL EVENTO REAL)
 				// =========================================
-				// 🟢 NUEVO: Guardamos el fin de semana del evento en la tabla de ediciones
 				EdicionFeria edicionFebrero = new EdicionFeria();
 				edicionFebrero.setFeria(feriaBase);
 				edicionFebrero.setNombreEdicion("Edición Febrero Semana 3 2026");
@@ -111,13 +110,11 @@ public class FeriaDigitalApplication {
 				// 4. STAND 1 E INDUMENTARIA
 				// =========================================
 				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana", null);
-
 				Feriante feriante1 = new Feriante("Indumentaria Francisco", "Venta de ropa", "2964-555999", "falco@gmail.com", EstadoUsuario.ACTIVO);
 				feriante1.setUsuario(francisco);
 				feriante1.setStand(stand1);
 				stand1.setFeriante(feriante1);
 
-				// --- Productos Stand 1 ---
 				Producto p1 = new Producto(50000, "Pantalón térmico neopren", "Pantalón Invierno");
 				p1.setCategoria(catIndumentaria);
 				p1.setTipoVenta(TipoVenta.UNIDAD);
@@ -143,13 +140,11 @@ public class FeriaDigitalApplication {
 				// 5. STAND 2 Y MASCOTAS
 				// =========================================
 				Stand stand2 = new Stand("Mascotas Felices", "Todo para tu perro y gato", "/uploads/stands/mascota.png");
-
 				Feriante feriante2 = new Feriante("Emprendimiento Mascotas", "Accesorios para mascotas", "2964-444555", "mascotas@gmail.com", EstadoUsuario.ACTIVO);
 				feriante2.setUsuario(maria);
 				feriante2.setStand(stand2);
 				stand2.setFeriante(feriante2);
 
-				// --- Productos Stand 2 ---
 				Producto p10 = new Producto(15000, "Pelota de caucho resistente", "Juguete perro");
 				p10.setCategoria(catMascotas);
 				p10.setTipoVenta(TipoVenta.UNIDAD);
@@ -164,7 +159,6 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 6. VINCULAR CON PARTICIPACIONES A LA EDICIÓN
 				// =========================================
-				// 🟢 CORREGIDO: Asociamos las postulaciones directas a edicionFebrero usando .setEdicion()
 				Participacion part1 = new Participacion();
 				part1.setEdicion(edicionFebrero);
 				part1.setStand(stand1);

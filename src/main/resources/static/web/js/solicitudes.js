@@ -1,28 +1,27 @@
 /*
  * ====================================
- * SOLICITUDES.JS (con Toastify)
+ * SOLICITUDES.JS (Restaurado para Cuentas Nuevas)
  * ====================================
  */
 
-// 1. AÑADIDA: Función Toastify
 function showToast(message, type = "info") {
   let color;
   switch (type) {
     case "success":
-      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
+      color = "linear-gradient(to right, #10b981, #059669)"; 
       break;
     case "error":
       color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
       break;
     case "warning":
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
+      color = "linear-gradient(to right, #f59e0b, #d97706)"; 
       break;
     default:
       color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
   }
   Toastify({
     text: message,
-    duration: 2000,
+    duration: 3000,
     gravity: "top", 
     position: "right", 
     style: {
@@ -38,10 +37,11 @@ const mensaje = document.getElementById("mensaje");
 document.addEventListener("DOMContentLoaded", cargarSolicitudes);
 
 // =========================================================
-// FUNCIÓN PARA CARGAR TODAS LAS SOLICITUDES PENDIENTES
+// FUNCIÓN PARA CARGAR SOLICITUDES DE NUEVOS FERIANTES
 // =========================================================
 async function cargarSolicitudes() {
   try {
+    // 🟢 Volvemos al endpoint original que lee de la tabla que me mostraste en la imagen
     const response = await axios.get("/api/solicitudes/pendientes");
     const solicitudes = response.data;
 
@@ -56,13 +56,13 @@ async function cargarSolicitudes() {
 
     solicitudes.forEach(s => {
       const fila = document.createElement("tr");
-      // CAMBIO: Se quitaron los emojis de los botones
+      
       fila.innerHTML = `
         <td>${s.id}</td>
-        <td>${s.nombreUsuario}</td>
-        <td>${s.apellidoUsuario}</td>
-        <td>${s.emailUsuario}</td>
-        <td>${s.nombreEmprendimiento}</td>
+        <td>${s.nombreUsuario || "-"}</td>
+        <td>${s.apellidoUsuario || "-"}</td>
+        <td>${s.emailUsuario || "-"}</td>
+        <td><strong>${s.nombreEmprendimiento}</strong></td>
         <td>${s.descripcion || "-"}</td>
         <td>${s.telefono || "-"}</td>
         <td>${s.emailEmprendimiento || "-"}</td>
@@ -75,9 +75,8 @@ async function cargarSolicitudes() {
     });
   } catch (error) {
     console.error("Error cargando solicitudes:", error);
-    // CAMBIO: alert a toast
     showToast("Error al conectar con el servidor.", "error");
-    mensaje.textContent = "Error al cargar los datos."; // Mantenemos el mensaje en la página
+    mensaje.textContent = "Error al cargar los datos."; 
   }
 }
 
@@ -85,18 +84,15 @@ async function cargarSolicitudes() {
 // FUNCIÓN PARA APROBAR SOLICITUD
 // =========================================================
 async function aprobarSolicitud(id) {
-  // Mantenemos el confirm para seguridad
-  if (!confirm("¿Seguro deseas aprobar esta solicitud?")) return;
+  if (!confirm("¿Seguro deseas aprobar esta solicitud y crearle el perfil de Feriante?")) return;
 
   try {
     const response = await axios.post(`/api/solicitudes/aprobar/${id}`);
-    // CAMBIO: alert a toast
-    showToast(response.data || "✅ Solicitud aprobada", "success");
-    cargarSolicitudes(); // Recarga la lista
+    showToast(response.data?.mensaje || response.data || "✅ Feriante aprobado", "success");
+    cargarSolicitudes(); 
   } catch (error) {
     console.error("Error al aprobar:", error);
-    // CAMBIO: alert a toast
-    showToast(error.response?.data || "❌ No se pudo aprobar la solicitud.", "error");
+    showToast(error.response?.data?.error || "❌ No se pudo aprobar la solicitud.", "error");
   }
 }
 
@@ -104,16 +100,13 @@ async function aprobarSolicitud(id) {
 // FUNCIÓN PARA RECHAZAR SOLICITUD
 // =========================================================
 async function rechazarSolicitud(id) {
-  
+  if (!confirm("¿Seguro deseas rechazar esta solicitud?")) return;
   try {
     const response = await axios.post(`/api/solicitudes/rechazar/${id}`);
-    // CAMBIO: alert a toast
-    // Usamos 'success' porque la *acción de rechazar* fue exitosa
-    showToast(response.data || "🗑️ Solicitud rechazada", "success");
-    cargarSolicitudes(); // Recarga la lista
+    showToast(response.data?.mensaje || response.data || "🗑️ Solicitud rechazada", "success");
+    cargarSolicitudes(); 
   } catch (error) {
     console.error("Error al rechazar:", error);
-    // CAMBIO: alert a toast
-    showToast(error.response?.data || "⚠️ No se pudo rechazar la solicitud.", "error");
+    showToast(error.response?.data?.error || "⚠️ No se pudo rechazar la solicitud.", "error");
   }
 }

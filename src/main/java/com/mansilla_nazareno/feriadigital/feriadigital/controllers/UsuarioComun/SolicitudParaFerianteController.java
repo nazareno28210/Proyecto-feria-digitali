@@ -136,9 +136,14 @@ public class SolicitudParaFerianteController {
 
         // 2. NUEVO: Crear el Stand automáticamente
         Stand nuevoStand = new Stand();
-        // Puedes usar el mismo nombre del emprendimiento para el stand inicialmente
         nuevoStand.setNombre(solicitud.getNombreEmprendimiento());
-        nuevoStand.setDescripcion("Stand de " + solicitud.getNombreEmprendimiento());
+
+        // 👇 ACÁ ESTÁ LA MAGIA: Ahora hereda la descripción real de la solicitud
+        nuevoStand.setDescripcion(solicitud.getDescripcion());
+
+        // Vinculación bidireccional importante:
+        nuevoStand.setFeriante(nuevoFeriante);
+        standRepository.save(nuevoStand);
 
         // Vinculación bidireccional importante:
         nuevoStand.setFeriante(nuevoFeriante);

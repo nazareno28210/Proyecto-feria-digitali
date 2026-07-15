@@ -6,6 +6,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository; // 🟢 NUEVO
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +21,24 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class FerianteController {
+
     @Autowired
     private FerianteRepository ferianteRepository;
+
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private StandRepository standRepository; // 🟢 Inyectamos el repo del Stand
+
     @Autowired
     private CloudinaryService cloudinaryService;
 
     public FerianteController (FerianteRepository ferianteRepository, UsuarioRepository usuarioRepository){
-        this.ferianteRepository=ferianteRepository;
+        this.ferianteRepository = ferianteRepository;
         this.usuarioRepository = usuarioRepository;
     }
+
     @GetMapping("/feriantes")
     public List<FerianteDTO>getFeriantes(){
         return ferianteRepository.findAll()
@@ -45,6 +53,7 @@ public class FerianteController {
                 .map(FerianteDTO::new)
                 .orElse(null);
     }
+
     @GetMapping("/feriantes/current")
     public ResponseEntity<?> getCurrentFeriante(Authentication authentication) {
         if (authentication == null) {
@@ -64,10 +73,9 @@ public class FerianteController {
         FerianteDTO ferianteDTO = new FerianteDTO(feriante);
         return new ResponseEntity<>(ferianteDTO, HttpStatus.OK);
     }
+
     @PutMapping("/feriantes/current")
     public ResponseEntity<?> updateCurrentFeriante(Authentication authentication, @RequestBody FerianteUpdateDTO dto) {
-        System.out.println("Recibiendo actualización para: " + dto.getNombreEmprendimiento()); // 🟢 Debug
-
         Usuario usuario = usuarioRepository.findByEmail(authentication.getName());
         Feriante feriante = ferianteRepository.findByUsuario(usuario);
 
@@ -75,7 +83,6 @@ public class FerianteController {
             return new ResponseEntity<>("Feriante no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        // Actualizamos solo si el dato no es nulo
         if(dto.getNombreEmprendimiento() != null) feriante.setNombreEmprendimiento(dto.getNombreEmprendimiento());
         if(dto.getDescripcion() != null) feriante.setDescripcion(dto.getDescripcion());
         if(dto.getTelefono() != null) feriante.setTelefono(dto.getTelefono());
@@ -94,14 +101,23 @@ public class FerianteController {
         }
 
         try {
-            // Usamos tu método del servicio.
-            // Si ya tenía una foto, podrías usar reemplazarImagen, pero para simplificar:
+            // Subimos la imagen a Cloudinary
             Map<String, String> result = cloudinaryService.subirImagen(imagen);
             String imageUrl = result.get("url");
+            String publicId = result.get("public_id"); // 🟢 Extraemos también el ID
 
-            // Guardamos la URL en el objeto Usuario (que es el que tiene la imagen de perfil)
+            // 1. Guardamos en el Usuario (Perfil personal)
             usuario.setImagenUrl(imageUrl);
+            usuario.setImagenPublicId(publicId);
             usuarioRepository.save(usuario);
+
+            // 2. 🟢 Guardamos en el Stand (Para la Feria)
+            Feriante feriante = ferianteRepository.findByUsuario(usuario);
+            if (feriante != null && feriante.getStand() != null) {
+                feriante.getStand().setImagenUrl(imageUrl);
+                feriante.getStand().setImagenPublicId(publicId);
+                standRepository.save(feriante.getStand());
+            }
 
             return new ResponseEntity<>(imageUrl, HttpStatus.OK);
         } catch (Exception e) {

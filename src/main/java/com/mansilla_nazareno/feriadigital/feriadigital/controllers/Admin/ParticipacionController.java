@@ -205,4 +205,14 @@ public class ParticipacionController {
         participacionRepository.save(nueva);
         return ResponseEntity.ok(Map.of("mensaje", "Solicitud enviada con preferencia"));
     }
+
+    // 🟢 NUEVO: Listar TODAS las participaciones (para el Dashboard General)
+    @GetMapping
+    public ResponseEntity<List<ParticipacionDTO>> obtenerTodas() {
+        List<ParticipacionDTO> todas = participacionRepository.findAll()
+                .stream()
+                .map(ParticipacionDTO::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(todas);
+    }
 }

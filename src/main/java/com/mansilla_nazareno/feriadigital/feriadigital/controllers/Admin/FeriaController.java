@@ -61,7 +61,7 @@ public class FeriaController {
                 .orElse(null);
     }
 
-    // 🟢 3. Crear una nueva plantilla de feria (Sin fechas ni estados)
+// 🟢 3. Crear una nueva plantilla de feria (Corregido para devolver el objeto)
     @PostMapping("/ferias")
     public ResponseEntity<?> crearFeria(
             @RequestParam("nombre") String nombre,
@@ -102,8 +102,9 @@ public class FeriaController {
                 nuevaFeria.setImagenUrl(result.get("url"));
             }
 
-            feriaRepository.save(nuevaFeria);
-            return ResponseEntity.ok("Feria plantilla creada correctamente");
+            // 🟢 GUARDAMOS Y DEVOLVEMOS EL DTO (Esto arregla el frontend)
+            Feria feriaGuardada = feriaRepository.save(nuevaFeria);
+            return ResponseEntity.ok(new FeriaDTO(feriaGuardada));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar la imagen");

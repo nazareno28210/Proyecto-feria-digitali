@@ -6,6 +6,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -86,4 +87,24 @@ public class EdicionFeriaController {
         }
         return ResponseEntity.ok(new EdicionFeriaDTO(edicion));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarEdicion(@PathVariable Integer id, @RequestBody EdicionFeriaDTO dto) {
+        EdicionFeria edicion = edicionFeriaRepository.findById(id).orElse(null);
+
+        if (edicion == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "La edición no existe"));
+        }
+
+        // Actualizamos los datos temporales
+        edicion.setNombreEdicion(dto.getNombreEdicion());
+        edicion.setFechaInicio(dto.getFechaInicio());
+        edicion.setFechaFinal(dto.getFechaFinal());
+        edicion.setHoraInicio(dto.getHoraInicio());
+        edicion.setHoraFin(dto.getHoraFin());
+
+        EdicionFeria edicionActualizada = edicionFeriaRepository.save(edicion);
+        return ResponseEntity.ok(new EdicionFeriaDTO(edicionActualizada));
+    }
+
 }

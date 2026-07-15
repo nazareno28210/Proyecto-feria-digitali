@@ -22,7 +22,7 @@ public class EdicionFeriaDTO {
     private String feriaImagenUrl;
     private Double latitud;
     private Double longitud;
-
+    private Integer feriaCapacidad; // 🟢 Agregamos esto
     public EdicionFeriaDTO() {}
 
     public EdicionFeriaDTO(EdicionFeria edicion) {
@@ -43,6 +43,7 @@ public class EdicionFeriaDTO {
             this.feriaImagenUrl = edicion.getFeria().getImagenUrl();
             this.latitud = edicion.getFeria().getLatitud();
             this.longitud = edicion.getFeria().getLongitud();
+            this.feriaCapacidad = edicion.getFeria().getCapacidad();
         }
     }
 
@@ -75,4 +76,10 @@ public class EdicionFeriaDTO {
     public void setLatitud(Double latitud) { this.latitud = latitud; }
     public Double getLongitud() { return longitud; }
     public void setLongitud(Double longitud) { this.longitud = longitud; }
+    public Integer getFeriaCapacidad() {
+        return feriaCapacidad;
+    }
+    public void setFeriaCapacidad(Integer feriaCapacidad) {
+        this.feriaCapacidad = feriaCapacidad;
+    }
 }

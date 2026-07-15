@@ -1,6 +1,8 @@
 /* URLs DEL API */
 const API_URL = "http://localhost:8080/api/feriantes/current";
 const FERIAS_URL = "http://localhost:8080/api/ferias";
+const EDICIONES_URL = "http://localhost:8080/api/ediciones"; 
+const PARTICIPACIONES_URL = "http://localhost:8080/api/participaciones";
 const FERIANTE_UPDATE_URL = "http://localhost:8080/api/feriantes/current";
 const STAND_UPDATE_URL = "http://localhost:8080/api/stands/mi-stand";
 const STAND_TOGGLE_URL = "http://localhost:8080/api/stands/mi-stand/toggle-activo";
@@ -8,11 +10,9 @@ const USUARIO_UPDATE_URL = "http://localhost:8080/api/usuarios/current";
 const LOGOUT_URL = "http://localhost:8080/api/logout";
 const IMAGE_UPLOAD_URL = "http://localhost:8080/api/feriantes/current/imagen";
 
-
 let ferianteActual = null;
-let todasLasFerias = [];
+let todasLasEdiciones = [];
 let cropper = null;
-
 
 document.addEventListener("DOMContentLoaded", () => {
     cargarPerfil();
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-edit-stand").addEventListener("click", () => toggleEditStand(true));
     document.getElementById("btn-cancel-stand").addEventListener("click", () => toggleEditStand(false));
     document.getElementById("btn-save-stand").addEventListener("click", guardarStand);
-    
+
     document.getElementById("cerrarSesion").addEventListener("click", cerrarSesion);
     
     // Listener para subir foto (abre modal cropper)
@@ -66,22 +66,20 @@ function prepararRecorte(e) {
         modalCropper.classList.remove("hidden");
 
         if (cropper) cropper.destroy();
-
-            cropper = new Cropper(imageToCrop, {
+        cropper = new Cropper(imageToCrop, {
             aspectRatio: 1, // Proporción cuadrada perfecta 1:1
             viewMode: 1, // Asegura que no se salga de la imagen
             dragMode: 'move', // Mover la imagen
             autoCropArea: 0.8, // Tamaño inicial del recorte
             cropBoxMovable: false, // Caja de recorte fija
             cropBoxResizable: false, // No se puede cambiar el tamaño del cuadrado
-            });
+        });
     };
     reader.readAsDataURL(archivo);
 }
 
 async function ejecutarRecorteYSubir() {
     if (!cropper) return;
-
     const canvas = cropper.getCroppedCanvas({ width: 500, height: 500 });
     
     canvas.toBlob(async (blob) => {
@@ -126,12 +124,12 @@ function manejarError(mensaje) {
 
 function cargarPerfil() {
     const getFeriante = axios.get(API_URL, { withCredentials: true });
-    const getFerias = axios.get(FERIAS_URL);
+    const getEdiciones = axios.get(EDICIONES_URL); 
 
-    axios.all([getFeriante, getFerias])
-        .then(axios.spread((resFeriante, resFerias) => {
+    axios.all([getFeriante, getEdiciones])
+        .then(axios.spread(async (resFeriante, resEdiciones) => {
             ferianteActual = resFeriante.data;
-            todasLasFerias = resFerias.data;
+            todasLasEdiciones = resEdiciones.data;
 
             const u = ferianteActual.usuario;
             if (u.imagenUrl) document.getElementById("fotoPerfil").src = u.imagenUrl;
@@ -167,11 +165,20 @@ function cargarPerfil() {
                 setValue("edit-stand-nombre", s.nombre);
                 setValue("edit-stand-desc", s.descripcion);
                 document.getElementById("btn-edit-stand").style.display = 'block';
+                
+                // Cargar participaciones del stand para la tarjeta del dashboard
+                try {
+                    const resParticipaciones = await axios.get(`${PARTICIPACIONES_URL}/stand/${s.id}`);
+                    renderFeriasAsignadas(resParticipaciones.data);
+                } catch (error) {
+                    console.error("Error cargando participaciones:", error);
+                    renderFeriasAsignadas([]);
+                }
             } else {
                 view.innerHTML = `<p>Aún no tienes un stand asignado.</p>`;
                 document.getElementById("btn-edit-stand").style.display = 'none';
+                renderFeriasAsignadas([]);
             }
-            renderFeriasAsignadas(s);
         }))
         .catch(err => manejarError("Error al cargar el perfil. Verifica tu sesión."));
 }
@@ -253,25 +260,34 @@ function actualizarUIEstado(a) {
     }
 }
 
-function renderFeriasAsignadas(s) {
+function renderFeriasAsignadas(misParticipaciones) {
     const feriasCard = document.getElementById("card-mis-ferias");
     const body = document.getElementById("ferias-card-body");
-    if (s && s.feriaId) {
-        const f = todasLasFerias.find(f => f.id === s.feriaId);
-        if (f) {
-            const icono = f.estado === 'Activa' ? '🟢' : '🔴';
+    
+    const participacionesActivas = misParticipaciones.filter(p => p.estado === 'APROBADA' || p.estado === 'PENDIENTE' || p.estado === 'CONFIRMADO');
+
+    if (participacionesActivas.length > 0) {
+        const p = participacionesActivas[0];
+        const edicion = todasLasEdiciones.find(e => e.id === p.edicionId); 
+
+        if (edicion) {
+            const iconoEstado = (p.estado === 'APROBADA' || p.estado === 'CONFIRMADO') ? '🟢 Confirmada' : '🟡 Pendiente';
+            
+            // 🟢 CORREGIDO: Mapeo exacto de las variables del DTO
             body.innerHTML = `
-                <p>Tu stand está asignado a:</p>
-                <h3>${icono} ${f.nombre}</h3>
-                <p><strong>Lugar:</strong> ${f.lugar}</p>
-                <p><strong>Fechas:</strong> ${f.fechaInicio} al ${f.fechaFinal}</p>
+                <p>Estado de solicitud: <strong>${iconoEstado}</strong></p>
+                <h3>${edicion.nombreEdicion || 'Edición'} - ${edicion.feriaNombre || 'Feria'}</h3>
+                <p><strong>Lugar:</strong> ${edicion.feriaLugar}</p>
+                <p><strong>Fecha:</strong> ${edicion.fechaInicio} al ${edicion.fechaFinal || 'N/A'}</p>
+                <p><strong>Horario:</strong> ${edicion.horaInicio.substring(0, 5)} - ${edicion.horaFin.substring(0, 5)}</p>
+                ${p.numeroStand ? `<p><strong>Mesa asignada:</strong> #${p.numeroStand}</p>` : ''}
             `;
-            feriasCard.href = `/web/feria_detalle.html?id=${f.id}`;
+            feriasCard.href = `/web/feria_detalle.html?id=${edicion.feriaId || edicion.id}`;
             feriasCard.style.cursor = "pointer";
             feriasCard.style.opacity = "1";
         }
     } else {
-        body.innerHTML = `<p>Tu stand aún no ha sido asignado a ninguna feria.</p>`;
+        body.innerHTML = `<p>Tu stand aún no tiene participaciones activas.</p>`;
         feriasCard.removeAttribute("href");
         feriasCard.style.cursor = "default";
         feriasCard.style.opacity = "0.7";
@@ -300,16 +316,13 @@ function showToast(m, t) {
     }
 }
 
-// --- LÓGICA DE POSTULACIÓN A FERIAS ---
+// --- LÓGICA DE POSTULACIÓN A FERIAS (AHORA EDICIONES) ---
 
 async function abrirModalPostulacion() {
-    // 1. Validación de Stand (UX previa)
     if (!ferianteActual || !ferianteActual.stand) {
         return showToast("Necesitas tener un stand asignado para postularte.", "error");
     }
 
-    // 2. 🛡️ VALIDACIÓN DE PERFIL COMPLETO (Frontend)
-    // Lo ponemos acá para que sea instantáneo
     if (!ferianteActual.stand.descripcion || ferianteActual.stand.descripcion.trim() === "" || !ferianteActual.stand.imagenUrl) {
         return showToast("Debes completar la descripción y foto de tu emprendimiento en 'Mi Perfil' para postularte.", "warning");
     }
@@ -318,98 +331,76 @@ async function abrirModalPostulacion() {
     const contenedor = document.getElementById("lista-ferias-disponibles");
     
     modal.classList.remove("hidden");
-    contenedor.innerHTML = "<p>Buscando ferias disponibles...</p>";
+    contenedor.innerHTML = "<p>Buscando ediciones disponibles...</p>";
 
     try {
-        // 2. Traemos ferias y participaciones en paralelo
-        const [resFerias, resMisParticipaciones] = await Promise.all([
-            axios.get(FERIAS_URL), // Usamos la ruta base: /api/ferias
-            axios.get(`http://localhost:8080/api/participaciones/stand/${ferianteActual.stand.id}`)
+        const [resEdiciones, resMisParticipaciones] = await Promise.all([
+            axios.get(EDICIONES_URL),
+            axios.get(`${PARTICIPACIONES_URL}/stand/${ferianteActual.stand.id}`)
         ]); 
 
-        const ferias = resFerias.data;
+        const ediciones = resEdiciones.data;
         const misParticipaciones = resMisParticipaciones.data;
         
-        // 3. Preparación para validación temporal
         const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0); // Seteamos a medianoche para comparar solo fechas
+        hoy.setHours(0, 0, 0, 0); 
 
-        // 4. Obtenemos IDs de ferias donde ya hay una solicitud NO cancelada (Doble Postulación)
         const IDsParticipando = misParticipaciones
-            .filter(p => p.estado !== 'CANCELADO')
-            .map(p => p.feriaId);
+            .filter(p => p.estado !== 'CANCELADO' && p.estado !== 'RECHAZADA')
+            .map(p => p.edicionId); 
 
-        // 5. Filtrado final (Vigencia Temporal + Doble Postulación + Estado Activa)
-        const disponibles = ferias.filter(f => {
-            const fechaFeria = new Date(f.fechaInicio);
-            fechaFeria.setHours(0, 0, 0, 0);
+        // 🟢 CORREGIDO: Usando fechaInicio y validando ACTIVA en mayúscula
+        const disponibles = ediciones.filter(e => {
+            if (!e.fechaInicio) return false;
             
-            const esVigente = fechaFeria >= hoy;
-            const noEstaInscrito = !IDsParticipando.includes(f.id);
-            const estaActiva = f.estado === 'Activa';
+            const fechaEdicion = new Date(e.fechaInicio + "T00:00:00");
+            fechaEdicion.setHours(0, 0, 0, 0);
+            
+            const esVigente = fechaEdicion >= hoy;
+            const noEstaInscrito = !IDsParticipando.includes(e.id);
+            const estaActiva = (e.estado && e.estado.toUpperCase() === 'ACTIVA');
 
             return estaActiva && noEstaInscrito && esVigente;
         });
         
-        // 6. Renderizado
         contenedor.innerHTML = "";
         
         if (disponibles.length === 0) {
-            contenedor.innerHTML = "<p>No hay ferias nuevas disponibles por el momento.</p>";
+            contenedor.innerHTML = "<p>No hay ediciones nuevas disponibles por el momento.</p>";
             return;
         }
 
-        // Actualización del renderizado en el modal dentro de abrirModalPostulacion
-        disponibles.forEach(f => {
+        disponibles.forEach(e => {
             const div = document.createElement("div");
             div.className = "feria-item-modal";
-            // Dentro de tu bucle disponibles.forEach en abrirModalPostulacion
-            const standsOcupados = f.participantes ? f.participantes.map(p => p.numeroStand) : [];
+            
+            const standsOcupados = e.participantes ? e.participantes.map(p => p.numeroStand) : [];
 
+            // 🟢 CORREGIDO: Mapeo exacto de las variables del DTO
             div.innerHTML = `
                 <div class="feria-item-info">
-                    <h4>${f.nombre}</h4>
-                    <p><strong>Descripción:</strong> ${f.descripcion || 'Feria local en Río Grande'}</p>
-                    <p><i class="fas fa-map-marker-alt"></i> ${f.lugar}</p>
-                    <p><i class="fas fa-calendar"></i> ${f.fechaInicio} al ${f.fechaFinal}</p>
+                    <h4>${e.nombreEdicion || 'Edición'} - ${e.feriaNombre || ''}</h4>
+                    <p><strong>Descripción:</strong> ${e.feriaDescripcion || 'Feria local'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${e.feriaLugar}</p>
+                    <p><i class="fas fa-calendar"></i> ${e.fechaInicio} al ${e.fechaFinal || 'N/A'}</p>
+                    <p><i class="fas fa-clock"></i> ${e.horaInicio.substring(0, 5)} hrs a ${e.horaFin.substring(0, 5)} hrs</p>
                     
                     <div class="preferencia-container" style="margin-top: 10px;">
                         <label style="display:block; font-size: 0.9em; color: #666;">¿Tenés alguna mesa de preferencia?</label>
-                        <select id="select-preferencia-${f.id}" class="input-select">
-                            ${generarOpcionesStands(f.capacidad, standsOcupados)}
+                        <select id="select-preferencia-${e.id}" class="input-select">
+                            ${generarOpcionesStands(e.feriaCapacidad || 50, standsOcupados)}
                         </select>
                     </div>
                 </div>
-                <button class="btn-solicitar" onclick="enviarSolicitudConPreferencia(${f.id})">Postularme</button>
-`;
+                <button class="btn-solicitar" onclick="enviarSolicitudConPreferencia(${e.id})">Postularme</button>
+            `;
             contenedor.appendChild(div);
         });
 
-
     } catch (error) {
         console.error("Error en postulación:", error);
-        showToast("Error al cargar ferias disponibles.", "error");
+        showToast("Error al cargar ediciones disponibles.", "error");
         cerrarModalPostulacion();
-    }
-}
-
-async function enviarSolicitud(feriaId) {
-    try {
-        const payload = {
-            feriaId: feriaId,
-            standId: ferianteActual.stand.id
-        };
-        
-        await axios.post("http://localhost:8080/api/participaciones/inscribir", payload);
-        
-        showToast("¡Solicitud enviada con éxito!", "success");
-        cerrarModalPostulacion();
-        // Opcional: recargar perfil para actualizar la tarjeta de "Mis Ferias"
-        cargarPerfil(); 
-        
-    } catch (error) {
-        const msg = error.response?.data?.error || "Error al enviar la solicitud";
-        showToast(msg, "error");
     }
 }
 
@@ -417,33 +408,29 @@ function cerrarModalPostulacion() {
     document.getElementById("modal-postulacion").classList.add("hidden");
 }
 
-// Genera las opciones del select basándose en la capacidad de la feria
 function generarOpcionesStands(capacidad, standsOcupados = []) {
     let opciones = '<option value="">-- Sin preferencia --</option>';
-    
     for (let i = 1; i <= capacidad; i++) {
-        // Opcional: Podés deshabilitar los que ya están ocupados físicamente
         const estaOcupado = standsOcupados.includes(i);
         const disabled = estaOcupado ? 'disabled' : '';
         const texto = estaOcupado ? `${i} (Ocupado)` : `Mesa ${i}`;
-        
         opciones += `<option value="${i}" ${disabled}>${texto}</option>`;
     }
     return opciones;
 }
 
-async function enviarSolicitudConPreferencia(feriaId) {
-    const select = document.getElementById(`select-preferencia-${feriaId}`);
-    const preferencia = select.value; // El número de mesa elegido
+async function enviarSolicitudConPreferencia(edicionId) {
+    const select = document.getElementById(`select-preferencia-${edicionId}`);
+    const preferencia = select.value;
 
     try {
         const payload = {
-            feriaId: feriaId,
+            edicionId: edicionId,
             standId: ferianteActual.stand.id,
             numeroStandPreferido: preferencia ? parseInt(preferencia) : null
         };
 
-        await axios.post("http://localhost:8080/api/participaciones/inscribir", payload);
+        await axios.post(`${PARTICIPACIONES_URL}/inscribir`, payload);
         
         showToast("¡Solicitud enviada con tu preferencia!", "success");
         cerrarModalPostulacion();
