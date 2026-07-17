@@ -10,8 +10,6 @@ import java.time.LocalDate;
 public class FerianteDTO {
 
     private int id;
-    private String nombreEmprendimiento;
-    private String descripcion;
     private String telefono;
     private String emailEmprendimiento;
     private LocalDate fechaRegistro;
@@ -27,8 +25,6 @@ public class FerianteDTO {
     // 2. 🟢 CONSTRUCTOR ANTI-RECURSIVIDAD: Permite decidir si cargar o no el Stand
     public FerianteDTO(Feriante feriante, boolean ignorarStand) {
         this.id = feriante.getId();
-        this.nombreEmprendimiento = feriante.getNombreEmprendimiento();
-        this.descripcion = feriante.getDescripcion();
         this.telefono = feriante.getTelefono();
         this.emailEmprendimiento = feriante.getEmailEmprendimiento();
         this.fechaRegistro = feriante.getFechaRegistro();
@@ -49,13 +45,6 @@ public class FerianteDTO {
         return id;
     }
 
-    public String getNombreEmprendimiento() {
-        return nombreEmprendimiento;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
 
     public String getTelefono() {
         return telefono;

@@ -16,8 +16,6 @@ public class Feriante {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String nombreEmprendimiento;
-    private String descripcion;
     private String telefono;
     private String emailEmprendimiento;
     private LocalDate fechaRegistro;
@@ -35,10 +33,8 @@ public class Feriante {
 
     public Feriante() {}
 
-    public Feriante(String nombreEmprendimiento, String descripcion, String telefono, String emailEmprendimiento,
+    public Feriante(String telefono, String emailEmprendimiento,
              EstadoUsuario estadoUsuario) {
-        this.nombreEmprendimiento = nombreEmprendimiento;
-        this.descripcion = descripcion;
         this.telefono = telefono;
         this.emailEmprendimiento = emailEmprendimiento;
         this.fechaRegistro =  LocalDate.now();
@@ -50,21 +46,6 @@ public class Feriante {
         return id;
     }
 
-    public String getNombreEmprendimiento() {
-        return nombreEmprendimiento;
-    }
-
-    public void setNombreEmprendimiento(String nombreEmprendimiento) {
-        this.nombreEmprendimiento = nombreEmprendimiento;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
 
     public String getTelefono() {
         return telefono;

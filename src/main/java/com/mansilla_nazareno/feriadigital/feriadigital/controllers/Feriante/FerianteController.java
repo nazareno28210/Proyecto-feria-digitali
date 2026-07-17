@@ -5,7 +5,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.FerianteUpd
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository; // 🟢 NUEVO
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,8 +83,6 @@ public class FerianteController {
             return new ResponseEntity<>("Feriante no encontrado", HttpStatus.NOT_FOUND);
         }
 
-        if(dto.getNombreEmprendimiento() != null) feriante.setNombreEmprendimiento(dto.getNombreEmprendimiento());
-        if(dto.getDescripcion() != null) feriante.setDescripcion(dto.getDescripcion());
         if(dto.getTelefono() != null) feriante.setTelefono(dto.getTelefono());
         if(dto.getEmailEmprendimiento() != null) feriante.setEmailEmprendimiento(dto.getEmailEmprendimiento());
 

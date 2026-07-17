@@ -9,8 +9,8 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Solic
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.SolicitudParaFerianteRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.SolicitudParaFerianteRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -125,8 +125,6 @@ public class SolicitudParaFerianteController {
 
         // 1. Crear Feriante (IGUAL QUE ANTES)
         Feriante nuevoFeriante = new Feriante(
-                solicitud.getNombreEmprendimiento(),
-                solicitud.getDescripcion(),
                 solicitud.getTelefono(),
                 solicitud.getEmailEmprendimiento(),
                 EstadoUsuario.ACTIVO
@@ -143,14 +141,8 @@ public class SolicitudParaFerianteController {
 
         // Vinculación bidireccional importante:
         nuevoStand.setFeriante(nuevoFeriante);
-        standRepository.save(nuevoStand);
-
-        // Vinculación bidireccional importante:
-        nuevoStand.setFeriante(nuevoFeriante);
 
         // NOTA: Aquí el stand NO tiene Feria asignada aún.
-        // Ver punto 3 de mis recomendaciones más abajo.
-
         standRepository.save(nuevoStand);
 
         // 3. Marcar solicitud como aprobada (IGUAL QUE ANTES)

@@ -4,7 +4,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.PasswordResetToken
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.VerificationToken;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.PasswordResetTokenRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.VerificationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

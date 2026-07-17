@@ -2,7 +2,7 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.UsuarioComun
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioComun.CambiarContrasenaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;

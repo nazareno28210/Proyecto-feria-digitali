@@ -4,6 +4,7 @@ const FERIAS_URL = "http://localhost:8080/api/ferias";
 const EDICIONES_URL = "http://localhost:8080/api/ediciones"; 
 const PARTICIPACIONES_URL = "http://localhost:8080/api/participaciones";
 const FERIANTE_UPDATE_URL = "http://localhost:8080/api/feriantes/current";
+const EDICIONES_ACTIVAS_URL = "http://localhost:8080/api/ediciones/activas"; // 🟢 NUEVA 
 const STAND_UPDATE_URL = "http://localhost:8080/api/stands/mi-stand";
 const STAND_TOGGLE_URL = "http://localhost:8080/api/stands/mi-stand/toggle-activo";
 const USUARIO_UPDATE_URL = "http://localhost:8080/api/usuarios/current";
@@ -143,13 +144,9 @@ function cargarPerfil() {
             setValue("edit-usuario-apellido", u.apellido);
             setValue("edit-usuario-email", u.email);
 
-            setText("feriante-nombre", ferianteActual.nombreEmprendimiento);
-            setText("feriante-desc", ferianteActual.descripcion);
             setText("feriante-tel", ferianteActual.telefono);
             setText("feriante-email", ferianteActual.emailEmprendimiento);
-            
-            setValue("edit-feriante-nombre", ferianteActual.nombreEmprendimiento);
-            setValue("edit-feriante-desc", ferianteActual.descripcion);
+
             setValue("edit-feriante-tel", ferianteActual.telefono);
             setValue("edit-feriante-email", ferianteActual.emailEmprendimiento);
 
@@ -199,8 +196,6 @@ async function guardarUsuario() {
 
 async function guardarFeriante() {
     const data = { 
-        nombreEmprendimiento: getValue("edit-feriante-nombre"), 
-        descripcion: getValue("edit-feriante-desc"), 
         telefono: getValue("edit-feriante-tel"), 
         emailEmprendimiento: getValue("edit-feriante-email") 
     };
@@ -318,6 +313,8 @@ function showToast(m, t) {
 
 // --- LÓGICA DE POSTULACIÓN A FERIAS (AHORA EDICIONES) ---
 
+// --- LÓGICA DE POSTULACIÓN A FERIAS (AHORA EDICIONES) ---
+
 async function abrirModalPostulacion() {
     if (!ferianteActual || !ferianteActual.stand) {
         return showToast("Necesitas tener un stand asignado para postularte.", "error");
@@ -334,33 +331,33 @@ async function abrirModalPostulacion() {
     contenedor.innerHTML = "<p>Buscando ediciones disponibles...</p>";
 
     try {
+        // 🟢 1. REEMPLAZO CLAVE: Usamos EDICIONES_ACTIVAS_URL
         const [resEdiciones, resMisParticipaciones] = await Promise.all([
-            axios.get(EDICIONES_URL),
+            axios.get(EDICIONES_ACTIVAS_URL), 
             axios.get(`${PARTICIPACIONES_URL}/stand/${ferianteActual.stand.id}`)
         ]); 
 
-        const ediciones = resEdiciones.data;
+        const edicionesActivas = resEdiciones.data;
         const misParticipaciones = resMisParticipaciones.data;
         
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0); 
 
+        // 🟢 2. VALIDACIÓN ROBUSTA: Verificamos en qué EDICIONES (no ferias base) ya participa
         const IDsParticipando = misParticipaciones
             .filter(p => p.estado !== 'CANCELADO' && p.estado !== 'RECHAZADA')
             .map(p => p.edicionId); 
 
-        // 🟢 CORREGIDO: Usando fechaInicio y validando ACTIVA en mayúscula
-        const disponibles = ediciones.filter(e => {
+        const disponibles = edicionesActivas.filter(e => {
             if (!e.fechaInicio) return false;
             
             const fechaEdicion = new Date(e.fechaInicio + "T00:00:00");
             fechaEdicion.setHours(0, 0, 0, 0);
             
             const esVigente = fechaEdicion >= hoy;
-            const noEstaInscrito = !IDsParticipando.includes(e.id);
-            const estaActiva = (e.estado && e.estado.toUpperCase() === 'ACTIVA');
+            const noEstaInscrito = !IDsParticipando.includes(e.id); // Si ya se anotó en esta edición específica, lo ocultamos.
 
-            return estaActiva && noEstaInscrito && esVigente;
+            return noEstaInscrito && esVigente;
         });
         
         contenedor.innerHTML = "";
@@ -376,7 +373,6 @@ async function abrirModalPostulacion() {
             
             const standsOcupados = e.participantes ? e.participantes.map(p => p.numeroStand) : [];
 
-            // 🟢 CORREGIDO: Mapeo exacto de las variables del DTO
             div.innerHTML = `
                 <div class="feria-item-info">
                     <h4>${e.nombreEdicion || 'Edición'} - ${e.feriaNombre || ''}</h4>

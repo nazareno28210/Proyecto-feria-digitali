@@ -1,4 +1,4 @@
-package com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun;
+package com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.SolicitudParaFeriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;

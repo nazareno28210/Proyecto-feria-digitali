@@ -15,7 +15,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.Edicio
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -110,7 +110,7 @@ public class FeriaDigitalApplication {
 				// 4. STAND 1 E INDUMENTARIA
 				// =========================================
 				Stand stand1 = new Stand("Indumentaria Falco", "Ropa deportiva y urbana", null);
-				Feriante feriante1 = new Feriante("Indumentaria Francisco", "Venta de ropa", "2964-555999", "falco@gmail.com", EstadoUsuario.ACTIVO);
+				Feriante feriante1 = new Feriante("2964-555999", "falco@gmail.com", EstadoUsuario.ACTIVO);
 				feriante1.setUsuario(francisco);
 				feriante1.setStand(stand1);
 				stand1.setFeriante(feriante1);
@@ -140,7 +140,7 @@ public class FeriaDigitalApplication {
 				// 5. STAND 2 Y MASCOTAS
 				// =========================================
 				Stand stand2 = new Stand("Mascotas Felices", "Todo para tu perro y gato", "/uploads/stands/mascota.png");
-				Feriante feriante2 = new Feriante("Emprendimiento Mascotas", "Accesorios para mascotas", "2964-444555", "mascotas@gmail.com", EstadoUsuario.ACTIVO);
+				Feriante feriante2 = new Feriante("2964-444555", "mascotas@gmail.com", EstadoUsuario.ACTIVO);
 				feriante2.setUsuario(maria);
 				feriante2.setStand(stand2);
 				stand2.setFeriante(feriante2);

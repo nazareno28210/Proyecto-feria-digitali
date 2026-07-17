@@ -6,7 +6,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.VerificationToken;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsurioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.VerificationTokenRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.EmailService;

@@ -35,7 +35,7 @@ public class Stand {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "feriante_id") // crea la columna en la tabla Stand
 
-    @JsonIgnoreProperties("stands")
+    @JsonIgnoreProperties("stand")
     private Feriante feriante;
 
     @ManyToOne
