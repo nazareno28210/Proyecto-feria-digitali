@@ -29,6 +29,14 @@ function showToast(message, type = "info") {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // 🔔 Verificar si viene de activar la cuenta por enlace de correo
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("verificado") === "true") {
+    showToast("✅ ¡Tu cuenta ha sido activada con éxito! Ya puedes iniciar sesión.", "success");
+  } else if (urlParams.get("errorVerificacion") === "true") {
+    showToast("❌ El enlace de verificación es inválido o ya ha expirado.", "error");
+  }
+
   const form = document.getElementById("loginForm");
 
   form.addEventListener("submit", async (e) => {
@@ -76,10 +84,21 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("Tipo de usuario desconocido: " + usuario.tipoUsuario, "warning");
       }
     } catch (error) {
-      if (error.response?.status === 401)
-        showToast("❌ Credenciales incorrectas", "error");
-      else
+      if (error.response?.status === 403) {
+        // ⚠️ Contraseña CORRECTA, pero cuenta INACTIVA
+        const msg = typeof error.response.data === "object" && error.response.data?.message
+          ? error.response.data.message
+          : "Debes ingresar a tu correo electrónico y verificar tu cuenta para activarla.";
+        showToast("⚠️ " + msg, "warning");
+      } else if (error.response?.status === 401) {
+        // ❌ Credenciales INCORRECTAS (correo o contraseña mal puestos)
+        const msg = typeof error.response.data === "object" && error.response.data?.message
+          ? error.response.data.message
+          : "Correo o contraseña incorrectos.";
+        showToast("❌ " + msg, "error");
+      } else {
         showToast("❌ Error en el servidor", "error");
+      }
     }
   });
 });

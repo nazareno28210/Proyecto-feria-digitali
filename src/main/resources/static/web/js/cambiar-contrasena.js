@@ -19,7 +19,7 @@ function cambiarPassword(e) {
     }
 
     // Petición para cambiar la contraseña
-    axios.post("http://localhost:8080/api/password/cambiar", {
+    axios.post("/api/password/cambiar", {
         passwordActual: actual,
         passwordNueva: nueva
     }, { withCredentials: true })
@@ -28,7 +28,7 @@ function cambiarPassword(e) {
             
             // 🟢 LÓGICA DE REDIRECCIÓN DINÁMICA 🟢
             // Consultamos quién es el usuario actual para saber a dónde mandarlo
-            axios.get("http://localhost:8080/api/usuarios/current", { withCredentials: true })
+            axios.get("/api/usuarios/current", { withCredentials: true })
                 .then(res => {
                     const usuario = res.data;
                     

@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.configurations;
 
+import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +31,15 @@ public class WebAuthentication extends GlobalAuthenticationConfigurerAdapter {
             // Asigna rol según tipoUsuario
             String rol = usuario.getTipoUsuario().name(); // NORMAL, FERIANTE, ADMINISTRADOR
 
+            boolean activo = usuario.isEnabled() && usuario.getEstadoUsuario() == EstadoUsuario.ACTIVO;
+
             return new User(
                     usuario.getEmail(),
                     usuario.getContrasena(),
+                    activo,
+                    true,
+                    true,
+                    true,
                     AuthorityUtils.createAuthorityList("ROLE_" + rol)
             );
         });

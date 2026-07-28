@@ -1,132 +1,116 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.services;
 
-import com.mansilla_nazareno.feriadigital.feriadigital.models.PasswordResetToken;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoToken;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.VerificationToken;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.PasswordResetTokenRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioToken;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.VerificationTokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.UUID;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class AuthService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private VerificationTokenRepository verificationTokenRepository;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private PasswordResetTokenRepository passwordResetTokenRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioTokenService usuarioTokenService;
+    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    // ==============================
-    // REGISTRO
-    // ==============================
+    public AuthService(UsuarioRepository usuarioRepository,
+                       UsuarioTokenService usuarioTokenService,
+                       EmailService emailService,
+                       PasswordEncoder passwordEncoder) {
+        this.usuarioRepository = usuarioRepository;
+        this.usuarioTokenService = usuarioTokenService;
+        this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    @Transactional
     public ResponseEntity<?> registrarUsuario(Usuario usuario) {
-
         if (usuarioRepository.findByEmail(usuario.getEmail()) != null) {
-            return ResponseEntity.badRequest().body("El correo ya está registrado");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El correo ya está registrado");
         }
 
         usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         usuario.setEnabled(false);
-
+        usuario.setUserEstate(EstadoUsuario.INACTIVO);
         usuarioRepository.save(usuario);
 
-        // Generar token
-        String token = UUID.randomUUID().toString();
+        UsuarioToken token = usuarioTokenService.generarToken(usuario, TipoToken.CONFIRMACION_CUENTA);
 
-        VerificationToken verificationToken = new VerificationToken();
-        verificationToken.setToken(token);
-        verificationToken.setUsuario(usuario);
-        verificationToken.setFechaExpiracion(LocalDateTime.now().plusHours(24));
+        emailService.enviarEmail(usuario.getEmail(), token.getToken());
 
-        verificationTokenRepository.save(verificationToken);
-
-        emailService.enviarEmail(usuario.getEmail(), token);
-
-        return ResponseEntity.ok("Usuario registrado. Revisa tu correo.");
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Usuario registrado. Revisa tu correo para verificar tu cuenta.");
     }
 
-    // ==============================
-    // VERIFICAR CUENTA
-    // ==============================
-    public ResponseEntity<?> verificarCuenta(String token) {
+    @Transactional
+    public boolean verificarCuenta(String tokenStr) {
+        Optional<UsuarioToken> tokenOpt = usuarioTokenService.validarToken(tokenStr, TipoToken.CONFIRMACION_CUENTA);
 
-        VerificationToken verificationToken =
-                verificationTokenRepository.findByToken(token);
-
-        if (verificationToken == null) {
-            return ResponseEntity.badRequest().body("Token inválido");
+        if (tokenOpt.isEmpty()) {
+            return false;
         }
 
-        if (verificationToken.getFechaExpiracion()
-                .isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("Token expirado");
-        }
-
-        Usuario usuario = verificationToken.getUsuario();
+        UsuarioToken usuarioToken = tokenOpt.get();
+        Usuario usuario = usuarioToken.getUsuario();
         usuario.setEnabled(true);
+        usuario.setUserEstate(EstadoUsuario.ACTIVO);
         usuarioRepository.save(usuario);
 
-        verificationTokenRepository.delete(verificationToken);
+        usuarioTokenService.marcarComoUsado(usuarioToken);
 
-        return ResponseEntity.ok("Cuenta verificada correctamente");
+        return true;
     }
 
-
+    @Transactional
     public void generarTokenRecuperacion(String email) {
-
         Usuario usuario = usuarioRepository.findByEmail(email);
         if (usuario == null) return;
 
-        String token = UUID.randomUUID().toString();
-
-        PasswordResetToken resetToken = new PasswordResetToken();
-        resetToken.setToken(token);
-        resetToken.setUsuario(usuario);
-        resetToken.setFechaExpiracion(LocalDateTime.now().plusMinutes(30));
-
-        passwordResetTokenRepository.save(resetToken);
+        UsuarioToken token = usuarioTokenService.generarToken(usuario, TipoToken.RECUPERACION_CONTRASENA);
 
         emailService.enviar(
                 usuario.getEmail(),
                 "Recuperación de contraseña - Feria Digital",
-                "Click aquí para cambiar tu contraseña:\n" +
-                        "http://localhost:8080/auth/reset-password?token=" + token );
+                "Haz clic en el siguiente enlace para cambiar tu contraseña (válido por 15 minutos):\n" +
+                        "http://localhost:8080/web/reset-password.html?token=" + token.getToken()
+        );
     }
-    public ResponseEntity<?> resetearPassword(String token, String nuevaPassword) {
 
-        PasswordResetToken resetToken =
-                passwordResetTokenRepository.findByToken(token);
+    @Transactional
+    public ResponseEntity<?> resetearPassword(String tokenStr, String nuevaPassword) {
+        Optional<UsuarioToken> tokenOpt = usuarioTokenService.validarToken(tokenStr, TipoToken.RECUPERACION_CONTRASENA);
 
-        if (resetToken == null) {
-            return ResponseEntity.badRequest().body("Token inválido");
+        if (tokenOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Token inválido o expirado");
         }
 
-        if (resetToken.getFechaExpiracion()
-                .isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body("Token expirado");
+        if (!esContrasenaSegura(nuevaPassword)) {
+            return ResponseEntity.badRequest()
+                    .body("La nueva contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un símbolo.");
         }
 
-        Usuario usuario = resetToken.getUsuario();
+        UsuarioToken usuarioToken = tokenOpt.get();
+        Usuario usuario = usuarioToken.getUsuario();
 
         usuario.setContrasena(passwordEncoder.encode(nuevaPassword));
         usuarioRepository.save(usuario);
 
-        passwordResetTokenRepository.delete(resetToken);
+        usuarioTokenService.marcarComoUsado(usuarioToken);
 
         return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
 
-
+    private boolean esContrasenaSegura(String contrasena) {
+        if (contrasena == null) return false;
+        String patron = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!¿?.,;:_-]).{8,}$";
+        return contrasena.matches(patron);
+    }
 }
-

@@ -22,7 +22,7 @@ public class EmailService {
 
 
     public void enviarEmail(String to, String token) {
-        String link = "http://localhost:8080/web/reset-password.html?token=" + token;
+        String link = "http://localhost:8080/auth/verificar?token=" + token;
 
 
 

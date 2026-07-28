@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -54,9 +55,17 @@ public class WebAuthorization {
                         .successHandler((req, res, auth) ->
                                 res.setStatus(HttpServletResponse.SC_OK))
 
-                        // ❌ Login incorrecto → 401
-                        .failureHandler((req, res, ex) ->
-                                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
+                        // ❌ Login incorrecto: Diferenciar contraseña correcta (cuenta inactiva) de credenciales inválidas
+                        .failureHandler((req, res, ex) -> {
+                            res.setContentType("application/json;charset=UTF-8");
+                            if (ex instanceof DisabledException) {
+                                res.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403 Forbidden
+                                res.getWriter().write("{\"error\": \"CUENTA_INACTIVA\", \"message\": \"Debes ingresar a tu correo electrónico y verificar tu cuenta para activarla.\"}");
+                            } else {
+                                res.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+                                res.getWriter().write("{\"error\": \"CREDENCIALES_INCORRECTAS\", \"message\": \"Correo o contraseña incorrectos.\"}");
+                            }
+                        })
 
                         .permitAll()
                 )

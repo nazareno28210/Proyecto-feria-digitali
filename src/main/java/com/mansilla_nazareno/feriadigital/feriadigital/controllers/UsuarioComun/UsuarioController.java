@@ -3,14 +3,14 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.UsuarioComun
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Feriante.RegistroDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioComun.UsuarioDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.EstadoUsuario;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoToken;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.TipoUsuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
-import com.mansilla_nazareno.feriadigital.feriadigital.models.VerificationToken;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioToken;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.VerificationTokenRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.UsuarioTokenService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,31 +19,29 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
 public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
-    private final VerificationTokenRepository verificationTokenRepository;
+    private final UsuarioTokenService usuarioTokenService;
     private final CloudinaryService cloudinaryService;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    public UsuarioController(UsuarioRepository usuarioRepository
-            ,CloudinaryService cloudinaryService
-            ,VerificationTokenRepository verificationTokenRepository
-            ,EmailService emailService) {
+    public UsuarioController(UsuarioRepository usuarioRepository,
+                             UsuarioTokenService usuarioTokenService,
+                             CloudinaryService cloudinaryService,
+                             EmailService emailService,
+                             PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.usuarioTokenService = usuarioTokenService;
         this.cloudinaryService = cloudinaryService;
-        this.verificationTokenRepository = verificationTokenRepository;
-        this.emailService=emailService;
+        this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/usuarios")
@@ -86,7 +84,7 @@ public class UsuarioController {
         usuario.setNombre(dto.getNombre());
         usuario.setApellido(dto.getApellido());
 
-        //  Validar si el email cambió y si ya existe
+        // Validar si el email cambió y si ya existe
         if (!usuario.getEmail().equals(dto.getEmail())) {
             if (usuarioRepository.findByEmail(dto.getEmail()) != null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("El nuevo correo ya está registrado");
@@ -132,36 +130,25 @@ public class UsuarioController {
         usuario.setApellido(dto.getApellido());
         usuario.setEmail(dto.getEmail());
         usuario.setContrasena(passwordEncoder.encode(dto.getContrasena()));
-        usuario.setUserEstate(EstadoUsuario.ACTIVO);
+        usuario.setUserEstate(EstadoUsuario.INACTIVO);
         usuario.setTipoUsuario(TipoUsuario.NORMAL);
         usuario.setFechaRegistro(LocalDate.now());
-
-        // 🔐 IMPORTANTE
         usuario.setEnabled(false);
 
         usuarioRepository.save(usuario);
 
-        // 🔑 Generar token
-        String token = UUID.randomUUID().toString();
-
-        VerificationToken verificationToken = new VerificationToken();
-        verificationToken.setToken(token);
-        verificationToken.setUsuario(usuario);
-        verificationToken.setFechaExpiracion(LocalDateTime.now().plusHours(24));
-
-        verificationTokenRepository.save(verificationToken);
+        // 🔑 Generar token de confirmación de cuenta
+        UsuarioToken token = usuarioTokenService.generarToken(usuario, TipoToken.CONFIRMACION_CUENTA);
 
         // 📧 Enviar email
-        emailService.enviarEmail(usuario.getEmail(), token);
+        emailService.enviarEmail(usuario.getEmail(), token.getToken());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Usuario registrado. Revisa tu correo para verificar tu cuenta.");
     }
 
-
-
     @PostMapping("/password/cambiar")
-    public ResponseEntity<?> cambiarPassword(Authentication authentication, @RequestBody java.util.Map<String, String> body) {
+    public ResponseEntity<?> cambiarPassword(Authentication authentication, @RequestBody Map<String, String> body) {
         if (authentication == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Sesión no válida");
         }
@@ -193,9 +180,10 @@ public class UsuarioController {
         String patron = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!¿?.,;:_-]).{8,}$";
         return contrasena.matches(patron);
     }
+
     @PatchMapping(value = "/usuarios/current/imagen", consumes = {"multipart/form-data"})
     public ResponseEntity<?> subirFotoPerfil(@RequestParam("imagen") MultipartFile imagen,
-            Authentication authentication
+                                             Authentication authentication
     ) {
         if (imagen == null || imagen.isEmpty()) {return ResponseEntity.badRequest().body("No se envió ninguna imagen");}
 
@@ -219,6 +207,4 @@ public class UsuarioController {
 
         return ResponseEntity.ok("Foto de perfil actualizada");
     }
-
-
 }
