@@ -67,11 +67,8 @@
             <button class="tab-btn active" id="btn-tab-pendientes" onclick="cambiarTab('pendientes')">
                 <i class="fas fa-clock"></i> 1. Solicitudes
             </button>
-            <button class="tab-btn" id="btn-tab-cobros" onclick="cambiarTab('cobros')">
-                <i class="fas fa-cash-register"></i> 2. Caja (Deudores)
-            </button>
-            <button class="tab-btn" id="btn-tab-distribucion" onclick="cambiarTab('distribucion')">
-                <i class="fas fa-map-marked-alt"></i> 3. Distribución Final
+            <button class="tab-btn" id="btn-tab-gestion" onclick="cambiarTab('gestion')">
+                <i class="fas fa-store"></i> 2. Stands y Pagos
             </button>
         </div>
 
@@ -91,32 +88,31 @@
             </table>
         </div>
 
-        <!-- TAB 2: CAJA (CONFIRMADOS QUE DEBEN TODO) -->
-        <div id="tab-cobros" class="tab-content">
-            <h3>Control de Cobros</h3>
-            <p style="color: #666; font-size: 0.9em;">Registra señas o pagos totales. Al cobrar, pasarán a Distribución.</p>
-            <table class="table-admin" id="tabla-cobros">
+        <!-- TAB 2: STANDS Y PAGOS (CONFIRMADOS) -->
+        <div id="tab-gestion" class="tab-content">
+            <h3>Stands y Pagos</h3>
+            <p style="color: #666; font-size: 0.9em;">Asigna stand físico y registra pagos de feriantes confirmados.</p>
+            <div id="dashboard-financiero" style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div style="flex: 1; background: #e0f2fe; padding: 15px; border-radius: 8px; border-left: 4px solid #0284c7;">
+                    <h4 style="margin: 0; color: #0369a1; font-size: 0.9em;">Recaudación Total</h4>
+                    <p id="dash-recaudado" style="margin: 5px 0 0; font-size: 1.5em; font-weight: bold; color: #0c4a6e;">$0</p>
+                </div>
+                <div style="flex: 1; background: #fef08a; padding: 15px; border-radius: 8px; border-left: 4px solid #ca8a04;">
+                    <h4 style="margin: 0; color: #a16207; font-size: 0.9em;">Por Cobrar (Pendiente)</h4>
+                    <p id="dash-por-cobrar" style="margin: 5px 0 0; font-size: 1.5em; font-weight: bold; color: #713f12;">$0</p>
+                </div>
+                <div style="flex: 1; background: #dcfce7; padding: 15px; border-radius: 8px; border-left: 4px solid #16a34a;">
+                    <h4 style="margin: 0; color: #15803d; font-size: 0.9em;">Stands Asignados</h4>
+                    <p id="dash-ocupacion" style="margin: 5px 0 0; font-size: 1.5em; font-weight: bold; color: #14532d;">0</p>
+                </div>
+            </div>
+            <table class="table-admin" id="tabla-gestion">
                 <thead>
                 <tr>
                     <th>Emprendimiento</th>
-                    <th>Estado Financiero</th>
-                    <th>Acciones</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <!-- TAB 3: DISTRIBUCIÓN (CONFIRMADOS CON PAGO/SEÑA) -->
-        <div id="tab-distribucion" class="tab-content">
-            <h3>Ubicaciones y Stands</h3>
-            <p style="color: #666; font-size: 0.9em;">Asigna el número de mesa o sector físico a los feriantes que ya pagaron.</p>
-            <table class="table-admin" id="tabla-distribucion">
-                <thead>
-                <tr>
-                    <th>Emprendimiento</th>
-                    <th>Abonado</th>
-                    <th>Preferencia</th> <th>Ubicación Actual</th>
+                    <th>Finanzas</th>
+                    <th>Preferencia</th>
+                    <th>Ubicación</th>
                     <th>Acciones</th>
                 </tr>
                 </thead>
@@ -145,8 +141,15 @@
             <input type="number" id="pago-monto" step="0.01" min="0" placeholder="Ej: 5000" required style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
 
             <div id="grupo-ubicacion" style="display: none;">
-                <label for="pago-ubicacion" style="display:block; margin-bottom:5px; font-weight:bold;">Nº de Mesa o Sector</label>
-                <input type="number" id="pago-ubicacion" placeholder="Ej: 12" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
+                <div id="mapa-asignacion-container" style="display:none; margin-bottom: 15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Mapa del predio</label>
+                    <img id="mapa-asignacion-img" src="" alt="Mapa del predio"
+                        style="width: 100%; max-height: 250px; object-fit: contain; border: 1px solid #ccc; border-radius: 8px; background-color: #f8fafc;">
+                </div>
+                <label for="pago-ubicacion" style="display:block; margin-bottom:5px; font-weight:bold;">Asignar Lote/Stand Físico</label>
+                <select id="pago-ubicacion" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
+                    <option value="">Cargando stands disponibles...</option>
+                </select>
                 <small id="ayuda-preferencia" style="color: #6366f1; font-weight: 500; display: block; margin-top: -10px; margin-bottom: 15px;"></small>
             </div>
 
@@ -159,6 +162,7 @@
     <p>Proyecto Feria Digital — Panel de Control</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/web/js/asignar-stands.js"></script>
 </body>
 </html>

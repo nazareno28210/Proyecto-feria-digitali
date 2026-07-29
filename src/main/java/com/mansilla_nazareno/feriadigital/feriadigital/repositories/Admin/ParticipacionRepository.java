@@ -20,11 +20,12 @@ public interface ParticipacionRepository extends JpaRepository<Participacion, In
     // Buscar una postulación específica para ver si el stand ya se anotó en esa edición
     Optional<Participacion> findByEdicionIdAndStandId(int edicionId, int standId);
 
-    // Evita que dos feriantes ocupen el mismo número de mesa en la misma edición
-    boolean existsByEdicionIdAndNumeroStandAndIdNot(Integer edicionId, Integer numeroStand, Integer id);
 
     // Busca si un stand ya está registrado en una edición específica
     boolean existsByEdicionIdAndStandId(int edicionId, int standId);
+
+    // Busca el primer participante en determinado estado ordenado por llegada (ID)
+    Optional<Participacion> findFirstByEdicionIdAndEstadoOrderByIdAsc(Integer edicionId, EstadoParticipacion estado);
 
     // 🌟 HISTORIAL: Trae todas las ferias a las que asistió este stand en la historia del sistema
     List<Participacion> findByStandId(int standId);

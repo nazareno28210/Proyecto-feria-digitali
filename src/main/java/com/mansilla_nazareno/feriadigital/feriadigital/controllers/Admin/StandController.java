@@ -127,7 +127,7 @@ public class StandController {
         }
 
         // Crear la nueva participación vinculada a la edición correspondiente
-        Participacion participacion = new Participacion(edicion, stand, null, EstadoParticipacion.CONFIRMADO, null);
+        Participacion participacion = new Participacion(edicion, stand, null, EstadoParticipacion.CONFIRMADO);
         participacionRepository.save(participacion);
 
         return new ResponseEntity<>("Participación registrada correctamente", HttpStatus.OK);

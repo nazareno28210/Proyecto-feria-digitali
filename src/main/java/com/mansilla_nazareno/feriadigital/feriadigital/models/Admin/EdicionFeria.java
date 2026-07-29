@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "ediciones_feria")
@@ -35,6 +37,15 @@ public class EdicionFeria {
 
     @Column(name = "estado", nullable = false)
     private String estado; // "ACTIVA", "FINALIZADA", "CANCELADA"
+
+    @Column(name = "mapa_url")
+    private String mapaUrl;
+
+    @Column(name = "mapa_public_id")
+    private String mapaPublicId;
+
+    @OneToMany(mappedBy = "edicion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Espacio> espacios = new ArrayList<>();
 
     // Constructores
     public EdicionFeria() {}
@@ -103,4 +114,13 @@ public class EdicionFeria {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    public List<Espacio> getEspacios() { return espacios; }
+    public void setEspacios(List<Espacio> espacios) { this.espacios = espacios; }
+
+    public String getMapaUrl() { return mapaUrl; }
+    public void setMapaUrl(String mapaUrl) { this.mapaUrl = mapaUrl; }
+
+    public String getMapaPublicId() { return mapaPublicId; }
+    public void setMapaPublicId(String mapaPublicId) { this.mapaPublicId = mapaPublicId; }
 }

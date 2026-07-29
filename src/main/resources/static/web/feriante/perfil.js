@@ -41,8 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Listeners para botones del Modal Cropper
     document.getElementById("btn-confirm-crop").addEventListener("click", ejecutarRecorteYSubir);
     document.getElementById("btn-cancel-crop").addEventListener("click", cerrarModalYLimpiar);
-    
-    document.querySelector(".action-green").addEventListener("click", abrirModalPostulacion);
 
     const toggleActivo = document.getElementById("toggle-stand-activo");
     if (toggleActivo) toggleActivo.addEventListener("change", toggleEstadoStand);
@@ -95,10 +93,18 @@ async function ejecutarRecorteYSubir() {
                 headers: { "Content-Type": "multipart/form-data" } 
             });
 
-            // Actualizamos la imagen en la UI con un timestamp para evitar cache
-            const urlImagen = res.data.url || res.data;
-            document.getElementById("fotoPerfil").src = urlImagen + "?t=" + new Date().getTime();
-            
+            // 1. Nueva URL del backend
+            const nuevaFotoUrl = res.data.url || res.data;
+
+            // 2. Actualizar imagen visible en el HTML (cache-bust)
+            const imgElement = document.getElementById("fotoPerfil");
+            if (imgElement) imgElement.src = nuevaFotoUrl + "?t=" + Date.now();
+
+            // 3. Actualizar variable local para que la validación de "Postularme" detecte la foto
+            if (ferianteActual && ferianteActual.usuario) {
+                ferianteActual.usuario.imagenUrl = nuevaFotoUrl;
+            }
+
             showToast("¡Foto actualizada!", "success");
             cerrarModalYLimpiar();
         } catch (err) { 
@@ -259,34 +265,57 @@ function renderFeriasAsignadas(misParticipaciones) {
     const feriasCard = document.getElementById("card-mis-ferias");
     const body = document.getElementById("ferias-card-body");
     
-    const participacionesActivas = misParticipaciones.filter(p => p.estado === 'APROBADA' || p.estado === 'PENDIENTE' || p.estado === 'CONFIRMADO');
-
-    if (participacionesActivas.length > 0) {
-        const p = participacionesActivas[0];
-        const edicion = todasLasEdiciones.find(e => e.id === p.edicionId); 
-
-        if (edicion) {
-            const iconoEstado = (p.estado === 'APROBADA' || p.estado === 'CONFIRMADO') ? '🟢 Confirmada' : '🟡 Pendiente';
-            
-            // 🟢 CORREGIDO: Mapeo exacto de las variables del DTO
-            body.innerHTML = `
-                <p>Estado de solicitud: <strong>${iconoEstado}</strong></p>
-                <h3>${edicion.nombreEdicion || 'Edición'} - ${edicion.feriaNombre || 'Feria'}</h3>
-                <p><strong>Lugar:</strong> ${edicion.feriaLugar}</p>
-                <p><strong>Fecha:</strong> ${edicion.fechaInicio} al ${edicion.fechaFinal || 'N/A'}</p>
-                <p><strong>Horario:</strong> ${edicion.horaInicio.substring(0, 5)} - ${edicion.horaFin.substring(0, 5)}</p>
-                ${p.numeroStand ? `<p><strong>Mesa asignada:</strong> #${p.numeroStand}</p>` : ''}
-            `;
-            feriasCard.href = `/web/feria_detalle.html?id=${edicion.feriaId || edicion.id}`;
-            feriasCard.style.cursor = "pointer";
-            feriasCard.style.opacity = "1";
-        }
-    } else {
-        body.innerHTML = `<p>Tu stand aún no tiene participaciones activas.</p>`;
+    if (!misParticipaciones || misParticipaciones.length === 0) {
+        body.innerHTML = `<p>Tu stand aún no tiene participaciones registradas.</p>`;
         feriasCard.removeAttribute("href");
         feriasCard.style.cursor = "default";
-        feriasCard.style.opacity = "0.7";
+        return;
     }
+
+    // 1. Contenedor con altura máxima y scroll
+    let htmlContent = `<div style="max-height: 280px; overflow-y: auto; padding-right: 8px;">`;
+
+    // 2. Invertimos el array para ver lo más reciente arriba
+    const participacionesOrdenadas = [...misParticipaciones].reverse();
+
+    for (const p of participacionesOrdenadas) {
+        const edicion = todasLasEdiciones.find(e => e.id === p.edicionId); 
+        if (!edicion) continue;
+
+        htmlContent += `<div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px;">`;
+
+        if (p.estado === 'RECHAZADO' || p.estado === 'CANCELADO') {
+            htmlContent += `
+                <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; padding: 8px; border-radius: 4px; margin-bottom: 8px;">
+                    <p style="color: #b91c1c; margin: 0; font-size: 0.9em;"><strong>🔴 Solicitud ${p.estado}</strong></p>
+                    <p style="color: #7f1d1d; font-size: 0.85em; margin-top: 4px; margin-bottom: 0;">
+                        <strong>Motivo:</strong> ${p.motivoRechazo || 'No se especificó.'}
+                    </p>
+                </div>
+                <h4 style="margin: 0 0 4px 0; font-size: 1em;">${edicion.nombreEdicion || 'Edición'}</h4>
+                <p style="font-size: 0.85em; color: #666; margin: 0;">No puedes volver a postularte.</p>
+            `;
+        } else {
+            const iconoEstado = (p.estado === 'APROBADA' || p.estado === 'CONFIRMADO') ? '🟢 Confirmada' : '🟡 Pendiente';
+            htmlContent += `
+                <p style="margin: 0 0 4px 0; font-size: 0.85em;">Estado: <strong>${iconoEstado}</strong></p>
+                <h4 style="margin: 0 0 6px 0; font-size: 1em;">
+                    <a href="/web/feria_detalle.html?id=${edicion.feriaId || edicion.id}" style="color: #2563eb; text-decoration: none;">
+                        ${edicion.nombreEdicion || 'Edición'} - ${edicion.feriaNombre || 'Feria'}
+                    </a>
+                </h4>
+                <p style="margin: 0; font-size: 0.85em; color: #475569;"><strong>Fecha:</strong> ${edicion.fechaInicio}</p>
+                ${p.numeroStand ? `<p style="margin: 2px 0 0 0; font-size: 0.85em; color: #475569;"><strong>Mesa:</strong> #${p.numeroStand}</p>` : ''}
+            `;
+        }
+        htmlContent += `</div>`;
+    }
+    
+    htmlContent += `</div>`; 
+    body.innerHTML = htmlContent;
+    
+    feriasCard.removeAttribute("href");
+    feriasCard.style.cursor = "default";
 }
 
 function cerrarSesion() { 
@@ -320,6 +349,13 @@ async function abrirModalPostulacion() {
         return showToast("Necesitas tener un stand asignado para postularte.", "error");
     }
 
+    // VALIDACIÓN ESTRICTA DE FOTO DE PERFIL
+    const fotoUrl = ferianteActual.usuario?.imagenUrl;
+    if (!fotoUrl || fotoUrl === "" || fotoUrl.includes("default")) {
+        showToast("Para postularte, primero subí una foto de perfil.", "error");
+        return;
+    }
+
     if (!ferianteActual.stand.descripcion || ferianteActual.stand.descripcion.trim() === "" || !ferianteActual.stand.imagenUrl) {
         return showToast("Debes completar la descripción y foto de tu emprendimiento en 'Mi Perfil' para postularte.", "warning");
     }
@@ -328,70 +364,91 @@ async function abrirModalPostulacion() {
     const contenedor = document.getElementById("lista-ferias-disponibles");
     
     modal.classList.remove("hidden");
-    contenedor.innerHTML = "<p>Buscando ediciones disponibles...</p>";
+    contenedor.innerHTML = "<p>Buscando ediciones disponibles y lugares libres...</p>";
 
     try {
-        // 🟢 1. REEMPLAZO CLAVE: Usamos EDICIONES_ACTIVAS_URL
         const [resEdiciones, resMisParticipaciones] = await Promise.all([
             axios.get(EDICIONES_ACTIVAS_URL), 
             axios.get(`${PARTICIPACIONES_URL}/stand/${ferianteActual.stand.id}`)
         ]); 
 
-        const edicionesActivas = resEdiciones.data;
+        const edicionesActivas = Array.from(new Map(resEdiciones.data.map(e => [e.id, e])).values());
         const misParticipaciones = resMisParticipaciones.data;
         
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0); 
 
-        // 🟢 2. VALIDACIÓN ROBUSTA: Verificamos en qué EDICIONES (no ferias base) ya participa
-        const IDsParticipando = misParticipaciones
-            .filter(p => p.estado !== 'CANCELADO' && p.estado !== 'RECHAZADA')
-            .map(p => p.edicionId); 
+        const IDsParticipando = misParticipaciones.map(p => p.edicionId); 
 
         const disponibles = edicionesActivas.filter(e => {
             if (!e.fechaInicio) return false;
-            
             const fechaEdicion = new Date(e.fechaInicio + "T00:00:00");
             fechaEdicion.setHours(0, 0, 0, 0);
-            
-            const esVigente = fechaEdicion >= hoy;
-            const noEstaInscrito = !IDsParticipando.includes(e.id); // Si ya se anotó en esta edición específica, lo ocultamos.
-
-            return noEstaInscrito && esVigente;
+            return (!IDsParticipando.includes(e.id) && fechaEdicion >= hoy);
         });
+
+        // FILTRO BRUTAL ANTI-DUPLICADOS (Fuerza 1 solo registro por ID)
+        const mapaEdiciones = new Map();
+        disponibles.forEach(e => mapaEdiciones.set(e.id, e));
+        const edicionesUnicas = Array.from(mapaEdiciones.values());
         
         contenedor.innerHTML = "";
         
-        if (disponibles.length === 0) {
+        if (edicionesUnicas.length === 0) {
             contenedor.innerHTML = "<p>No hay ediciones nuevas disponibles por el momento.</p>";
             return;
         }
 
-        disponibles.forEach(e => {
+        for (const e of edicionesUnicas) {
+            // 2. AUDITORÍA EN CONSOLA (Presiona F12 en el navegador para ver cómo llega el mapa)
+            console.log("Datos de la edición recibida:", e);
+
+            let opcionesEspacios = '<option value="">-- Selecciona un lote --</option>';
+            
+            try {
+                const resEspacios = await axios.get(`http://localhost:8080/api/espacios/edicion/${e.id}`);
+                const espaciosDisponibles = resEspacios.data.filter(esp => esp.estado === 'DISPONIBLE');
+                
+                if (espaciosDisponibles.length === 0) {
+                    opcionesEspacios = '<option value="" disabled>Agotado (Sin lugares)</option>';
+                } else {
+                    espaciosDisponibles.forEach(esp => {
+                        opcionesEspacios += `<option value="${esp.id}">${esp.nombre} - $${esp.precio}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error("Error cargando espacios:", error);
+                opcionesEspacios = '<option value="" disabled>Error al cargar lugares</option>';
+            }
+
+            // 3. CAPTURA DE IMAGEN MÁS ROBUSTA (Busca en camelCase y en snake_case)
+            const urlDelMapa = e.mapaUrl || e.mapa_url;
+            const mapaHtml = urlDelMapa 
+                ? `<img src="${urlDelMapa}" alt="Mapa de la feria" style="width: 100%; border-radius: 8px; margin-bottom: 10px; max-height: 200px; object-fit: contain; background-color: #f8fafc; border: 1px solid #ccc;">` 
+                : `<p style="font-size: 0.85em; color: #666; font-style: italic; text-align: center;">(No hay mapa disponible para esta edición)</p>`;
+
             const div = document.createElement("div");
             div.className = "feria-item-modal";
             
-            const standsOcupados = e.participantes ? e.participantes.map(p => p.numeroStand) : [];
-
             div.innerHTML = `
                 <div class="feria-item-info">
                     <h4>${e.nombreEdicion || 'Edición'} - ${e.feriaNombre || ''}</h4>
                     <p><strong>Descripción:</strong> ${e.feriaDescripcion || 'Feria local'}</p>
                     <p><i class="fas fa-map-marker-alt"></i> ${e.feriaLugar}</p>
                     <p><i class="fas fa-calendar"></i> ${e.fechaInicio} al ${e.fechaFinal || 'N/A'}</p>
-                    <p><i class="fas fa-clock"></i> ${e.horaInicio.substring(0, 5)} hrs a ${e.horaFin.substring(0, 5)} hrs</p>
                     
-                    <div class="preferencia-container" style="margin-top: 10px;">
-                        <label style="display:block; font-size: 0.9em; color: #666;">¿Tenés alguna mesa de preferencia?</label>
-                        <select id="select-preferencia-${e.id}" class="input-select">
-                            ${generarOpcionesStands(e.feriaCapacidad || 50, standsOcupados)}
+                    <div class="preferencia-container" style="margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        ${mapaHtml}
+                        <label style="display:block; font-size: 0.9em; color: #334155; margin-bottom: 5px;"><strong>Reserva tu ubicación:</strong></label>
+                        <select id="select-preferencia-${e.id}" class="input-select" style="width: 100%; padding: 8px;">
+                            ${opcionesEspacios}
                         </select>
                     </div>
                 </div>
-                <button class="btn-solicitar" onclick="enviarSolicitudConPreferencia(${e.id})">Postularme</button>
+                <button class="btn-solicitar" onclick="enviarSolicitudConPreferencia(${e.id})" style="margin-top: 15px;">Inscribirme y Reservar</button>
             `;
             contenedor.appendChild(div);
-        });
+        }
 
     } catch (error) {
         console.error("Error en postulación:", error);
@@ -404,31 +461,24 @@ function cerrarModalPostulacion() {
     document.getElementById("modal-postulacion").classList.add("hidden");
 }
 
-function generarOpcionesStands(capacidad, standsOcupados = []) {
-    let opciones = '<option value="">-- Sin preferencia --</option>';
-    for (let i = 1; i <= capacidad; i++) {
-        const estaOcupado = standsOcupados.includes(i);
-        const disabled = estaOcupado ? 'disabled' : '';
-        const texto = estaOcupado ? `${i} (Ocupado)` : `Mesa ${i}`;
-        opciones += `<option value="${i}" ${disabled}>${texto}</option>`;
-    }
-    return opciones;
-}
-
 async function enviarSolicitudConPreferencia(edicionId) {
     const select = document.getElementById(`select-preferencia-${edicionId}`);
-    const preferencia = select.value;
+    const espacioId = select.value;
+
+    if (!espacioId) {
+        return showToast("Por favor, selecciona un lote disponible de la lista para poder inscribirte.", "warning");
+    }
 
     try {
         const payload = {
             edicionId: edicionId,
             standId: ferianteActual.stand.id,
-            numeroStandPreferido: preferencia ? parseInt(preferencia) : null
+            espacioId: parseInt(espacioId)
         };
 
         await axios.post(`${PARTICIPACIONES_URL}/inscribir`, payload);
         
-        showToast("¡Solicitud enviada con tu preferencia!", "success");
+        showToast("¡Inscripción exitosa! Tu lugar ha sido reservado.", "success");
         cerrarModalPostulacion();
         cargarPerfil();
     } catch (error) {

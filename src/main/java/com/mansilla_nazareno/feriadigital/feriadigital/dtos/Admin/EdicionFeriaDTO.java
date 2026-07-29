@@ -23,6 +23,8 @@ public class EdicionFeriaDTO {
     private Double latitud;
     private Double longitud;
     private Integer feriaCapacidad; // 🟢 Agregamos esto
+    private String mapaUrl;
+
     public EdicionFeriaDTO() {}
 
     public EdicionFeriaDTO(EdicionFeria edicion) {
@@ -33,6 +35,7 @@ public class EdicionFeriaDTO {
         this.horaInicio = edicion.getHoraInicio();
         this.horaFin = edicion.getHoraFin();
         this.estado = edicion.getEstado();
+        this.mapaUrl = edicion.getMapaUrl();
 
         // 🟢 Extraemos los datos de la feria base si existe
         if (edicion.getFeria() != null) {
@@ -48,6 +51,8 @@ public class EdicionFeriaDTO {
     }
 
     // --- GETTERS Y SETTERS ---
+    public String getMapaUrl() { return mapaUrl; }
+    public void setMapaUrl(String mapaUrl) { this.mapaUrl = mapaUrl; }
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public Integer getFeriaId() { return feriaId; }

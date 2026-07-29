@@ -99,6 +99,9 @@
                 <div id="preview-crear-container" style="display:none; margin-top: 10px; text-align: center;">
                     <img id="img-crear-preview" src="" style="max-height: 120px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 </div>
+
+                <label for="input-mapa-nueva-feria" style="margin-top: 15px; display: block;">Mapa del Predio / Croquis (Opcional)</label>
+                <input type="file" id="input-mapa-nueva-feria" accept="image/*" style="padding: 10px; border: 2px dashed #8b5cf6; border-radius: 8px; width: 100%; box-sizing: border-box;">
             </div>
         </div>
         
@@ -108,6 +111,9 @@
     </form>
 
     <h2 style="margin-top: 40px;">Ferias registradas</h2>
+    <div style="margin-bottom: 15px;">
+        <input type="text" id="buscador-ferias" placeholder="🔍 Buscar feria por nombre o lugar..." style="width: 50%; padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; outline: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+    </div>
     <div class="table-container">
         <table id="tabla-ferias">
             <thead>
@@ -200,6 +206,12 @@
                     <div id="preview-edit-container" style="display:none; margin-top: 10px; text-align: center;">
                         <img id="img-edit-preview" src="" style="max-height: 100px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
+
+                    <label for="input-edit-mapa-edicion" style="margin-top: 15px; display: block;">Croquis / Mapa del Predio</label>
+                    <input type="file" id="input-edit-mapa-edicion" accept="image/*" onchange="previewImagen(event, 'img-edit-mapa-preview', 'preview-edit-mapa-container')" style="padding: 8px; border: 1px dashed #8b5cf6; width: 100%; box-sizing: border-box;">
+                    <div id="preview-edit-mapa-container" style="display:none; margin-top: 10px; text-align: center;">
+                        <img id="img-edit-mapa-preview" src="" style="max-height: 120px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    </div>
                 </div>
             </div>
             
@@ -247,6 +259,14 @@
                 </div>
             </div>
             
+            <div style="margin-bottom: 15px;">
+                <label for="input-new-mapa-edicion" style="display: block;">Croquis / Mapa del Predio (Opcional)</label>
+                <input type="file" id="input-new-mapa-edicion" accept="image/*" onchange="previewImagen(event, 'img-new-mapa-preview', 'preview-new-mapa-container')" style="padding: 8px; border: 1px dashed #8b5cf6; width: 100%; box-sizing: border-box;">
+                <div id="preview-new-mapa-container" style="display:none; margin-top: 10px; text-align: center;">
+                    <img id="img-new-mapa-preview" src="" style="max-height: 120px; border-radius: 8px;">
+                </div>
+            </div>
+
             <div style="text-align: right;">
                 <button type="submit" class="btn-submit" style="background-color: #8b5cf6; border: none; padding: 12px 24px; border-radius: 6px; color: white; font-weight: bold; cursor: pointer;">Crear Evento</button>
             </div>
@@ -254,10 +274,105 @@
     </div>
 </div>
 
+<!-- MODAL GESTIÓN DE ESPACIOS / LOTES -->
+<div id="modal-espacios" class="modal">
+    <div class="modal-content" style="max-width: 680px;">
+        <span class="close-button" onclick="cerrarModalEspacios()">&times;</span>
+        <h2><i class="fas fa-map-marked-alt" style="color: #0ea5e9;"></i> Espacios de: <span id="espacios-edicion-nombre" style="color:#0ea5e9;"></span></h2>
+
+        <!-- Formulario inline para crear espacios por zona -->
+        <div style="display:flex; gap:8px; align-items:flex-end; margin:18px 0 12px; flex-wrap:wrap;">
+            <div style="flex:2; min-width:130px;">
+                <label for="nuevo-espacio-nombre" style="font-size:0.82em; color:#64748b;">Nombre de Zona</label>
+                <input type="text" id="nuevo-espacio-nombre" placeholder="Ej: Zona A" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box;">
+            </div>
+            <div style="flex:1; min-width:90px;">
+                <label for="nuevo-espacio-precio" style="font-size:0.82em; color:#64748b;">Precio ($)</label>
+                <input type="number" id="nuevo-espacio-precio" placeholder="0" min="0" step="0.01" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box;">
+            </div>
+            <div style="flex:0 0 70px;">
+                <label for="nuevo-espacio-desde" style="font-size:0.82em; color:#64748b;">Desde</label>
+                <input type="number" id="nuevo-espacio-desde" placeholder="1" min="1" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box;">
+            </div>
+            <div style="flex:0 0 70px;">
+                <label for="nuevo-espacio-hasta" style="font-size:0.82em; color:#64748b;">Hasta</label>
+                <input type="number" id="nuevo-espacio-hasta" placeholder="10" min="1" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box;">
+            </div>
+            <button onclick="agregarEspacio()" style="background:#0ea5e9; color:white; border:none; padding:9px 16px; border-radius:6px; cursor:pointer; font-weight:bold; white-space:nowrap;">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
+        </div>
+
+        <!-- Panel de actualización masiva por Zona -->
+        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:15px;">
+            <h4 style="margin:0 0 8px 0; color:#334155; font-size:0.9em; font-weight:bold;">
+                <i class="fas fa-edit" style="color:#f59e0b;"></i> Actualizar precio por Zona
+            </h4>
+            <div style="display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
+                <div style="flex:2; min-width:140px;">
+                    <label for="zona-actualizar-nombre" style="font-size:0.8em; color:#64748b;">Nombre de la Zona</label>
+                    <input type="text" id="zona-actualizar-nombre" placeholder="Ej: Zona A" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
+                </div>
+                <div style="flex:1; min-width:100px;">
+                    <label for="zona-actualizar-precio" style="font-size:0.8em; color:#64748b;">Nuevo Precio ($)</label>
+                    <input type="number" id="zona-actualizar-precio" placeholder="0" min="0" step="0.01" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
+                </div>
+                <button onclick="actualizarPrecioZona()" style="background:#f59e0b; color:white; border:none; padding:7px 14px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.85em; white-space:nowrap;">
+                    Actualizar Zona
+                </button>
+            </div>
+        </div>
+
+
+        <!-- Botón Lote Individual -->
+        <div style="margin-bottom: 12px; text-align: right;">
+            <button class="btn btn-success" onclick="crearLoteIndividual()">+ Nuevo Lote Individual</button>
+        </div>
+
+        <!-- Lista de espacios existentes -->
+        <div style="overflow-y:auto; max-height:320px; border:1px solid #e2e8f0; border-radius:8px;">
+            <table id="tabla-espacios" style="width:100%; border-collapse:collapse; font-size:0.9em;">
+                <thead style="background:#f1f5f9; position:sticky; top:0;">
+                    <tr>
+                        <th style="padding:10px 12px; text-align:left;">Nombre</th>
+                        <th style="padding:10px 12px; text-align:left;">Precio</th>
+                        <th style="padding:10px 12px; text-align:left;">Estado</th>
+                        <th style="padding:10px 12px; text-align:center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-espacios">
+                    <tr><td colspan="4" style="text-align:center; padding:20px; color:#94a3b8;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDITAR PRECIO DE ESPACIO -->
+<div id="modal-editar-precio" class="modal">
+    <div class="modal-content" style="max-width: 380px;">
+        <span class="close-button" onclick="document.getElementById('modal-editar-precio').style.display='none'">&times;</span>
+        <h2><i class="fas fa-edit" style="color:#f59e0b;"></i> Editar Espacio</h2>
+        <p style="color:#64748b; margin-bottom:12px;">Modifica el nombre y/o precio de este espacio:</p>
+        <label style="display:block; font-weight:600; margin-bottom:4px; color:#334155;">Nombre</label>
+        <input type="text" id="input-nuevo-nombre-espacio" placeholder="Nombre del lote"
+            style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; font-size:1em; margin-bottom:12px;">
+        <label style="display:block; font-weight:600; margin-bottom:4px; color:#334155;">Precio ($)</label>
+        <input type="number" id="input-nuevo-precio" min="0" step="0.01" placeholder="0.00"
+            style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; font-size:1em; margin-bottom:16px;">
+        <div style="text-align:right;">
+            <button onclick="guardarNuevoPrecio()" style="background:#f59e0b; color:white; border:none; padding:10px 22px; border-radius:6px; cursor:pointer; font-weight:bold;">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+        </div>
+    </div>
+</div>
+
 <footer>
     <p>Proyecto Feria Digital — Panel de Administración de Software</p>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/web/js/ferias-control.js"></script>
 </body>
 </html>
