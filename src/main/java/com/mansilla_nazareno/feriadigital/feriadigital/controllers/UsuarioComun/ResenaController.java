@@ -74,7 +74,6 @@ public class ResenaController {
                 }
                 // Asociación automática para estadística
                 nuevaResena.setStand(productoDB.getStand());
-                nuevaResena.setFeria(productoDB.getStand().getFeria());
             }
 
             if (resenaRepository.existsByUsuario_IdAndProducto_Id(idLogueado, nuevaResena.getProducto().getId())) {
@@ -92,8 +91,6 @@ public class ResenaController {
                 if (idLogueado == idUsuarioDueño) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("No podés calificar tu propio Stand.");
                 }
-                // Asociación automática de Feria
-                nuevaResena.setFeria(standDB.getFeria());
             }
 
             // 📝 SOLUCIÓN PROBLEMA 2: Comentario por defecto si viene NULL

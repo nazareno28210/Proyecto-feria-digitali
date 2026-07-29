@@ -2,8 +2,12 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.FeriaSelectorDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EdicionFeria;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.ResenaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,12 @@ public class FeriaController {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private EdicionFeriaRepository edicionFeriaRepository;
+
+    @Autowired
+    private ParticipacionRepository participacionRepository;
 
     public FeriaController(FeriaRepository feriaRepository) {
         this.feriaRepository = feriaRepository;
@@ -138,6 +148,21 @@ public class FeriaController {
 
         return feriaRepository.findById(id).map(feria -> {
             try {
+                if (capacidad != null && feria.getCapacidad() != null && capacidad < feria.getCapacidad()) {
+                    List<EdicionFeria> edicionesActivas = edicionFeriaRepository.findByFeriaId(id).stream()
+                            .filter(e -> "ACTIVA".equalsIgnoreCase(e.getEstado()))
+                            .collect(Collectors.toList());
+
+                    for (EdicionFeria edicion : edicionesActivas) {
+                        long ocupantes = participacionRepository.findByEdicionId(edicion.getId()).stream()
+                                .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO || p.getEstado() == EstadoParticipacion.PENDIENTE)
+                                .count();
+                        if (capacidad < ocupantes) {
+                            return ResponseEntity.badRequest().body(Map.of("error", "No puedes reducir la capacidad. Ya existen ediciones con más feriantes activos que el nuevo límite."));
+                        }
+                    }
+                }
+
                 feria.setNombre(nombre);
                 feria.setLugar(lugar);
                 feria.setDescripcion(descripcion);

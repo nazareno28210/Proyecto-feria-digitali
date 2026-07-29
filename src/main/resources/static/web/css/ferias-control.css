@@ -311,3 +311,8 @@ footer {
     height: auto;
     border-radius: 10px;
 }
+
+/* SweetAlert2 z-index fix for Bootstrap modals */
+.swal2-container {
+    z-index: 9999 !important;
+}

@@ -38,9 +38,6 @@ public class Stand {
     @JsonIgnoreProperties("stand")
     private Feriante feriante;
 
-    @ManyToOne
-    @JoinColumn(name = "feria_id")
-    private Feria feria;
 
     public Stand(){}
     public Stand(String nombre, String descripcion, String imagenUrl) {
@@ -96,13 +93,6 @@ public class Stand {
         return descripcion;
     }
 
-    public Feria getFeria() {
-        return feria;
-    }
-
-    public void setFeria(Feria feria) {
-        this.feria = feria;
-    }
 
     public List<Producto> getProductos() {
         return productos;

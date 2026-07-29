@@ -4,6 +4,26 @@
  * ====================================
  */
 
+async function cargarEspaciosDisponibles(edicionId, espacioSeleccionadoId = null) {
+    const selectUbicacion = document.getElementById("pago-ubicacion");
+    selectUbicacion.innerHTML = '<option value="">Seleccione un stand (Opcional)...</option>';
+    try {
+        const res = await axios.get(`/api/espacios/edicion/${edicionId}`);
+        const disponibles = res.data.filter(e => e.estado === 'DISPONIBLE' || e.id == espacioSeleccionadoId);
+        if (disponibles.length === 0) {
+            selectUbicacion.innerHTML = '<option value="">⚠️ No hay stands disponibles</option>';
+            return;
+        }
+        disponibles.forEach(esp => {
+            selectUbicacion.innerHTML += `<option value="${esp.id}">${esp.nombre} - $${esp.precio}</option>`;
+        });
+        if (espacioSeleccionadoId) selectUbicacion.value = espacioSeleccionadoId;
+    } catch (error) {
+        console.error("Error al cargar espacios:", error);
+        selectUbicacion.innerHTML = '<option value="">Error al cargar stands</option>';
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     // Referencias al DOM
     const feriaSelect = document.getElementById("feria-select");
@@ -11,8 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Referencias a los 3 cuerpos de tabla
     const tbodyPendientes = document.querySelector("#tabla-pendientes tbody");
-    const tbodyCobros = document.querySelector("#tabla-cobros tbody");
-    const tbodyDistribucion = document.querySelector("#tabla-distribucion tbody");
+    const tbodyGestion = document.querySelector("#tabla-gestion tbody");
 
     const modalPago = document.getElementById("modal-pago");
     const formPago = document.getElementById("form-pago");
@@ -85,12 +104,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const participaciones = res.data.filter(p => p.estado !== 'CANCELADO');
             
             const pendientes = participaciones.filter(p => p.estado === 'PENDIENTE');
-            const paraCobrar = participaciones.filter(p => p.estado === 'CONFIRMADO' && p.estadoPago === 'DEBE');
-            const paraDistribuir = participaciones.filter(p => p.estado === 'CONFIRMADO' && p.estadoPago !== 'DEBE');
+            const confirmados = participaciones.filter(p => p.estado === 'CONFIRMADO');
 
             renderPendientes(pendientes);
-            renderCobros(paraCobrar);
-            renderDistribucion(paraDistribuir);
+            renderGestion(confirmados);
 
             gestionContainer.style.display = "block";
         } catch (error) {
@@ -128,72 +145,97 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td><span class="badge-debe">Pendiente</span></td>
                     <td>
                         <button class="btn-aceptar" onclick="cambiarEstadoAsistencia(${p.id}, 'CONFIRMADO')"><i class="fas fa-check"></i> Aceptar</button>
-                        <button class="btn-rechazar" onclick="cambiarEstadoAsistencia(${p.id}, 'CANCELADO')"><i class="fas fa-times"></i> Rechazar</button>
+                        <button class="btn-rechazar" onclick="cambiarEstadoAsistencia(${p.id}, 'RECHAZADO')"><i class="fas fa-times"></i> Rechazar</button>
                     </td>
                 </tr>
             `;
         });
     }
 
-    function renderCobros(lista) {
-        tbodyCobros.innerHTML = "";
-        if (lista.length === 0) {
-            tbodyCobros.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No hay cobros pendientes.</td></tr>";
-            return;
-        }
+    function renderGestion(lista) {
+        let totalRecaudado = 0;
+        let totalPorCobrar = 0;
+        let standsOcupados = 0;
+
+        tbodyGestion.innerHTML = lista.length === 0 ? "<tr><td colspan='5' style='text-align:center;'>No hay feriantes confirmados.</td></tr>" : "";
 
         lista.forEach(p => {
-            const nombreStand = obtenerNombreStand(p);
-            tbodyCobros.innerHTML += `
-                <tr>
-                    <td><strong>${nombreStand}</strong></td>
-                    <td><span class="badge-debe">Debe Pago</span></td>
-                    <td>
-                        <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${p.estadoPago}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}')">
-                            <i class="fas fa-dollar-sign"></i> Registrar Pago
-                        </button>
-                    </td>
-                </tr>
-            `;
-        });
-    }
+            const monto = p.montoAbonado || 0;
+            totalRecaudado += monto;
 
-    function renderDistribucion(lista) {
-        tbodyDistribucion.innerHTML = lista.length === 0 ?
-            "<tr><td colspan='5' style='text-align:center;'>Nadie listo para ubicar.</td></tr>" : "";
+            // Detecta si tiene stand sin importar cómo venga estructurado el JSON
+            const tieneStand = p.espacioId || p.espacioNombre || p.numeroStand || (p.espacio && p.espacio.id);
 
-        lista.forEach(p => {
+            if (tieneStand) {
+                standsOcupados++;
+
+                // Busca el precio del stand en el JSON
+                let precioStand = 0;
+                if (p.espacio && p.espacio.precio) {
+                    precioStand = p.espacio.precio;
+                } else if (p.espacioPrecio) {
+                    precioStand = p.espacioPrecio;
+                } else if (p.precio) {
+                    precioStand = p.precio; // Fallback por si el backend lo manda directo
+                }
+
+                if (precioStand > 0) {
+                    let deuda = precioStand - monto;
+                    if (deuda > 0) totalPorCobrar += deuda;
+                }
+            }
             const nombreStand = obtenerNombreStand(p);
-            
-            // Protección contra mayúsculas/minúsculas del backend
-            const estadoStr = p.estadoPago ? p.estadoPago.toUpperCase() : "DEBE";
-            
-            let badgeClass = estadoStr === "SENADO" ? "badge-senado" : "badge-pagado";
-            let textoPago = estadoStr === "SENADO" ? "Señado" : "Pagado";
-            
-            const ubicacionTexto = p.numeroStand ? `Mesa ${p.numeroStand}` : `<span style="color:#f59e0b;">Sin asignar</span>`;
-            
-            const sugerencia = p.numeroStandPreferido ? 
-                `<span class="badge-preferencia">Mesa ${p.numeroStandPreferido}</span>` : 
+
+            // 1. Lógica de Estados
+            const estadoDB = p.estadoPago ? p.estadoPago.toUpperCase() : "DEBE";
+            let estadoMostrar = "Debe";
+            let badgeClass = "badge-debe";
+
+            if (estadoDB === "PAGADO") {
+                estadoMostrar = "Pagado";
+                badgeClass = "badge-pagado";
+            } else if (estadoDB === "SENADO") {
+                estadoMostrar = "Señado";
+                badgeClass = "badge-senado";
+            }
+
+            // 2. Lógica de Ubicación
+            let ubicacionTexto = `<span style="color:#f59e0b;">Sin asignar</span>`;
+            if (p.espacio && p.espacio.nombre) {
+                ubicacionTexto = p.espacio.nombre;
+            } else if (p.espacioNombre) {
+                ubicacionTexto = p.espacioNombre;
+            } else if (p.numeroStand) {
+                ubicacionTexto = `Mesa ${p.numeroStand}`;
+            }
+
+            // 3. Lógica de Preferencia
+            const sugerencia = p.numeroStandPreferido ?
+                `<span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; font-weight: 500;">Mesa ${p.numeroStandPreferido}</span>` :
                 `<small style="color:gray;">Sin preferencia</small>`;
 
-            tbodyDistribucion.innerHTML += `
+            // 4. Renderizado de Fila
+            tbodyGestion.innerHTML += `
                 <tr>
                     <td><strong>${nombreStand}</strong></td>
-                    <td><span class="${badgeClass}">${textoPago} ($${p.montoAbonado})</span></td>
-                    <td>${sugerencia}</td> 
+                    <td><span class="${badgeClass}">${estadoMostrar} ($${p.montoAbonado || 0})</span></td>
+                    <td>${sugerencia}</td>
                     <td>${ubicacionTexto}</td>
                     <td>
-                        <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${estadoStr}', ${p.montoAbonado || 0}, '${p.numeroStand || ''}', true, ${p.numeroStandPreferido})">
-                            <i class="fas fa-map-marker-alt"></i> Ubicar
+                        <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${estadoDB}', ${p.montoAbonado || 0}, ${p.espacioId || 'null'})">
+                            <i class="fas fa-edit"></i> Gestionar
                         </button>
-                        <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id})">
+                        <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id}, ${p.montoAbonado || 0})">
                             <i class="fas fa-undo"></i> Quitar
                         </button>
                     </td>
                 </tr>
             `;
         });
+
+        document.getElementById("dash-recaudado").innerText = `$${totalRecaudado}`;
+        document.getElementById("dash-por-cobrar").innerText = `$${totalPorCobrar}`;
+        document.getElementById("dash-ocupacion").innerText = `${standsOcupados}`;
     }
 
     // ========================================================
@@ -201,12 +243,45 @@ document.addEventListener("DOMContentLoaded", () => {
     // ========================================================
 
     window.cambiarEstadoAsistencia = async (participacionId, nuevoEstado) => {
+        let motivo = "";
+
+        if (nuevoEstado === 'RECHAZADO' || nuevoEstado === 'CANCELADO') {
+            const result = await Swal.fire({
+                title: 'Motivo requerido',
+                text: 'Ingresa el motivo que verá el feriante en su perfil:',
+                input: 'textarea',
+                inputPlaceholder: 'Escribe el motivo aquí...',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#e74c3c',
+                cancelButtonColor: '#95a5a6',
+                confirmButtonText: 'Confirmar y Enviar',
+                cancelButtonText: 'Cancelar',
+                inputValidator: (value) => {
+                    if (!value || value.trim() === "") {
+                        return '¡Debes ingresar un motivo válido!';
+                    }
+                }
+            });
+
+            if (!result.isConfirmed) {
+                return showToast("Operación cancelada.", "warning");
+            }
+
+            motivo = result.value;
+        }
+
         try {
-            await axios.patch(`/api/participaciones/${participacionId}/estado-asistencia?estado=${nuevoEstado}`);
-            showToast("Estado de solicitud actualizado", "success");
+            const url = `/api/participaciones/${participacionId}/estado-asistencia?estado=${nuevoEstado}&motivo=${encodeURIComponent(motivo)}`;
+
+            await axios.patch(url, {}, { withCredentials: true });
+
+            showToast(`Estado actualizado a ${nuevoEstado}`, "success");
+
             cargarParticipantes();
         } catch (error) {
-            const msg = error.response?.data?.error || "Error al actualizar estado";
+            console.error("Error al cambiar estado:", error);
+            const msg = error.response?.data?.error || "Error al procesar la solicitud";
             showToast(msg, "error");
         }
     };
@@ -219,28 +294,39 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById(`tab-${tabName}`).classList.add('active');
     };
 
-    window.abrirModalPago = (id, estadoPago, monto, ubicacion, esDistribucion = false, preferencia = null) => {
+    window.abrirModalPago = async (id, estadoPago, monto, ubicacionId) => {
         document.getElementById("pago-participacion-id").value = id;
         
-        // Forzamos la asignación correcta del estado
         const estadoSeguro = estadoPago ? estadoPago.toUpperCase() : "DEBE";
         document.getElementById("pago-estado").value = estadoSeguro; 
+        document.getElementById("pago-estado").disabled = true;
         
         document.getElementById("pago-monto").value = monto;
-        document.getElementById("pago-ubicacion").value = ubicacion;
 
-        const grupoUbicacion = document.getElementById("grupo-ubicacion"); 
-        grupoUbicacion.style.display = esDistribucion ? "block" : "none";
+        document.getElementById("grupo-ubicacion").style.display = "block";
+        const edicionId = document.getElementById("feria-select").value;
+        cargarEspaciosDisponibles(edicionId, ubicacionId);
 
-        const helpText = document.getElementById("ayuda-preferencia");
-        if (helpText) {
-            if (preferencia && preferencia !== "null" && preferencia !== "undefined") {
-                helpText.innerHTML = `Sugerido por feriante: <strong>Mesa ${preferencia}</strong> 
-                    <a href="#" onclick="aplicarPreferencia(${preferencia}); return false;" style="margin-left:10px; color:#3b82f6;">[Usar esta]</a>`;
-            } else {
-                helpText.innerHTML = "";
+        // Cargar mapa de la edición
+        const mapaContainer = document.getElementById("mapa-asignacion-container");
+        const mapaImg = document.getElementById("mapa-asignacion-img");
+        if (mapaContainer && mapaImg) {
+            try {
+                const resEdicion = await axios.get(`/api/ediciones/${edicionId}`);
+                const mapaUrl = resEdicion.data.mapaUrl || resEdicion.data.mapa_url;
+                if (mapaUrl) {
+                    mapaImg.src = mapaUrl;
+                    mapaContainer.style.display = "block";
+                } else {
+                    mapaContainer.style.display = "none";
+                }
+            } catch (e) {
+                mapaContainer.style.display = "none";
             }
         }
+
+        const helpText = document.getElementById("ayuda-preferencia");
+        if (helpText) helpText.innerHTML = "";
 
         modalPago.style.display = "block";
     };
@@ -253,46 +339,38 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    window.quitarDeDistribucion = async (id) => {
-        if(!confirm("¿Estás seguro de quitar a este feriante de la feria? Volverá a estar disponible para postularse.")) return;
-        try {
-            await axios.patch(`/api/participaciones/${id}/estado-asistencia?estado=CANCELADO`);
-            showToast("Feriante quitado de la feria", "info");
-            cargarParticipantes();
-        } catch (error) {
-            showToast("Error al quitar feriante", "error");
+    window.quitarDeDistribucion = async (id, montoAbonado) => {
+        // Freno preventivo en el frontend
+        if (montoAbonado > 0) {
+            showToast(`Bloqueo Contable: El feriante tiene un saldo a favor de $${montoAbonado}. Ingresa a 'Gestionar' y deja el monto en $0 para devolver el dinero antes de quitarlo.`, "error");
+            return;
         }
-    }
 
-    window.cerrarModalPago = () => { modalPago.style.display = "none"; };
+        await window.cambiarEstadoAsistencia(id, 'CANCELADO');
+    };
+
+    window.cerrarModalPago = () => {
+        document.getElementById("pago-estado").disabled = false;
+        modalPago.style.display = "none";
+    };
 
     formPago.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         const id = document.getElementById("pago-participacion-id").value;
         const monto = parseFloat(document.getElementById("pago-monto").value) || 0;
-        const estado = document.getElementById("pago-estado").value.toUpperCase();
         const ubicacionValue = document.getElementById("pago-ubicacion").value.trim();
 
-        if (monto > 0 && estado === "DEBE") {
-            return showToast("Si hay un monto abonado, el estado no puede ser 'DEBE'.", "error");
-        }
-        
-        if (monto === 0 && estado !== "DEBE") {
-            return showToast("Para estados 'SEÑADO' o 'PAGADO', el monto debe ser mayor a 0.", "error");
-        }
-
-        if (monto === 0 && estado === "DEBE" && ubicacionValue === "") {
-            return showToast("No se han registrado cambios. Ingrese un monto o asigne una mesa.", "warning");
+        if (monto < 0) {
+            return showToast("El monto no puede ser negativo.", "error");
         }
 
         // Parseo seguro para el backend (Integer)
-        const numeroStandInt = ubicacionValue !== "" ? parseInt(ubicacionValue, 10) : null;
+        const espacioId = ubicacionValue !== "" ? parseInt(ubicacionValue, 10) : null;
 
         const payload = {
-            estadoPago: estado,
             montoAbonado: monto,
-            numeroStand: numeroStandInt
+            espacioId: espacioId
         };
 
         try {

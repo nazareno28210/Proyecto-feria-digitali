@@ -5,11 +5,16 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EdicionFeria
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,6 +28,12 @@ public class EdicionFeriaController {
 
     @Autowired
     private FeriaRepository feriaRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private ParticipacionRepository participacionRepository;
 
     // Obtener todas las ediciones (Historial general)
     @GetMapping
@@ -43,25 +54,42 @@ public class EdicionFeriaController {
     }
 
     // Crear una nueva edición vinculada a una feria base
-    @PostMapping
-    public ResponseEntity<?> crearEdicion(@RequestBody EdicionFeriaDTO dto) {
-        Feria feria = feriaRepository.findById(dto.getFeriaId()).orElse(null);
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<?> crearEdicion(
+            @RequestParam Integer feriaId,
+            @RequestParam String nombreEdicion,
+            @RequestParam String fechaInicio,
+            @RequestParam String fechaFinal,
+            @RequestParam String horaInicio,
+            @RequestParam String horaFin,
+            @RequestParam(value = "mapa", required = false) MultipartFile mapa) {
 
+        Feria feria = feriaRepository.findById(feriaId).orElse(null);
         if (feria == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "La feria base seleccionada no existe"));
         }
 
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = (fechaFinal != null && !fechaFinal.isEmpty()) ? LocalDate.parse(fechaFinal) : null;
+
+        if (fin != null && edicionFeriaRepository.existeSolapamiento(feria.getId(), inicio, fin, null)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Las fechas se solapan con otra edición activa de esta feria"));
+        }
+
         EdicionFeria nuevaEdicion = new EdicionFeria();
         nuevaEdicion.setFeria(feria);
-        nuevaEdicion.setNombreEdicion(dto.getNombreEdicion());
-        nuevaEdicion.setFechaInicio(dto.getFechaInicio());
-        nuevaEdicion.setFechaFinal(dto.getFechaFinal());
+        nuevaEdicion.setNombreEdicion(nombreEdicion);
+        nuevaEdicion.setFechaInicio(inicio);
+        nuevaEdicion.setFechaFinal(fin);
+        nuevaEdicion.setHoraInicio(LocalTime.parse(horaInicio));
+        nuevaEdicion.setHoraFin(LocalTime.parse(horaFin));
+        nuevaEdicion.setEstado("ACTIVA");
 
-        // 🟢 NUEVO: Atrapamos los horarios que vienen del JSON del Frontend
-        nuevaEdicion.setHoraInicio(dto.getHoraInicio());
-        nuevaEdicion.setHoraFin(dto.getHoraFin());
-
-        nuevaEdicion.setEstado("ACTIVA"); // Arranca activa por defecto para recibir postulaciones
+        if (mapa != null && !mapa.isEmpty()) {
+            Map<String, String> resultado = cloudinaryService.subirImagen(mapa);
+            nuevaEdicion.setMapaUrl(resultado.get("url"));
+            nuevaEdicion.setMapaPublicId(resultado.get("public_id"));
+        }
 
         EdicionFeria guardada = edicionFeriaRepository.save(nuevaEdicion);
         return ResponseEntity.ok(new EdicionFeriaDTO(guardada));
@@ -78,7 +106,7 @@ public class EdicionFeriaController {
         return ResponseEntity.ok(Map.of("mensaje", "Estado de la edición actualizado con éxito"));
     }
 
-    // 🟢 NUEVO: Obtener una edición específica por su ID
+    // Obtener una edición específica por su ID
     @GetMapping("/{id}")
     public ResponseEntity<EdicionFeriaDTO> obtenerPorId(@PathVariable Integer id) {
         EdicionFeria edicion = edicionFeriaRepository.findById(id).orElse(null);
@@ -88,23 +116,52 @@ public class EdicionFeriaController {
         return ResponseEntity.ok(new EdicionFeriaDTO(edicion));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarEdicion(@PathVariable Integer id, @RequestBody EdicionFeriaDTO dto) {
-        EdicionFeria edicion = edicionFeriaRepository.findById(id).orElse(null);
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<?> actualizarEdicion(
+            @PathVariable Integer id,
+            @RequestParam Integer feriaId,
+            @RequestParam String nombreEdicion,
+            @RequestParam String fechaInicio,
+            @RequestParam String fechaFinal,
+            @RequestParam String horaInicio,
+            @RequestParam String horaFin,
+            @RequestParam(value = "mapa", required = false) MultipartFile mapa) {
 
+        EdicionFeria edicion = edicionFeriaRepository.findById(id).orElse(null);
         if (edicion == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "La edición no existe"));
         }
 
-        // Actualizamos los datos temporales
-        edicion.setNombreEdicion(dto.getNombreEdicion());
-        edicion.setFechaInicio(dto.getFechaInicio());
-        edicion.setFechaFinal(dto.getFechaFinal());
-        edicion.setHoraInicio(dto.getHoraInicio());
-        edicion.setHoraFin(dto.getHoraFin());
+        LocalDate inicio = LocalDate.parse(fechaInicio);
+        LocalDate fin = (fechaFinal != null && !fechaFinal.isEmpty()) ? LocalDate.parse(fechaFinal) : null;
+
+        if (fin != null && edicionFeriaRepository.existeSolapamiento(edicion.getFeria().getId(), inicio, fin, id)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Las fechas se solapan con otra edición activa de esta feria"));
+        }
+
+        edicion.setNombreEdicion(nombreEdicion);
+        edicion.setFechaInicio(inicio);
+        edicion.setFechaFinal(fin);
+        edicion.setHoraInicio(LocalTime.parse(horaInicio));
+        edicion.setHoraFin(LocalTime.parse(horaFin));
+
+        if (mapa != null && !mapa.isEmpty()) {
+            Map<String, String> resultado = cloudinaryService.reemplazarImagen(mapa, edicion.getMapaPublicId());
+            edicion.setMapaUrl(resultado.get("url"));
+            edicion.setMapaPublicId(resultado.get("public_id"));
+        }
 
         EdicionFeria edicionActualizada = edicionFeriaRepository.save(edicion);
         return ResponseEntity.ok(new EdicionFeriaDTO(edicionActualizada));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> eliminarEdicion(@PathVariable Integer id) {
+        if (!participacionRepository.findByEdicionId(id).isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "No puedes eliminar una edición que ya tiene participantes (en espera, pendientes o confirmados)."));
+        }
+        edicionFeriaRepository.deleteById(id);
+        return ResponseEntity.ok(Map.of("mensaje", "Edición eliminada con éxito"));
     }
 
 }
