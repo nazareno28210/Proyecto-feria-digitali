@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const horaFin = document.getElementById("horaFin").value + ":00";
         const lat = document.getElementById("latitud").value;
         const lng = document.getElementById("longitud").value;
-        const capacidad = document.getElementById("capacidad").value; 
+        const capacidad = document.getElementById("edicionCapacidad").value; 
 
         if (!validarFechas(fInicio, fFinal)) return;
         if (!validarUbicacion(lat, lng)) return;
@@ -234,10 +234,12 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("fechaInicio", fInicio); 
         if (fFinal) formData.append("fechaFinal", fFinal);
         formData.append("descripcion", desc);
-        formData.append("capacidad", parseInt(capacidad));
 
         const inputImagen = document.getElementById("input-feria-imagen");
-        if (inputImagen && inputImagen.files[0]) {
+        const blobPortada = window.__getCropBlobs?.()?.portadaCrear;
+        if (blobPortada) {
+            formData.append("imagen", blobPortada, "portada.jpg");
+        } else if (inputImagen && inputImagen.files[0]) {
             formData.append("imagen", inputImagen.files[0]);
         }
             
@@ -268,11 +270,17 @@ document.addEventListener("DOMContentLoaded", () => {
             payloadEdicion.append("fechaFinal", fFinal ? fFinal : "");
             payloadEdicion.append("horaInicio", horaInicio);
             payloadEdicion.append("horaFin", horaFin);
+            payloadEdicion.append("capacidad", parseInt(capacidad));
             
-            // Adjuntamos el mapa del predio si el usuario seleccionó uno
-            const inputMapaCrear = document.getElementById("input-mapa-nueva-feria");
-            if (inputMapaCrear && inputMapaCrear.files[0]) {
-                payloadEdicion.append("mapa", inputMapaCrear.files[0]);
+            // Adjuntamos el mapa del predio si el usuario seleccionó uno (o lo recortó)
+            const blobMapaCrear = window.__getCropBlobs?.()?.mapaCrear;
+            if (blobMapaCrear) {
+                payloadEdicion.append("mapa", blobMapaCrear, "mapa.jpg");
+            } else {
+                const inputMapaCrear = document.getElementById("input-mapa-nueva-feria");
+                if (inputMapaCrear && inputMapaCrear.files[0]) {
+                    payloadEdicion.append("mapa", inputMapaCrear.files[0]);
+                }
             }
             
             try {
@@ -350,7 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("edit-horaInicio").value = edicion.horaInicio ? edicion.horaInicio.substring(0, 5) : '';
         document.getElementById("edit-horaFin").value = edicion.horaFin ? edicion.horaFin.substring(0, 5) : '';
         document.getElementById("edit-descripcion").value = edicion.feriaDescripcion || '';
-        document.getElementById("edit-capacidad").value = edicion.feriaCapacidad || edicion.capacidad || (edicion.feria ? edicion.feria.capacidad : '') || '';
+        document.getElementById("edit-capacidad").value = edicion.capacidad || edicion.feriaCapacidad || '';
         
         const previewCont = document.getElementById('preview-edit-container');
         if(previewCont) previewCont.style.display = 'none';
@@ -405,11 +413,15 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("latitud", parseFloat(lat));
             formData.append("longitud", parseFloat(lng));
             formData.append("descripcion", descEdit);
-            formData.append("capacidad", parseInt(capacidadEdit)); 
 
-            const inputImagenEdit = document.getElementById("input-edit-feria-imagen");
-            if (inputImagenEdit && inputImagenEdit.files[0]) {
-                formData.append("imagen", inputImagenEdit.files[0]);
+            const blobPortadaEdit = window.__getCropBlobs?.()?.portadaEditar;
+            if (blobPortadaEdit) {
+                formData.append("imagen", blobPortadaEdit, "portada.jpg");
+            } else {
+                const inputImagenEdit = document.getElementById("input-edit-feria-imagen");
+                if (inputImagenEdit && inputImagenEdit.files[0]) {
+                    formData.append("imagen", inputImagenEdit.files[0]);
+                }
             }
 
             const payloadEdicionEdit = new FormData();
@@ -419,10 +431,16 @@ document.addEventListener("DOMContentLoaded", () => {
             payloadEdicionEdit.append("fechaFinal", fFinal ? fFinal : "");
             payloadEdicionEdit.append("horaInicio", hInicio);
             payloadEdicionEdit.append("horaFin", hFin);
+            payloadEdicionEdit.append("capacidad", parseInt(capacidadEdit));
 
-            const inputMapaEdit = document.getElementById("input-edit-mapa-edicion");
-            if (inputMapaEdit && inputMapaEdit.files[0]) {
-                payloadEdicionEdit.append("mapa", inputMapaEdit.files[0]);
+            const blobMapaEdit = window.__getCropBlobs?.()?.mapaEditar;
+            if (blobMapaEdit) {
+                payloadEdicionEdit.append("mapa", blobMapaEdit, "mapa.jpg");
+            } else {
+                const inputMapaEdit = document.getElementById("input-edit-mapa-edicion");
+                if (inputMapaEdit && inputMapaEdit.files[0]) {
+                    payloadEdicionEdit.append("mapa", inputMapaEdit.files[0]);
+                }
             }
 
             try {
@@ -476,8 +494,13 @@ document.addEventListener("DOMContentLoaded", () => {
             const fFinal = document.getElementById("new-fechaFinal").value;
             const hInicio = document.getElementById("new-horaInicio").value + ":00";
             const hFin = document.getElementById("new-horaFin").value + ":00";
+            const capacidad = document.getElementById("new-capacidad").value;
 
             if (!validarFechas(fInicio, fFinal)) return;
+            if (capacidad < 1) {
+                showToast("La capacidad debe ser de al menos 1 stand", "error");
+                return;
+            }
 
             const payloadNuevaEdicion = new FormData();
             payloadNuevaEdicion.append("feriaId", parseInt(feriaId));
@@ -486,10 +509,16 @@ document.addEventListener("DOMContentLoaded", () => {
             payloadNuevaEdicion.append("fechaFinal", fFinal ? fFinal : "");
             payloadNuevaEdicion.append("horaInicio", hInicio);
             payloadNuevaEdicion.append("horaFin", hFin);
+            payloadNuevaEdicion.append("capacidad", parseInt(capacidad));
 
-            const inputMapaNueva = document.getElementById("input-new-mapa-edicion");
-            if (inputMapaNueva && inputMapaNueva.files[0]) {
-                payloadNuevaEdicion.append("mapa", inputMapaNueva.files[0]);
+            const blobMapaNueva = window.__getCropBlobs?.()?.mapaNuevaEdicion;
+            if (blobMapaNueva) {
+                payloadNuevaEdicion.append("mapa", blobMapaNueva, "mapa.jpg");
+            } else {
+                const inputMapaNueva = document.getElementById("input-new-mapa-edicion");
+                if (inputMapaNueva && inputMapaNueva.files[0]) {
+                    payloadNuevaEdicion.append("mapa", inputMapaNueva.files[0]);
+                }
             }
 
             try {
@@ -874,3 +903,143 @@ window.crearLoteIndividual = async (edicionIdParam) => {
         showToast(err.response?.data?.error || "Error al crear lote individual", "error");
     }
 };
+
+// ============================================================
+// CROPPER.JS — Recorte de imágenes de ferias
+// ============================================================
+let _cropperInstance = null;
+let _cropCallback = null; // función que recibe el Blob resultante
+let _cropPreviewImgId = null;
+let _cropPreviewContainerId = null;
+
+function abrirCropper(file, ratio, ratioLabel, onConfirm, previewImgId, previewContainerId) {
+    _cropCallback = onConfirm;
+    _cropPreviewImgId = previewImgId;
+    _cropPreviewContainerId = previewContainerId;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const imgEl = document.getElementById('crop-image-src');
+        imgEl.src = e.target.result;
+
+        const modal = document.getElementById('modal-cropper-ferias');
+        modal.style.display = 'flex';
+
+        document.getElementById('crop-ratio-label').textContent = ratioLabel;
+
+        if (_cropperInstance) _cropperInstance.destroy();
+        _cropperInstance = new Cropper(imgEl, {
+            aspectRatio: ratio,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+window.confirmarCrop = () => {
+    if (!_cropperInstance) return;
+    _cropperInstance.getCroppedCanvas().toBlob((blob) => {
+        // Mostrar preview
+        if (_cropPreviewImgId && _cropPreviewContainerId) {
+            const url = URL.createObjectURL(blob);
+            const img = document.getElementById(_cropPreviewImgId);
+            const cont = document.getElementById(_cropPreviewContainerId);
+            if (img) img.src = url;
+            if (cont) cont.style.display = 'block';
+        }
+        if (_cropCallback) _cropCallback(blob);
+        cancelarCrop();
+    }, 'image/jpeg', 0.9);
+};
+
+window.cancelarCrop = () => {
+    document.getElementById('modal-cropper-ferias').style.display = 'none';
+    if (_cropperInstance) { _cropperInstance.destroy(); _cropperInstance = null; }
+};
+
+// Blobs resultantes del crop (se usan al guardar los formularios)
+let _blobPortadaCrear = null;
+let _blobMapaCrear = null;
+let _blobPortadaEditar = null;
+let _blobMapaEditar = null;
+let _blobMapaNuevaEdicion = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Inputs de imagen interceptados con Cropper ---
+    const inputPortadaCrear = document.getElementById('input-feria-imagen');
+    if (inputPortadaCrear) {
+        inputPortadaCrear.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            abrirCropper(file, 16/9, '16:9 — Portada', (blob) => { _blobPortadaCrear = blob; }, 'img-crear-preview', 'preview-crear-container');
+            e.target.value = ''; // reset para poder re-seleccionar
+        });
+    }
+
+    const inputMapaCrear = document.getElementById('input-mapa-nueva-feria');
+    if (inputMapaCrear) {
+        inputMapaCrear.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            abrirCropper(file, 4/3, '4:3 — Mapa', (blob) => { _blobMapaCrear = blob; }, null, null);
+            e.target.value = '';
+        });
+    }
+
+    const inputPortadaEditar = document.getElementById('input-edit-feria-imagen');
+    if (inputPortadaEditar) {
+        inputPortadaEditar.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            abrirCropper(file, 16/9, '16:9 — Portada', (blob) => { _blobPortadaEditar = blob; }, 'img-edit-preview', 'preview-edit-container');
+            e.target.value = '';
+        });
+    }
+
+    const inputMapaEditar = document.getElementById('input-edit-mapa-edicion');
+    if (inputMapaEditar) {
+        inputMapaEditar.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            abrirCropper(file, 4/3, '4:3 — Mapa', (blob) => { _blobMapaEditar = blob; }, 'img-edit-mapa-preview', 'preview-edit-mapa-container');
+            e.target.value = '';
+        });
+    }
+
+    const inputMapaNuevaEdicion = document.getElementById('input-new-mapa-edicion');
+    if (inputMapaNuevaEdicion) {
+        inputMapaNuevaEdicion.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            abrirCropper(file, 4/3, '4:3 — Mapa', (blob) => { _blobMapaNuevaEdicion = blob; }, 'img-new-mapa-preview', 'preview-new-mapa-container');
+            e.target.value = '';
+        });
+    }
+});
+
+// Parches en los FormData de guardado para usar blobs del cropper:
+// (Se sobrescriben los handlers de submit inyectando los blobs ANTES de enviar)
+// Los blobs se inyectan directamente en los FormData de los listeners de submit existentes
+// mediante un monkey-patch del getter de files en los inputs de imagen.
+// Solución más limpia: reemplazamos la lógica inline de imagen en el submit.
+// Los submit listeners ya existentes leen inputImagen.files[0] — lo reemplazamos con el blob.
+
+const _origCrearSubmit = document.getElementById('form-feria')?.onsubmit;
+
+// Intercept: patch FormData append para usar blob si existe
+function injectBlobIfExists(formData, fieldName, blob, filename) {
+    if (blob) formData.set(fieldName, blob, filename);
+}
+
+// Hook global expuesto para que los submit handlers lo llamen
+window.__getCropBlobs = () => ({
+    portadaCrear: _blobPortadaCrear,
+    mapaCrear: _blobMapaCrear,
+    portadaEditar: _blobPortadaEditar,
+    mapaEditar: _blobMapaEditar,
+    mapaNuevaEdicion: _blobMapaNuevaEdicion,
+});
+
+

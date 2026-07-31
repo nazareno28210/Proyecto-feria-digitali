@@ -79,7 +79,6 @@ public class FeriaController {
             @RequestParam("descripcion") String descripcion,
             @RequestParam("latitud") Double latitud,
             @RequestParam("longitud") Double longitud,
-            @RequestParam(value = "capacidad", required = false) Integer capacidad,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         if (nombre == null || nombre.trim().isEmpty()) {
@@ -94,9 +93,6 @@ public class FeriaController {
         if (descripcion != null && descripcion.trim().length() > 300) {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
-        if (capacidad != null && capacidad <= 0) {
-            return ResponseEntity.badRequest().body("La capacidad de stands debe ser mayor a 0");
-        }
 
         try {
             Feria nuevaFeria = new Feria();
@@ -105,7 +101,6 @@ public class FeriaController {
             nuevaFeria.setDescripcion(descripcion);
             nuevaFeria.setLatitud(latitud);
             nuevaFeria.setLongitud(longitud);
-            nuevaFeria.setCapacidad(capacidad);
 
             if (imagen != null && !imagen.isEmpty()) {
                 Map<String, String> result = cloudinaryService.subirImagen(imagen);
@@ -130,7 +125,6 @@ public class FeriaController {
             @RequestParam("descripcion") String descripcion,
             @RequestParam("latitud") Double latitud,
             @RequestParam("longitud") Double longitud,
-            @RequestParam(value = "capacidad", required = false) Integer capacidad,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
         if (latitud == null || longitud == null) {
@@ -142,33 +136,14 @@ public class FeriaController {
         if (descripcion != null && descripcion.trim().length() > 300) {
             return ResponseEntity.badRequest().body("La descripción no puede superar los 300 caracteres");
         }
-        if (capacidad != null && capacidad <= 0) {
-            return ResponseEntity.badRequest().body("La capacidad de stands debe ser mayor a 0");
-        }
 
         return feriaRepository.findById(id).map(feria -> {
             try {
-                if (capacidad != null && feria.getCapacidad() != null && capacidad < feria.getCapacidad()) {
-                    List<EdicionFeria> edicionesActivas = edicionFeriaRepository.findByFeriaId(id).stream()
-                            .filter(e -> "ACTIVA".equalsIgnoreCase(e.getEstado()))
-                            .collect(Collectors.toList());
-
-                    for (EdicionFeria edicion : edicionesActivas) {
-                        long ocupantes = participacionRepository.findByEdicionId(edicion.getId()).stream()
-                                .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO || p.getEstado() == EstadoParticipacion.PENDIENTE)
-                                .count();
-                        if (capacidad < ocupantes) {
-                            return ResponseEntity.badRequest().body(Map.of("error", "No puedes reducir la capacidad. Ya existen ediciones con más feriantes activos que el nuevo límite."));
-                        }
-                    }
-                }
-
                 feria.setNombre(nombre);
                 feria.setLugar(lugar);
                 feria.setDescripcion(descripcion);
                 feria.setLatitud(latitud);
                 feria.setLongitud(longitud);
-                feria.setCapacidad(capacidad);
 
                 if (imagen != null && !imagen.isEmpty()) {
                     String urlVieja = feria.getImagenUrl();

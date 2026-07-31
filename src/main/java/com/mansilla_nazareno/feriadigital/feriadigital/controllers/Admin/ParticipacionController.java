@@ -69,19 +69,35 @@ public class ParticipacionController {
     public ResponseEntity<?> cambiarEstadoAsistencia(@PathVariable Integer id, @RequestParam EstadoParticipacion estado, @RequestParam(required = false) String motivo) {
         return participacionRepository.findById(id).map(participacion -> {
 
-            // 🛡️ VALIDACIÓN DE CUPO AL ACEPTAR
-            if (estado == EstadoParticipacion.CONFIRMADO) {
-                EdicionFeria edicion = participacion.getEdicion();
-                Feria feriaBase = edicion.getFeria(); // Bajamos a la plantilla para ver la capacidad
+            // 🛡️ VALIDACIÓN DE CUPO AL ACEPTAR O PROMOVER DESDE LISTA DE ESPERA
+            if (estado == EstadoParticipacion.PENDIENTE || estado == EstadoParticipacion.CONFIRMADO) {
+                if (participacion.getEstado() == EstadoParticipacion.EN_ESPERA) {
+                    EdicionFeria edicion = participacion.getEdicion();
+                    Integer capacidad = edicion != null ? edicion.getCapacidad() : null;
 
-                // Contamos cuántos ya están confirmados exclusivamente en esta edición cronológica
+                    if (edicion != null && capacidad != null) {
+                        long ocupados = participacionRepository.findByEdicionId(edicion.getId()).stream()
+                                .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO || p.getEstado() == EstadoParticipacion.PENDIENTE)
+                                .count();
+
+                        if (ocupados >= capacidad) {
+                            return ResponseEntity.badRequest()
+                                    .body(Map.of("error", "Error: Cupos todavía llenos. Falta liberar lugares en la lista de solicitudes."));
+                        }
+                    }
+                }
+            }
+
+            if (estado == EstadoParticipacion.CONFIRMADO && participacion.getEstado() != EstadoParticipacion.PENDIENTE) {
+                EdicionFeria edicion = participacion.getEdicion();
+
                 long confirmados = participacionRepository.findByEdicionId(edicion.getId()).stream()
                         .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO)
                         .count();
 
-                if (feriaBase != null && feriaBase.getCapacidad() != null && confirmados >= feriaBase.getCapacidad()) {
+                if (edicion != null && edicion.getCapacidad() != null && confirmados >= edicion.getCapacidad()) {
                     return ResponseEntity.badRequest()
-                            .body(Map.of("error", "No puedes aceptar más feriantes. La capacidad de " + feriaBase.getCapacidad() + " stands ya está completa."));
+                            .body(Map.of("error", "No puedes aceptar más feriantes. La capacidad de " + edicion.getCapacidad() + " stands ya está completa."));
                 }
             }
             // 🔒 Candado de Reembolsos
@@ -108,18 +124,6 @@ public class ParticipacionController {
                 }
                 // Guardamos el motivo del rechazo/cancelación
                 participacion.setMotivoRechazo(motivo);
-            }
-
-            if ((estado == EstadoParticipacion.RECHAZADO || estado == EstadoParticipacion.CANCELADO) &&
-                    (estadoAnterior == EstadoParticipacion.CONFIRMADO || estadoAnterior == EstadoParticipacion.PENDIENTE)) {
-
-                participacionRepository.findByEdicionIdAndEstado(participacion.getEdicion().getId(), EstadoParticipacion.EN_ESPERA)
-                        .stream()
-                        .min(java.util.Comparator.comparingInt(Participacion::getId))
-                        .ifPresent(enEspera -> {
-                            enEspera.setEstado(EstadoParticipacion.PENDIENTE);
-                            participacionRepository.save(enEspera);
-                        });
             }
 
             participacionRepository.save(participacion);
@@ -268,8 +272,7 @@ public class ParticipacionController {
                 .filter(p -> p.getEstado() == EstadoParticipacion.CONFIRMADO || p.getEstado() == EstadoParticipacion.PENDIENTE)
                 .count();
 
-        Feria feriaBase = edicion.getFeria();
-        EstadoParticipacion estadoInicial = (feriaBase != null && feriaBase.getCapacidad() != null && ocupados >= feriaBase.getCapacidad())
+        EstadoParticipacion estadoInicial = (edicion != null && edicion.getCapacidad() != null && ocupados >= edicion.getCapacidad())
                 ? EstadoParticipacion.EN_ESPERA
                 : EstadoParticipacion.PENDIENTE;
 

@@ -22,7 +22,9 @@ public class EdicionFeriaDTO {
     private String feriaImagenUrl;
     private Double latitud;
     private Double longitud;
-    private Integer feriaCapacidad; // 🟢 Agregamos esto
+    private Integer capacidad;
+    private Integer feriaCapacidad;
+    private Integer cuposOcupados; // 🟢 Cuántos lugares ya están tomados (CONFIRMADO + PENDIENTE)
     private String mapaUrl;
 
     public EdicionFeriaDTO() {}
@@ -36,6 +38,8 @@ public class EdicionFeriaDTO {
         this.horaFin = edicion.getHoraFin();
         this.estado = edicion.getEstado();
         this.mapaUrl = edicion.getMapaUrl();
+        this.capacidad = edicion.getCapacidad();
+        this.feriaCapacidad = edicion.getCapacidad();
 
         // 🟢 Extraemos los datos de la feria base si existe
         if (edicion.getFeria() != null) {
@@ -46,7 +50,6 @@ public class EdicionFeriaDTO {
             this.feriaImagenUrl = edicion.getFeria().getImagenUrl();
             this.latitud = edicion.getFeria().getLatitud();
             this.longitud = edicion.getFeria().getLongitud();
-            this.feriaCapacidad = edicion.getFeria().getCapacidad();
         }
     }
 
@@ -81,10 +84,18 @@ public class EdicionFeriaDTO {
     public void setLatitud(Double latitud) { this.latitud = latitud; }
     public Double getLongitud() { return longitud; }
     public void setLongitud(Double longitud) { this.longitud = longitud; }
+    public Integer getCapacidad() { return capacidad; }
+    public void setCapacidad(Integer capacidad) {
+        this.capacidad = capacidad;
+        this.feriaCapacidad = capacidad;
+    }
     public Integer getFeriaCapacidad() {
-        return feriaCapacidad;
+        return capacidad != null ? capacidad : feriaCapacidad;
     }
     public void setFeriaCapacidad(Integer feriaCapacidad) {
         this.feriaCapacidad = feriaCapacidad;
+        this.capacidad = feriaCapacidad;
     }
+    public Integer getCuposOcupados() { return cuposOcupados; }
+    public void setCuposOcupados(Integer cuposOcupados) { this.cuposOcupados = cuposOcupados; }
 }

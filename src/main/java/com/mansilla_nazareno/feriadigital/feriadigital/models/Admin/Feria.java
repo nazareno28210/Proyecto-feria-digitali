@@ -23,8 +23,6 @@ public class Feria {
     private String imagenUrl;
     private Double latitud;
     private Double longitud;
-    private Integer capacidad;
-
     @Column(nullable = false)
     private boolean eliminado = false;
 
@@ -32,14 +30,13 @@ public class Feria {
     public Feria() {}
 
     // Constructor actualizado (sin campos temporales)
-    public Feria(String nombre, String lugar, String descripcion, String imagenUrl, Double latitud, Double longitud, Integer capacidad) {
+    public Feria(String nombre, String lugar, String descripcion, String imagenUrl, Double latitud, Double longitud) {
         this.nombre = nombre;
         this.lugar = lugar;
         this.descripcion = descripcion;
         this.imagenUrl = imagenUrl;
         this.latitud = latitud;
         this.longitud = longitud;
-        this.capacidad = capacidad;
     }
 
     // Getters y Setters
@@ -97,14 +94,6 @@ public class Feria {
 
     public void setLongitud(Double longitud) {
         this.longitud = longitud;
-    }
-
-    public Integer getCapacidad() {
-        return capacidad;
-    }
-
-    public void setCapacidad(Integer capacidad) {
-        this.capacidad = capacidad;
     }
 
     public boolean isEliminado() {

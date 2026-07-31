@@ -296,7 +296,11 @@ function renderFeriasAsignadas(misParticipaciones) {
                 <p style="font-size: 0.85em; color: #666; margin: 0;">No puedes volver a postularte.</p>
             `;
         } else {
-            const iconoEstado = (p.estado === 'APROBADA' || p.estado === 'CONFIRMADO') ? '🟢 Confirmada' : '🟡 Pendiente';
+            const iconoEstado = (p.estado === 'APROBADA' || p.estado === 'CONFIRMADO') 
+                ? '🟢 Confirmada' 
+                : p.estado === 'EN_ESPERA' 
+                    ? '🟠 En Lista de Espera' 
+                    : '🟡 Pendiente';
             htmlContent += `
                 <p style="margin: 0 0 4px 0; font-size: 0.85em;">Estado: <strong>${iconoEstado}</strong></p>
                 <h4 style="margin: 0 0 6px 0; font-size: 1em;">
@@ -403,14 +407,14 @@ async function abrirModalPostulacion() {
             // 2. AUDITORÍA EN CONSOLA (Presiona F12 en el navegador para ver cómo llega el mapa)
             console.log("Datos de la edición recibida:", e);
 
-            let opcionesEspacios = '<option value="">-- Selecciona un lote --</option>';
+            let opcionesEspacios = '<option value="">-- Selecciona un lote --</option><option value="">-- Sin preferencias --</option>';
             
             try {
                 const resEspacios = await axios.get(`http://localhost:8080/api/espacios/edicion/${e.id}`);
                 const espaciosDisponibles = resEspacios.data.filter(esp => esp.estado === 'DISPONIBLE');
                 
                 if (espaciosDisponibles.length === 0) {
-                    opcionesEspacios = '<option value="" disabled>Agotado (Sin lugares)</option>';
+                    opcionesEspacios = '<option value="">-- Sin preferencias --</option><option value="" disabled>Agotado (Sin lugares)</option>';
                 } else {
                     espaciosDisponibles.forEach(esp => {
                         opcionesEspacios += `<option value="${esp.id}">${esp.nombre} - $${esp.precio}</option>`;
@@ -429,6 +433,23 @@ async function abrirModalPostulacion() {
 
             const div = document.createElement("div");
             div.className = "feria-item-modal";
+
+            // 🟡 DETECCIÓN DE CUPO LLENO
+            const capacidad = e.feriaCapacidad || null;
+            const cuposOcupados = e.cuposOcupados || 0;
+            const cupoLleno = capacidad !== null && cuposOcupados >= capacidad;
+
+            const btnTexto = cupoLleno ? "Anotarse en Lista de Espera" : "Inscribirme y Reservar";
+            const btnEstilo = cupoLleno
+                ? "margin-top: 15px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;"
+                : "margin-top: 15px;";
+            const btnClase = cupoLleno ? "" : "btn-solicitar";
+
+            const alertaEspera = cupoLleno
+                ? `<div style="margin-top: 10px; padding: 10px 14px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; font-size: 0.88em; color: #92400e;">
+                        ⚠️ <strong>Cupos agotados.</strong> Si te postulas, entrarás en la lista de espera por si se libera un espacio.
+                   </div>`
+                : "";
             
             div.innerHTML = `
                 <div class="feria-item-info">
@@ -445,8 +466,10 @@ async function abrirModalPostulacion() {
                         </select>
                     </div>
                 </div>
-                <button class="btn-solicitar" onclick="enviarSolicitudConPreferencia(${e.id})" style="margin-top: 15px;">Inscribirme y Reservar</button>
+                <button class="${btnClase}" onclick="enviarSolicitudConPreferencia(${e.id})" style="${btnEstilo}">${btnTexto}</button>
+                ${alertaEspera}
             `;
+
             contenedor.appendChild(div);
         }
 
@@ -463,22 +486,20 @@ function cerrarModalPostulacion() {
 
 async function enviarSolicitudConPreferencia(edicionId) {
     const select = document.getElementById(`select-preferencia-${edicionId}`);
-    const espacioId = select.value;
-
-    if (!espacioId) {
-        return showToast("Por favor, selecciona un lote disponible de la lista para poder inscribirte.", "warning");
-    }
+    const espacioId = select ? select.value : null;
 
     try {
         const payload = {
             edicionId: edicionId,
             standId: ferianteActual.stand.id,
-            espacioId: parseInt(espacioId)
+            espacioId: espacioId ? parseInt(espacioId) : null
         };
 
-        await axios.post(`${PARTICIPACIONES_URL}/inscribir`, payload);
+        const res = await axios.post(`${PARTICIPACIONES_URL}/inscribir`, payload);
         
-        showToast("¡Inscripción exitosa! Tu lugar ha sido reservado.", "success");
+        const msg = res.data?.mensaje || "¡Inscripción enviada!";
+        showToast(msg, "success");
+
         cerrarModalPostulacion();
         cargarPerfil();
     } catch (error) {

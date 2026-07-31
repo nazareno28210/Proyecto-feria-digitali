@@ -14,6 +14,9 @@
     <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
 </head>
 <body>
 <header>
@@ -72,8 +75,8 @@
                     </div>
                 </div>
 
-                <label for="capacidad" style="margin-top: 15px; display: block;">Capacidad / Cupo de Stands</label>
-                <input type="number" id="capacidad" placeholder="20" min="1" required>
+                <label for="edicionCapacidad" style="margin-top: 15px; display: block;">Capacidad / Cupo de Stands (para la Edición Inicial)</label>
+                <input type="number" id="edicionCapacidad" placeholder="20" min="1" required>
             </div>
 
             <div class="form-column">
@@ -93,14 +96,15 @@
                 <label for="descripcion" style="margin-top: 15px; display: block;">Descripción del Evento</label>
                 <textarea id="descripcion" placeholder="Describe los detalles de la feria, requisitos para artesanos y actividades..."></textarea>
 
-                <label for="input-feria-imagen" style="margin-top: 15px; display: block;">Imagen de Portada</label>
-                <input type="file" id="input-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-crear-preview', 'preview-crear-container')" style="padding: 10px; border: 2px dashed #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; text-align: center; cursor: pointer;">
+                <label for="input-feria-imagen" style="margin-top: 15px; display: block;">Imagen de Portada <small style="color:#64748b;">(se recortará 16:9)</small></label>
+                <input type="file" id="input-feria-imagen" accept="image/*"
+                    style="padding: 10px; border: 2px dashed #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; cursor: pointer;">
                 
                 <div id="preview-crear-container" style="display:none; margin-top: 10px; text-align: center;">
                     <img id="img-crear-preview" src="" style="max-height: 120px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                 </div>
 
-                <label for="input-mapa-nueva-feria" style="margin-top: 15px; display: block;">Mapa del Predio / Croquis (Opcional)</label>
+                <label for="input-mapa-nueva-feria" style="margin-top: 15px; display: block;">Mapa del Predio / Croquis (Opcional) <small style="color:#64748b;">(se recortará 4:3)</small></label>
                 <input type="file" id="input-mapa-nueva-feria" accept="image/*" style="padding: 10px; border: 2px dashed #8b5cf6; border-radius: 8px; width: 100%; box-sizing: border-box;">
             </div>
         </div>
@@ -200,15 +204,16 @@
                     <label for="edit-descripcion" style="margin-top: 15px; display: block;">Descripción</label>
                     <textarea id="edit-descripcion"></textarea>
                     
-                    <label for="input-edit-feria-imagen" style="margin-top: 15px; display: block;">Cambiar Imagen de Portada</label>
-                    <input type="file" id="input-edit-feria-imagen" accept="image/*" onchange="previewImagen(event, 'img-edit-preview', 'preview-edit-container')" style="padding: 8px; border: 1px dashed #ccc; width: 100%; box-sizing: border-box;">
+                    <label for="input-edit-feria-imagen" style="margin-top: 15px; display: block;">Cambiar Imagen de Portada <small style="color:#64748b;">(16:9)</small></label>
+                    <input type="file" id="input-edit-feria-imagen" accept="image/*"
+                        style="padding: 8px; border: 1px dashed #ccc; width: 100%; box-sizing: border-box;">
                     
                     <div id="preview-edit-container" style="display:none; margin-top: 10px; text-align: center;">
                         <img id="img-edit-preview" src="" style="max-height: 100px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
 
-                    <label for="input-edit-mapa-edicion" style="margin-top: 15px; display: block;">Croquis / Mapa del Predio</label>
-                    <input type="file" id="input-edit-mapa-edicion" accept="image/*" onchange="previewImagen(event, 'img-edit-mapa-preview', 'preview-edit-mapa-container')" style="padding: 8px; border: 1px dashed #8b5cf6; width: 100%; box-sizing: border-box;">
+                    <label for="input-edit-mapa-edicion" style="margin-top: 15px; display: block;">Croquis / Mapa del Predio <small style="color:#64748b;">(4:3)</small></label>
+                    <input type="file" id="input-edit-mapa-edicion" accept="image/*" style="padding: 8px; border: 1px dashed #8b5cf6; width: 100%; box-sizing: border-box;">
                     <div id="preview-edit-mapa-container" style="display:none; margin-top: 10px; text-align: center;">
                         <img id="img-edit-mapa-preview" src="" style="max-height: 120px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
@@ -260,8 +265,13 @@
             </div>
             
             <div style="margin-bottom: 15px;">
-                <label for="input-new-mapa-edicion" style="display: block;">Croquis / Mapa del Predio (Opcional)</label>
-                <input type="file" id="input-new-mapa-edicion" accept="image/*" onchange="previewImagen(event, 'img-new-mapa-preview', 'preview-new-mapa-container')" style="padding: 8px; border: 1px dashed #8b5cf6; width: 100%; box-sizing: border-box;">
+                <label for="new-capacidad">Capacidad / Cupo de Stands</label>
+                <input type="number" id="new-capacidad" placeholder="20" min="1" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label for="input-new-mapa-edicion" style="display: block;">Croquis / Mapa del Predio (Opcional) <small style="color:#64748b;">(4:3)</small></label>
+                <input type="file" id="input-new-mapa-edicion" accept="image/*" style="padding: 8px; border: 1px dashed #8b5cf6; width: 100%; box-sizing: border-box;">
                 <div id="preview-new-mapa-container" style="display:none; margin-top: 10px; text-align: center;">
                     <img id="img-new-mapa-preview" src="" style="max-height: 120px; border-radius: 8px;">
                 </div>
@@ -368,11 +378,25 @@
     </div>
 </div>
 
-<footer>
-    <p>Proyecto Feria Digital — Panel de Administración de Software</p>
-</footer>
+<!-- MODAL RECORTE DE IMAGEN (Cropper.js) -->
+<div id="modal-cropper-ferias" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; display:none; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:12px; padding:24px; max-width:680px; width:95%; box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <h3 style="margin:0; color:#1e293b;"><i class="fas fa-crop-alt" style="color:#8b5cf6;"></i> Recortar Imagen</h3>
+            <span id="crop-ratio-label" style="font-size:0.85em; background:#eef2ff; color:#6366f1; padding:4px 10px; border-radius:20px; font-weight:600;"></span>
+        </div>
+        <div style="max-height:420px; overflow:hidden; border-radius:8px; background:#0f172a;">
+            <img id="crop-image-src" src="" style="max-width:100%; display:block;">
+        </div>
+        <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+            <button onclick="cancelarCrop()" style="background:#94a3b8; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fas fa-times"></i> Cancelar</button>
+            <button onclick="confirmarCrop()" style="background:linear-gradient(135deg,#8b5cf6,#6366f1); color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-weight:600;"><i class="fas fa-check"></i> Confirmar Recorte</button>
+        </div>
+    </div>
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/web/js/ferias-control.js"></script>
 </body>
-</html>
+</html>

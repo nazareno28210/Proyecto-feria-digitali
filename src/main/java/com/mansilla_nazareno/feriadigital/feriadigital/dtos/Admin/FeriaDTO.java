@@ -13,7 +13,6 @@ public class FeriaDTO {
     private Integer totalVotos;
     private Double latitud;
     private Double longitud;
-    private Integer capacidad;
 
     public FeriaDTO(){}
 
@@ -24,7 +23,6 @@ public class FeriaDTO {
         this.descripcion = feria.getDescripcion();
         this.imagenUrl = feria.getImagenUrl();
         this.eliminado = feria.isEliminado();
-        this.capacidad = feria.getCapacidad();
         this.latitud = feria.getLatitud();
         this.longitud = feria.getLongitud();
     }
@@ -108,13 +106,5 @@ public class FeriaDTO {
 
     public void setLongitud(Double longitud) {
         this.longitud = longitud;
-    }
-
-    public Integer getCapacidad() {
-        return capacidad;
-    }
-
-    public void setCapacidad(Integer capacidad) {
-        this.capacidad = capacidad;
     }
 }

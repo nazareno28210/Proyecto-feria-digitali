@@ -105,9 +105,18 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const pendientes = participaciones.filter(p => p.estado === 'PENDIENTE');
             const confirmados = participaciones.filter(p => p.estado === 'CONFIRMADO');
+            const enEspera = participaciones.filter(p => p.estado === 'EN_ESPERA').sort((a, b) => a.id - b.id);
 
             renderPendientes(pendientes);
             renderGestion(confirmados);
+            renderEspera(enEspera);
+
+            // Badge del tab de espera
+            const badge = document.getElementById('badge-espera-tab');
+            if (badge) {
+                badge.textContent = enEspera.length;
+                badge.style.display = enEspera.length > 0 ? 'flex' : 'none';
+            }
 
             gestionContainer.style.display = "block";
         } catch (error) {
@@ -290,8 +299,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-        document.getElementById(`btn-tab-${tabName}`).classList.add('active');
-        document.getElementById(`tab-${tabName}`).classList.add('active');
+        const btn = document.getElementById(`btn-tab-${tabName}`);
+        const tab = document.getElementById(`tab-${tabName}`);
+        if (btn) btn.classList.add('active');
+        if (tab) tab.classList.add('active');
     };
 
     window.abrirModalPago = async (id, estadoPago, monto, ubicacionId) => {
@@ -305,7 +316,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("grupo-ubicacion").style.display = "block";
         const edicionId = document.getElementById("feria-select").value;
-        cargarEspaciosDisponibles(edicionId, ubicacionId);
+        await cargarEspaciosDisponibles(edicionId, ubicacionId);
 
         // Cargar mapa de la edición
         const mapaContainer = document.getElementById("mapa-asignacion-container");
@@ -384,6 +395,66 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // ============================================================
+    // LISTA DE ESPERA — Tab dedicado
+    // ============================================================
+
+    function renderEspera(lista) {
+        const tbody = document.getElementById('tbody-espera');
+        if (!tbody) return;
+
+        if (lista.length === 0) {
+            tbody.innerHTML = `<tr><td colspan='3' style='text-align:center; padding:20px; color:#94a3b8;'>🎉 No hay feriantes en lista de espera.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = lista.map((p, i) => {
+            const nombre = obtenerNombreStand(p);
+            return `<tr>
+                <td style="font-weight:700; color:#f59e0b;">#${i + 1}</td>
+                <td><strong>${nombre}</strong></td>
+                <td>
+                    <button class="btn-aceptar" onclick="aprobarDesdeEspera(${p.id})" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                        <i class="fas fa-arrow-up"></i> Aprobar → Pendiente
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    window.aprobarDesdeEspera = async (participacionId) => {
+        const result = await Swal.fire({
+            title: '¿Aprobar este feriante?',
+            text: 'Pasará de Lista de Espera a PENDIENTE y aparecerá en Solicitudes para asignarle un lote.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Sí, aprobar',
+            cancelButtonText: 'Cancelar',
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            await axios.patch(`/api/participaciones/${participacionId}/estado-asistencia?estado=PENDIENTE`, {}, { withCredentials: true });
+            showToast('¡Feriante aprobado! Ahora está en Solicitudes.', 'success');
+            await cargarParticipantes();
+        } catch (err) {
+            const errorMsg = err.response?.data?.error || err.response?.data?.mensaje || 'Error al aprobar el feriante.';
+            if (err.response && err.response.status === 400) {
+                Swal.fire({
+                    title: 'No se puede aprobar',
+                    text: errorMsg,
+                    icon: 'error',
+                    confirmButtonColor: '#ef4444'
+                });
+            } else {
+                showToast(errorMsg, 'error');
+            }
+        }
+    };
+
     function showToast(message, type = "info") {
         let color = type === "success" ? "#10b981" : (type === "warning" ? "#f59e0b" : "#ef4444");
         Toastify({
@@ -396,4 +467,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     init();
-});
+});

@@ -74,7 +74,7 @@ public class EspacioController {
             }
 
             long actuales = espacioRepository.findByEdicionId(edicionId).stream().filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO).count();
-            Integer cupoMaximo = (edicion.getFeria() != null && edicion.getFeria().getCapacidad() != null) ? edicion.getFeria().getCapacidad() : 0;
+            Integer cupoMaximo = edicion.getCapacidad() != null ? edicion.getCapacidad() : 0;
             if (cupoMaximo > 0 && (actuales + 1) > cupoMaximo) {
                 return ResponseEntity.badRequest().body(Map.of("error", "No puedes crear más stands. Solo quedan " + (cupoMaximo - actuales) + " lugares disponibles en el cupo."));
             }
@@ -105,7 +105,7 @@ public class EspacioController {
 
         long actuales = espacioRepository.findByEdicionId(edicionId).stream().filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO).count();
         int cantidadNueva = hasta - desde + 1;
-        Integer cupoMaximo = (edicion.getFeria() != null && edicion.getFeria().getCapacidad() != null) ? edicion.getFeria().getCapacidad() : 0;
+        Integer cupoMaximo = edicion.getCapacidad() != null ? edicion.getCapacidad() : 0;
         if (cupoMaximo > 0 && (actuales + cantidadNueva) > cupoMaximo) {
             return ResponseEntity.badRequest().body(Map.of("error", "No puedes crear " + cantidadNueva + " stands. Solo quedan " + (cupoMaximo - actuales) + " lugares disponibles en el cupo."));
         }

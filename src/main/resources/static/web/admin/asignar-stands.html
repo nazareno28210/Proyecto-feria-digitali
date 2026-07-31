@@ -70,6 +70,10 @@
             <button class="tab-btn" id="btn-tab-gestion" onclick="cambiarTab('gestion')">
                 <i class="fas fa-store"></i> 2. Stands y Pagos
             </button>
+            <button class="tab-btn" id="btn-tab-espera" onclick="cambiarTab('espera')" style="position:relative;">
+                <i class="fas fa-hourglass-half"></i> 3. Lista de Espera
+                <span id="badge-espera-tab" style="position:absolute; top:4px; right:4px; background:#f59e0b; color:white; border-radius:50%; width:18px; height:18px; font-size:0.7em; display:none; align-items:center; justify-content:center; font-weight:700;">0</span>
+            </button>
         </div>
 
         <!-- TAB 1: SOLICITUDES (PENDIENTES) -->
@@ -120,6 +124,25 @@
             </table>
         </div>
 
+        <!-- TAB 3: LISTA DE ESPERA -->
+        <div id="tab-espera" class="tab-content">
+            <h3><i class="fas fa-hourglass-half" style="color:#f59e0b;"></i> Feriantes en Lista de Espera</h3>
+            <p style="color:#666; font-size:0.9em;">Estos feriantes solicitaron lugar pero la edición ya estaba completa. Apóyalos a PENDIENTE para que puedan ser asignados a un lote disponible.</p>
+            <div style="background:#fef3c7; border-left:4px solid #f59e0b; border-radius:6px; padding:10px 14px; margin-bottom:16px; font-size:0.88em; color:#92400e;">
+                <i class="fas fa-info-circle"></i> Al aprobar, el feriante pasa a <strong>PENDIENTE</strong> y aparece en la pestaña &quot;Solicitudes&quot; listo para ser procesado.
+            </div>
+            <table class="table-admin" id="tabla-espera">
+                <thead>
+                <tr>
+                    <th>Pos.</th>
+                    <th>Emprendimiento</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody id="tbody-espera"></tbody>
+            </table>
+        </div>
+
     </div>
 </main>
 
@@ -151,12 +174,14 @@
                     <option value="">Cargando stands disponibles...</option>
                 </select>
                 <small id="ayuda-preferencia" style="color: #6366f1; font-weight: 500; display: block; margin-top: -10px; margin-bottom: 15px;"></small>
+
             </div>
 
             <button type="submit" class="btn-submit" style="width:100%; padding:10px;">Guardar Cambios</button>
         </form>
     </div>
 </div>
+
 
 <footer>
     <p>Proyecto Feria Digital — Panel de Control</p>

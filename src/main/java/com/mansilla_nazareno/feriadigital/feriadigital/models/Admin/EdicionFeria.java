@@ -44,6 +44,9 @@ public class EdicionFeria {
     @Column(name = "mapa_public_id")
     private String mapaPublicId;
 
+    @Column(name = "capacidad")
+    private Integer capacidad;
+
     @OneToMany(mappedBy = "edicion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Espacio> espacios = new ArrayList<>();
 
@@ -123,4 +126,7 @@ public class EdicionFeria {
 
     public String getMapaPublicId() { return mapaPublicId; }
     public void setMapaPublicId(String mapaPublicId) { this.mapaPublicId = mapaPublicId; }
+
+    public Integer getCapacidad() { return capacidad; }
+    public void setCapacidad(Integer capacidad) { this.capacidad = capacidad; }
 }

@@ -87,8 +87,8 @@ public class FeriaDigitalApplication {
 				// =========================================
 				// 3. FERIAS Y SUS EDICIONES
 				// =========================================
-				Feria feriaDonBosco = new Feria("Feria Gimnasio Don Bosco", "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial familiar", "/uploads/ferias/Don_Bosco.png", -53.789041, -67.700629, 30);
-				Feria feriaCantoAgua = new Feria("Feria Paseo Canto del Agua", "Av. Belgrano 500", "Paseo gastronómico y de emprendedores", "/uploads/ferias/Canto_Agua.png", -53.785123, -67.698456, 20);
+				Feria feriaDonBosco = new Feria("Feria Gimnasio Don Bosco", "Colegio Don Bosco, Alberdi 368", "Feria artesanal y comercial familiar", "/uploads/ferias/Don_Bosco.png", -53.789041, -67.700629);
+				Feria feriaCantoAgua = new Feria("Feria Paseo Canto del Agua", "Av. Belgrano 500", "Paseo gastronómico y de emprendedores", "/uploads/ferias/Canto_Agua.png", -53.785123, -67.698456);
 				feriaRepository.saveAll(List.of(feriaDonBosco, feriaCantoAgua));
 
 				EdicionFeria edicionDonBoscoInvierno = new EdicionFeria();
@@ -99,6 +99,7 @@ public class FeriaDigitalApplication {
 				edicionDonBoscoInvierno.setHoraInicio(LocalTime.of(14, 0));
 				edicionDonBoscoInvierno.setHoraFin(LocalTime.of(20, 0));
 				edicionDonBoscoInvierno.setEstado("ACTIVA");
+				edicionDonBoscoInvierno.setCapacidad(30);
 
 				EdicionFeria edicionDonBoscoPrimavera = new EdicionFeria();
 				edicionDonBoscoPrimavera.setFeria(feriaDonBosco);
@@ -108,6 +109,7 @@ public class FeriaDigitalApplication {
 				edicionDonBoscoPrimavera.setHoraInicio(LocalTime.of(14, 0));
 				edicionDonBoscoPrimavera.setHoraFin(LocalTime.of(21, 0));
 				edicionDonBoscoPrimavera.setEstado("PROXIMA");
+				edicionDonBoscoPrimavera.setCapacidad(30);
 
 				EdicionFeria edicionCantoAguaJulio = new EdicionFeria();
 				edicionCantoAguaJulio.setFeria(feriaCantoAgua);
@@ -117,6 +119,7 @@ public class FeriaDigitalApplication {
 				edicionCantoAguaJulio.setHoraInicio(LocalTime.of(12, 0));
 				edicionCantoAguaJulio.setHoraFin(LocalTime.of(22, 0));
 				edicionCantoAguaJulio.setEstado("ACTIVA");
+				edicionCantoAguaJulio.setCapacidad(20);
 
 				edicionFeriaRepository.saveAll(List.of(edicionDonBoscoInvierno, edicionDonBoscoPrimavera, edicionCantoAguaJulio));
 
