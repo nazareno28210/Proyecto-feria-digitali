@@ -48,9 +48,9 @@ document.addEventListener("DOMContentLoaded", () => {
     inputBusqueda.addEventListener("input", () => {
         const texto = inputBusqueda.value.toLowerCase();
         const filtradas = feriasGlobal.filter((f) =>
-            // 🟢 Busca tanto por el nombre de la feria como por la edición
-            (f.nombre || "").toLowerCase().includes(texto) || 
-            (f.nombreEdicion || "").toLowerCase().includes(texto)
+            (f.feriaNombre || "").toLowerCase().includes(texto) || 
+            (f.nombreEdicion || "").toLowerCase().includes(texto) ||
+            (f.feriaLugar || "").toLowerCase().includes(texto)
         );
         mostrarFerias(filtradas);
         actualizarMarcadoresMapa(filtradas); // El mapa se filtra en tiempo real
@@ -73,7 +73,6 @@ function actualizarMarcadoresMapa(lista) {
     markersGroup.clearLayers();
 
     lista.forEach(edicion => {
-        // 🟢 Leemos directo desde el DTO plano
         const lat = edicion.latitud;
         const lng = edicion.longitud;
         
@@ -87,20 +86,20 @@ function actualizarMarcadoresMapa(lista) {
             const lugarBase = edicion.feriaLugar || "Lugar a definir";
 
             marcador.bindPopup(`
-                <div style="text-align: center; font-family: sans-serif;">
-                    <strong style="color: #1a3a5a; font-size: 1.1rem;">${nombreBase}</strong><br>
-                    <span style="color: #e67e22; font-size: 0.9rem; font-weight: bold;">${edicion.nombreEdicion}</span><br>
-                    <small style="color: #666;">${lugarBase}</small><br>
-                    <small style="color: #2c3e50; font-weight: bold;">⏰ ${horaApertura} a ${horaCierre} hs</small><br>
+                <div style="text-align: center; font-family: sans-serif; padding: 4px;">
+                    <strong style="color: #1a3a5a; font-size: 1.05rem; display: block; margin-bottom: 2px;">${nombreBase}</strong>
+                    <span style="color: #2563eb; font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 4px;">${edicion.nombreEdicion}</span>
+                    <small style="color: #64748b; display: block; margin-bottom: 6px;">📍 ${lugarBase}</small>
+                    <small style="color: #1e293b; font-weight: 600; display: block; margin-bottom: 8px;">⏰ ${horaApertura} a ${horaCierre} hs</small>
                     <button onclick="verDetalles(${edicion.id})" 
-                            style="margin-top: 10px; background: #1a3a5a; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">
-                        Ver detalles
+                            style="width: 100%; background: linear-gradient(135deg, #1a3a5a, #2563eb); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
+                        <i class="bi bi-eye-fill"></i> Ver Feria y Stands
                     </button>
                 </div>
             `);
             
             marcador.on('click', function() {
-                mapa.flyTo([lat, lng], 16, { animate: true, duration: 1.5 });
+                mapa.flyTo([lat, lng], 15, { animate: true, duration: 1.2 });
             });
             
             markersGroup.addLayer(marcador);
@@ -127,40 +126,69 @@ function mostrarFerias(lista) {
   container.innerHTML = "";
   
   if (lista.length === 0) {
-      container.innerHTML = "<p class='no-ferias-msg'>No se encontraron ferias activas.</p>";
+      container.innerHTML = `<div class='no-ferias-msg'><i class="bi bi-search" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>No se encontraron ferias activas que coincidan con la búsqueda.</div>`;
       return;
   }
 
   lista.forEach((edicion) => {
     const card = document.createElement("div");
-    card.classList.add("card");
+    card.classList.add("card-feria");
     
-    // 🟢 Leemos directo desde el DTO plano
     const imagenBase = edicion.feriaImagenUrl || "";
     const nombreBase = edicion.feriaNombre || "Feria General";
     const lugarBase = edicion.feriaLugar || "Lugar a definir";
-    const descBase = edicion.feriaDescripcion || "";
+    const descBase = edicion.feriaDescripcion || "Sin descripción disponible.";
+    const estadoStr = (edicion.estado || "ACTIVA").toUpperCase();
+
+    let badgeClass = "badge-activa";
+    if (estadoStr.includes("PROXIMA") || estadoStr.includes("PRÓXIMA")) {
+        badgeClass = "badge-proxima";
+    } else if (estadoStr.includes("FINALIZADA") || estadoStr.includes("INACTIVA")) {
+        badgeClass = "badge-finalizada";
+    }
 
     const imagenHtml = imagenBase
-      ? `<div class="card-image-container">
-           <img src="${imagenBase}" alt="Imagen de ${nombreBase}">
-         </div>`
-      : '';
+      ? `<img src="${imagenBase}" alt="${nombreBase}" onerror="this.src='/web/assets/logo.png'; this.style.objectFit='contain'; this.style.padding='20px';">`
+      : `<img src="/web/assets/logo.png" alt="${nombreBase}" style="object-fit: contain; padding: 25px;">`;
 
     const horaApertura = edicion.horaInicio ? edicion.horaInicio.substring(0, 5) : "A definir";
     const horaCierre = edicion.horaFin ? edicion.horaFin.substring(0, 5) : "A definir";
 
+    const fechaInicioStr = edicion.fechaInicio ? edicion.fechaInicio : "Por definir";
+    const fechaFinStr = edicion.fechaFinal ? edicion.fechaFinal : fechaInicioStr;
+
     card.innerHTML = `
-      ${imagenHtml} 
-      <div class="card-content">
-        <h2>${nombreBase} <span style="font-size: 0.8em; color: #666;">(${edicion.nombreEdicion})</span></h2>
-        <p><strong>Lugar:</strong> ${lugarBase}</p>
-        <p><strong>Fecha inicio:</strong> ${edicion.fechaInicio}</p>
-        <p><strong>Fecha fin:</strong> ${edicion.fechaFinal ?? "Sin definir"}</p>
-        <p><strong>Horario:</strong> ${horaApertura} a ${horaCierre} hs</p>
-        <p>${descBase}</p>
+      <div class="card-image-wrapper">
+        ${imagenHtml}
+        <span class="card-status-badge ${badgeClass}"><i class="bi bi-record-fill"></i> ${estadoStr}</span>
       </div>
-      <button onclick="verDetalles(${edicion.id})">Ver detalles</button>
+      <div class="card-content-body">
+        <h3 class="card-feria-title">${nombreBase}</h3>
+        <span class="card-edition-title"><i class="bi bi-stars"></i> ${edicion.nombreEdicion}</span>
+        
+        <div class="card-meta-list">
+          <div class="card-meta-item">
+            <i class="bi bi-geo-alt-fill text-danger"></i>
+            <span><strong>Ubicación:</strong> ${lugarBase}</span>
+          </div>
+          <div class="card-meta-item">
+            <i class="bi bi-calendar-event-fill text-primary"></i>
+            <span><strong>Fechas:</strong> ${fechaInicioStr} al ${fechaFinStr}</span>
+          </div>
+          <div class="card-meta-item">
+            <i class="bi bi-clock-fill text-warning"></i>
+            <span><strong>Horario:</strong> ${horaApertura} a ${horaCierre} hs</span>
+          </div>
+        </div>
+
+        <p class="card-description">${descBase}</p>
+      </div>
+
+      <div class="card-action-bar">
+        <button class="btn-card-action" onclick="verDetalles(${edicion.id})">
+          <i class="bi bi-arrow-right-circle-fill"></i> Ver Feria y Stands
+        </button>
+      </div>
     `;
     container.appendChild(card);
   }); 
@@ -182,10 +210,10 @@ async function verificarSesion() {
     console.log("Usuario no autenticado (modo visitante)");
     
     document.getElementById("user-actions").innerHTML = `
-      <a href="buscar.html" class="btn btn-header" style="margin-right: 10px;">
+      <a href="buscar.html" class="btn btn-header">
         <i class="bi bi-cart-fill"></i> Buscar Productos
       </a>
-      <a href="/web/login.html" class="btn btn-header">Iniciar sesión</a>
+      <a href="/web/login.html" class="btn btn-header"><i class="bi bi-box-arrow-in-right"></i> Iniciar sesión</a>
     `;
   }
 }
@@ -197,22 +225,20 @@ async function mostrarOpcionesUsuario(usuario) {
   const btnBuscar = document.createElement("a");
   btnBuscar.href = "buscar.html";
   btnBuscar.className = "btn btn-header"; 
-  btnBuscar.style.marginRight = "10px"; 
   btnBuscar.innerHTML = '<i class="bi bi-cart-fill"></i> Buscar Productos';
   container.appendChild(btnBuscar);
 
   const btnLogout = document.createElement("button");
   btnLogout.id = "btn-logout";
   btnLogout.className = "btn btn-logout";
-  btnLogout.textContent = "Cerrar sesión";
+  btnLogout.innerHTML = '<i class="bi bi-box-arrow-right"></i> Cerrar sesión';
   btnLogout.addEventListener("click", cerrarSesion);
 
   if (usuario.tipoUsuario === "NORMAL") {
     const btnPerfil = document.createElement("a");
     btnPerfil.href = "/web/usuario-perfil.html";
     btnPerfil.className = "btn btn-header";
-    btnPerfil.style.marginRight = "10px";
-    btnPerfil.textContent = "Mi Perfil";
+    btnPerfil.innerHTML = '<i class="bi bi-person-circle"></i> Mi Perfil';
     container.appendChild(btnPerfil);
   }
 
@@ -220,8 +246,7 @@ async function mostrarOpcionesUsuario(usuario) {
     const btnPerfil = document.createElement("a");
     btnPerfil.href = "/web/feriante/perfil.html";
     btnPerfil.className = "btn btn-header";
-    btnPerfil.style.marginRight = "10px";
-    btnPerfil.textContent = "Mi Perfil";
+    btnPerfil.innerHTML = '<i class="bi bi-shop"></i> Mi Perfil';
     container.appendChild(btnPerfil);
   }
 
@@ -229,8 +254,7 @@ async function mostrarOpcionesUsuario(usuario) {
     const btnAdmin = document.createElement("a");
     btnAdmin.href = "/web/admin/dashboard.html";
     btnAdmin.className = "btn btn-admin";
-    btnAdmin.style.marginRight = "10px";
-    btnAdmin.textContent = "Panel de administrador";
+    btnAdmin.innerHTML = '<i class="bi bi-speedometer2"></i> Panel Admin';
     container.appendChild(btnAdmin);
   }
 

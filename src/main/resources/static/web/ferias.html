@@ -20,32 +20,53 @@
     <div class="header-top">
         <div class="header-left">
             <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
-            <h1>Ferias Activas</h1>
+            <h1>Feria Digital</h1>
         </div>
         
         <div class="search-bar">
-            <input type="text" id="busqueda" placeholder="Buscar feria por nombre..." />
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="busqueda" placeholder="Buscar feria por nombre o edición..." />
         </div>
 
         <div id="user-actions">
-            </div>
+        </div>
     </div>
 </header>
 
-<main class="main-layout">
-    <section class="map-section">
-        <div id="mapa-ferias"></div>
+<main class="main-container">
+    <!-- Hero Banner -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2><i class="bi bi-shop-window"></i> Explora las Ferias Activas</h2>
+            <p>Descubre eventos artesanales, gastronómicos y comerciales cerca de ti. Haz clic en una feria para ver sus stands y emprendedores.</p>
+        </div>
     </section>
 
-    <section class="cards-section">
-        <div id="ferias-container">
+    <!-- Split Layout (Mapa e Itinerario de Ferias) -->
+    <div class="split-layout">
+        <!-- Mapa Interactivo en Vivo -->
+        <aside class="map-column">
+            <div class="map-card">
+                <div class="map-header">
+                    <span><i class="bi bi-geo-alt-fill text-danger"></i> Mapa de Ferias en Vivo</span>
+                    <small class="map-hint">Ubicaciones en Río Grande</small>
+                </div>
+                <div id="mapa-ferias"></div>
             </div>
-    </section>
+        </aside>
+
+        <!-- Tarjetas de Ferias -->
+        <section class="cards-column">
+            <div id="ferias-container" class="cards-grid">
+                <!-- Se cargan dinámicamente desde ferias.js -->
+            </div>
+        </section>
+    </div>
 </main>
 
 <footer>
     <p id="creditos">
-        Proyecto Feria Digital — Desarrollado por <strong>Nazareno Guardia</strong> y <strong>Mansilla Denis</strong>.
+        Proyecto Feria Digital — Desarrollado por <strong>Nazareno Guardia</strong> y <strong>Mansilla Denis</strong>.<br>
         Alumnos de la carrera de Tecnicatura Superior de Desarrollo de Software del CENT 35.
     </p>
 </footer>
