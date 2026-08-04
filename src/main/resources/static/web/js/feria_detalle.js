@@ -4,23 +4,7 @@
  * ====================================
  */
 
-function showToast(message, type = "info") {
-  let color;
-  switch (type) {
-    case "success": color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; break;
-    case "error": color = "linear-gradient(to right, #ef4444, #b91c1c)"; break;
-    case "warning": color = "linear-gradient(to right, #3b82f6, #67e8f9)"; break;
-    default: color = "linear-gradient(to right, #3b82f6, #67e8f9)";
-  }
-  Toastify({
-    text: message,
-    duration: 2000,
-    gravity: "top", 
-    position: "right", 
-    style: { background: color },
-    stopOnFocus: true,
-  }).showToast();
-}
+
 
 // 🟢 1. Apuntamos al nuevo endpoint de ediciones
 const API_URL = "http://localhost:8080/api/ediciones";
@@ -109,7 +93,7 @@ async function cargarFeria() {
                         <p>${stand.descripcion ?? "Sin descripción"}</p>
                         <p><strong>Feriante:</strong> ${stand.feriante ? stand.feriante.nombreEmprendimiento : "No asignado"}</p>
                     </div>
-                    <button class="btn-stand" onclick="verProductos(${stand.id})">Ver productos</button>
+                    <button type="button" class="btn-stand" onclick="verProductos(event, ${stand.id})">Ver productos</button>
                     `; 
                     standsContainer.appendChild(div);
                 }
@@ -122,7 +106,7 @@ async function cargarFeria() {
     }
   } catch (error) {
     console.error("Error al cargar la feria:", error);
-    showToast("❌ Error al cargar los datos.", "error"); 
+    mostrarNotificacion("Error al cargar los datos.", "error"); 
   }
 }
 
@@ -167,11 +151,11 @@ async function votarFeria(valor) {
             feria: { id: realFeriaId }
         }, { withCredentials: true });
 
-        showToast("👍 ¡Gracias por tu voto!", "success");
-        setTimeout(() => location.reload(), 1200);
+        mostrarNotificacion("Gracias por tu voto.", "success");
+        renderizarAprobacionFeria(realFeriaId);
     } catch (err) {
         const msg = err.response ? err.response.data : "Error al votar.";
-        showToast(`❌ ${msg}`, "error");
+        mostrarNotificacion(msg, "error");
     }
 }
 
@@ -187,4 +171,8 @@ async function verificarAccesoVoto() {
 }
 
 function volver() { window.location.href = "ferias.html"; }
-function verProductos(standId) { window.location.href = `stand_detalle.html?idStand=${standId}`; }
+function verProductos(event, standIdParam) {
+    if (event && event.preventDefault) event.preventDefault();
+    const standId = typeof event === 'number' ? event : standIdParam;
+    window.location.href = `stand_detalle.html?idStand=${standId}`;
+}

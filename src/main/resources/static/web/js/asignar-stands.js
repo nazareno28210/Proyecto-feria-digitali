@@ -83,7 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
         } catch (error) {
-            showToast("Error al cargar las ediciones", "error");
+            mostrarNotificacion("Error al cargar las ediciones", "error");
         }
     }
 
@@ -120,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             gestionContainer.style.display = "block";
         } catch (error) {
-            showToast("Error al cargar participantes", "error");
+            mostrarNotificacion("Error al cargar participantes", "error");
         }
     }
 
@@ -153,8 +153,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td><strong>${nombreStand}</strong></td>
                     <td><span class="badge-debe">Pendiente</span></td>
                     <td>
-                        <button class="btn-aceptar" onclick="cambiarEstadoAsistencia(${p.id}, 'CONFIRMADO')"><i class="fas fa-check"></i> Aceptar</button>
-                        <button class="btn-rechazar" onclick="cambiarEstadoAsistencia(${p.id}, 'RECHAZADO')"><i class="fas fa-times"></i> Rechazar</button>
+                        <button type="button" class="btn-aceptar" onclick="cambiarEstadoAsistencia(event, ${p.id}, 'CONFIRMADO')"><i class="fas fa-check"></i> Aceptar</button>
+                        <button type="button" class="btn-rechazar" onclick="cambiarEstadoAsistencia(event, ${p.id}, 'RECHAZADO')"><i class="fas fa-times"></i> Rechazar</button>
                     </td>
                 </tr>
             `;
@@ -231,10 +231,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${sugerencia}</td>
                     <td>${ubicacionTexto}</td>
                     <td>
-                        <button class="btn-cobrar" onclick="abrirModalPago(${p.id}, '${estadoDB}', ${p.montoAbonado || 0}, ${p.espacioId || 'null'})">
+                        <button type="button" class="btn-cobrar" onclick="abrirModalPago(event, ${p.id}, '${estadoDB}', ${p.montoAbonado || 0}, ${p.espacioId || 'null'})">
                             <i class="fas fa-edit"></i> Gestionar
                         </button>
-                        <button class="btn-rechazar" onclick="quitarDeDistribucion(${p.id}, ${p.montoAbonado || 0})">
+                        <button type="button" class="btn-rechazar" onclick="quitarDeDistribucion(event, ${p.id}, ${p.montoAbonado || 0})">
                             <i class="fas fa-undo"></i> Quitar
                         </button>
                     </td>
@@ -251,7 +251,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // ACCIONES GLOBALES
     // ========================================================
 
-    window.cambiarEstadoAsistencia = async (participacionId, nuevoEstado) => {
+    window.cambiarEstadoAsistencia = async (event, participacionIdParam, nuevoEstadoParam) => {
+        if (event && event.preventDefault) event.preventDefault();
+        const participacionId = typeof event === 'number' ? event : participacionIdParam;
+        const nuevoEstado = typeof event === 'number' ? participacionIdParam : nuevoEstadoParam;
         let motivo = "";
 
         if (nuevoEstado === 'RECHAZADO' || nuevoEstado === 'CANCELADO') {
@@ -274,7 +277,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (!result.isConfirmed) {
-                return showToast("Operación cancelada.", "warning");
+                return mostrarNotificacion("Operación cancelada.", "warning");
             }
 
             motivo = result.value;
@@ -285,13 +288,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             await axios.patch(url, {}, { withCredentials: true });
 
-            showToast(`Estado actualizado a ${nuevoEstado}`, "success");
+            mostrarNotificacion(`Estado actualizado a ${nuevoEstado}`, "success");
 
             cargarParticipantes();
         } catch (error) {
             console.error("Error al cambiar estado:", error);
-            const msg = error.response?.data?.error || "Error al procesar la solicitud";
-            showToast(msg, "error");
+            mostrarNotificacion(obtenerMensajeError(error, "Error al procesar la solicitud"), "error");
         }
     };
 
@@ -311,14 +313,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const estadoSeguro = estadoPago ? estadoPago.toUpperCase() : "DEBE";
         document.getElementById("pago-estado").value = estadoSeguro; 
         document.getElementById("pago-estado").disabled = true;
+        document.getElementById("pago-monto").value = monto || 0;
         
-        document.getElementById("pago-monto").value = monto;
+        const selectEstado = document.getElementById("pago-estado");
+        selectEstado.value = estadoPago || "DEBE";
 
-        document.getElementById("grupo-ubicacion").style.display = "block";
+        const inputUbicacion = document.getElementById("pago-ubicacion");
+        inputUbicacion.value = (ubicacionId && ubicacionId !== 'null') ? ubicacionId : "";
+
         const edicionId = document.getElementById("feria-select").value;
         await cargarEspaciosDisponibles(edicionId, ubicacionId);
 
-        // Cargar mapa de la edición
         const mapaContainer = document.getElementById("mapa-asignacion-container");
         const mapaImg = document.getElementById("mapa-asignacion-img");
         if (mapaContainer && mapaImg) {
@@ -346,18 +351,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const inputUbicacion = document.getElementById("pago-ubicacion");
         if (inputUbicacion) {
             inputUbicacion.value = num;
-            showToast(`Se aplicó la sugerencia: Mesa ${num}`, "info");
+            mostrarNotificacion(`Se aplicó la sugerencia: Mesa ${num}`, "info");
         }
     };
 
-    window.quitarDeDistribucion = async (id, montoAbonado) => {
-        // Freno preventivo en el frontend
+    window.quitarDeDistribucion = async (event, idParam, montoAbonadoParam) => {
+        if (event && event.preventDefault) event.preventDefault();
+        const id = typeof event === 'number' ? event : idParam;
+        const montoAbonado = typeof event === 'number' ? idParam : montoAbonadoParam;
         if (montoAbonado > 0) {
-            showToast(`Bloqueo Contable: El feriante tiene un saldo a favor de $${montoAbonado}. Ingresa a 'Gestionar' y deja el monto en $0 para devolver el dinero antes de quitarlo.`, "error");
+            mostrarNotificacion(`Bloqueo Contable: El feriante tiene un saldo a favor de $${montoAbonado}. Ingresa a 'Gestionar' y deja el monto en $0 para devolver el dinero antes de quitarlo.`, "error");
             return;
         }
 
-        await window.cambiarEstadoAsistencia(id, 'CANCELADO');
+        await window.cambiarEstadoAsistencia(event, id, 'CANCELADO');
     };
 
     window.cerrarModalPago = () => {
@@ -373,7 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const ubicacionValue = document.getElementById("pago-ubicacion").value.trim();
 
         if (monto < 0) {
-            return showToast("El monto no puede ser negativo.", "error");
+            return mostrarNotificacion("El monto no puede ser negativo.", "error");
         }
 
         // Parseo seguro para el backend (Integer)
@@ -386,12 +393,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             await axios.patch(`/api/participaciones/${id}/pago`, payload);
-            showToast("Datos actualizados correctamente", "success");
+            mostrarNotificacion("Datos actualizados correctamente", "success");
             cerrarModalPago();
             cargarParticipantes();
         } catch (error) {
-            const mensajeError = error.response?.data?.error || "Error al guardar cambios";
-            showToast(mensajeError, "error");
+            mostrarNotificacion(obtenerMensajeError(error, "Error al guardar cambios"), "error");
         }
     });
 
@@ -414,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td style="font-weight:700; color:#f59e0b;">#${i + 1}</td>
                 <td><strong>${nombre}</strong></td>
                 <td>
-                    <button class="btn-aceptar" onclick="aprobarDesdeEspera(${p.id})" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
+                    <button type="button" class="btn-aceptar" onclick="aprobarDesdeEspera(event, ${p.id})" style="background:linear-gradient(135deg,#f59e0b,#d97706);">
                         <i class="fas fa-arrow-up"></i> Aprobar → Pendiente
                     </button>
                 </td>
@@ -422,7 +428,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }).join('');
     }
 
-    window.aprobarDesdeEspera = async (participacionId) => {
+    window.aprobarDesdeEspera = async (event, participacionIdParam) => {
+        if (event && event.preventDefault) event.preventDefault();
+        const participacionId = typeof event === 'number' ? event : participacionIdParam;
         const result = await Swal.fire({
             title: '¿Aprobar este feriante?',
             text: 'Pasará de Lista de Espera a PENDIENTE y aparecerá en Solicitudes para asignarle un lote.',
@@ -438,10 +446,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             await axios.patch(`/api/participaciones/${participacionId}/estado-asistencia?estado=PENDIENTE`, {}, { withCredentials: true });
-            showToast('¡Feriante aprobado! Ahora está en Solicitudes.', 'success');
+            mostrarNotificacion('¡Feriante aprobado! Ahora está en Solicitudes.', 'success');
             await cargarParticipantes();
         } catch (err) {
-            const errorMsg = err.response?.data?.error || err.response?.data?.mensaje || 'Error al aprobar el feriante.';
+            const errorMsg = obtenerMensajeError(err, 'Error al aprobar el feriante.');
             if (err.response && err.response.status === 400) {
                 Swal.fire({
                     title: 'No se puede aprobar',
@@ -450,21 +458,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     confirmButtonColor: '#ef4444'
                 });
             } else {
-                showToast(errorMsg, 'error');
+                mostrarNotificacion(errorMsg, 'error');
             }
         }
     };
-
-    function showToast(message, type = "info") {
-        let color = type === "success" ? "#10b981" : (type === "warning" ? "#f59e0b" : "#ef4444");
-        Toastify({
-            text: message,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            style: { background: color },
-        }).showToast();
-    }
 
     init();
 });

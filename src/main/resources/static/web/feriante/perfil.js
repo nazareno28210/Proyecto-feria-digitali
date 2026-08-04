@@ -53,7 +53,7 @@ function prepararRecorte(e) {
     if (!archivo) return;
 
     if (!archivo.type.startsWith('image/')) {
-        return showToast("Por favor, selecciona una imagen válida.", "error");
+        return mostrarNotificacion("Por favor, selecciona una imagen válida.", "error");
     }
 
     const reader = new FileReader();
@@ -86,7 +86,7 @@ async function ejecutarRecorteYSubir() {
         formData.append("imagen", blob, "perfil.jpg");
 
         try {
-            showToast("Actualizando foto...", "info");
+            mostrarNotificacion("Actualizando foto...", "info");
             
             const res = await axios.patch(IMAGE_UPLOAD_URL, formData, { 
                 withCredentials: true, 
@@ -105,7 +105,7 @@ async function ejecutarRecorteYSubir() {
                 ferianteActual.usuario.imagenUrl = nuevaFotoUrl;
             }
 
-            showToast("¡Foto actualizada!", "success");
+            mostrarNotificacion("¡Foto actualizada!", "success");
             cerrarModalYLimpiar();
         } catch (err) { 
             manejarError("Error al subir la imagen recortada");
@@ -126,7 +126,7 @@ function cerrarModalYLimpiar() {
 
 function manejarError(mensaje) {
     console.error(mensaje);
-    showToast(mensaje, "error");
+    mostrarNotificacion(mensaje, "error");
 }
 
 function cargarPerfil() {
@@ -194,7 +194,7 @@ async function guardarUsuario() {
     };
     try {
         await axios.post(USUARIO_UPDATE_URL, data, { withCredentials: true });
-        showToast("Usuario actualizado", "success");
+        mostrarNotificacion("Usuario actualizado", "success");
         cargarPerfil();
         toggleEditUsuario(false);
     } catch (e) { manejarError("Error al actualizar usuario"); }
@@ -207,7 +207,7 @@ async function guardarFeriante() {
     };
     try {
         await axios.put(FERIANTE_UPDATE_URL, data, { withCredentials: true });
-        showToast("Feriante actualizado", "success");
+        mostrarNotificacion("Feriante actualizado", "success");
         cargarPerfil();
         toggleEditFeriante(false);
     } catch (e) { manejarError("Error al guardar feriante"); }
@@ -220,7 +220,7 @@ async function guardarStand() {
     };
     try {
         await axios.put(STAND_UPDATE_URL, data, { withCredentials: true });
-        showToast("Stand actualizado", "success");
+        mostrarNotificacion("Stand actualizado", "success");
         cargarPerfil();
         toggleEditStand(false);
     } catch (e) { manejarError("Error al guardar stand"); }
@@ -246,7 +246,7 @@ async function toggleEstadoStand() {
     try {
         const res = await axios.patch(STAND_TOGGLE_URL, {}, { withCredentials: true });
         actualizarUIEstado(res.data.activo);
-        showToast("Estado actualizado", "success");
+        mostrarNotificacion("Estado actualizado", "success");
     } catch (e) { 
         this.checked = !this.checked;
         manejarError("Error al cambiar estado"); 
@@ -332,17 +332,7 @@ function setText(id, t) { const el = document.getElementById(id); if (el) el.tex
 function setValue(id, v) { const el = document.getElementById(id); if (el) el.value = v || ""; }
 function getValue(id) { const el = document.getElementById(id); return el ? el.value : ""; }
 
-function showToast(m, t) { 
-    if (typeof Toastify !== "undefined") {
-        Toastify({ 
-            text: m, 
-            duration: 3000, 
-            style: { background: t === "success" ? "linear-gradient(to right, #2ecc71, #27ae60)" : "linear-gradient(to right, #e74c3c, #c0392b)" } 
-        }).showToast();
-    } else {
-        alert(m);
-    }
-}
+
 
 // --- LÓGICA DE POSTULACIÓN A FERIAS (AHORA EDICIONES) ---
 
@@ -350,18 +340,18 @@ function showToast(m, t) {
 
 async function abrirModalPostulacion() {
     if (!ferianteActual || !ferianteActual.stand) {
-        return showToast("Necesitas tener un stand asignado para postularte.", "error");
+        return mostrarNotificacion("Necesitas tener un stand asignado para postularte.", "error");
     }
 
     // VALIDACIÓN ESTRICTA DE FOTO DE PERFIL
     const fotoUrl = ferianteActual.usuario?.imagenUrl;
     if (!fotoUrl || fotoUrl === "" || fotoUrl.includes("default")) {
-        showToast("Para postularte, primero subí una foto de perfil.", "error");
+        mostrarNotificacion("Para postularte, primero subí una foto de perfil.", "error");
         return;
     }
 
     if (!ferianteActual.stand.descripcion || ferianteActual.stand.descripcion.trim() === "" || !ferianteActual.stand.imagenUrl) {
-        return showToast("Debes completar la descripción y foto de tu emprendimiento en 'Mi Perfil' para postularte.", "warning");
+        return mostrarNotificacion("Debes completar la descripción y foto de tu emprendimiento en 'Mi Perfil' para postularte.", "warning");
     }
 
     const modal = document.getElementById("modal-postulacion");
@@ -475,7 +465,7 @@ async function abrirModalPostulacion() {
 
     } catch (error) {
         console.error("Error en postulación:", error);
-        showToast("Error al cargar ediciones disponibles.", "error");
+        mostrarNotificacion("Error al cargar ediciones disponibles.", "error");
         cerrarModalPostulacion();
     }
 }
@@ -498,12 +488,12 @@ async function enviarSolicitudConPreferencia(edicionId) {
         const res = await axios.post(`${PARTICIPACIONES_URL}/inscribir`, payload);
         
         const msg = res.data?.mensaje || "¡Inscripción enviada!";
-        showToast(msg, "success");
+        mostrarNotificacion(msg, "success");
 
         cerrarModalPostulacion();
         cargarPerfil();
     } catch (error) {
         const msg = error.response?.data?.error || "Error al enviar la solicitud";
-        showToast(msg, "error");
+        mostrarNotificacion(msg, "error");
     }
 }

@@ -8,22 +8,7 @@ const RIO_GRANDE_COORDS = [-53.7860, -67.7070];
 let mapaCrear, mapaEditar;
 let marcadorCrear, marcadorEditar;
 
-function showToast(message, type = "info") {
-    let color;
-    switch (type) {
-        case "success": color = "linear-gradient(to right, #10b981, #059669)"; break;
-        case "error": color = "linear-gradient(to right, #ef4444, #b91c1c)"; break;
-        case "warning": color = "linear-gradient(to right, #f59e0b, #d97706)"; break;
-        default: color = "linear-gradient(to right, #3b82f6, #67e8f9)";
-    }
-    Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        style: { background: color },
-    }).showToast();
-}
+
 
 function previewImagen(event, idImg, idContainer) {
     const reader = new FileReader();
@@ -43,15 +28,15 @@ function validarFechas(inicio, fin) {
     const fechaFin = fin ? new Date(fin + "T00:00:00") : null;
 
     if (fechaInicio < hoy) {
-        showToast("La fecha de inicio no puede ser anterior a hoy", "error");
+        mostrarNotificacion("La fecha de inicio no puede ser anterior a hoy", "error");
         return false;
     }
     if (fechaFin && fechaFin < fechaInicio) {
-        showToast("La fecha final no puede ser anterior a la de inicio", "error");
+        mostrarNotificacion("La fecha final no puede ser anterior a la de inicio", "error");
         return false;
     }
     if (fechaFin && fechaFin < hoy) {
-        const confirmar = confirm("Atención: La fecha de finalización ya pasó. El sistema marcará esta feria como 'Inactiva' automáticamente. ¿Deseas continuar?");
+        const confirmar = window.confirm("Atencion: La fecha de finalizacion ya paso. El sistema marcara esta feria como Inactiva automaticamente. Deseas continuar?");
         if (!confirmar) return false;
     }
     return true;
@@ -59,7 +44,7 @@ function validarFechas(inicio, fin) {
 
 function validarUbicacion(lat, lng) {
     if (!lat || !lng || isNaN(lat) || isNaN(lng)) {
-        showToast("¡Atención! Debes marcar la ubicación en el mapa", "warning");
+        mostrarNotificacion("¡Atención! Debes marcar la ubicación en el mapa", "warning");
         return false;
     }
     return true;
@@ -67,11 +52,11 @@ function validarUbicacion(lat, lng) {
 
 function validarLongitudTexto(nombre, descripcion) {
     if (nombre.trim().length < 3 || nombre.trim().length > 75) {
-        showToast("El nombre debe tener entre 3 y 75 caracteres", "error");
+        mostrarNotificacion("El nombre debe tener entre 3 y 75 caracteres", "error");
         return false;
     }
     if (descripcion.trim().length > 300) {
-        showToast("La descripción no puede superar los 300 caracteres", "error");
+        mostrarNotificacion("La descripción no puede superar los 300 caracteres", "error");
         return false;
     }
     return true;
@@ -175,23 +160,23 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td><span class="badge-${edicion.estado.toLowerCase()}">${edicion.estado}</span></td>
                     <td>
                         <!-- NUEVO BOTÓN: Lanzar Nueva Edición -->
-                        <button class="btn-nueva-edicion" onclick='abrirModalNuevaEdicion(${edicion.feriaId}, ${JSON.stringify(nombreBase)})' style="background-color: #8b5cf6; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;" title="Lanzar Nueva Edición">
+                        <button type="button" class="btn-nueva-edicion" onclick='abrirModalNuevaEdicion(${edicion.feriaId}, ${JSON.stringify(nombreBase)})' style="background-color: #8b5cf6; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;" title="Lanzar Nueva Edición">
                             <i class="fas fa-calendar-plus"></i>
                         </button>
                         
                         <!-- BOTÓN: Configurar Espacios/Lotes -->
-                        <button class="btn-espacios" onclick='abrirModalEspacios(${edicion.id}, "${edicion.nombreEdicion}")' style="background-color: #0ea5e9; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;" title="Configurar Espacios">
+                        <button type="button" class="btn-espacios" onclick='abrirModalEspacios(${edicion.id}, "${edicion.nombreEdicion}")' style="background-color: #0ea5e9; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;" title="Configurar Espacios">
                             <i class="fas fa-map-marked-alt"></i>
                         </button>
 
-                        <button class="btn-editar" onclick='abrirModalEditar(${JSON.stringify(edicion)})' style="margin-right: 5px;" title="Editar">
+                        <button type="button" class="btn-editar" onclick='abrirModalEditar(${JSON.stringify(edicion)})' style="margin-right: 5px;" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="${edicion.estado === 'ACTIVA' ? 'btn-baja' : 'btn-activar'}" 
-                                onclick="cambiarEstadoEdicion(${edicion.id}, '${edicion.estado === 'ACTIVA' ? 'INACTIVA' : 'ACTIVA'}')" style="margin-right: 5px;" title="${edicion.estado === 'ACTIVA' ? 'Desactivar' : 'Activar'}">
+                        <button type="button" class="${edicion.estado === 'ACTIVA' ? 'btn-baja' : 'btn-activar'}" 
+                                onclick="cambiarEstadoEdicion(event, ${edicion.id}, '${edicion.estado === 'ACTIVA' ? 'INACTIVA' : 'ACTIVA'}')" style="margin-right: 5px;" title="${edicion.estado === 'ACTIVA' ? 'Desactivar' : 'Activar'}">
                             <i class="fas fa-power-off"></i>
                         </button>
-                        <button class="btn-eliminar" onclick="eliminarEdicion(${edicion.id}, ${edicion.feriaId})" title="Eliminar">
+                        <button type="button" class="btn-eliminar" onclick="eliminarEdicion(event, ${edicion.id}, ${edicion.feriaId})" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -199,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 tbody.appendChild(row);
             }
         } catch (err) {
-            showToast("Error al cargar las ferias registradas", "error");
+            mostrarNotificacion("Error al cargar las ferias registradas", "error");
         }
     }
 
@@ -222,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!validarUbicacion(lat, lng)) return;
         if (!validarLongitudTexto(nombre, desc)) return;
         if (capacidad < 1) {
-            showToast("La capacidad debe ser de al menos 1 stand", "error");
+            mostrarNotificacion("La capacidad debe ser de al menos 1 stand", "error");
             return;
         }
 
@@ -244,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
             
         try {
-            showToast("Guardando evento...", "info");
+            mostrarNotificacion("Guardando evento...", "info");
             
             // 1. Guardamos el molde base
             const resFeria = await axios.post(API_FERIAS_URL, formData, {
@@ -258,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Validamos que el backend haya devuelto un ID válido
             const feriaId = feriaCreada.id || feriaCreada.idFeria;
             if (!feriaId) {
-                showToast("Fallo interno: El backend no devolvió el ID de la feria creada.", "error");
+                mostrarNotificacion("Fallo interno: El backend no devolvió el ID de la feria creada.", "error");
                 console.error("El objeto devuelto no tiene un campo 'id':", feriaCreada);
                 return; // Frenamos acá para no causar el Error 500
             }
@@ -290,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     withCredentials: true 
                 });
 
-                showToast("¡Feria y edición creadas exitosamente!", "success");
+                mostrarNotificacion("¡Feria y edición creadas exitosamente!", "success");
                 
                 formCrear.reset();
                 const previewCont = document.getElementById('preview-crear-container');
@@ -302,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } catch (edicionError) {
                 console.error("Error al crear Edición:", edicionError);
                 if (edicionError.response && edicionError.response.status === 400) {
-                    showToast(edicionError.response.data?.error || "Fechas inválidas", "error");
+                    mostrarNotificacion(edicionError.response.data?.error || "Fechas inválidas", "error");
                     return;
                 }
                 // CORRECCIÓN: Usamos PUT y agregamos /eliminar
@@ -313,35 +298,75 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error(err);
-            showToast("Error al crear la Feria base.", "error");
+            mostrarNotificacion(obtenerMensajeError(err, "Error al crear la Feria base."), "error");
         }
     }); // end formCrear submit
     } // end if (formCrear)
 
-    window.cambiarEstadoEdicion = async (id, nuevoEstado) => {
+    window.cambiarEstadoEdicion = async (event, idParam, nuevoEstadoParam) => {
+        if (event && event.preventDefault) event.preventDefault();
+        const id = typeof event === 'number' ? event : idParam;
+        const nuevoEstado = typeof event === 'number' ? idParam : nuevoEstadoParam;
         try {
             await axios.patch(`${API_EDICIONES_URL}/${id}/estado?nuevoEstado=${nuevoEstado}`);
-            showToast(`Edición marcada como ${nuevoEstado}`, "success");
-            cargarFerias();
+            mostrarNotificacion(`Edición marcada como ${nuevoEstado}`, "success");
+            
+            if (event && event.target) {
+                const btn = event.target.closest("button");
+                const row = btn ? btn.closest("tr") : null;
+                if (row && btn) {
+                    const badge = row.querySelector("span[class^='badge-']");
+                    if (badge) {
+                        badge.className = `badge-${nuevoEstado.toLowerCase()}`;
+                        badge.textContent = nuevoEstado;
+                    }
+                    if (nuevoEstado === "INACTIVA") {
+                        row.classList.add("fila-inactiva");
+                    } else {
+                        row.classList.remove("fila-inactiva");
+                    }
+                    const esActiva = nuevoEstado === "ACTIVA";
+                    btn.className = esActiva ? "btn-baja" : "btn-activar";
+                    btn.title = esActiva ? "Desactivar" : "Activar";
+                    btn.setAttribute("onclick", `cambiarEstadoEdicion(event, ${id}, '${esActiva ? "INACTIVA" : "ACTIVA"}')`);
+                }
+            }
         } catch (err) {
-            showToast("Error al cambiar el estado", "error");
+            mostrarNotificacion(obtenerMensajeError(err, "Error al cambiar el estado"), "error");
         }
     };
 
-    window.eliminarEdicion = async (edicionId, feriaId) => {
-        if (!confirm("¿Deseas eliminar permanentemente esta edición y su feria base?")) return;
+    window.eliminarEdicion = async (event, edicionIdParam, feriaIdParam) => {
+        if (event && event.preventDefault) event.preventDefault();
+        const edicionId = typeof event === 'number' ? event : edicionIdParam;
+        const feriaId = typeof event === 'number' ? edicionIdParam : feriaIdParam;
+        const resultado = await Swal.fire({
+            title: "Confirmar eliminacion",
+            text: "Deseas eliminar permanentemente esta edicion y su feria base?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Si, eliminar",
+            cancelButtonText: "Cancelar",
+            confirmButtonColor: "#dc2626",
+            cancelButtonColor: "#6b7280",
+        });
+        if (!resultado.isConfirmed) return;
         try {
             await axios.patch(`${API_EDICIONES_URL}/${edicionId}/estado?nuevoEstado=ELIMINADO`);
             
             if (feriaId) {
-                // CORRECCIÓN: Usamos PUT y agregamos /eliminar al final de la URL
                 await axios.put(`${API_FERIAS_URL}/${feriaId}/eliminar`, {}, { withCredentials: true }).catch(e => console.log("Omitiendo borrado de molde"));
             }
 
-            showToast("Edición eliminada", "success");
-            cargarFerias();
+            mostrarNotificacion("Edicion eliminada correctamente.", "success");
+            
+            if (event && event.target) {
+                const btn = event.target.closest("button");
+                const row = btn ? btn.closest("tr") : null;
+                if (row) row.remove();
+            }
         } catch (err) { 
-            showToast("Error al eliminar", "error"); 
+            mostrarNotificacion(obtenerMensajeError(err, "Error al eliminar la edicion."), "error"); 
         }
     };
 
@@ -403,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!validarUbicacion(lat, lng)) return;
             if (!validarLongitudTexto(nombreEdit, descEdit)) return;
             if (capacidadEdit < 1) {
-                showToast("La capacidad debe ser de al menos 1 stand", "error");
+                mostrarNotificacion("La capacidad debe ser de al menos 1 stand", "error");
                 return;
             }
 
@@ -444,7 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                showToast("Actualizando datos...", "info");
+                mostrarNotificacion("Actualizando datos...", "info");
                 
                 await axios.put(`${API_FERIAS_URL}/${feriaId}`, formData, {
                     headers: { "Content-Type": "multipart/form-data" },
@@ -456,16 +481,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     withCredentials: true
                 });
 
-                showToast("Feria actualizada correctamente", "success");
+                mostrarNotificacion("Feria actualizada correctamente", "success");
                 cerrarModal();
                 cargarFerias();
             } catch (err) { 
                 console.error(err);
-                if (err.response && err.response.status === 400) {
-                    showToast(err.response.data?.error || "Fechas inválidas", "error");
-                } else {
-                    showToast("Error al actualizar. Verifica el servidor.", "error");
-                }
+                mostrarNotificacion(obtenerMensajeError(err, "Error al actualizar. Verifica el servidor."), "error");
             }
         });
     }
@@ -498,7 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (!validarFechas(fInicio, fFinal)) return;
             if (capacidad < 1) {
-                showToast("La capacidad debe ser de al menos 1 stand", "error");
+                mostrarNotificacion("La capacidad debe ser de al menos 1 stand", "error");
                 return;
             }
 
@@ -522,23 +543,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             try {
-                showToast("Creando nueva edición...", "info");
+                mostrarNotificacion("Creando nueva edición...", "info");
                 
                 await axios.post(API_EDICIONES_URL, payloadNuevaEdicion, {
                     headers: { "Content-Type": "multipart/form-data" },
                     withCredentials: true
                 });
 
-                showToast("¡Nueva edición lanzada con éxito!", "success");
+                mostrarNotificacion("¡Nueva edición lanzada con éxito!", "success");
                 cerrarModalNuevaEdicion();
                 cargarFerias();
             } catch (err) {
                 console.error(err);
-                if (err.response && err.response.status === 400) {
-                    showToast(err.response.data?.error || "Fechas inválidas", "error");
-                } else {
-                    showToast("Error al crear la nueva edición.", "error");
-                }
+                mostrarNotificacion(obtenerMensajeError(err, "Error al crear la nueva edición."), "error");
             }
         });
     }
@@ -603,13 +620,13 @@ async function cargarEspacios() {
             let botonEstadoHtml = '';
             if (e.estado === 'DISPONIBLE') {
                 botonEstadoHtml = `
-                    <button onclick="enviarAMantenimiento(${e.id})"
+                    <button type="button" onclick="enviarAMantenimiento(event, ${e.id})"
                         style="background:#ea580c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:4px;" title="Enviar a Mantenimiento">
                         <i class="fas fa-wrench"></i>
                     </button>`;
             } else if (e.estado === 'MANTENIMIENTO') {
                 botonEstadoHtml = `
-                    <button onclick="liberarEspacio(${e.id})"
+                    <button type="button" onclick="liberarEspacio(event, ${e.id})"
                         style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:4px;" title="Liberar Espacio">
                         <i class="fas fa-check-circle"></i> Liberar
                     </button>`;
@@ -625,11 +642,11 @@ async function cargarEspacios() {
                 <td style="padding:10px 12px;"><span style="color:${estadoColor}; font-weight:600;">${e.estado}${infoMotivo}</span></td>
                 <td style="padding:10px 12px; text-align:center;">
                     ${botonEstadoHtml}
-                    <button ${disabledAttr} onclick="editarEspacio(${e.id}, this.dataset.nombre, ${e.precio})" data-nombre="${e.nombre.replace(/"/g, '&quot;')}"
+                    <button type="button" ${disabledAttr} onclick="editarEspacio(${e.id}, this.dataset.nombre, ${e.precio})" data-nombre="${e.nombre.replace(/"/g, '&quot;')}"
                         style="${btnEditarStyle}" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button ${disabledAttr} onclick="eliminarEspacio(${e.id})"
+                    <button type="button" ${disabledAttr} onclick="eliminarEspacio(event, ${e.id})"
                         style="${btnEliminarStyle}" title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -642,7 +659,9 @@ async function cargarEspacios() {
     }
 }
 
-window.liberarEspacio = async (id) => {
+window.liberarEspacio = async (event, idParam) => {
+    if (event && event.preventDefault) event.preventDefault();
+    const id = typeof event === 'number' ? event : idParam;
     const result = await Swal.fire({
         title: 'Liberar espacio',
         text: '¿Estás seguro de liberar este espacio para que vuelva a estar DISPONIBLE?',
@@ -658,10 +677,23 @@ window.liberarEspacio = async (id) => {
 
     try {
         await axios.put(`${API_ESPACIOS_URL}/${id}/estado`, { estado: 'DISPONIBLE' }, { withCredentials: true });
-        showToast('Espacio liberado a DISPONIBLE', 'success');
-        await cargarEspacios();
+        mostrarNotificacion('Espacio liberado a DISPONIBLE', 'success');
+        if (event && event.target) {
+            const btn = event.target.closest("button");
+            const tr = btn ? btn.closest("tr") : null;
+            if (tr) {
+                const estadoTd = tr.children[2];
+                if (estadoTd) estadoTd.innerHTML = `<span style="color:#10b981; font-weight:600;">DISPONIBLE</span>`;
+                if (btn) {
+                    btn.setAttribute("onclick", `enviarAMantenimiento(event, ${id})`);
+                    btn.style.background = "#ea580c";
+                    btn.title = "Enviar a Mantenimiento";
+                    btn.innerHTML = `<i class="fas fa-wrench"></i>`;
+                }
+            }
+        }
     } catch (err) {
-        showToast(err.response?.data?.error || 'Error al liberar espacio', 'error');
+        mostrarNotificacion(err.response?.data?.error || 'Error al liberar espacio', 'error');
     }
 };
 
@@ -670,9 +702,9 @@ window.agregarEspacio = async () => {
     const precio = parseFloat(document.getElementById("nuevo-espacio-precio").value);
     const desde = parseInt(document.getElementById("nuevo-espacio-desde").value);
     const hasta = parseInt(document.getElementById("nuevo-espacio-hasta").value);
-    if (!nombreZona) { showToast("El nombre de zona es obligatorio", "warning"); return; }
-    if (isNaN(precio) || precio < 0) { showToast("Ingresa un precio válido", "warning"); return; }
-    if (isNaN(desde) || isNaN(hasta) || desde < 1 || hasta < desde) { showToast("Rango de stands inválido", "warning"); return; }
+    if (!nombreZona) { mostrarNotificacion("El nombre de zona es obligatorio", "warning"); return; }
+    if (isNaN(precio) || precio < 0) { mostrarNotificacion("Ingresa un precio válido", "warning"); return; }
+    if (isNaN(desde) || isNaN(hasta) || desde < 1 || hasta < desde) { mostrarNotificacion("Rango de stands inválido", "warning"); return; }
     try {
         await axios.post(API_ESPACIOS_URL, {
             nombreZona, precio, desde, hasta, edicionId: _edicionIdActiva
@@ -681,10 +713,10 @@ window.agregarEspacio = async () => {
         document.getElementById("nuevo-espacio-precio").value = "";
         document.getElementById("nuevo-espacio-desde").value = "";
         document.getElementById("nuevo-espacio-hasta").value = "";
-        showToast("Espacios agregados", "success");
+        mostrarNotificacion("Espacios agregados", "success");
         await cargarEspacios();
     } catch (err) {
-        showToast(err.response?.data?.error || "Error al agregar espacios", "error");
+        mostrarNotificacion(err.response?.data?.error || "Error al agregar espacios", "error");
     }
 };
 
@@ -712,17 +744,17 @@ window.guardarNuevoPrecio = async () => {
     const inputNombre = document.getElementById("input-nuevo-nombre-espacio");
     const nombre = inputNombre ? inputNombre.value.trim() : '';
     const precio = parseFloat(document.getElementById("input-nuevo-precio").value);
-    if (isNaN(precio) || precio < 0) { showToast("Precio inválido", "warning"); return; }
+    if (isNaN(precio) || precio < 0) { mostrarNotificacion("Precio inválido", "warning"); return; }
     const payload = { precio };
     if (nombre) payload.nombre = nombre;
     try {
         await axios.put(`${API_ESPACIOS_URL}/${_espacioEditandoId}`, payload, { withCredentials: true });
         document.getElementById("modal-editar-precio").style.display = "none";
         _espacioEditandoId = null;
-        showToast("Espacio actualizado", "success");
+        mostrarNotificacion("Espacio actualizado", "success");
         await cargarEspacios();
     } catch (err) {
-        showToast(err.response?.data?.error || "Error al actualizar", "error");
+        mostrarNotificacion(err.response?.data?.error || "Error al actualizar", "error");
     }
 };
 
@@ -731,13 +763,13 @@ window.guardarNuevoPrecio = async () => {
 window.actualizarPrecioZona = async () => {
     const nombreZona = document.getElementById("zona-actualizar-nombre").value.trim();
     const nuevoPrecio = parseFloat(document.getElementById("zona-actualizar-precio").value);
-    if (!nombreZona) { showToast("Ingresa el nombre de la zona", "warning"); return; }
-    if (isNaN(nuevoPrecio) || nuevoPrecio < 0) { showToast("Ingresa un precio válido", "warning"); return; }
+    if (!nombreZona) { mostrarNotificacion("Ingresa el nombre de la zona", "warning"); return; }
+    if (isNaN(nuevoPrecio) || nuevoPrecio < 0) { mostrarNotificacion("Ingresa un precio válido", "warning"); return; }
 
     const encontrados = _espaciosCargados.filter(e => e.nombre && e.nombre.toLowerCase().includes(nombreZona.toLowerCase()) && e.estado === 'DISPONIBLE');
 
     if (!encontrados.length) {
-        showToast(`No se encontraron lotes que coincidan con "${nombreZona}"`, "warning");
+        mostrarNotificacion(`No se encontraron lotes que coincidan con "${nombreZona}"`, "warning");
         return;
     }
 
@@ -779,14 +811,16 @@ window.actualizarPrecioZona = async () => {
 
         document.getElementById("zona-actualizar-nombre").value = "";
         document.getElementById("zona-actualizar-precio").value = "";
-        showToast(res.data.mensaje || "Precios actualizados con éxito", "success");
+        mostrarNotificacion(res.data.mensaje || "Precios actualizados con éxito", "success");
         await cargarEspacios();
     } catch (err) {
-        showToast(err.response?.data?.error || "Error al actualizar la zona", "error");
+        mostrarNotificacion(err.response?.data?.error || "Error al actualizar la zona", "error");
     }
 };
 
-window.eliminarEspacio = async (id) => {
+window.eliminarEspacio = async (event, idParam) => {
+    if (event && event.preventDefault) event.preventDefault();
+    const id = typeof event === 'number' ? event : idParam;
     const result = await Swal.fire({
         title: '¿Estás seguro?',
         text: "El lote pasará a estado ELIMINADO y no estará disponible para los feriantes.",
@@ -802,14 +836,20 @@ window.eliminarEspacio = async (id) => {
 
     try {
         await axios.delete(`${API_ESPACIOS_URL}/${id}`, { withCredentials: true });
-        showToast("Espacio eliminado", "success");
-        await cargarEspacios();
+        mostrarNotificacion("Espacio eliminado", "success");
+        if (event && event.target) {
+            const btn = event.target.closest("button");
+            const tr = btn ? btn.closest("tr") : null;
+            if (tr) tr.remove();
+        }
     } catch (err) {
-        showToast(err.response?.data?.error || "Error al eliminar", "error");
+        mostrarNotificacion(err.response?.data?.error || "Error al eliminar", "error");
     }
 };
 
-window.enviarAMantenimiento = async (espacioId) => {
+window.enviarAMantenimiento = async (event, espacioIdParam) => {
+    if (event && event.preventDefault) event.preventDefault();
+    const espacioId = typeof event === 'number' ? event : espacioIdParam;
     const result = await Swal.fire({
         title: '🔧 Enviar a Mantenimiento',
         text: '¿Por qué se enviará este lote a mantenimiento?',
@@ -835,17 +875,32 @@ window.enviarAMantenimiento = async (espacioId) => {
             estado: 'MANTENIMIENTO',
             motivo: result.value.trim()
         }, { withCredentials: true });
-        showToast(`Lote bloqueado: ${result.value}`, 'warning');
-        await cargarEspacios();
+        mostrarNotificacion(`Lote bloqueado: ${result.value}`, 'warning');
+        if (event && event.target) {
+            const btn = event.target.closest("button");
+            const tr = btn ? btn.closest("tr") : null;
+            if (tr) {
+                const motivoEscapado = result.value.trim().replace(/"/g, '&quot;');
+                const infoMotivo = ` <i class="fas fa-info-circle" title="Motivo: ${motivoEscapado}" style="cursor:pointer; color:#ea580c; margin-left:4px;"></i>`;
+                const estadoTd = tr.children[2];
+                if (estadoTd) estadoTd.innerHTML = `<span style="color:#f59e0b; font-weight:600;">MANTENIMIENTO${infoMotivo}</span>`;
+                if (btn) {
+                    btn.setAttribute("onclick", `liberarEspacio(event, ${espacioId})`);
+                    btn.style.background = "#10b981";
+                    btn.title = "Liberar Espacio";
+                    btn.innerHTML = `<i class="fas fa-check-circle"></i> Liberar`;
+                }
+            }
+        }
     } catch (err) {
-        showToast(err.response?.data?.error || 'Error al enviar a mantenimiento', 'error');
+        mostrarNotificacion(err.response?.data?.error || 'Error al enviar a mantenimiento', 'error');
     }
 };
 
 window.crearLoteIndividual = async (edicionIdParam) => {
     const edicionId = edicionIdParam || _edicionIdActiva;
     if (!edicionId) {
-        showToast("No hay una edición seleccionada", "warning");
+        mostrarNotificacion("No hay una edición seleccionada", "warning");
         return;
     }
 
@@ -897,10 +952,10 @@ window.crearLoteIndividual = async (edicionIdParam) => {
             edicionId: Number(edicionId)
         }, { withCredentials: true });
 
-        showToast("Lote individual creado con éxito", "success");
+        mostrarNotificacion("Lote individual creado con éxito", "success");
         await cargarEspacios();
     } catch (err) {
-        showToast(err.response?.data?.error || "Error al crear lote individual", "error");
+        mostrarNotificacion(err.response?.data?.error || "Error al crear lote individual", "error");
     }
 };
 

@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             
             miModalZoom.show();      // Mostramos el modal
         } else {
-            showToast("📸 No hay una imagen disponible para ampliar", "info");
+            mostrarNotificacion("No hay una imagen disponible para ampliar.", "info");
         }
     };
 
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             this.style.cursor = "zoom-out";
             
             currentTranslateX = 0; currentTranslateY = 0; // Reiniciamos tras zoom
-            showToast("💡 Podés arrastrar la imagen para moverte", "success");
+            mostrarNotificacion("Puedes arrastrar la imagen para moverte.", "info");
         } else {
             // Zoom out: reset transformaciones
             this.style.transformOrigin = "center center";
@@ -215,7 +215,7 @@ async function cargarDatosProducto(id) {
                 // Aviso de por qué no funciona
                 btnWhatsapp.onclick = (e) => {
                     e.preventDefault();
-                    showToast("Este feriante no posee un número de WhatsApp registrado.", "info");
+                    mostrarNotificacion("Este feriante no posee un numero de WhatsApp registrado.", "info");
                 };
             }
         }
@@ -320,11 +320,11 @@ async function cargarResenas(id) {
 
             const botonesDuenio = esMiProducto ? `
                 <div class="mt-2 d-flex gap-2 opacity-75 border-top pt-2">
-                    <button class="btn btn-sm btn-link p-0 text-decoration-none small text-primary" onclick="abrirEditorRespuesta(${r.id}, '${r.respuesta}')">
+                    <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none small text-primary" onclick="abrirEditorRespuesta(event, ${r.id}, '${r.respuesta}')">
                         <i class="bi bi-pencil"></i> Editar
                     </button>
                     <span class="text-muted">|</span>
-                    <button class="btn btn-sm btn-link p-0 text-decoration-none small text-danger" onclick="eliminarRespuesta(${r.id})">
+                    <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none small text-danger" onclick="eliminarRespuesta(event, ${r.id})">
                         <i class="bi bi-trash"></i> Borrar
                     </button>
                 </div>` : "";
@@ -359,7 +359,7 @@ async function cargarResenas(id) {
                              <p class="mb-2 small fst-italic text-dark ps-1">${r.respuesta}</p>
                              ${fechaRespHtml} ${botonesDuenio}
                            </div>`
-                        : (esMiProducto ? `<button class="btn btn-sm btn-outline-primary mt-1 ms-4 rounded-pill px-3" onclick="abrirEditorRespuesta(${r.id}, '')">Responder</button>` : "")
+                        : (esMiProducto ? `<button type="button" class="btn btn-sm btn-outline-primary mt-1 ms-4 rounded-pill px-3" onclick="abrirEditorRespuesta(event, ${r.id}, '')">Responder</button>` : "")
                     }
                 </div>
             `;
@@ -369,45 +369,64 @@ async function cargarResenas(id) {
 }
 
 // 3. Gestión de Respuestas (Responder, Editar, Eliminar)
-function abrirEditorRespuesta(resenaId, textoPrevio) {
+function abrirEditorRespuesta(event, resenaIdParam, textoPrevioParam) {
+    if (event && event.preventDefault) event.preventDefault();
+    const resenaId = typeof event === 'number' ? event : resenaIdParam;
+    const textoPrevio = typeof event === 'number' ? resenaIdParam : textoPrevioParam;
     const contenedor = document.getElementById(`contenedor-respuesta-${resenaId}`);
     contenedor.innerHTML = `
         <div class="mt-2 ms-4 p-3 bg-light rounded border border-primary">
             <label class="small fw-bold text-primary mb-2">Escribí tu respuesta:</label>
-            <textarea id="input-respuesta-${resenaId}" class="form-control form-control-sm mb-2" rows="3">${textoPrevio}</textarea>
+            <textarea id="input-respuesta-${resenaId}" class="form-control form-control-sm mb-2" rows="3">${textoPrevio || ''}</textarea>
             <div class="d-flex gap-2 justify-content-end">
-                <button class="btn btn-sm btn-light border" onclick="location.reload()">Cancelar</button>
-                <button class="btn btn-sm btn-primary px-3 fw-bold" onclick="enviarRespuesta(${resenaId})">Guardar</button>
+                <button type="button" class="btn btn-sm btn-light border" onclick="cargarResenas(parseInt(new URLSearchParams(window.location.search).get('id')))">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-primary px-3 fw-bold" onclick="enviarRespuesta(event, ${resenaId})">Guardar</button>
             </div>
         </div>
     `;
 }
 
-async function enviarRespuesta(resenaId) {
+async function enviarRespuesta(event, resenaIdParam) {
+    if (event && event.preventDefault) event.preventDefault();
+    const resenaId = typeof event === 'number' ? event : resenaIdParam;
     const texto = document.getElementById(`input-respuesta-${resenaId}`).value.trim();
     if (!texto) {
-        Toastify({ text: "⚠️ Escribí algo antes de guardar.", background: "#dc3545" }).showToast();
+        mostrarNotificacion("Escribe algo antes de guardar.", "warning");
         return;
     }
     try {
         await axios.put(`/api/resenas/${resenaId}/responder`, texto, {
             headers: { 'Content-Type': 'text/plain' }, withCredentials: true
         });
-        Toastify({ text: "✅ Respuesta guardada", background: "#1a3a5a" }).showToast();
-        setTimeout(() => location.reload(), 1000);
+        mostrarNotificacion("Respuesta guardada correctamente.", "success");
+        const prodId = parseInt(new URLSearchParams(window.location.search).get('id'));
+        cargarResenas(prodId);
     } catch (err) {
-        Toastify({ text: "❌ Error al guardar respuesta", background: "#dc3545" }).showToast();
+        mostrarNotificacion(obtenerMensajeError(err, "Error al guardar la respuesta."), "error");
     }
 }
 
-async function eliminarRespuesta(resenaId) {
-    if (!confirm("¿Seguro que querés eliminar tu respuesta?")) return;
+async function eliminarRespuesta(event, resenaIdParam) {
+    if (event && event.preventDefault) event.preventDefault();
+    const resenaId = typeof event === 'number' ? event : resenaIdParam;
+    const resultado = await Swal.fire({
+        title: "Confirmar eliminacion",
+        text: "¿Seguro que deseas eliminar tu respuesta?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Si, eliminar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6b7280",
+    });
+    if (!resultado.isConfirmed) return;
     try {
         await axios.delete(`/api/resenas/${resenaId}/respuesta`, { withCredentials: true });
-        Toastify({ text: "🗑️ Respuesta eliminada", background: "#dc3545" }).showToast();
-        setTimeout(() => location.reload(), 1000);
+        mostrarNotificacion("Respuesta eliminada correctamente.", "success");
+        const prodId = parseInt(new URLSearchParams(window.location.search).get('id'));
+        cargarResenas(prodId);
     } catch (err) {
-        Toastify({ text: "❌ No se pudo eliminar", background: "#dc3545" }).showToast();
+        mostrarNotificacion(obtenerMensajeError(err, "No se pudo eliminar la respuesta."), "error");
     }
 }
 
@@ -449,17 +468,21 @@ async function enviarResena() {
     const urlParams = new URLSearchParams(window.location.search);
     const productoId = parseInt(urlParams.get('id'));
     if (puntajeSeleccionado === 0) {
-        Toastify({ text: "¡Seleccioná las estrellas!", background: "#dc3545" }).showToast();
+        mostrarNotificacion("Selecciona las estrellas antes de enviar.", "warning");
         return;
     }
     try {
         await axios.post("/api/resenas", {
             puntaje: puntajeSeleccionado, comentario: texto, producto: { id: productoId }
         }, { withCredentials: true });
-        Toastify({ text: "¡Gracias por tu opinión!", background: "#198754" }).showToast();
-        setTimeout(() => location.reload(), 1500);
+        mostrarNotificacion("Gracias por tu opinion.", "success");
+        const elComentario = document.getElementById("comentario-texto");
+        if (elComentario) elComentario.value = "";
+        puntajeSeleccionado = 0;
+        configurarEstrellas();
+        cargarResenas(productoId);
+        cargarDatosProducto(productoId);
     } catch (err) {
-        const errorMsg = err.response ? err.response.data : "Error al publicar.";
-        Toastify({ text: errorMsg, background: "#dc3545" }).showToast();
+        mostrarNotificacion(obtenerMensajeError(err, "Error al publicar."), "error");
     }
 }

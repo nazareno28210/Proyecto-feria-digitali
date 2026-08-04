@@ -1,28 +1,4 @@
-function showToast(message, type = "info") {
-  let color;
-  switch (type) {
-    case "success":
-      color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; 
-      break;
-    case "error":
-      color = "linear-gradient(to right, #ef4444, #b91c1c)"; 
-      break;
-    case "warning":
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)";
-      break;
-    default:
-      color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
-  }
-
-  Toastify({
-    text: message,
-    duration: 4000,
-    gravity: "top",
-    position: "right",
-    backgroundColor: color,
-    stopOnFocus: true,
-  }).showToast();
-}
+// registro.js — usa mostrarNotificacion global (notificaciones.js)
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("registerForm");
@@ -40,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const confirmContrasena = document.getElementById("confirmPassword").value;
 
     if (contrasena !== confirmContrasena) {
-      showToast("⚠️ Las contraseñas no coinciden", "warning");
+      mostrarNotificacion("Las contrasenas no coinciden.", "warning");
       return;
     }
 
@@ -53,18 +29,17 @@ document.addEventListener("DOMContentLoaded", () => {
         confirmContrasena
       });
 
-      // Transición hacia la vista de confirmación de correo enviado
       sentEmailDisplay.innerText = email;
       registerView.style.display = "none";
       successView.style.display = "block";
 
     } catch (error) {
       if (error.response?.status === 409) {
-        showToast("⚠️ El correo ya está registrado", "warning");
+        mostrarNotificacion(obtenerMensajeError(error, "El correo ya esta registrado."), "warning");
       } else if (error.response?.status === 400) {
-        showToast("⚠️ " + (error.response.data || "Error en los datos"), "warning");
+        mostrarNotificacion(obtenerMensajeError(error, "Error en los datos."), "warning");
       } else {
-        showToast("❌ Error al registrar usuario", "error");
+        mostrarNotificacion(obtenerMensajeError(error, "Error al registrar usuario."), "error");
       }
     }
   });

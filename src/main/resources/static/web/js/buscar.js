@@ -109,5 +109,5 @@ function limpiarFiltros() {
     ["inputNombre", "selectFeria", "selectCategoria", "minPrecio", "maxPrecio"].forEach(id => document.getElementById(id).value = "");
     document.getElementById("checkFeriasActivas").checked = true;
     ejecutarBusqueda();
-    Toastify({ text: "Filtros limpiados", duration: 2000, gravity: "bottom", style: { background: "#0d2c44" } }).showToast();
+    mostrarNotificacion("Filtros limpiados.", "info");
 }

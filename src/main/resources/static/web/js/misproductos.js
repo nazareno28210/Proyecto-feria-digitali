@@ -21,7 +21,7 @@ function eliminarPortadaExistente() {
         imgPortada.style.opacity = "0.3";
         imgPortada.style.filter = "grayscale(100%)";
     }
-    showToast("📸 Portada marcada para eliminar. Debes subir una nueva.", "info");
+    mostrarNotificacion("Portada marcada para eliminar. Debes subir una nueva.", "info");
 }
 
 // 🔹 Cargar categorías en los Selects
@@ -104,15 +104,15 @@ async function cargarProductos() {
                             <p class="mb-3">${precioHtml}</p>
                             <div class="d-flex flex-column gap-2">
                                 <div class="d-flex justify-content-between">
-                                    <button class="btn btn-primary btn-sm w-50 me-1" 
-                                        onclick='prepararEdicion(${JSON.stringify(p)})'>
+                                    <button type="button" class="btn btn-primary btn-sm w-50 me-1" 
+                                        onclick='prepararEdicion(event, ${JSON.stringify(p)})'>
                                         Editar
                                     </button>
-                                    <button class="btn ${p.activo ? 'btn-warning' : 'btn-success'} btn-sm w-50 ms-1" onclick="toggleEstado(${p.id})">
+                                    <button type="button" class="btn ${p.activo ? 'btn-warning' : 'btn-success'} btn-sm w-50 ms-1" onclick="toggleEstado(event, ${p.id})">
                                         ${p.activo ? 'Desactivar' : 'Activar'}
                                     </button>
                                 </div>
-                                <button class="btn btn-danger btn-sm" onclick="eliminarProducto(${p.id})">Eliminar</button>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="eliminarProducto(event, ${p.id})">Eliminar</button>
                             </div>
                         </div>
                     </div>
@@ -173,13 +173,13 @@ async function crearProducto() {
 
     // --- 🛑 VALIDACIONES ---
     if (!nombre || !precio || !categoriaId) {
-        return showToast("⚠️ Nombre, Precio y Categoría son obligatorios", "error");
+        return mostrarNotificacion("Nombre, Precio y Categoria son obligatorios.", "error");
     }
     if (!inputPortada.files || !inputPortada.files[0]) {
-        return showToast("📸 La Foto Principal (Portada) es obligatoria", "error");
+        return mostrarNotificacion("La Foto Principal (Portada) es obligatoria.", "error");
     }
     if (inputExtras.files && inputExtras.files.length > 5) {
-        return showToast("⚠️ Máximo 5 fotos extras permitidas", "error");
+        return mostrarNotificacion("Maximo 5 fotos extras permitidas.", "error");
     }
 
     const formData = new FormData();
@@ -199,32 +199,33 @@ async function crearProducto() {
     }
 
     try {
-        showToast("🚀 Creando producto...", "info");
+        mostrarNotificacion("Creando producto...", "info");
         await axios.post(API_URL, formData, {
             withCredentials: true,
             headers: { "Content-Type": "multipart/form-data" }
         });
-        showToast("✅ Producto creado con éxito", "success");
+        mostrarNotificacion("Producto creado con exito.", "success");
         limpiarCampos();
         cargarProductos();
     } catch (e) {
-        showToast("❌ Error al crear producto", "error");
+        mostrarNotificacion(obtenerMensajeError(e, "Error al crear producto."), "error");
     }
 }
 
 // 🟢 Preparar Edición con Galería
-function prepararEdicion(producto) {
-    // Pasamos producto.galeria que ya contiene la lista de {id, url}
+function prepararEdicion(event, producto) {
+    if (event && event.preventDefault) event.preventDefault();
+    const p = producto || event;
     abrirModalEditar(
-        producto.id, 
-        producto.nombre, 
-        producto.descripcion, 
-        producto.precio, 
-        producto.categoriaId, 
-        producto.tipoVenta, 
-        producto.unidadMedida,
-        producto.imagenUrl,
-        producto.galeria 
+        p.id, 
+        p.nombre, 
+        p.descripcion, 
+        p.precio, 
+        p.categoriaId, 
+        p.tipoVenta, 
+        p.unidadMedida,
+        p.imagenUrl,
+        p.galeria 
     );
 }
 
@@ -319,7 +320,7 @@ async function guardarEdicion() {
     // --- 🛑 VALIDACIONES ---
     // Si borra la portada actual pero no selecciona una nueva en el input
     if (borrarPortadaActual && (!inputPortadaNueva.files || !inputPortadaNueva.files[0])) {
-        return showToast("📸 No puedes dejar el producto sin portada", "error");
+        return mostrarNotificacion("No puedes dejar el producto sin portada.", "error");
     }
 
     const formData = new FormData();
@@ -344,16 +345,16 @@ async function guardarEdicion() {
     }
 
     try {
-        showToast("🔄 Guardando cambios...", "info");
+        mostrarNotificacion("Guardando cambios...", "info");
         await axios.put(`${API_URL}/${id}`, formData, {
             withCredentials: true,
             headers: { "Content-Type": "multipart/form-data" }
         });
-        showToast("✅ Producto actualizado", "success");
+        mostrarNotificacion("Producto actualizado correctamente.", "success");
         bootstrap.Modal.getInstance(document.getElementById("modalEditar")).hide();
         cargarProductos();
     } catch (e) {
-        showToast("❌ Error al actualizar", "error");
+        mostrarNotificacion(obtenerMensajeError(e, "Error al actualizar el producto."), "error");
     }
 }
 
@@ -391,28 +392,53 @@ function limpiarCampos() {
     if (previewCrear) previewCrear.innerHTML = '<p class="text-muted small w-100 text-center m-0 align-self-center">Aquí se verán tus fotos...</p>';
 }
 
-function showToast(texto, tipo = "success") {
-    Toastify({
-        text: texto,
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        style: { background: tipo === "success" ? "#198754" : (tipo === "info" ? "#0dcaf0" : "#dc3545") }
-    }).showToast();
+
+
+async function toggleEstado(event, id) {
+    if (event && event.preventDefault) event.preventDefault();
+    const prodId = id || event;
+    try {
+        await axios.put(`${API_URL}/${prodId}/estado`, {}, { withCredentials: true });
+        mostrarNotificacion("Estado de producto actualizado.", "success");
+        if (event && event.target) {
+            const btn = event.target.closest("button");
+            const card = btn ? btn.closest(".card") : null;
+            if (card && btn) {
+                const esInactivo = card.classList.contains("producto-inactivo");
+                if (esInactivo) {
+                    card.classList.remove("producto-inactivo");
+                    btn.className = "btn btn-warning btn-sm w-50 ms-1";
+                    btn.textContent = "Desactivar";
+                } else {
+                    card.classList.add("producto-inactivo");
+                    btn.className = "btn btn-success btn-sm w-50 ms-1";
+                    btn.textContent = "Activar";
+                }
+            }
+        }
+    } catch (e) { mostrarNotificacion(obtenerMensajeError(e, "Error al cambiar estado."), "error"); }
 }
 
-async function toggleEstado(id) {
+async function eliminarProducto(event, id) {
+    if (event && event.preventDefault) event.preventDefault();
+    const prodId = id || event;
+    const resultado = await Swal.fire({
+        title: "Confirmar eliminacion",
+        text: "Deseas eliminar este producto?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Si, eliminar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: "#dc2626",
+        cancelButtonColor: "#6b7280",
+    });
+    if (!resultado.isConfirmed) return;
     try {
-        await axios.put(`${API_URL}/${id}/estado`, {}, { withCredentials: true });
-        cargarProductos();
-    } catch { showToast("Error al cambiar estado", "error"); }
-}
-
-async function eliminarProducto(id) {
-    if (!confirm("¿Eliminar producto?")) return;
-    try {
-        await axios.put(`${API_URL}/${id}/eliminar`, {}, { withCredentials: true });
-        showToast("🗑️ Producto eliminado", "success");
-        cargarProductos();
-    } catch { showToast("Error al eliminar", "error"); }
+        await axios.put(`${API_URL}/${prodId}/eliminar`, {}, { withCredentials: true });
+        mostrarNotificacion("Producto eliminado correctamente.", "success");
+        if (event && event.target) {
+            const col = event.target.closest(".col-md-4") || event.target.closest(".card");
+            if (col) col.remove();
+        }
+    } catch (e) { mostrarNotificacion(obtenerMensajeError(e, "Error al eliminar el producto."), "error"); }
 }

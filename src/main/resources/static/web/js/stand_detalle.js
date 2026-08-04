@@ -6,24 +6,6 @@
 
 let puntajeStand = 0; // Variable global para el selector de estrellas
 
-function showToast(message, type = "info") {
-    let color;
-    switch (type) {
-        case "success": color = "linear-gradient(to right, #1a3a5a, #3b82f6)"; break;
-        case "error": color = "linear-gradient(to right, #ef4444, #b91c1c)"; break; 
-        case "warning": color = "linear-gradient(to right, #3b82f6, #67e8f9)"; break; 
-        default: color = "linear-gradient(to right, #3b82f6, #67e8f9)"; 
-    }
-    Toastify({
-        text: message,
-        duration: 4000,
-        gravity: "top",
-        position: "right",
-        style: { background: color },
-        stopOnFocus: true,
-    }).showToast(); 
-}
-
 const API_URL = "http://localhost:8080/api/stands"; 
 const params = new URLSearchParams(window.location.search); 
 const standId = params.get("idStand"); 
@@ -125,7 +107,7 @@ async function cargarStand() {
 
     } catch (error) {
         console.error("Error al cargar el stand:", error); 
-        showToast("❌ Error al cargar los datos del stand.", "error"); 
+        mostrarNotificacion("Error al cargar los datos del stand.", "error");
     }
 }
 
@@ -176,7 +158,7 @@ function configurarEstrellasStand() {
 // ⭐ Enviar la calificación al servidor
 async function enviarCalificacionStand() {
     if (puntajeStand === 0) {
-        showToast("⚠️ Por favor, seleccioná un puntaje.", "warning");
+        mostrarNotificacion("Por favor, selecciona un puntaje.", "warning");
         return;
     }
 
@@ -186,11 +168,10 @@ async function enviarCalificacionStand() {
             stand: { id: parseInt(standId) }
         }, { withCredentials: true });
 
-        showToast("⭐ ¡Gracias por tu calificación!", "success");
-        setTimeout(() => location.reload(), 1500);
+        mostrarNotificacion("Gracias por tu calificacion.", "success");
+        cargarStand();
     } catch (err) {
-        const msg = err.response ? err.response.data : "Error al calificar.";
-        showToast(`❌ ${msg}`, "error");
+        mostrarNotificacion(obtenerMensajeError(err, "Error al calificar."), "error");
     }
 }
 

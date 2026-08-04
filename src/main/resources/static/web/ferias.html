@@ -8,11 +8,12 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/ferias.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/web/js/notificaciones.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
@@ -57,6 +58,18 @@
 
         <!-- Tarjetas de Ferias -->
         <section class="cards-column">
+            <!-- Filtros de estado -->
+            <div class="filtros-bar">
+                <button id="filtro-todas" class="filtro-btn active">
+                    <i class="bi bi-grid-fill"></i> Todas
+                </button>
+                <button id="filtro-activa" class="filtro-btn">
+                    <i class="bi bi-circle-fill text-success"></i> En transcurso
+                </button>
+                <button id="filtro-proxima" class="filtro-btn">
+                    <i class="bi bi-clock-fill text-primary"></i> Proximas
+                </button>
+            </div>
             <div id="ferias-container" class="cards-grid">
                 <!-- Se cargan dinámicamente desde ferias.js -->
             </div>

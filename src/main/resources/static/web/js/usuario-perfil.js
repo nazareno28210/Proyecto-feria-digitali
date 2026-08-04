@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Validación de tipo de archivo (solo imágenes)
             if (!archivo.type.startsWith('image/')) {
-                return showToast("Por favor, selecciona un archivo de imagen.", "error");
+                return mostrarNotificacion("Por favor, selecciona un archivo de imagen.", "error");
             }
 
             const reader = new FileReader();
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
             formData.append("imagen", blob, "perfil.jpg"); // Coincide con @RequestParam("imagen") [cite: 68]
 
             try {
-                showToast("Actualizando foto...", "info"); 
+                mostrarNotificacion("Actualizando foto...", "info"); 
                 modalCropper.classList.add("hidden"); 
 
                 // 1. Enviamos a Cloudinary [cite: 127]
@@ -90,14 +90,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     imgFotoPerfil.src = response.data + "?t=" + new Date().getTime(); 
                 }
                 
-                showToast("¡Foto de perfil actualizada!", "success"); 
+                mostrarNotificacion("¡Foto de perfil actualizada!", "success"); 
 
                 // Opcional: Recargar el perfil completo para sincronizar otros datos si fuera necesario
                 cargarPerfil(); 
 
             } catch (error) {
                 console.error("Error al subir:", error); 
-                showToast("Error al subir la imagen", "error"); 
+                mostrarNotificacion(obtenerMensajeError(error, "Error al subir la imagen"), "error"); 
             } finally {
                 if (cropper) cropper.destroy(); 
                 inputFoto.value = ""; 
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // 1. Actualiza nombre, apellido, etc.
             await axios.post(UPDATE_URL, datosActualizados, { withCredentials: true });
             
-            showToast("¡Datos actualizados!", "success");
+            mostrarNotificacion("¡Datos actualizados!", "success");
             
             // 2. Recargamos el perfil para ver los cambios de texto
             cargarPerfil(); 
@@ -149,7 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
             toggleModoEdicion(false);
         } catch (error) {
             console.error("Error al actualizar:", error);
-            showToast("Error al actualizar el perfil.", "error");
+            mostrarNotificacion(obtenerMensajeError(error, "Error al actualizar el perfil."), "error");
         } finally {
             btnGuardar.disabled = false;
             btnGuardar.textContent = "Guardar Cambios";
@@ -207,11 +207,11 @@ async function verificarSolicitudFeriante(emailUsuario) {
         const tienePendiente = res.data.some(s => s.emailUsuario === emailUsuario);
         
         container.innerHTML = tienePendiente 
-            ? `<div class="mensaje-pendiente">Tu solicitud para ser feriante está pendiente.</div>`
+            ? `<div class="mensaje-pendiente">Tu solicitud para ser feriante esta pendiente.</div>`
             : `<a href="/web/solicitud-feriante.html" class="accion-card accion-card--green">
-                  <div class="icon">🚀</div>
+                  <div class="icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
                   <h3>Quiero ser Feriante</h3>
-                  <p>Envía tu solicitud para crear un stand.</p>
+                  <p>Envia tu solicitud para crear un stand.</p>
                </a>`;
     } catch (e) { console.error(e); }
 }
@@ -219,7 +219,7 @@ async function verificarSolicitudFeriante(emailUsuario) {
 function cerrarSesion() {
     axios.post(LOGOUT_URL, {}, { withCredentials: true })
         .then(() => {
-            showToast("Sesión cerrada", "success");
+            mostrarNotificacion("Sesion cerrada correctamente.", "success");
             setTimeout(() => window.location.href = "/web/login.html", 1000);
         });
 }
@@ -228,8 +228,4 @@ function setText(id, texto) {
     const el = document.getElementById(id);
     if (el) el.textContent = texto || "-";
 }
-
-function showToast(mensaje, tipo = "info") {
-    let color = tipo === "success" ? "#2ecc71" : (tipo === "error" ? "#e74c3c" : "#3498db");
-    Toastify({ text: mensaje, duration: 3000, gravity: "top", position: "right", style: { background: color } }).showToast();
-}
+
