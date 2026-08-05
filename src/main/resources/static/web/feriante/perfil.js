@@ -1,17 +1,4 @@
 /* URLs DEL API */
-<<<<<<< Updated upstream
-const API_URL = "http://localhost:8080/api/feriantes/current";
-const FERIAS_URL = "http://localhost:8080/api/ferias";
-const EDICIONES_URL = "http://localhost:8080/api/ediciones";
-const PARTICIPACIONES_URL = "http://localhost:8080/api/participaciones";
-const FERIANTE_UPDATE_URL = "http://localhost:8080/api/feriantes/current";
-const EDICIONES_ACTIVAS_URL = "http://localhost:8080/api/ediciones/activas"; // 🟢 NUEVA 
-const STAND_UPDATE_URL = "http://localhost:8080/api/stands/mi-stand";
-const STAND_TOGGLE_URL = "http://localhost:8080/api/stands/mi-stand/toggle-activo";
-const USUARIO_UPDATE_URL = "http://localhost:8080/api/usuarios/current";
-const LOGOUT_URL = "http://localhost:8080/api/logout";
-const IMAGE_UPLOAD_URL = "http://localhost:8080/api/feriantes/current/imagen";
-=======
 const API_URL = "/api/feriantes/current";
 const FERIAS_URL = "/api/ferias";
 const EDICIONES_URL = "/api/ediciones"; 
@@ -23,7 +10,6 @@ const STAND_TOGGLE_URL = "/api/stands/mi-stand/toggle-activo";
 const USUARIO_UPDATE_URL = "/api/usuarios/current";
 const LOGOUT_URL = "/api/logout";
 const IMAGE_UPLOAD_URL = "/api/feriantes/current/imagen";
->>>>>>> Stashed changes
 
 let ferianteActual = null;
 let todasLasEdiciones = [];
