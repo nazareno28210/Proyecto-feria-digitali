@@ -1,6 +1,6 @@
 /*
  * ====================================
- * DASHBOARD.CSS (Versión Final Corregida)
+ * DASHBOARD.CSS (Diseño Profesional Clean Admin)
  * ====================================
  */
 
@@ -34,16 +34,16 @@
   justify-content: flex-end;
 }
 
-/* 2. ESTILOS DE BOTONES DEL HEADER */
+/* 2. ESTILOS DE BOTONES DEL HEADER CON ÍCONOS */
 
-/* Estilo base para que los enlaces y botones se vean idénticos */
 .header-right .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 38px; /* Altura uniforme */
+  gap: 8px;
+  height: 38px;
   padding: 0 18px;
-  border-radius: 8px; /* Bordes redondeados sutiles */
+  border-radius: 8px;
   font-weight: 600;
   font-size: 0.85rem;
   text-decoration: none;
@@ -58,86 +58,328 @@
   color: white !important;
 }
 
-/* BOTÓN "MI PERFIL" (Fondo blanco con texto oscuro) */
-.btn-perfil-admin {
-  background-color: #ffffff !important;
-  color: #1a3a5a !important; /* Azul oscuro para el texto */
-  border: 1px solid #ddd !important; /* Borde sutil para resaltar sobre el fondo */
-}
-
-/* Botón "Cerrar sesión" (Rojo) */
-.btn-logout {
-  background-color: #ef4444;
-  color: white !important;
-}
-
-/* Efectos al pasar el mouse */
-.header-right .btn:hover {
+.header-right .btn-ver-ferias:hover {
   transform: translateY(-1px);
   filter: brightness(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* 3. TÍTULOS Y BIENVENIDA */
+/* 2.1 BOTÓN AVATAR DE PERFIL Y DESPLEGABLE */
+.profile-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px 3px 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.profile-avatar-btn:hover,
+.profile-avatar-btn:focus {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-arrow {
+  color: #ffffff;
+  font-size: 0.75rem;
+  transition: transform 0.25s ease;
+}
+
+.profile-avatar-btn.active .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* Menú flotante */
+.profile-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 230px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  z-index: 1000;
+  padding: 10px 0 6px 0;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top right;
+}
+
+.profile-dropdown-menu.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.dropdown-header {
+  padding: 8px 16px 10px 16px;
+}
+
+.dropdown-header .user-name {
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-header .user-role {
+  font-size: 0.73rem;
+  color: var(--color-text-light);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dropdown-header .user-role i {
+  color: var(--color-medium-blue);
+}
+
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  margin: 4px 0 6px 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.dropdown-item i {
+  font-size: 0.95rem;
+  width: 18px;
+  text-align: center;
+  color: var(--color-text-light);
+}
+
+.dropdown-item:hover {
+  background-color: #f8fafc;
+  color: var(--color-medium-blue);
+}
+
+.dropdown-item:hover i {
+  color: var(--color-medium-blue);
+}
+
+.dropdown-item.logout-item:hover {
+  background-color: #fef2f2;
+  color: #ef4444;
+}
+
+.dropdown-item.logout-item:hover i {
+  color: #ef4444;
+}
+
+/* 3. SECCIÓN HERO Y BIENVENIDA */
+.dashboard-hero {
+    margin-bottom: 30px;
+}
+
+.welcome-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+}
+
 #bienvenida {
     color: var(--color-dark-blue);
-    margin-bottom: 8px;
+    margin: 0;
     font-size: 1.8rem;
     font-weight: 700;
 }
 
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(27, 58, 90, 0.1);
+    color: var(--color-dark-blue);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border: 1px solid rgba(27, 58, 90, 0.2);
+}
+
 .subtitle {
     color: var(--color-text-light);
-    margin-bottom: 35px;
+    margin: 0;
     font-size: 1rem;
 }
 
-/* 4. GRID DE TARJETAS DEL PANEL */
+/* 4. GRID DE TARJETAS MODERNAS (SAAS DASHBOARD) */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
 }
 
 .dashboard-card {
-    background: var(--color-card);
-    padding: 25px;
+    background: #ffffff;
+    padding: 26px;
     border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     text-decoration: none;
     color: var(--color-text-dark);
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    border-top: 4px solid var(--color-dark-blue);
-    border-bottom: 4px solid var(--color-dark-blue);
+    position: relative;
+    overflow: hidden;
 }
 
 .dashboard-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    border-color: var(--color-medium-blue);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08), 0 4px 8px -2px rgba(0, 0, 0, 0.04);
+    border-color: rgba(59, 130, 246, 0.4);
 }
 
-.dashboard-card .icon {
-    font-size: 2.2rem;
-    margin-bottom: 12px;
-    color: var(--color-dark-blue);
+/* Fila superior de la tarjeta (Ícono + Badge) */
+.card-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
+/* Contenedores estilizados para los íconos vectoriales */
+.icon-wrapper {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: transform 0.3s ease;
+}
+
+.dashboard-card:hover .icon-wrapper {
+    transform: scale(1.06);
+}
+
+.icon-wrapper.solicitudes {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.icon-wrapper.ferias {
+    background-color: #f5f3ff;
+    color: #7c3aed;
+}
+
+.icon-wrapper.stands {
+    background-color: #ecfdf5;
+    color: #059669;
+}
+
+/* Badges de Categoría */
+.card-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.badge-solicitudes {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+}
+
+.badge-ferias {
+    background-color: #ede9fe;
+    color: #6d28d9;
+}
+
+.badge-stands {
+    background-color: #d1fae5;
+    color: #047857;
+}
+
+/* Títulos y textos dentro de la tarjeta */
 .dashboard-card h3 {
     margin: 0 0 8px 0;
     color: var(--color-dark-blue);
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
 }
 
 .dashboard-card p {
     margin: 0;
     color: var(--color-text-light);
-    font-size: 0.9rem;
-    line-height: 1.4;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+/* Acción e indicador inferior */
+.card-action {
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #3b82f6;
+    width: 100%;
+}
+
+.card-action i {
+    transition: transform 0.2s ease;
+}
+
+.dashboard-card:hover .card-action i {
+    transform: translateX(5px);
 }
 
 /* Estado deshabilitado */

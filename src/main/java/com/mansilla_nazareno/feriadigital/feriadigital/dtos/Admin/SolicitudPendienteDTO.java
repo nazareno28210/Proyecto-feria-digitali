@@ -1,5 +1,6 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin;
 
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.EstadoSolicitud;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.SolicitudParaFeriante;
 
 public class SolicitudPendienteDTO {
@@ -11,8 +12,9 @@ public class SolicitudPendienteDTO {
     private String descripcion;
     private String telefono;
     private String emailEmprendimiento;
+    private EstadoSolicitud estado;
+    private String motivoRechazo;
 
-    // private String fechaSolicitud; // Descomenta si agregaste fecha a la entidad
     public SolicitudPendienteDTO(){}
     public SolicitudPendienteDTO(SolicitudParaFeriante solicitud) {
         this.id = solicitud.getId();
@@ -23,6 +25,8 @@ public class SolicitudPendienteDTO {
         this.descripcion = solicitud.getDescripcion();
         this.telefono = solicitud.getTelefono();
         this.emailEmprendimiento = solicitud.getEmailEmprendimiento();
+        this.estado = solicitud.getEstado();
+        this.motivoRechazo = solicitud.getMotivoRechazo();
     }
 
 
@@ -35,5 +39,6 @@ public class SolicitudPendienteDTO {
     public String getDescripcion() { return descripcion; }
     public String getTelefono() { return telefono; }
     public String getEmailEmprendimiento() { return emailEmprendimiento; }
-
-}
+    public EstadoSolicitud getEstado() { return estado; }
+    public String getMotivoRechazo() { return motivoRechazo; }
+}

@@ -2,15 +2,18 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.UsuarioComun
 
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.UsuarioComun.SolicitudParaFerianteDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.SolicitudPendienteDTO;
+import com.mansilla_nazareno.feriadigital.feriadigital.dtos.Admin.RechazoSolicitudDTO;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.*;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Stand;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Feriante.Feriante;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.SolicitudParaFeriante;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.EstadoSolicitud;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.UsuarioComun.Usuario;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.SolicitudParaFerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -36,28 +40,24 @@ public class SolicitudParaFerianteController {
     @Autowired
     private StandRepository standRepository;
 
+    @Autowired
+    private EmailService emailService;
 
-    // 1️⃣ CREAR SOLICITUD (Usuario envía formulario)
+
+    // 1️⃣ CREAR / REENVIAR SOLICITUD (Usuario envía formulario)
     @PostMapping("/crear/{idUsuario}")
     public ResponseEntity<?> crearSolicitud(@PathVariable int idUsuario, @RequestBody SolicitudParaFerianteDTO dto) {
         System.out.println("📩 LLEGÓ SOLICITUD al backend!");
         System.out.println("➡️ ID usuario: " + idUsuario);
-        System.out.println("➡️ Nombre emprendimiento: " + dto.getNombreEmprendimiento());
-        System.out.println("➡️ Descripción: " + dto.getDescripcion());
-        System.out.println("➡️ Teléfono: " + dto.getTelefono());
-        System.out.println("➡️ Email: " + dto.getEmailEmprendimiento());
 
         Usuario usuario = usuarioRepository.findById(idUsuario).orElse(null);
 
         if (usuario == null) {return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");}
         if (usuario.getTipoUsuario() == TipoUsuario.FERIANTE) {return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El usuario ya es feriante");}
-        if (solicitudRepository.findByUsuario(usuario).isPresent() && !solicitudRepository.findByUsuario(usuario).get().isAprobada()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya tienes una solicitud pendiente de revisión.");
-        }
 
-        //   VALIDACIÓN DE TELÉFONO
+        // VALIDACIÓN DE TELÉFONO
         String telefono = dto.getTelefono();
-        String telefonoRegex = "^[0-9\\s+\\-()]*$"; // Expresión regular para Java
+        String telefonoRegex = "^[0-9\\s+\\-()]*$";
 
         if (telefono == null || telefono.trim().isEmpty() || !telefono.matches(telefonoRegex)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -66,33 +66,51 @@ public class SolicitudParaFerianteController {
 
         // LÓGICA DE EMAIL OPCIONAL
         String emailEmprendimiento = dto.getEmailEmprendimiento();
-
         if (emailEmprendimiento == null || emailEmprendimiento.trim().isEmpty()) {
-            // Si está vacío, asigna el email principal del usuario
             emailEmprendimiento = usuario.getEmail();
-            System.out.println("➡️ Email emprendimiento vacío, asignando email de usuario: " + emailEmprendimiento);
         }
 
-        // Creamos la entidad con los datos del DTO
-        SolicitudParaFeriante solicitud = new SolicitudParaFeriante(
+        Optional<SolicitudParaFeriante> solicitudExistenteOpt = solicitudRepository.findByUsuario(usuario);
+
+        if (solicitudExistenteOpt.isPresent()) {
+            SolicitudParaFeriante solicitudExistente = solicitudExistenteOpt.get();
+
+            if (solicitudExistente.getEstado() == EstadoSolicitud.PENDIENTE) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya tienes una solicitud pendiente de revisión.");
+            }
+
+            // Si fue RECHAZADA previamente, la actualizamos para volver a enviarla como PENDIENTE
+            solicitudExistente.setNombreEmprendimiento(dto.getNombreEmprendimiento());
+            solicitudExistente.setDescripcion(dto.getDescripcion());
+            solicitudExistente.setTelefono(telefono);
+            solicitudExistente.setEmailEmprendimiento(emailEmprendimiento);
+            solicitudExistente.setEstado(EstadoSolicitud.PENDIENTE);
+            solicitudExistente.setMotivoRechazo(null);
+
+            solicitudRepository.save(solicitudExistente);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Solicitud reenviada correctamente.");
+        }
+
+        // Si no existía solicitud previa, creamos una nueva
+        SolicitudParaFeriante nuevaSolicitud = new SolicitudParaFeriante(
                 usuario,
                 dto.getNombreEmprendimiento(),
                 dto.getDescripcion(),
-                telefono, // Usamos la variable validada
+                telefono,
                 emailEmprendimiento
         );
 
-        solicitudRepository.save(solicitud);
+        solicitudRepository.save(nuevaSolicitud);
         return ResponseEntity.status(HttpStatus.CREATED).body("Solicitud enviada correctamente.");
     }
 
-    // 2️⃣ VER PENDIENTES (Administrador ve la lista)
+    // 2️⃣ VER PENDIENTES (Administrador ve la lista de solicitudes PENDIENTES)
     @GetMapping("/pendientes")
     public ResponseEntity<List<SolicitudPendienteDTO>> obtenerPendientes() {
         List<SolicitudPendienteDTO> pendientesDTO = solicitudRepository.findAll()
                 .stream()
-                .filter(s -> !s.isAprobada()) // Solo las NO aprobadas
-                .map(solicitud -> new SolicitudPendienteDTO(solicitud)) // Convertimos a DTO de salida
+                .filter(s -> s.getEstado() == EstadoSolicitud.PENDIENTE) // Solo PENDIENTES
+                .map(SolicitudPendienteDTO::new)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(pendientesDTO);
@@ -109,21 +127,20 @@ public class SolicitudParaFerianteController {
         if (solicitud == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Solicitud no encontrada");
         }
-        if (solicitud.isAprobada()) {
+        if (solicitud.isAprobada() || solicitud.getEstado() == EstadoSolicitud.APROBADA) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Esta solicitud ya fue aprobada anteriormente");
         }
-        // Obtenemos el usuario de la solicitud
+
         Usuario usuario = solicitud.getUsuario();
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("La solicitud no tiene un usuario válido asociado.");
         }
 
-        // ¡Cambiamos el tipo de usuario!
+        // Cambiar rol a FERIANTE
         usuario.setTipoUsuario(TipoUsuario.FERIANTE);
-        // Guardamos el cambio en la base de datos
         usuarioRepository.save(usuario);
 
-        // 1. Crear Feriante (IGUAL QUE ANTES)
+        // 1. Crear Feriante
         Feriante nuevoFeriante = new Feriante(
                 solicitud.getTelefono(),
                 solicitud.getEmailEmprendimiento(),
@@ -132,43 +149,66 @@ public class SolicitudParaFerianteController {
         nuevoFeriante.setUsuario(solicitud.getUsuario());
         ferianteRepository.save(nuevoFeriante);
 
-        // 2. NUEVO: Crear el Stand automáticamente
+        // 2. Crear Stand automáticamente
         Stand nuevoStand = new Stand();
         nuevoStand.setNombre(solicitud.getNombreEmprendimiento());
-
-        // 👇 ACÁ ESTÁ LA MAGIA: Ahora hereda la descripción real de la solicitud
         nuevoStand.setDescripcion(solicitud.getDescripcion());
-
-        // Vinculación bidireccional importante:
         nuevoStand.setFeriante(nuevoFeriante);
-
-        // NOTA: Aquí el stand NO tiene Feria asignada aún.
         standRepository.save(nuevoStand);
 
-        // 3. Marcar solicitud como aprobada (IGUAL QUE ANTES)
+        // 3. Marcar solicitud como APROBADA (Persiste en BD)
+        solicitud.setEstado(EstadoSolicitud.APROBADA);
         solicitud.setAprobada(true);
+        solicitud.setMotivoRechazo(null);
         solicitudRepository.save(solicitud);
+
+        // 4. Enviar email de notificación de aprobación al usuario
+        emailService.enviarEmailAprobacionSolicitud(
+                usuario.getEmail(),
+                usuario.getNombre(),
+                solicitud.getNombreEmprendimiento()
+        );
 
         return ResponseEntity.ok("Solicitud aprobada: El usuario ahora es Feriante y tiene su Stand listo.");
     }
 
-    // 4️⃣ RECHAZAR SOLICITUD
+    // 4️⃣ RECHAZAR SOLICITUD (Con motivo, notificación por email y sin eliminar de la BD)
     @PostMapping("/rechazar/{idSolicitud}")
     @Transactional
-    public ResponseEntity<?> rechazarSolicitud(@PathVariable int idSolicitud) {
+    public ResponseEntity<?> rechazarSolicitud(@PathVariable int idSolicitud, @RequestBody(required = false) RechazoSolicitudDTO dto) {
         SolicitudParaFeriante solicitud = solicitudRepository.findById(idSolicitud).orElse(null);
 
         if (solicitud == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Solicitud no encontrada");
         }
 
-        if (solicitud.isAprobada()) {
+        if (solicitud.isAprobada() || solicitud.getEstado() == EstadoSolicitud.APROBADA) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede rechazar una solicitud ya aprobada");
         }
 
-        // Borramos la solicitud o la marcamos como rechazada (según tu preferencia)
-        solicitudRepository.delete(solicitud);
-        return ResponseEntity.ok("Solicitud rechazada y eliminada correctamente");
+        String motivo = (dto != null) ? dto.getMotivoRechazo() : null;
+        if (motivo == null || motivo.trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Debes indicar un motivo de rechazo para la solicitud.");
+        }
+
+        solicitud.setEstado(EstadoSolicitud.RECHAZADA);
+        solicitud.setAprobada(false);
+        solicitud.setMotivoRechazo(motivo.trim());
+
+        solicitudRepository.save(solicitud);
+
+        // Enviar email de notificación de rechazo con el motivo indicado
+        if (solicitud.getUsuario() != null) {
+            emailService.enviarEmailRechazoSolicitud(
+                    solicitud.getUsuario().getEmail(),
+                    solicitud.getUsuario().getNombre(),
+                    solicitud.getNombreEmprendimiento(),
+                    motivo.trim()
+            );
+        }
+
+        return ResponseEntity.ok("Solicitud rechazada correctamente.");
     }
 
 }
+
