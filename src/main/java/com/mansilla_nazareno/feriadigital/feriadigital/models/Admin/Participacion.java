@@ -33,10 +33,11 @@ public class Participacion {
 
     private Double montoAbonado = 0.0;
 
-    @Column(name = "motivo_rechazo", length = 500)
-    private String motivoRechazo;
+    @Column(name = "numero_stand_preferido")
+    private Integer numeroStandPreferido;
 
-    public Participacion() {}
+    public Participacion() {
+    }
 
     public Participacion(EdicionFeria edicion, Stand stand, Espacio espacio, EstadoParticipacion estado) {
         this.edicion = edicion;
@@ -49,26 +50,58 @@ public class Participacion {
 
     // --- Getters y setters ---
 
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
 
-    public EstadoParticipacion getEstado() { return estado; }
-    public void setEstado(EstadoParticipacion estado) { this.estado = estado; }
+    public EstadoParticipacion getEstado() {
+        return estado;
+    }
 
-    public EstadoPago getEstadoPago() { return estadoPago; }
-    public void setEstadoPago(EstadoPago estadoPago) { this.estadoPago = estadoPago; }
+    public void setEstado(EstadoParticipacion estado) {
+        this.estado = estado;
+    }
 
-    public Double getMontoAbonado() { return montoAbonado; }
-    public void setMontoAbonado(Double montoAbonado) { this.montoAbonado = montoAbonado; }
+    public EstadoPago getEstadoPago() {
+        return estadoPago;
+    }
 
-    public EdicionFeria getEdicion() { return edicion; }
-    public void setEdicion(EdicionFeria edicion) { this.edicion = edicion; }
+    public void setEstadoPago(EstadoPago estadoPago) {
+        this.estadoPago = estadoPago;
+    }
 
-    public Stand getStand() { return stand; }
-    public void setStand(Stand stand) { this.stand = stand; }
+    public Double getMontoAbonado() {
+        return montoAbonado;
+    }
 
-    public Espacio getEspacio() { return espacio; }
-    public void setEspacio(Espacio espacio) { this.espacio = espacio; }
+    public void setMontoAbonado(Double montoAbonado) {
+        this.montoAbonado = montoAbonado;
+    }
 
-    public String getMotivoRechazo() { return motivoRechazo; }
-    public void setMotivoRechazo(String motivoRechazo) { this.motivoRechazo = motivoRechazo; }
+    public EdicionFeria getEdicion() {
+        return edicion;
+    }
+
+    public void setEdicion(EdicionFeria edicion) {
+        this.edicion = edicion;
+    }
+
+    public Stand getStand() {
+        return stand;
+    }
+
+    public void setStand(Stand stand) {
+        this.stand = stand;
+    }
+
+    public Espacio getEspacio() {
+        return espacio;
+    }
+
+    public void setEspacio(Espacio espacio) {
+        this.espacio = espacio;
+    }
+
+    public Integer getNumeroStandPreferido() { return numeroStandPreferido; }
+    public void setNumeroStandPreferido(Integer numeroStandPreferido) { this.numeroStandPreferido = numeroStandPreferido; }
 }

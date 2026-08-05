@@ -23,13 +23,13 @@ public class ParticipacionDTO {
     private Integer espacioId;
     private String espacioNombre;
     private Double espacioPrecio;
-    private String motivoRechazo;
+    private Integer numeroStandPreferido;
 
     public ParticipacionDTO() {}
 
     public ParticipacionDTO(Participacion participacion) {
         this.id = participacion.getId();
-        this.motivoRechazo = participacion.getMotivoRechazo();
+        this.numeroStandPreferido = participacion.getNumeroStandPreferido();
 
         // MAPEO SEGURO DESDE EDICIÓN
         if (participacion.getEdicion() != null) {
@@ -96,6 +96,6 @@ public class ParticipacionDTO {
     public Double getEspacioPrecio() { return espacioPrecio; }
     public void setEspacioPrecio(Double espacioPrecio) { this.espacioPrecio = espacioPrecio; }
 
-    public String getMotivoRechazo() { return motivoRechazo; }
-    public void setMotivoRechazo(String motivoRechazo) { this.motivoRechazo = motivoRechazo; }
+    public Integer getNumeroStandPreferido() { return numeroStandPreferido; }
+    public void setNumeroStandPreferido(Integer n) { this.numeroStandPreferido = n; }
 }

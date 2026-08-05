@@ -6,6 +6,8 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.Partic
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EspacioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/participaciones")
 public class ParticipacionController {
+
+    private static final Logger logger = LoggerFactory.getLogger(ParticipacionController.class);
 
     @Autowired
     private ParticipacionRepository participacionRepository;
@@ -122,8 +126,6 @@ public class ParticipacionController {
                     espacioRepository.save(espacio);
                     participacion.setEspacio(null); // Cortamos el vínculo físico en la base de datos
                 }
-                // Guardamos el motivo del rechazo/cancelación
-                participacion.setMotivoRechazo(motivo);
             }
 
             participacionRepository.save(participacion);
@@ -224,35 +226,56 @@ public class ParticipacionController {
     // 🟢 6. INSCRIPCIÓN: Postulación apuntando al ID de la Edición Abierta
     @PostMapping("/inscribir")
     public ResponseEntity<?> inscribirFeriante(@RequestBody ParticipacionDTO dto) {
-        Integer edicionId = dto.getEdicionId(); // Usamos el ID de edición mapeado en el DTO
+        Integer edicionId = dto.getEdicionId();
         Integer standId = dto.getStandId();
         LocalDate hoy = LocalDate.now();
+
+        logger.info("Solicitud de inscripción para edicionId {} y standId {}", edicionId, standId);
 
         // 1. BUSCAR EDICIÓN Y STAND
         EdicionFeria edicion = edicionFeriaRepository.findById(edicionId).orElse(null);
         Stand stand = standRepository.findById(standId).orElse(null);
 
-        if (edicion == null || stand == null) return ResponseEntity.notFound().build();
+        if (edicion == null || stand == null) {
+            logger.warn("Inscripción rechazada: Edición ({}) o Stand ({}) no encontrado", edicionId, standId);
+            return ResponseEntity.notFound().build();
+        }
 
-        // 3. CAPTURA Y VALIDACIÓN DEL LOTE ELEGIDO (Motor Financiero)
+        // 🛡️ REGLA 6: BLOQUEO DE POSTULACIONES VACÍAS
+        long cantidadStandsCreados = espacioRepository.findByEdicionId(edicionId).stream()
+                .filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO)
+                .count();
+        if (cantidadStandsCreados == 0) {
+            logger.warn("Inscripción rechazada: La edición id {} no tiene stands configurados por el organizador", edicionId);
+            return ResponseEntity.badRequest().body(Map.of("error", "El organizador aún no ha configurado los stands."));
+        }
+
+        // 3. CAPTURA Y VALIDACIÓN DEL LOTE ELEGIDO (Motor Financiero & REGLA 7: FIFO)
         Espacio espacioElegido = null;
         if (dto.getEspacioId() != null) {
             espacioElegido = espacioRepository.findById(dto.getEspacioId()).orElse(null);
             
             if (espacioElegido != null) {
-                // Validar que el espacio pertenezca a la edición correcta
                 if (!espacioElegido.getEdicion().getId().equals(edicionId)) {
+                    logger.warn("Inscripción rechazada: El espacio {} no pertenece a la edición {}", dto.getEspacioId(), edicionId);
                     return ResponseEntity.badRequest().body(Map.of("error", "El lote seleccionado no pertenece a esta edición de la feria."));
                 }
-                // Validar que el espacio no haya sido tomado un segundo antes por otra persona
-                if (espacioElegido.getEstado() == EstadoEspacio.OCUPADO) {
-                    return ResponseEntity.badRequest().body(Map.of("error", "Lo sentimos, el lote que elegiste acaba de ser ocupado. Por favor, selecciona otro."));
+                
+                // 🛡️ REGLA 7: RESERVA POR ORDEN DE LLEGADA (FIFO)
+                boolean yaReservado = participacionRepository.findAll().stream()
+                        .anyMatch(p -> p.getEspacio() != null && p.getEspacio().getId().equals(dto.getEspacioId())
+                                && (p.getEstado() == EstadoParticipacion.PENDIENTE || p.getEstado() == EstadoParticipacion.CONFIRMADO || p.getEstado() == EstadoParticipacion.EN_ESPERA));
+
+                if (espacioElegido.getEstado() != EstadoEspacio.DISPONIBLE || yaReservado) {
+                    logger.warn("Reserva FIFO rechazada: El stand id {} no está disponible o ya tiene solicitud pendiente/ocupada", dto.getEspacioId());
+                    return ResponseEntity.badRequest().body(Map.of("error", "Lo sentimos, este stand ya fue reservado o está ocupado."));
                 }
             }
         }
 
-        // 🛡️ VALIDACIÓN DE VIGENCIA TEMPORAL (Evaluada sobre el inicio de la edición cronológica)
+        // 🛡️ VALIDACIÓN DE VIGENCIA TEMPORAL
         if (edicion.getFechaInicio() != null && edicion.getFechaInicio().isBefore(hoy)) {
+            logger.warn("Inscripción rechazada: La edición id {} ya ha comenzado ({})", edicionId, edicion.getFechaInicio());
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "No puedes inscribirte a una edición de feria que ya ha comenzado."));
         }
@@ -281,6 +304,7 @@ public class ParticipacionController {
         if (existenteOpt.isPresent()) {
             Participacion existente = existenteOpt.get();
             if (existente.getEstado() != EstadoParticipacion.CANCELADO) {
+                logger.warn("Inscripción rechazada: Doble postulación detectada para edicionId {} y standId {}", edicionId, standId);
                 return ResponseEntity.badRequest().body(Map.of("error", "Ya enviaste una solicitud para esta edición de la feria"));
             }
 
@@ -288,19 +312,23 @@ public class ParticipacionController {
             existente.setEstado(estadoInicial);
             existente.setEstadoPago(EstadoPago.DEBE);
             existente.setMontoAbonado(0.0);
-            existente.setEspacio(espacioElegido); // Genera la deuda basada en el precio del lote
+            existente.setEspacio(espacioElegido);
+            existente.setNumeroStandPreferido(dto.getEspacioId());
 
             participacionRepository.save(existente);
+            logger.info("Re-postulación exitosa para edicionId {} y standId {}", edicionId, standId);
             return ResponseEntity.ok(Map.of("mensaje", "Solicitud enviada nuevamente con éxito."));
         }
 
         Participacion nueva = new Participacion();
-        nueva.setEdicion(edicion); // Seteamos la edición correspondiente
+        nueva.setEdicion(edicion);
         nueva.setStand(stand);
         nueva.setEstado(estadoInicial);
-        nueva.setEspacio(espacioElegido); // Genera la deuda inicial basada en el precio
+        nueva.setEspacio(espacioElegido);
+        nueva.setNumeroStandPreferido(dto.getEspacioId());
 
         participacionRepository.save(nueva);
+        logger.info("Inscripción exitosa registrada para edicionId {} y standId {} con estado {}", edicionId, standId, estadoInicial);
         return ResponseEntity.ok(Map.of("mensaje", "Solicitud enviada"));
     }
 

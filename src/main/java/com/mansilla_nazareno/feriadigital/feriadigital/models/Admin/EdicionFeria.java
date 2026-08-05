@@ -35,8 +35,9 @@ public class EdicionFeria {
     @Column(name = "hora_fin")
     private LocalTime horaFin;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "estado", nullable = false)
-    private String estado; // "ACTIVA", "FINALIZADA", "CANCELADA"
+    private EstadoEdicion estado = EstadoEdicion.PROXIMA;
 
     @Column(name = "mapa_url")
     private String mapaUrl;
@@ -53,12 +54,26 @@ public class EdicionFeria {
     // Constructores
     public EdicionFeria() {}
 
+    public EdicionFeria(Feria feria, String nombreEdicion, LocalDate fechaInicio, LocalDate fechaFinal, EstadoEdicion estado) {
+        this.feria = feria;
+        this.nombreEdicion = nombreEdicion;
+        this.fechaInicio = fechaInicio;
+        this.fechaFinal = fechaFinal;
+        this.estado = estado != null ? estado : EstadoEdicion.PROXIMA;
+    }
+
     public EdicionFeria(Feria feria, String nombreEdicion, LocalDate fechaInicio, LocalDate fechaFinal, String estado) {
         this.feria = feria;
         this.nombreEdicion = nombreEdicion;
         this.fechaInicio = fechaInicio;
         this.fechaFinal = fechaFinal;
-        this.estado = estado;
+        if (estado != null) {
+            try {
+                this.estado = EstadoEdicion.valueOf(estado.toUpperCase());
+            } catch (Exception e) {
+                this.estado = EstadoEdicion.PROXIMA;
+            }
+        }
     }
 
     public Integer getId() {
@@ -110,12 +125,22 @@ public class EdicionFeria {
 
     public void setHoraFin(LocalTime horaFin) { this.horaFin = horaFin; }
 
-    public String getEstado() {
+    public EstadoEdicion getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoEdicion estado) {
         this.estado = estado;
+    }
+
+    public void setEstado(String estado) {
+        if (estado != null) {
+            try {
+                this.estado = EstadoEdicion.valueOf(estado.toUpperCase());
+            } catch (Exception e) {
+                // Ignore or leave current
+            }
+        }
     }
 
     public List<Espacio> getEspacios() { return espacios; }

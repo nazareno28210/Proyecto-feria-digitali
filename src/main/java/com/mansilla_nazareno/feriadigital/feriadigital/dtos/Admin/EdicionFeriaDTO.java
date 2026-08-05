@@ -36,7 +36,7 @@ public class EdicionFeriaDTO {
         this.fechaFinal = edicion.getFechaFinal();
         this.horaInicio = edicion.getHoraInicio();
         this.horaFin = edicion.getHoraFin();
-        this.estado = edicion.getEstado();
+        this.estado = edicion.getEstado() != null ? edicion.getEstado().name() : null;
         this.mapaUrl = edicion.getMapaUrl();
         this.capacidad = edicion.getCapacidad();
         this.feriaCapacidad = edicion.getCapacidad();

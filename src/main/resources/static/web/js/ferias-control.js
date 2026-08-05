@@ -157,25 +157,28 @@ document.addEventListener("DOMContentLoaded", () => {
                         <strong>${ocupados} / ${cupo}</strong><br>
                         <span style="font-size:0.8em; color: gray;">Stands ocupados</span>
                     </td> 
-                    <td><span class="badge-${edicion.estado.toLowerCase()}">${edicion.estado}</span></td>
+                    <td>${edicion.estado === 'PROXIMA' ? '<span class="badge-estado" style="background-color:#e0e7ff; color:#4338ca; padding:5px 10px; border-radius:12px; font-weight:600; font-size:0.85em; display:inline-block;">PROXIMA</span>' : (edicion.estado === 'FINALIZADA' ? '<span class="badge-estado" style="background-color:#e2e8f0; color:#334155; padding:5px 10px; border-radius:12px; font-weight:600; font-size:0.85em; display:inline-block;">FINALIZADA</span>' : `<span class="badge-estado badge-${edicion.estado.toLowerCase()}">${edicion.estado}</span>`)}</td>
                     <td>
-                        <!-- NUEVO BOTÓN: Lanzar Nueva Edición -->
+                        <!-- BOTÓN: Lanzar Nueva Edición -->
                         <button type="button" class="btn-nueva-edicion" onclick='abrirModalNuevaEdicion(${edicion.feriaId}, ${JSON.stringify(nombreBase)})' style="background-color: #8b5cf6; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;" title="Lanzar Nueva Edición">
                             <i class="fas fa-calendar-plus"></i>
                         </button>
-                        
-                        <!-- BOTÓN: Configurar Espacios/Lotes -->
-                        <button type="button" class="btn-espacios" onclick='abrirModalEspacios(${edicion.id}, "${edicion.nombreEdicion}")' style="background-color: #0ea5e9; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;" title="Configurar Espacios">
-                            <i class="fas fa-map-marked-alt"></i>
-                        </button>
 
-                        <button type="button" class="btn-editar" onclick='abrirModalEditar(${JSON.stringify(edicion)})' style="margin-right: 5px;" title="Editar">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button type="button" class="${edicion.estado === 'ACTIVA' ? 'btn-baja' : 'btn-activar'}" 
-                                onclick="cambiarEstadoEdicion(event, ${edicion.id}, '${edicion.estado === 'ACTIVA' ? 'INACTIVA' : 'ACTIVA'}')" style="margin-right: 5px;" title="${edicion.estado === 'ACTIVA' ? 'Desactivar' : 'Activar'}">
-                            <i class="fas fa-power-off"></i>
-                        </button>
+                        ${edicion.estado !== 'FINALIZADA' ? `
+                            <!-- BOTÓN: Configurar Espacios/Lotes -->
+                            <button type="button" class="btn-espacios" onclick='abrirModalEspacios(${edicion.id}, "${edicion.nombreEdicion}")' style="background-color: #0ea5e9; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;" title="Configurar Espacios">
+                                <i class="fas fa-map-marked-alt"></i>
+                            </button>
+
+                            <button type="button" class="btn-editar" onclick='abrirModalEditar(${JSON.stringify(edicion)})' style="margin-right: 5px;" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="${edicion.estado === 'ACTIVA' ? 'btn-baja' : 'btn-activar'}" 
+                                    onclick="cambiarEstadoEdicion(event, ${edicion.id}, '${edicion.estado === 'ACTIVA' ? 'INACTIVA' : 'ACTIVA'}')" style="margin-right: 5px;" title="${edicion.estado === 'ACTIVA' ? 'Desactivar' : 'Activar'}">
+                                <i class="fas fa-power-off"></i>
+                            </button>
+                        ` : ''}
+
                         <button type="button" class="btn-eliminar" onclick="eliminarEdicion(event, ${edicion.id}, ${edicion.feriaId})" title="Eliminar">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -308,16 +311,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const id = typeof event === 'number' ? event : idParam;
         const nuevoEstado = typeof event === 'number' ? idParam : nuevoEstadoParam;
         try {
-            await axios.patch(`${API_EDICIONES_URL}/${id}/estado?nuevoEstado=${nuevoEstado}`);
+            await axios.patch(`${API_EDICIONES_URL}/${id}/estado?nuevoEstado=${nuevoEstado}`, {}, { withCredentials: true });
             mostrarNotificacion(`Edición marcada como ${nuevoEstado}`, "success");
             
             if (event && event.target) {
                 const btn = event.target.closest("button");
                 const row = btn ? btn.closest("tr") : null;
                 if (row && btn) {
-                    const badge = row.querySelector("span[class^='badge-']");
+                    const badge = row.querySelector(".badge-estado");
                     if (badge) {
-                        badge.className = `badge-${nuevoEstado.toLowerCase()}`;
+                        badge.className = `badge-estado badge-${nuevoEstado.toLowerCase()}`;
+                        if (nuevoEstado !== "PROXIMA") {
+                            badge.style = "";
+                        }
                         badge.textContent = nuevoEstado;
                     }
                     if (nuevoEstado === "INACTIVA") {
@@ -352,11 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         if (!resultado.isConfirmed) return;
         try {
-            await axios.patch(`${API_EDICIONES_URL}/${edicionId}/estado?nuevoEstado=ELIMINADO`);
-            
-            if (feriaId) {
-                await axios.put(`${API_FERIAS_URL}/${feriaId}/eliminar`, {}, { withCredentials: true }).catch(e => console.log("Omitiendo borrado de molde"));
-            }
+            await axios.patch(`${API_EDICIONES_URL}/${edicionId}/estado?nuevoEstado=ELIMINADO`, {}, { withCredentials: true });
 
             mostrarNotificacion("Edicion eliminada correctamente.", "success");
             
@@ -1004,6 +1006,10 @@ window.confirmarCrop = () => {
             if (img) img.src = url;
             if (cont) cont.style.display = 'block';
         }
+        const previewNewMapaCont = document.getElementById('preview-new-mapa-container');
+        if (previewNewMapaCont && (_cropPreviewContainerId === 'preview-new-mapa-container' || _cropPreviewImgId === 'img-new-mapa-preview')) {
+            previewNewMapaCont.style.display = 'block';
+        }
         if (_cropCallback) _cropCallback(blob);
         cancelarCrop();
     }, 'image/jpeg', 0.9);
@@ -1038,7 +1044,7 @@ document.addEventListener('DOMContentLoaded', () => {
         inputMapaCrear.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            abrirCropper(file, 4/3, '4:3 — Mapa', (blob) => { _blobMapaCrear = blob; }, null, null);
+            abrirCropper(file, 4/3, '4:3 — Mapa', (blob) => { _blobMapaCrear = blob; }, 'img-crear-mapa-preview', 'preview-crear-mapa-container');
             e.target.value = '';
         });
     }

@@ -3,6 +3,13 @@
  * Uso: mostrarNotificacion("Mensaje", "success" | "error" | "info" | "warning")
  */
 
+if (typeof document !== "undefined" && !document.getElementById("swal2-zindex-override")) {
+  const style = document.createElement("style");
+  style.id = "swal2-zindex-override";
+  style.innerHTML = ".swal2-container { z-index: 99999 !important; }";
+  document.head.appendChild(style);
+}
+
 const ToastSwal = Swal.mixin({
   toast: true,
   position: "top-end",

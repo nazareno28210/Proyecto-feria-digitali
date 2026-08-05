@@ -3,24 +3,32 @@ package com.mansilla_nazareno.feriadigital.feriadigital.controllers.Admin;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EdicionFeria;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Espacio;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoEspacio;
+import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.HistorialMantenimiento;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EspacioRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.HistorialMantenimientoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoParticipacion;
 import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.EstadoPago;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/espacios")
 public class EspacioController {
+
+    private static final Logger logger = LoggerFactory.getLogger(EspacioController.class);
 
     @Autowired
     private EspacioRepository espacioRepository;
@@ -31,6 +39,9 @@ public class EspacioController {
     @Autowired
     private ParticipacionRepository participacionRepository;
 
+    @Autowired
+    private HistorialMantenimientoRepository historialMantenimientoRepository;
+
     // GET /api/espacios/edicion/{edicionId} — excluye los eliminados (soft delete)
     @GetMapping("/edicion/{edicionId}")
     public ResponseEntity<List<Map<String, Object>>> listarPorEdicion(@PathVariable Integer edicionId) {
@@ -40,8 +51,7 @@ public class EspacioController {
                         "id", e.getId(),
                         "nombre", e.getNombre(),
                         "precio", e.getPrecio(),
-                        "estado", e.getEstado().toString()
-                ))
+                        "estado", e.getEstado().toString()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(activos);
     }
@@ -73,14 +83,17 @@ public class EspacioController {
                 return ResponseEntity.badRequest().body(Map.of("error", "El precio debe estar entre $0 y $5.000.000"));
             }
 
-            long actuales = espacioRepository.findByEdicionId(edicionId).stream().filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO).count();
+            long actuales = espacioRepository.findByEdicionId(edicionId).stream()
+                    .filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO).count();
             Integer cupoMaximo = edicion.getCapacidad() != null ? edicion.getCapacidad() : 0;
             if (cupoMaximo > 0 && (actuales + 1) > cupoMaximo) {
-                return ResponseEntity.badRequest().body(Map.of("error", "No puedes crear más stands. Solo quedan " + (cupoMaximo - actuales) + " lugares disponibles en el cupo."));
+                return ResponseEntity.badRequest().body(Map.of("error", "No puedes crear más stands. Solo quedan "
+                        + (cupoMaximo - actuales) + " lugares disponibles en el cupo."));
             }
 
             if (espacioRepository.existsByEdicionIdAndNombreAndEstadoNot(edicionId, nombre, EstadoEspacio.ELIMINADO)) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El espacio '" + nombre + "' ya existe en esta edición."));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "El espacio '" + nombre + "' ya existe en esta edición."));
             }
 
             Espacio nuevo = new Espacio(nombre, precio, EstadoEspacio.DISPONIBLE, edicion);
@@ -103,45 +116,62 @@ public class EspacioController {
             return ResponseEntity.badRequest().body(Map.of("error", "El precio debe estar entre $0 y $5.000.000"));
         }
 
-        long actuales = espacioRepository.findByEdicionId(edicionId).stream().filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO).count();
+        long actuales = espacioRepository.findByEdicionId(edicionId).stream()
+                .filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO).count();
         int cantidadNueva = hasta - desde + 1;
         Integer cupoMaximo = edicion.getCapacidad() != null ? edicion.getCapacidad() : 0;
         if (cupoMaximo > 0 && (actuales + cantidadNueva) > cupoMaximo) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No puedes crear " + cantidadNueva + " stands. Solo quedan " + (cupoMaximo - actuales) + " lugares disponibles en el cupo."));
+            return ResponseEntity.badRequest().body(Map.of("error", "No puedes crear " + cantidadNueva
+                    + " stands. Solo quedan " + (cupoMaximo - actuales) + " lugares disponibles en el cupo."));
         }
 
         List<Espacio> nuevos = new ArrayList<>();
-        for (int i = desde; i <= hasta; i++) {
-            String nombre = nombreZona + " - Stand " + i;
-            if (espacioRepository.existsByEdicionIdAndNombreAndEstadoNot(edicionId, nombre, EstadoEspacio.ELIMINADO)) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El espacio '" + nombre + "' ya existe en esta edición."));
+        // 🛡️ Pre-cargamos todos los espacios activos de la edición y extraemos los números ya usados
+        List<Espacio> existentes = espacioRepository.findByEdicionId(edicionId).stream()
+                .filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO)
+                .collect(Collectors.toList());
+        Set<Integer> numerosExistentes = new java.util.HashSet<>();
+        for (Espacio e : existentes) {
+            if (e.getNombre() != null && e.getNombre().contains(" - Stand ")) {
+                try {
+                    String sufijo = e.getNombre().substring(e.getNombre().lastIndexOf(" - Stand ") + 9);
+                    numerosExistentes.add(Integer.parseInt(sufijo.trim()));
+                } catch (NumberFormatException ignored) {}
             }
+        }
+        for (int i = desde; i <= hasta; i++) {
+            if (numerosExistentes.contains(i)) {
+                logger.info("Stand número {} ya existe en edición {}. Ignorando duplicado.", i, edicionId);
+                continue;
+            }
+            String nombre = nombreZona + " - Stand " + i;
             nuevos.add(new Espacio(nombre, precio, EstadoEspacio.DISPONIBLE, edicion));
         }
+        // 🛡️ Falso positivo: si todos cayeron en continue, retornamos 400 en lugar de 201 vacío
+        if (nuevos.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Los stands ingresados ya existen en esta edición."));
+        }
         espacioRepository.saveAll(nuevos);
+        logger.info("Se guardaron {} espacios masivos para la edición {}", nuevos.size(), edicionId);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("mensaje", "Se crearon " + (hasta - desde + 1) + " espacio(s) correctamente"));
+                .body(Map.of("mensaje",
+                        "Proceso masivo completado. Se agregaron " + nuevos.size() + " nuevo(s) espacio(s)."));
     }
 
-    // PUT /api/espacios/{id} — actualiza nombre y/o precio
+    // PUT /api/espacios/{id} — actualiza nombre y/o precio (permite editar lotes
+    // OCUPADOS o RESERVADOS)
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarEspacio(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
         Espacio espacio = espacioRepository.findById(id).orElse(null);
         if (espacio == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Espacio no encontrado"));
         }
-        if (espacio.getEstado() == EstadoEspacio.OCUPADO) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No se puede modificar un stand que ya fue ocupado/pagado"));
-        }
-        boolean tieneInteresados = participacionRepository.findAll().stream()
-                .anyMatch(p -> p.getEspacio() != null && p.getEspacio().getId().equals(id)
-                        && (p.getEstado() == EstadoParticipacion.PENDIENTE || p.getEstadoPago() == EstadoPago.SENADO));
-        if (tieneInteresados) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No puedes modificar este lote. Hay un feriante con solicitud pendiente o seña activa."));
-        }
-        if (espacio.getEdicion() != null && espacio.getEdicion().getFechaInicio() != null && espacio.getEdicion().getFechaInicio().isBefore(java.time.LocalDate.now())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No se pueden modificar lotes de una edición que ya ha comenzado."));
+        if (espacio.getEdicion() != null && espacio.getEdicion().getFechaInicio() != null
+                && espacio.getEdicion().getFechaInicio().isBefore(java.time.LocalDate.now())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "No se pueden modificar lotes de una edición que ya ha comenzado."));
         }
         // Actualizar nombre si viene en el body
         if (body.containsKey("nombre") && body.get("nombre") != null) {
@@ -161,9 +191,11 @@ public class EspacioController {
         return ResponseEntity.ok(espacioRepository.save(espacio));
     }
 
-    // PUT /api/espacios/edicion/{edicionId}/actualizar-zona — actualización masiva por zona
+    // PUT /api/espacios/edicion/{edicionId}/actualizar-zona — actualización masiva
+    // por zona
     @PutMapping("/edicion/{edicionId}/actualizar-zona")
-    public ResponseEntity<?> actualizarPrecioPorZona(@PathVariable Integer edicionId, @RequestBody Map<String, Object> body) {
+    public ResponseEntity<?> actualizarPrecioPorZona(@PathVariable Integer edicionId,
+            @RequestBody Map<String, Object> body) {
         String nombreZona = body.get("nombreZona") != null ? body.get("nombreZona").toString().trim() : "";
         Object precioObj = body.get("nuevoPrecio") != null ? body.get("nuevoPrecio") : body.get("precio");
         if (nombreZona.isEmpty() || precioObj == null) {
@@ -176,28 +208,31 @@ public class EspacioController {
 
         List<Espacio> espaciosEdicion = espacioRepository.findByEdicionId(edicionId).stream()
                 .filter(e -> e.getEstado() != EstadoEspacio.ELIMINADO)
-                .filter(e -> e.getNombre() != null && e.getNombre().toLowerCase().startsWith((nombreZona + " -").toLowerCase()))
+                .filter(e -> e.getNombre() != null
+                        && e.getNombre().toLowerCase().startsWith((nombreZona + " -").toLowerCase()))
                 .collect(Collectors.toList());
 
         if (espaciosEdicion.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "No se encontraron espacios en la zona especificada"));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "No se encontraron espacios en la zona especificada"));
         }
 
         for (Espacio e : espaciosEdicion) {
-            if (e.getEstado() == EstadoEspacio.OCUPADO) {
-                return ResponseEntity.badRequest().body(Map.of("error", "La zona contiene stands ocupados (" + e.getNombre() + "). No se puede aplicar el cambio masivo."));
-            }
-            if (e.getEdicion() != null && e.getEdicion().getFechaInicio() != null && e.getEdicion().getFechaInicio().isBefore(java.time.LocalDate.now())) {
-                return ResponseEntity.badRequest().body(Map.of("error", "No se pueden modificar precios de una edición que ya ha comenzado."));
+            if (e.getEdicion() != null && e.getEdicion().getFechaInicio() != null
+                    && e.getEdicion().getFechaInicio().isBefore(java.time.LocalDate.now())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No se pueden modificar precios de una edición que ya ha comenzado."));
             }
             e.setPrecio(nuevoPrecio);
         }
         espacioRepository.saveAll(espaciosEdicion);
 
-        return ResponseEntity.ok(Map.of("mensaje", "Se actualizaron " + espaciosEdicion.size() + " espacio(s) en la zona '" + nombreZona + "'"));
+        return ResponseEntity.ok(Map.of("mensaje",
+                "Se actualizaron " + espaciosEdicion.size() + " espacio(s) en la zona '" + nombreZona + "'"));
     }
 
-    // PATCH /api/espacios/actualizar-precio-lote — actualización estricta por lista de IDs
+    // PATCH /api/espacios/actualizar-precio-lote — actualización estricta por lista
+    // de IDs
     @PatchMapping("/actualizar-precio-lote")
     public ResponseEntity<?> actualizarPrecioLote(@RequestBody Map<String, Object> body) {
         if (!body.containsKey("espaciosIds") || body.get("espaciosIds") == null) {
@@ -225,11 +260,10 @@ public class EspacioController {
         List<Espacio> espacios = espacioRepository.findAllById(ids);
 
         for (Espacio e : espacios) {
-            if (e.getEstado() == EstadoEspacio.OCUPADO) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El stand '" + e.getNombre() + "' está ocupado. No se puede modificar el precio."));
-            }
-            if (e.getEdicion() != null && e.getEdicion().getFechaInicio() != null && e.getEdicion().getFechaInicio().isBefore(java.time.LocalDate.now())) {
-                return ResponseEntity.badRequest().body(Map.of("error", "No se pueden modificar precios de una edición que ya ha comenzado."));
+            if (e.getEdicion() != null && e.getEdicion().getFechaInicio() != null
+                    && e.getEdicion().getFechaInicio().isBefore(java.time.LocalDate.now())) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("error", "No se pueden modificar precios de una edición que ya ha comenzado."));
             }
             e.setPrecio(nuevoPrecio);
         }
@@ -238,47 +272,73 @@ public class EspacioController {
         return ResponseEntity.ok(Map.of("mensaje", "Se actualizaron " + espacios.size() + " espacio(s) correctamente"));
     }
 
-
     // DELETE /api/espacios/{id} — soft delete: marca como ELIMINADO
     @DeleteMapping("/{id}")
     public ResponseEntity<?> eliminar(@PathVariable Integer id) {
+        logger.info("Solicitud para eliminar espacio id {}", id);
         Espacio espacio = espacioRepository.findById(id).orElse(null);
         if (espacio == null) {
             return ResponseEntity.notFound().build();
         }
-        if (espacio.getEstado() == EstadoEspacio.OCUPADO) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No se puede eliminar un stand que ya está ocupado"));
+        boolean tieneParticipacionAsociada = participacionRepository.findAll().stream()
+                .anyMatch(p -> p.getEspacio() != null && p.getEspacio().getId().equals(id));
+        if (espacio.getEstado() == EstadoEspacio.OCUPADO || tieneParticipacionAsociada) {
+            logger.warn(
+                    "Bloqueada eliminación de espacio id {}: lote en uso u ocupado o con historial de participación.",
+                    id);
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "No se puede eliminar: el lote está en uso o tiene historial."));
         }
         espacio.setEstado(EstadoEspacio.ELIMINADO);
         espacioRepository.save(espacio);
+        logger.info("Espacio id {} eliminado exitosamente (soft-delete ELIMINADO)", id);
         return ResponseEntity.noContent().build();
     }
 
     // PUT /api/espacios/{id}/estado — forzar estado físico del espacio
     @PutMapping("/{id}/estado")
     public ResponseEntity<?> cambiarEstadoFisico(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        logger.info("Solicitud para cambiar estado físico de espacio id {} a {}", id, body.get("estado"));
         Espacio espacio = espacioRepository.findById(id).orElse(null);
-        if (espacio == null) return ResponseEntity.notFound().build();
+        if (espacio == null)
+            return ResponseEntity.notFound().build();
 
         EstadoEspacio nuevoEstado = EstadoEspacio.valueOf(body.get("estado"));
 
         if (nuevoEstado == EstadoEspacio.DISPONIBLE) {
             boolean ferianteActivo = participacionRepository.findAll().stream()
                     .anyMatch(p -> p.getEspacio() != null && p.getEspacio().getId().equals(id)
-                            && (p.getEstado() == EstadoParticipacion.CONFIRMADO || p.getEstado() == EstadoParticipacion.PENDIENTE));
+                            && (p.getEstado() == EstadoParticipacion.CONFIRMADO
+                                    || p.getEstado() == EstadoParticipacion.PENDIENTE));
             if (ferianteActivo) {
-                return ResponseEntity.badRequest().body(Map.of("error", "No puedes forzar el lote a DISPONIBLE porque hay un feriante activo asignado. Cancela su postulación primero."));
+                logger.warn("Falla al cambiar estado espacio id {}: feriante activo asignado", id);
+                return ResponseEntity.badRequest().body(Map.of("error",
+                        "No puedes forzar el lote a DISPONIBLE porque hay un feriante activo asignado. Cancela su postulación primero."));
             }
-            espacio.setMotivoMantenimiento(null);
+            // Cerrar el registro activo en HistorialMantenimiento
+            historialMantenimientoRepository.findFirstByEspacioIdAndFechaFinIsNull(id).ifPresent(historial -> {
+                historial.setFechaFin(LocalDateTime.now());
+                historialMantenimientoRepository.save(historial);
+                logger.info("Se cerró el registro de HistorialMantenimiento id {} para espacio id {}",
+                        historial.getId(), id);
+            });
         } else if (nuevoEstado == EstadoEspacio.MANTENIMIENTO) {
             String motivo = body.get("motivo");
             if (motivo == null || motivo.isBlank()) {
                 motivo = body.get("motivoMantenimiento");
             }
-            espacio.setMotivoMantenimiento(motivo);
+            if (motivo == null || motivo.isBlank()) {
+                motivo = "Mantenimiento programado";
+            }
+            // Crear nuevo registro de mantenimiento sin fechaFin
+            HistorialMantenimiento nuevoHistorial = new HistorialMantenimiento(espacio, motivo, LocalDateTime.now(),
+                    null);
+            historialMantenimientoRepository.save(nuevoHistorial);
+            logger.info("Se creó nuevo registro de HistorialMantenimiento para espacio id {}", id);
         }
 
         espacio.setEstado(nuevoEstado);
-        return ResponseEntity.ok(espacioRepository.save(espacio));
+        Espacio guardado = espacioRepository.save(espacio);
+        return ResponseEntity.ok(guardado);
     }
 }

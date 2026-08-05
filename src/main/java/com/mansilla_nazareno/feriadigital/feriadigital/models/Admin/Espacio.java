@@ -24,8 +24,6 @@ public class Espacio {
     @JoinColumn(name = "edicion_id", nullable = false)
     private EdicionFeria edicion;
 
-    @Column(name = "motivo_mantenimiento")
-    private String motivoMantenimiento;
 
     public Espacio() {}
 
@@ -51,6 +49,5 @@ public class Espacio {
     public EdicionFeria getEdicion() { return edicion; }
     public void setEdicion(EdicionFeria edicion) { this.edicion = edicion; }
 
-    public String getMotivoMantenimiento() { return motivoMantenimiento; }
-    public void setMotivoMantenimiento(String motivoMantenimiento) { this.motivoMantenimiento = motivoMantenimiento; }
+
 }

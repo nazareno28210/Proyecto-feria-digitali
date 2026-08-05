@@ -22,12 +22,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+@EnableScheduling
 @SpringBootApplication
 public class FeriaDigitalApplication {
 
@@ -345,7 +347,7 @@ public class FeriaDigitalApplication {
 				part6.setEstadoPago(EstadoPago.PAGADO); part6.setMontoAbonado(15000.0);
 
 				Participacion part7 = new Participacion(edicionDonBoscoInvierno, s7, null, EstadoParticipacion.RECHAZADO);
-				part7.setMotivoRechazo("Cupo del rubro marroquinería completo para esta edición.");
+				part7.setNumeroStandPreferido(null); // Rechazo sin stand preferido registrado
 
 				Participacion part8 = new Participacion(edicionDonBoscoInvierno, s8, null, EstadoParticipacion.EN_ESPERA);
 

@@ -1,7 +1,7 @@
 /* URLs DEL API */
 const API_URL = "http://localhost:8080/api/feriantes/current";
 const FERIAS_URL = "http://localhost:8080/api/ferias";
-const EDICIONES_URL = "http://localhost:8080/api/ediciones"; 
+const EDICIONES_URL = "http://localhost:8080/api/ediciones";
 const PARTICIPACIONES_URL = "http://localhost:8080/api/participaciones";
 const FERIANTE_UPDATE_URL = "http://localhost:8080/api/feriantes/current";
 const EDICIONES_ACTIVAS_URL = "http://localhost:8080/api/ediciones/activas"; // 🟢 NUEVA 
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("btn-save-stand").addEventListener("click", guardarStand);
 
     document.getElementById("cerrarSesion").addEventListener("click", cerrarSesion);
-    
+
     // Listener para subir foto (abre modal cropper)
     document.getElementById("inputFotoPerfil").addEventListener("change", prepararRecorte);
 
@@ -80,17 +80,17 @@ function prepararRecorte(e) {
 async function ejecutarRecorteYSubir() {
     if (!cropper) return;
     const canvas = cropper.getCroppedCanvas({ width: 500, height: 500 });
-    
+
     canvas.toBlob(async (blob) => {
         const formData = new FormData();
         formData.append("imagen", blob, "perfil.jpg");
 
         try {
             mostrarNotificacion("Actualizando foto...", "info");
-            
-            const res = await axios.patch(IMAGE_UPLOAD_URL, formData, { 
-                withCredentials: true, 
-                headers: { "Content-Type": "multipart/form-data" } 
+
+            const res = await axios.patch(IMAGE_UPLOAD_URL, formData, {
+                withCredentials: true,
+                headers: { "Content-Type": "multipart/form-data" }
             });
 
             // 1. Nueva URL del backend
@@ -107,7 +107,7 @@ async function ejecutarRecorteYSubir() {
 
             mostrarNotificacion("¡Foto actualizada!", "success");
             cerrarModalYLimpiar();
-        } catch (err) { 
+        } catch (err) {
             manejarError("Error al subir la imagen recortada");
         }
     }, 'image/jpeg');
@@ -131,7 +131,7 @@ function manejarError(mensaje) {
 
 function cargarPerfil() {
     const getFeriante = axios.get(API_URL, { withCredentials: true });
-    const getEdiciones = axios.get(EDICIONES_URL); 
+    const getEdiciones = axios.get(EDICIONES_URL);
 
     axios.all([getFeriante, getEdiciones])
         .then(axios.spread(async (resFeriante, resEdiciones) => {
@@ -140,12 +140,12 @@ function cargarPerfil() {
 
             const u = ferianteActual.usuario;
             if (u.imagenUrl) document.getElementById("fotoPerfil").src = u.imagenUrl;
-            
+
             setText("usuario-email", u.email);
             setText("usuario-nombre", u.nombre);
             setText("usuario-apellido", u.apellido);
             setText("usuario-fecha", u.fechaRegistro);
-            
+
             setValue("edit-usuario-nombre", u.nombre);
             setValue("edit-usuario-apellido", u.apellido);
             setValue("edit-usuario-email", u.email);
@@ -168,7 +168,7 @@ function cargarPerfil() {
                 setValue("edit-stand-nombre", s.nombre);
                 setValue("edit-stand-desc", s.descripcion);
                 document.getElementById("btn-edit-stand").style.display = 'block';
-                
+
                 // Cargar participaciones del stand para la tarjeta del dashboard
                 try {
                     const resParticipaciones = await axios.get(`${PARTICIPACIONES_URL}/stand/${s.id}`);
@@ -187,10 +187,10 @@ function cargarPerfil() {
 }
 
 async function guardarUsuario() {
-    const data = { 
-        nombre: getValue("edit-usuario-nombre"), 
-        apellido: getValue("edit-usuario-apellido"), 
-        email: getValue("edit-usuario-email") 
+    const data = {
+        nombre: getValue("edit-usuario-nombre"),
+        apellido: getValue("edit-usuario-apellido"),
+        email: getValue("edit-usuario-email")
     };
     try {
         await axios.post(USUARIO_UPDATE_URL, data, { withCredentials: true });
@@ -201,9 +201,9 @@ async function guardarUsuario() {
 }
 
 async function guardarFeriante() {
-    const data = { 
-        telefono: getValue("edit-feriante-tel"), 
-        emailEmprendimiento: getValue("edit-feriante-email") 
+    const data = {
+        telefono: getValue("edit-feriante-tel"),
+        emailEmprendimiento: getValue("edit-feriante-email")
     };
     try {
         await axios.put(FERIANTE_UPDATE_URL, data, { withCredentials: true });
@@ -214,9 +214,9 @@ async function guardarFeriante() {
 }
 
 async function guardarStand() {
-    const data = { 
-        nombre: getValue("edit-stand-nombre"), 
-        descripcion: getValue("edit-stand-desc") 
+    const data = {
+        nombre: getValue("edit-stand-nombre"),
+        descripcion: getValue("edit-stand-desc")
     };
     try {
         await axios.put(STAND_UPDATE_URL, data, { withCredentials: true });
@@ -226,19 +226,19 @@ async function guardarStand() {
     } catch (e) { manejarError("Error al guardar stand"); }
 }
 
-function toggleEditUsuario(m) { 
-    document.getElementById("usuario-view").style.display = m ? 'none' : 'block'; 
-    document.getElementById("usuario-edit").style.display = m ? 'block' : 'none'; 
+function toggleEditUsuario(m) {
+    document.getElementById("usuario-view").style.display = m ? 'none' : 'block';
+    document.getElementById("usuario-edit").style.display = m ? 'block' : 'none';
     document.getElementById("btn-edit-usuario").style.display = m ? 'none' : 'block';
 }
-function toggleEditFeriante(m) { 
-    document.getElementById("feriante-view").style.display = m ? 'none' : 'block'; 
-    document.getElementById("feriante-edit").style.display = m ? 'block' : 'none'; 
+function toggleEditFeriante(m) {
+    document.getElementById("feriante-view").style.display = m ? 'none' : 'block';
+    document.getElementById("feriante-edit").style.display = m ? 'block' : 'none';
     document.getElementById("btn-edit-feriante").style.display = m ? 'none' : 'block';
 }
-function toggleEditStand(m) { 
-    document.getElementById("stand-view").style.display = m ? 'none' : 'block'; 
-    document.getElementById("stand-edit").style.display = m ? 'block' : 'none'; 
+function toggleEditStand(m) {
+    document.getElementById("stand-view").style.display = m ? 'none' : 'block';
+    document.getElementById("stand-edit").style.display = m ? 'block' : 'none';
     document.getElementById("btn-edit-stand").style.display = m ? 'none' : 'block';
 }
 
@@ -247,16 +247,16 @@ async function toggleEstadoStand() {
         const res = await axios.patch(STAND_TOGGLE_URL, {}, { withCredentials: true });
         actualizarUIEstado(res.data.activo);
         mostrarNotificacion("Estado actualizado", "success");
-    } catch (e) { 
+    } catch (e) {
         this.checked = !this.checked;
-        manejarError("Error al cambiar estado"); 
+        manejarError("Error al cambiar estado");
     }
 }
 
 function actualizarUIEstado(a) {
     const l = document.getElementById("stand-status-label");
-    if (l) { 
-        l.textContent = a ? "Stand Abierto (Público)" : "Stand Cerrado (Privado)"; 
+    if (l) {
+        l.textContent = a ? "Stand Abierto (Público)" : "Stand Cerrado (Privado)";
         l.className = a ? "status-badge status-open" : "status-badge status-closed";
     }
 }
@@ -264,7 +264,7 @@ function actualizarUIEstado(a) {
 function renderFeriasAsignadas(misParticipaciones) {
     const feriasCard = document.getElementById("card-mis-ferias");
     const body = document.getElementById("ferias-card-body");
-    
+
     if (!misParticipaciones || misParticipaciones.length === 0) {
         body.innerHTML = `<p>Tu stand aún no tiene participaciones registradas.</p>`;
         feriasCard.removeAttribute("href");
@@ -279,7 +279,7 @@ function renderFeriasAsignadas(misParticipaciones) {
     const participacionesOrdenadas = [...misParticipaciones].reverse();
 
     for (const p of participacionesOrdenadas) {
-        const edicion = todasLasEdiciones.find(e => e.id === p.edicionId); 
+        const edicion = todasLasEdiciones.find(e => e.id === p.edicionId);
         if (!edicion) continue;
 
         htmlContent += `<div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px;">`;
@@ -296,10 +296,10 @@ function renderFeriasAsignadas(misParticipaciones) {
                 <p style="font-size: 0.85em; color: #666; margin: 0;">No puedes volver a postularte.</p>
             `;
         } else {
-            const iconoEstado = (p.estado === 'APROBADA' || p.estado === 'CONFIRMADO') 
-                ? '🟢 Confirmada' 
-                : p.estado === 'EN_ESPERA' 
-                    ? '🟠 En Lista de Espera' 
+            const iconoEstado = (p.estado === 'APROBADA' || p.estado === 'CONFIRMADO')
+                ? '🟢 Confirmada'
+                : p.estado === 'EN_ESPERA'
+                    ? '🟠 En Lista de Espera'
                     : '🟡 Pendiente';
             htmlContent += `
                 <p style="margin: 0 0 4px 0; font-size: 0.85em;">Estado: <strong>${iconoEstado}</strong></p>
@@ -314,15 +314,15 @@ function renderFeriasAsignadas(misParticipaciones) {
         }
         htmlContent += `</div>`;
     }
-    
-    htmlContent += `</div>`; 
+
+    htmlContent += `</div>`;
     body.innerHTML = htmlContent;
-    
+
     feriasCard.removeAttribute("href");
     feriasCard.style.cursor = "default";
 }
 
-function cerrarSesion() { 
+function cerrarSesion() {
     axios.post(LOGOUT_URL, {}, { withCredentials: true })
         .then(() => window.location.href = "/web/login.html")
         .catch(() => manejarError("Error al cerrar sesión"));
@@ -356,23 +356,23 @@ async function abrirModalPostulacion() {
 
     const modal = document.getElementById("modal-postulacion");
     const contenedor = document.getElementById("lista-ferias-disponibles");
-    
+
     modal.classList.remove("hidden");
     contenedor.innerHTML = "<p>Buscando ediciones disponibles y lugares libres...</p>";
 
     try {
         const [resEdiciones, resMisParticipaciones] = await Promise.all([
-            axios.get(EDICIONES_ACTIVAS_URL), 
+            axios.get(EDICIONES_ACTIVAS_URL),
             axios.get(`${PARTICIPACIONES_URL}/stand/${ferianteActual.stand.id}`)
-        ]); 
+        ]);
 
         const edicionesActivas = Array.from(new Map(resEdiciones.data.map(e => [e.id, e])).values());
         const misParticipaciones = resMisParticipaciones.data;
-        
-        const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0); 
 
-        const IDsParticipando = misParticipaciones.map(p => p.edicionId); 
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        const IDsParticipando = misParticipaciones.map(p => p.edicionId);
 
         const disponibles = edicionesActivas.filter(e => {
             if (!e.fechaInicio) return false;
@@ -385,9 +385,9 @@ async function abrirModalPostulacion() {
         const mapaEdiciones = new Map();
         disponibles.forEach(e => mapaEdiciones.set(e.id, e));
         const edicionesUnicas = Array.from(mapaEdiciones.values());
-        
+
         contenedor.innerHTML = "";
-        
+
         if (edicionesUnicas.length === 0) {
             contenedor.innerHTML = "<p>No hay ediciones nuevas disponibles por el momento.</p>";
             return;
@@ -397,12 +397,12 @@ async function abrirModalPostulacion() {
             // 2. AUDITORÍA EN CONSOLA (Presiona F12 en el navegador para ver cómo llega el mapa)
             console.log("Datos de la edición recibida:", e);
 
-            let opcionesEspacios = '<option value="">-- Selecciona un lote --</option><option value="">-- Sin preferencias --</option>';
-            
+            let opcionesEspacios = '<option value="">-- Selecciona un lote --</option>';
+
             try {
                 const resEspacios = await axios.get(`http://localhost:8080/api/espacios/edicion/${e.id}`);
                 const espaciosDisponibles = resEspacios.data.filter(esp => esp.estado === 'DISPONIBLE');
-                
+
                 if (espaciosDisponibles.length === 0) {
                     opcionesEspacios = '<option value="">-- Sin preferencias --</option><option value="" disabled>Agotado (Sin lugares)</option>';
                 } else {
@@ -417,8 +417,8 @@ async function abrirModalPostulacion() {
 
             // 3. CAPTURA DE IMAGEN MÁS ROBUSTA (Busca en camelCase y en snake_case)
             const urlDelMapa = e.mapaUrl || e.mapa_url;
-            const mapaHtml = urlDelMapa 
-                ? `<img src="${urlDelMapa}" alt="Mapa de la feria" style="width: 100%; border-radius: 8px; margin-bottom: 10px; max-height: 200px; object-fit: contain; background-color: #f8fafc; border: 1px solid #ccc;">` 
+            const mapaHtml = urlDelMapa
+                ? `<img src="${urlDelMapa}" alt="Mapa de la feria" style="width: 100%; border-radius: 8px; margin-bottom: 10px; max-height: 200px; object-fit: contain; background-color: #f8fafc; border: 1px solid #ccc;">`
                 : `<p style="font-size: 0.85em; color: #666; font-style: italic; text-align: center;">(No hay mapa disponible para esta edición)</p>`;
 
             const div = document.createElement("div");
@@ -440,7 +440,7 @@ async function abrirModalPostulacion() {
                         ⚠️ <strong>Cupos agotados.</strong> Si te postulas, entrarás en la lista de espera por si se libera un espacio.
                    </div>`
                 : "";
-            
+
             div.innerHTML = `
                 <div class="feria-item-info">
                     <h4>${e.nombreEdicion || 'Edición'} - ${e.feriaNombre || ''}</h4>
@@ -476,17 +476,28 @@ function cerrarModalPostulacion() {
 
 async function enviarSolicitudConPreferencia(edicionId) {
     const select = document.getElementById(`select-preferencia-${edicionId}`);
-    const espacioId = select ? select.value : null;
+    const espacioId = select ? select.value : "";
+
+    // 🛡️ VALIDACIÓN: no permitir envío sin lote seleccionado
+    if (!espacioId || espacioId === "") {
+        await Swal.fire({
+            title: "Lote requerido",
+            text: "Por favor, selecciona un lote válido antes de postularte.",
+            icon: "warning",
+            confirmButtonColor: "#f59e0b"
+        });
+        return;
+    }
 
     try {
         const payload = {
             edicionId: edicionId,
             standId: ferianteActual.stand.id,
-            espacioId: espacioId ? parseInt(espacioId) : null
+            espacioId: parseInt(espacioId)
         };
 
         const res = await axios.post(`${PARTICIPACIONES_URL}/inscribir`, payload);
-        
+
         const msg = res.data?.mensaje || "¡Inscripción enviada!";
         mostrarNotificacion(msg, "success");
 

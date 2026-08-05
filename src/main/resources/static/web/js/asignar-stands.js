@@ -9,13 +9,18 @@ async function cargarEspaciosDisponibles(edicionId, espacioSeleccionadoId = null
     selectUbicacion.innerHTML = '<option value="">Seleccione un stand (Opcional)...</option>';
     try {
         const res = await axios.get(`/api/espacios/edicion/${edicionId}`);
-        const disponibles = res.data.filter(e => e.estado === 'DISPONIBLE' || e.id == espacioSeleccionadoId);
-        if (disponibles.length === 0) {
-            selectUbicacion.innerHTML = '<option value="">⚠️ No hay stands disponibles</option>';
+        const espacios = res.data.filter(e => e.estado !== 'ELIMINADO');
+        if (espacios.length === 0) {
+            selectUbicacion.innerHTML = '<option value="">⚠️ No hay stands configurados</option>';
             return;
         }
-        disponibles.forEach(esp => {
-            selectUbicacion.innerHTML += `<option value="${esp.id}">${esp.nombre} - $${esp.precio}</option>`;
+        espacios.forEach(esp => {
+            const esDisponible = esp.estado === 'DISPONIBLE';
+            const esActual = esp.id == espacioSeleccionadoId;
+            // Ignorar stands que no están disponibles y no son el stand actual del usuario
+            if (!esDisponible && !esActual) return;
+            const estadoMayusc = esp.estado ? esp.estado.toUpperCase() : 'DISPONIBLE';
+            selectUbicacion.innerHTML += `<option value="${esp.id}">${esp.nombre} $${esp.precio} (${estadoMayusc})</option>`;
         });
         if (espacioSeleccionadoId) selectUbicacion.value = espacioSeleccionadoId;
     } catch (error) {
@@ -383,8 +388,18 @@ document.addEventListener("DOMContentLoaded", () => {
             return mostrarNotificacion("El monto no puede ser negativo.", "error");
         }
 
+        if (ubicacionValue === "") {
+            await Swal.fire({
+                title: "Selección requerida",
+                text: "Por favor, selecciona un lote válido.",
+                icon: "warning",
+                confirmButtonColor: "#f59e0b"
+            });
+            return;
+        }
+
         // Parseo seguro para el backend (Integer)
-        const espacioId = ubicacionValue !== "" ? parseInt(ubicacionValue, 10) : null;
+        const espacioId = parseInt(ubicacionValue, 10);
 
         const payload = {
             montoAbonado: monto,
