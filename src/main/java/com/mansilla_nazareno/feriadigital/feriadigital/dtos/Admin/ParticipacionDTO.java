@@ -14,6 +14,10 @@ public class ParticipacionDTO {
 
     private Integer standId;
     private String stand;
+    private String standDescripcion;
+    private String standImagenUrl;
+    private Boolean standActivo;
+    private String ferianteNombre;
 
     // 🟢 ESTOS SON LOS 3 ATRIBUTOS QUE FALTABAN DECLARAR:
     private EstadoParticipacion estado;
@@ -45,6 +49,16 @@ public class ParticipacionDTO {
         if (participacion.getStand() != null) {
             this.standId = participacion.getStand().getId();
             this.stand = participacion.getStand().getNombre();
+            this.standDescripcion = participacion.getStand().getDescripcion();
+            this.standImagenUrl = participacion.getStand().getImagenUrl();
+            this.standActivo = participacion.getStand().isActivo();
+
+            if (participacion.getStand().getFeriante() != null && participacion.getStand().getFeriante().getUsuario() != null) {
+                this.ferianteNombre = participacion.getStand().getFeriante().getUsuario().getNombre() + " " + 
+                                      (participacion.getStand().getFeriante().getUsuario().getApellido() != null ? participacion.getStand().getFeriante().getUsuario().getApellido() : "");
+            } else {
+                this.ferianteNombre = participacion.getStand().getNombre();
+            }
         }
 
         this.estado = participacion.getEstado();
@@ -78,6 +92,18 @@ public class ParticipacionDTO {
     public String getStand() { return stand; }
     public void setStand(String stand) { this.stand = stand; }
 
+    public String getStandDescripcion() { return standDescripcion; }
+    public void setStandDescripcion(String standDescripcion) { this.standDescripcion = standDescripcion; }
+
+    public String getStandImagenUrl() { return standImagenUrl; }
+    public void setStandImagenUrl(String standImagenUrl) { this.standImagenUrl = standImagenUrl; }
+
+    public Boolean getStandActivo() { return standActivo; }
+    public void setStandActivo(Boolean standActivo) { this.standActivo = standActivo; }
+
+    public String getFerianteNombre() { return ferianteNombre; }
+    public void setFerianteNombre(String ferianteNombre) { this.ferianteNombre = ferianteNombre; }
+
     public EstadoParticipacion getEstado() { return estado; }
     public void setEstado(EstadoParticipacion estado) { this.estado = estado; }
 
@@ -98,4 +124,4 @@ public class ParticipacionDTO {
 
     public String getMotivoRechazo() { return motivoRechazo; }
     public void setMotivoRechazo(String motivoRechazo) { this.motivoRechazo = motivoRechazo; }
-}
+}

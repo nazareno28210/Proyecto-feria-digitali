@@ -1,40 +1,118 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cambiar Contraseña</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguridad — Cambiar Contraseña | Feria Digital</title>
+    <link rel="icon" href="/web/assets/logo.png" />
 
+    <!-- Fuentes e Iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <!-- Estilos de la aplicación -->
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/cambiar-contrasena.css">
-    
 </head>
 <body>
 
 <header>
-    <div class="header-content">
-        <h1>Feria Digital</h1>
-        <a href="#" onclick="window.history.back(); return false;" class="btn btn-header">← Volver</a>
+    <div class="header-top">
+        <div class="header-left">
+            <a href="/web/ferias.html" class="header-logo-link">
+                <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
+            </a>
+            <div class="header-titles">
+                <h1>Feria Digital</h1>
+                <span class="header-subtitle">Seguridad de la Cuenta</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <a href="/web/usuario-perfil.html" class="btn btn-header">
+                <i class="bi bi-arrow-left-circle-fill"></i> Volver al Perfil
+            </a>
+        </div>
     </div>
 </header>
 
-<main>
-    <div class="perfil-container">
-        <h1>Cambiar contraseña</h1>
+<main class="main-container">
+    <div class="security-card">
+        <div class="security-card-header">
+            <i class="bi bi-shield-lock-fill"></i>
+            <h2>Cambiar Contraseña</h2>
+        </div>
+        <p class="security-subtitle">Elige cómo prefieres actualizar la clave de acceso a tu cuenta.</p>
 
-        <form id="form-password">
-            <label>Contraseña actual</label>
-            <input type="password" id="actual" required>
+        <!-- Selector de Métodos -->
+        <div class="methods-nav">
+            <button id="tab-manual" class="method-tab active" onclick="switchMethod('manual')">
+                <i class="bi bi-key-fill"></i> Ingresar Clave Actual
+            </button>
+            <button id="tab-email" class="method-tab" onclick="switchMethod('email')">
+                <i class="bi bi-envelope-at-fill"></i> Solicitar por Correo
+            </button>
+        </div>
 
-            <label>Nueva contraseña</label>
-            <input type="password" id="nueva" required>
+        <!-- Método 1: Cambio Manual -->
+        <div id="method-manual-container" class="method-content">
+            <form id="form-password">
+                <div class="form-group">
+                    <label for="actual">Contraseña Actual <span class="required-asterisk">*</span></label>
+                    <div class="input-with-icon">
+                        <i class="bi bi-lock-fill field-icon"></i>
+                        <input type="password" id="actual" placeholder="Ingresa tu clave actual" required class="form-input">
+                    </div>
+                </div>
 
-            <label>Repetir nueva contraseña</label>
-            <input type="password" id="repetir" required>
+                <div class="form-group">
+                    <label for="nueva">Nueva Contraseña <span class="required-asterisk">*</span></label>
+                    <div class="input-with-icon">
+                        <i class="bi bi-shield-plus field-icon"></i>
+                        <input type="password" id="nueva" placeholder="Mínimo 6 caracteres" required class="form-input">
+                    </div>
+                </div>
 
-            <button type="submit" class="btn">Guardar cambios</button>
-        </form>
+                <div class="form-group">
+                    <label for="repetir">Repetir Nueva Contraseña <span class="required-asterisk">*</span></label>
+                    <div class="input-with-icon">
+                        <i class="bi bi-shield-check field-icon"></i>
+                        <input type="password" id="repetir" placeholder="Repite la nueva clave" required class="form-input">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit-manual" class="btn-save-password">
+                    <i class="bi bi-check-circle-fill"></i> Guardar Cambios
+                </button>
+            </form>
+        </div>
+
+        <!-- Método 2: Enlace por Correo Electrónico -->
+        <div id="method-email-container" class="method-content hidden">
+            <div class="email-option-box">
+                <div class="email-box-icon">
+                    <i class="bi bi-envelope-check-fill"></i>
+                </div>
+                <h3>Restablecimiento por Correo Seguro</h3>
+                <p>Te enviaremos un correo electrónico a tu dirección registrada con un enlace de verificación único para restablecer tu clave sin ingresar la actual.</p>
+                
+                <button type="button" id="btn-enviar-correo" class="btn-send-email" onclick="solicitarLinkPorCorreo()">
+                    <i class="bi bi-send-fill"></i> Enviar Enlace a mi Correo
+                </button>
+            </div>
+        </div>
     </div>
 </main>
+
+<footer>
+    <p id="creditos">
+        Proyecto Feria Digital — Desarrollado por <strong>Nazareno Guardia</strong> y <strong>Mansilla Denis</strong>.<br>
+        Alumnos de la carrera de Tecnicatura Superior de Desarrollo de Software del CENT 35.
+    </p>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

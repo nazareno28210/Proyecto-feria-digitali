@@ -1,102 +1,157 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscador de Productos - Feria Digital</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Buscador de Productos — Feria Digital</title>
+    <link rel="icon" href="/web/assets/logo.png" />
+    
+    <!-- Fuentes e Iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <!-- Estilos de la aplicación -->
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/buscar.css">
+
+    <!-- Scripts de Terceros -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/web/js/notificaciones.js"></script>
 </head>
 <body>
 
-<header class="navbar-custom py-3 shadow-sm">
-    <div class="container d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
-            <h1 class="h4 text-white mb-0 fw-bold">🛒 Mercado de Ferias</h1>
+<header>
+    <div class="header-top">
+        <div class="header-left">
+            <a href="/web/ferias.html" class="header-logo-link">
+                <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
+            </a>
+            <div class="header-title-wrapper">
+                <h1>Feria Digital</h1>
+                <span class="header-subtitle">Buscador Global de Productos</span>
+            </div>
         </div>
-        <nav>
-            <a href="ferias.html" class="btn btn-outline-light btn-sm me-2">Ver Ferias</a>
-        </nav>
+        <div class="header-right">
+            <a href="/web/ferias.html" class="btn btn-header">
+                <i class="bi bi-shop"></i> Ver Ferias
+            </a>
+        </div>
     </div>
 </header>
 
-<main class="container mt-4">
-    <section class="filtro-panel p-4 mb-4 shadow-sm border-0">
-        <div class="row g-3">
-            <div class="col-md-5">
-                <label class="form-label fw-bold">¿Qué buscás?</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                    <input type="text" id="inputNombre" class="form-control border-start-0" placeholder="Nombre del producto...">
-                </div>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Feria</label>
-                <select id="selectFeria" class="form-select"></select>
-            </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Categoría</label>
-                <select id="selectCategoria" class="form-select"></select>
-            </div>
-            <div class="col-md-1 d-grid align-items-end">
-                <button class="btn btn-outline-primary" id="btnLimpiar" onclick="limpiarFiltros()">
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                </button>
-            </div>
+<main class="main-container">
+    <!-- Hero Banner -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2><i class="bi bi-search"></i> Explorá el Mercado de Productos</h2>
+            <p>Encontrá artículos artesanales, creaciones gastronómicas y productos comerciales de todas las ferias de la ciudad.</p>
+        </div>
+    </section>
 
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Precio Mín.</label>
-                <input type="number" id="minPrecio" class="form-control" placeholder="0">
+    <!-- Panel de Filtros -->
+    <section class="filtro-section">
+        <div class="filtro-card">
+            <div class="filtro-card-header">
+                <i class="bi bi-funnel-fill"></i>
+                <h3>Filtros de Búsqueda</h3>
             </div>
-            <div class="col-md-3">
-                <label class="form-label fw-bold">Precio Máx.</label>
-                <input type="number" id="maxPrecio" class="form-control" placeholder="99999">
-            </div>
-            <div class="col-md-6 d-flex align-items-center">
-                <div class="form-check form-switch mt-4">
-                    <input class="form-check-input" type="checkbox" id="checkFeriasActivas" checked>
-                    <label class="form-check-label fw-bold text-muted" for="checkFeriasActivas">
-                        Solo productos de ferias vigentes
+            
+            <div class="filtro-grid">
+                <!-- Nombre del producto -->
+                <div class="filter-group col-span-5">
+                    <label for="inputNombre" class="filter-label">¿Qué buscás?</label>
+                    <div class="input-with-icon">
+                        <i class="bi bi-search field-icon"></i>
+                        <input type="text" id="inputNombre" class="input-control" placeholder="Buscar por nombre o descripción...">
+                    </div>
+                </div>
+
+                <!-- Selector de Feria -->
+                <div class="filter-group col-span-3">
+                    <label for="selectFeria" class="filter-label">Feria</label>
+                    <div class="select-with-icon">
+                        <i class="bi bi-shop field-icon"></i>
+                        <select id="selectFeria" class="select-control"></select>
+                    </div>
+                </div>
+
+                <!-- Selector de Categoría -->
+                <div class="filter-group col-span-3">
+                    <label for="selectCategoria" class="filter-label">Categoría</label>
+                    <div class="select-with-icon">
+                        <i class="bi bi-tag field-icon"></i>
+                        <select id="selectCategoria" class="select-control"></select>
+                    </div>
+                </div>
+
+                <!-- Botón Limpiar -->
+                <div class="filter-group col-span-1 align-bottom">
+                    <button id="btnLimpiar" class="btn-clear-filters" onclick="limpiarFiltros()" title="Limpiar todos los filtros">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </button>
+                </div>
+
+                <!-- Rango de Precios -->
+                <div class="filter-group col-span-3">
+                    <label for="minPrecio" class="filter-label">Precio Mínimo ($)</label>
+                    <input type="number" id="minPrecio" class="input-control" placeholder="0" min="0">
+                </div>
+
+                <div class="filter-group col-span-3">
+                    <label for="maxPrecio" class="filter-label">Precio Máximo ($)</label>
+                    <input type="number" id="maxPrecio" class="input-control" placeholder="Sin límite" min="0">
+                </div>
+
+                <!-- Toggle Ferias Vigentes -->
+                <div class="filter-group col-span-6 flex-align-center">
+                    <label class="toggle-switch-label">
+                        <input class="toggle-checkbox" type="checkbox" id="checkFeriasActivas" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-text">Solo productos de ferias vigentes</span>
                     </label>
                 </div>
             </div>
         </div>
     </section>
 
-    <section>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0 text-primary fw-bold">
-                Productos encontrados: <span id="contador-resultados" class="badge bg-primary rounded-pill">0</span>
-            </h2>
-            <div class="dropdown">
-                <button class="btn btn-sm btn-white border dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                    Ordenar por
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" onclick="ordenarProductos('menor')">Menor precio</a></li>
-                    <li><a class="dropdown-item" href="#" onclick="ordenarProductos('mayor')">Mayor precio</a></li>
-                </ul>
+    <!-- Resultados -->
+    <section class="resultados-section">
+        <div class="resultados-bar">
+            <div class="kpi-badge">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Productos encontrados:</span>
+                <strong id="contador-resultados">0</strong>
+            </div>
+
+            <div class="ordenar-box">
+                <label for="selectOrden" class="orden-label"><i class="bi bi-sort-down"></i> Ordenar por:</label>
+                <select id="selectOrden" class="select-control select-orden" onchange="ordenarProductos(this.value)">
+                    <option value="">Destacados</option>
+                    <option value="menor">Menor precio</option>
+                    <option value="mayor">Mayor precio</option>
+                </select>
             </div>
         </div>
-        
-        <div id="contenedor-productos" class="row"></div>
+
+        <div id="contenedor-productos" class="cards-grid-productos">
+            <!-- Se cargan dinámicamente -->
+        </div>
     </section>
 </main>
 
-<footer class="footer-custom py-4 mt-5">
-    <div class="container text-center text-white small">
-        <p class="mb-0">Proyecto Feria Digital — Desarrollado por Nazareno Guardia y Mansilla Denis.</p>
-        <p class="opacity-75">Alumnos de la carrera de Tecnicatura Superior de Desarrollo de Software del CENT 35.</p>
-    </div>
+<footer>
+    <p id="creditos">
+        Proyecto Feria Digital — Desarrollado por <strong>Nazareno Guardia</strong> y <strong>Mansilla Denis</strong>.<br>
+        Alumnos de la carrera de Tecnicatura Superior de Desarrollo de Software del CENT 35.
+    </p>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/web/js/notificaciones.js"></script>
 <script src="/web/js/buscar.js"></script>
 </body>
 </html>

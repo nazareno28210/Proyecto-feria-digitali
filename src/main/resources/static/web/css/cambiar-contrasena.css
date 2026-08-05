@@ -1,14 +1,362 @@
-.perfil-container {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 16px;
-    max-width: 400px;
-    margin: 40px auto;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+/*
+ * ====================================
+ * CAMBIAR-CONTRASENA.CSS (Rediseño Institucional)
+ * ====================================
+ */
+
+:root {
+  --color-dark-blue: #1a3a5a;
+  --color-medium-blue: #3b82f6;
+  --color-light-accent: #67e8f9;
+  --color-background: #eef6ff;
+  --color-card: #ffffff;
+  --color-text-dark: #1f2937;
+  --color-text-light: #6b7280;
 }
 
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+body {
+  font-family: "Poppins", Arial, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+/* ====================================
+   1. HEADER INSTITUCIONAL
+   ==================================== */
+header {
+  background: linear-gradient(135deg, #1a3a5a 0%, #0f253d 100%);
+  padding: 0.8rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 1.5rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  background-color: white;
+  border-radius: 50%;
+  padding: 3px;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  color: #67e8f9;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.btn-header {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.btn-header:hover {
+  background: white;
+  color: #1a3a5a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ====================================
+   2. MAIN & TARJETA DE SEGURIDAD
+   ==================================== */
+.main-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1;
+}
+
+.security-card {
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.security-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.security-card-header i {
+  font-size: 2rem;
+  color: #3b82f6;
+}
+
+.security-card-header h2 {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: #1a3a5a;
+}
+
+.security-subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0 0 1.75rem 0;
+}
+
+/* Pestañas de Selección de Método */
+.methods-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background: #f1f5f9;
+  padding: 6px;
+  border-radius: 14px;
+  margin-bottom: 1.75rem;
+}
+
+.method-tab {
+  background: transparent;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.method-tab.active {
+  background: #ffffff;
+  color: #1a3a5a;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.method-tab:hover:not(.active) {
+  color: #1a3a5a;
+}
+
+/* Formulario */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.88rem;
+}
+
+.required-asterisk {
+  color: #ef4444;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 14px;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  pointer-events: none;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #ffffff;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+  outline: none;
+  font-family: inherit;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.btn-save-password {
+  background: linear-gradient(135deg, #1a3a5a 0%, #0f253d 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 0.75rem;
+}
+
+.btn-save-password:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Opción de Correo */
+.email-option-box {
+  background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+  border: 1.5px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 1.75rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.email-box-icon {
+  width: 60px;
+  height: 60px;
+  background: #dbeaff;
+  color: #2563eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.email-option-box h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a3a5a;
+}
+
+.email-option-box p {
+  margin: 0 0 1.5rem 0;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.btn-send-email {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-send-email:hover {
+  background: #1d4ed8;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* FOOTER */
+footer {
+  width: 100%;
+  background-color: var(--color-dark-blue);
+  color: white;
+  text-align: center;
+  padding: 1.2rem 1rem;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+  margin-top: auto;
+}
+
+footer p {
+  margin: 0 auto;
+  max-width: 800px;
+  line-height: 1.5;
 }

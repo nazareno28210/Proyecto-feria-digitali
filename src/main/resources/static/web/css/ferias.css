@@ -153,6 +153,144 @@ header input:focus {
   transform: translateY(-2px);
 }
 
+/* --- BOTÓN AVATAR DE PERFIL Y DESPLEGABLE --- */
+.profile-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-avatar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 12px 3px 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.profile-avatar-btn:hover,
+.profile-avatar-btn:focus {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.avatar-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-arrow {
+  color: #ffffff;
+  font-size: 0.75rem;
+  transition: transform 0.25s ease;
+}
+
+.profile-avatar-btn.active .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+/* Menú flotante desplegable */
+.profile-dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: 230px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  z-index: 1000;
+  padding: 10px 0 6px 0;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top right;
+}
+
+.profile-dropdown-menu.hidden {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95) translateY(-10px);
+}
+
+.dropdown-header {
+  padding: 8px 16px 10px 16px;
+}
+
+.dropdown-header .user-name {
+  font-weight: 700;
+  color: #1a3a5a;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-header .user-role {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dropdown-header .user-role i {
+  color: #3b82f6;
+}
+
+.dropdown-divider {
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  margin: 4px 0 6px 0;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  color: #334155;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dropdown-item:hover {
+  background-color: #f8fafc;
+  color: #2563eb;
+}
+
+.dropdown-item.logout-item {
+  color: #ef4444;
+}
+
+.dropdown-item.logout-item:hover {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+
 /* --- 2. LAYOUT PRINCIPAL Y HERO BANNER --- */
 .main-container {
   max-width: 1400px;
