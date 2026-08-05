@@ -8,7 +8,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandR
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.CategoriaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.ProductoRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.ResenaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.ResenaProductoRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +31,9 @@ public class ProductoController {
     private final StandRepository standRepository;
     private final CloudinaryService cloudinaryService;
     private final CategoriaProductoRepository categoriaRepository;
-    @Autowired
-    private ResenaRepository resenaRepository;
 
+    @Autowired
+    private ResenaProductoRepository resenaProductoRepository;
 
     public ProductoController(
             ProductoRepository productoRepository,
@@ -69,15 +69,10 @@ public class ProductoController {
         return productoRepository.findById(id)
                 .filter(p -> !p.isEliminado())
                 .map(producto -> {
-                    // 1. Calculamos el promedio y cantidad de la DB
-                    Double promedio = resenaRepository.getPromedioPorProducto(id);
-                    Long cantidad = resenaRepository.getCantidadResenasPorProducto(id);
+                    Double promedio = resenaProductoRepository.getPromedioPorProducto(id);
+                    Long cantidad = resenaProductoRepository.getCantidadResenasPorProducto(id);
 
-                    // 2. Creamos el DTO
                     ProductoDTO dto = new ProductoDTO(producto);
-
-                    // 3. Cargamos los datos calculados
-                    // Si 'promedio' es null (porque no hay reseñas), ponemos 0.0
                     dto.setPromedioEstrellas(promedio != null ? promedio : 0.0);
                     dto.setCantidadResenas(cantidad != null ? cantidad.intValue() : 0);
 

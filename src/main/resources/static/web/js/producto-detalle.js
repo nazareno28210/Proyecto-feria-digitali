@@ -294,7 +294,7 @@ function cambiarImagenPrincipal(url, index, elementoClicado) {
 async function cargarResenas(id) {
     const lista = document.getElementById("lista-resenas");
     try {
-        const res = await axios.get(`/api/resenas/producto/${id}`);
+        const res = await axios.get(`/api/resenas-producto/producto/${id}`);
         lista.innerHTML = "";
 
         if (res.data.length === 0) {
@@ -395,7 +395,7 @@ async function enviarRespuesta(event, resenaIdParam) {
         return;
     }
     try {
-        await axios.put(`/api/resenas/${resenaId}/responder`, texto, {
+        await axios.put(`/api/resenas-producto/${resenaId}/responder`, texto, {
             headers: { 'Content-Type': 'text/plain' }, withCredentials: true
         });
         mostrarNotificacion("Respuesta guardada correctamente.", "success");
@@ -410,18 +410,18 @@ async function eliminarRespuesta(event, resenaIdParam) {
     if (event && event.preventDefault) event.preventDefault();
     const resenaId = typeof event === 'number' ? event : resenaIdParam;
     const resultado = await Swal.fire({
-        title: "Confirmar eliminacion",
+        title: "Confirmar eliminación",
         text: "¿Seguro que deseas eliminar tu respuesta?",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Si, eliminar",
+        confirmButtonText: "Sí, eliminar",
         cancelButtonText: "Cancelar",
         confirmButtonColor: "#dc2626",
         cancelButtonColor: "#6b7280",
     });
     if (!resultado.isConfirmed) return;
     try {
-        await axios.delete(`/api/resenas/${resenaId}/respuesta`, { withCredentials: true });
+        await axios.delete(`/api/resenas-producto/${resenaId}/respuesta`, { withCredentials: true });
         mostrarNotificacion("Respuesta eliminada correctamente.", "success");
         const prodId = parseInt(new URLSearchParams(window.location.search).get('id'));
         cargarResenas(prodId);
@@ -463,19 +463,42 @@ function configurarEstrellas() {
 }
 
 // 5. Enviar Reseña de Cliente
-async function enviarResena() {
+async function enviarResenaProducto() {
     const texto = document.getElementById("comentario-texto").value.trim();
     const urlParams = new URLSearchParams(window.location.search);
     const productoId = parseInt(urlParams.get('id'));
+
     if (puntajeSeleccionado === 0) {
-        mostrarNotificacion("Selecciona las estrellas antes de enviar.", "warning");
+        if (typeof Swal !== 'undefined') Swal.fire('Atención', 'Selecciona las estrellas antes de enviar.', 'warning');
+        else mostrarNotificacion("Selecciona las estrellas antes de enviar.", "warning");
         return;
     }
+
+    if (!texto || texto.length < 10) {
+        if (typeof Swal !== 'undefined') Swal.fire('Comentario muy corto', 'El comentario debe tener al menos 10 caracteres.', 'warning');
+        else mostrarNotificacion("El comentario debe tener al menos 10 caracteres.", "warning");
+        return;
+    }
+
     try {
-        await axios.post("/api/resenas", {
-            puntaje: puntajeSeleccionado, comentario: texto, producto: { id: productoId }
+        await axios.post("/api/resenas-producto", {
+            producto_id: productoId,
+            puntaje: puntajeSeleccionado,
+            comentario: texto
         }, { withCredentials: true });
-        mostrarNotificacion("Gracias por tu opinion.", "success");
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Gracias por tu opinión!',
+                text: 'Tu reseña fue publicada con éxito.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            mostrarNotificacion("Gracias por tu opinión.", "success");
+        }
+
         const elComentario = document.getElementById("comentario-texto");
         if (elComentario) elComentario.value = "";
         puntajeSeleccionado = 0;
@@ -483,6 +506,21 @@ async function enviarResena() {
         cargarResenas(productoId);
         cargarDatosProducto(productoId);
     } catch (err) {
-        mostrarNotificacion(obtenerMensajeError(err, "Error al publicar."), "error");
+        if (err.response && err.response.status === 403) {
+            const msg = typeof err.response.data === 'string' ? err.response.data : "No podés calificar tu propio producto.";
+            if (typeof Swal !== 'undefined') Swal.fire('Acceso Restringido', msg, 'warning');
+            else mostrarNotificacion(msg, 'warning');
+        } else if (err.response && err.response.status === 409) {
+            if (typeof Swal !== 'undefined') Swal.fire('Reseña Duplicada', 'Ya calificaste este producto.', 'info');
+            else mostrarNotificacion('Ya calificaste este producto.', 'info');
+        } else {
+            const msg = (err.response && err.response.data) ? err.response.data : "Error al publicar.";
+            if (typeof Swal !== 'undefined') Swal.fire('Error', typeof msg === 'string' ? msg : 'Error al publicar.', 'error');
+            else mostrarNotificacion(typeof msg === 'string' ? msg : 'Error al publicar.', 'error');
+        }
     }
 }
+
+async function enviarResena() {
+    await enviarResenaProducto();
+}

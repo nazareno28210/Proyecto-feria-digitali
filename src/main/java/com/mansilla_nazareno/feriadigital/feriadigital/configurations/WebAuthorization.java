@@ -35,8 +35,10 @@ public class WebAuthorization {
                         // 🔒 Endpoint para CAMBIO DE CONTRASEÑA
                         .requestMatchers("/api/password/**").authenticated()
 
-                        // 🛡️ AGREGÁ ESTA LÍNEA PARA LAS RESEÑAS
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/resenas").authenticated()
+                        // 🛡️ Endpoints de valoraciones y reseñas
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/votos-feria/**", "/api/resenas-stand/**", "/api/resenas-producto/**").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/resenas-producto/**").authenticated()
+                        .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/resenas-producto/**").authenticated()
 
                         // 🌐 Productos públicos
                         .requestMatchers("/api/productos/publicos").permitAll()

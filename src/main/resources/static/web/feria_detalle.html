@@ -55,17 +55,18 @@
     <section id="seccion-voto-feria" class="voto-container-horizontal" style="display: none;">
         <div class="voto-content">
             <div class="voto-texto">
-                <h3><i class="bi bi-star-fill text-warning"></i> ¿Recomendás esta feria?</h3>
+                <h3><i class="bi bi-hand-thumbs-up-fill text-primary"></i> ¿Recomendás esta feria?</h3>
                 <small>Tu opinión ayuda a los visitantes y emprendedores de la comunidad.</small>
             </div>
             <div class="voto-acciones">
-                <button class="btn-voto btn-voto-si" onclick="votarFeria(5)">
-                    <i class="bi bi-hand-thumbs-up-fill"></i> Sí, la recomiendo
+                <button class="btn-voto btn-voto-si" onclick="enviarVotoFeria(true)">
+                    <i class="bi bi-hand-thumbs-up-fill"></i> Me gusta
                 </button>
-                <button class="btn-voto btn-voto-no" onclick="votarFeria(1)">
-                    <i class="bi bi-hand-thumbs-down-fill"></i> No la recomiendo
+                <button class="btn-voto btn-voto-no" onclick="enviarVotoFeria(false)">
+                    <i class="bi bi-hand-thumbs-down-fill"></i> No me gusta
                 </button>
             </div>
+
         </div>
     </section>
 

@@ -8,7 +8,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.models.Admin.Feria;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.EdicionFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.FeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.ResenaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.VotoFeriaRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,7 +27,7 @@ public class FeriaController {
     private final FeriaRepository feriaRepository;
 
     @Autowired
-    private ResenaRepository resenaRepository;
+    private VotoFeriaRepository votoFeriaRepository;
 
     @Autowired
     private CloudinaryService cloudinaryService;
@@ -59,8 +59,8 @@ public class FeriaController {
                     FeriaDTO dto = new FeriaDTO(feria);
 
                     // Mantenemos tus estadísticas de reseñas vinculadas a la plantilla base
-                    Long positivos = resenaRepository.countVotosPositivosFeria(id);
-                    Long totales = resenaRepository.countTotalVotosFeria(id);
+                    Long positivos = votoFeriaRepository.countVotosPositivosFeria(id);
+                    Long totales = votoFeriaRepository.countTotalVotosFeria(id);
                     int porcentaje = (totales != null && totales > 0) ? (int) ((positivos * 100.0) / totales) : 0;
 
                     dto.setPorcentajeAprobacion(porcentaje);
@@ -68,6 +68,8 @@ public class FeriaController {
 
                     return dto;
                 })
+
+
                 .orElse(null);
     }
 

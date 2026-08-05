@@ -155,25 +155,51 @@ function configurarEstrellasStand() {
     });
 }
 
-// ⭐ Enviar la calificación al servidor
-async function enviarCalificacionStand() {
+// ⭐ Enviar la reseña de Stand al servidor
+async function enviarResenaStand() {
     if (puntajeStand === 0) {
         mostrarNotificacion("Por favor, selecciona un puntaje.", "warning");
         return;
     }
 
     try {
-        await axios.post("/api/resenas", {
-            puntaje: puntajeStand,
-            stand: { id: parseInt(standId) }
+        await axios.post("/api/resenas-stand", {
+            stand_id: parseInt(standId),
+            puntaje: puntajeStand
         }, { withCredentials: true });
 
-        mostrarNotificacion("Gracias por tu calificacion.", "success");
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Gracias por tu calificación!',
+                text: 'Tu puntaje fue registrado.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            mostrarNotificacion("Gracias por tu calificación.", "success");
+        }
         cargarStand();
     } catch (err) {
-        mostrarNotificacion(obtenerMensajeError(err, "Error al calificar."), "error");
+        if (err.response && err.response.status === 403) {
+            const msg = typeof err.response.data === 'string' ? err.response.data : "No podés calificar tu propio Stand.";
+            if (typeof Swal !== 'undefined') Swal.fire('Acceso Restringido', msg, 'warning');
+            else mostrarNotificacion(msg, 'warning');
+        } else if (err.response && err.response.status === 409) {
+            if (typeof Swal !== 'undefined') Swal.fire('Calificación Duplicada', 'Ya calificaste este Stand.', 'info');
+            else mostrarNotificacion('Ya calificaste este Stand.', 'info');
+        } else {
+            const msg = obtenerMensajeError(err, "Error al calificar.");
+            if (typeof Swal !== 'undefined') Swal.fire('Error', msg, 'error');
+            else mostrarNotificacion(msg, 'error');
+        }
     }
 }
+
+async function enviarCalificacionStand() {
+    await enviarResenaStand();
+}
+
 
 // ⭐ Verificar si el usuario puede calificar (logueado y no es dueño)
 async function verificarAccesoCalificacion(usuarioDueñoId) {

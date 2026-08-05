@@ -157,24 +157,50 @@ async function renderizarAprobacionFeria(feriaId) {
     }
 }
 
-// ⭐ Envía el voto (5 para SI, 1 para NO) a la feria molde
-async function votarFeria(valor) {
+// ⭐ Envía el voto a la feria (esPositivo: boolean)
+async function enviarVotoFeria(esPositivo) {
     try {
         const responseEdicion = await axios.get(`${API_URL}/${edicionId}`);
         const realFeriaId = responseEdicion.data.feriaId;
 
-        await axios.post("/api/resenas", {
-            puntaje: valor,
-            feria: { id: realFeriaId }
+        await axios.post("/api/votos-feria", {
+            feria_id: realFeriaId,
+            esPositivo: esPositivo
         }, { withCredentials: true });
 
-        mostrarNotificacion("Gracias por tu voto.", "success");
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Gracias por tu voto!',
+                text: 'Tu opinión fue registrada con éxito.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } else {
+            mostrarNotificacion("Gracias por tu voto.", "success");
+        }
         renderizarAprobacionFeria(realFeriaId);
     } catch (err) {
-        const msg = err.response ? err.response.data : "Error al votar.";
-        mostrarNotificacion(msg, "error");
+        if (err.response && err.response.status === 403) {
+            const msg = typeof err.response.data === 'string' ? err.response.data : 'Los administradores no pueden emitir votos.';
+            if (typeof Swal !== 'undefined') Swal.fire('Acceso Restringido', msg, 'warning');
+            else mostrarNotificacion(msg, 'warning');
+        } else if (err.response && err.response.status === 409) {
+            if (typeof Swal !== 'undefined') Swal.fire('Voto Duplicado', 'Ya votaste en esta Feria.', 'info');
+            else mostrarNotificacion('Ya votaste en esta Feria.', 'info');
+        } else {
+            const msg = (err.response && err.response.data) ? err.response.data : "Error al votar.";
+            if (typeof Swal !== 'undefined') Swal.fire('Error', typeof msg === 'string' ? msg : 'Error al registrar el voto.', 'error');
+            else mostrarNotificacion(typeof msg === 'string' ? msg : 'Error al votar.', 'error');
+        }
     }
 }
+
+async function votarFeria(valor) {
+    const esPositivo = (valor === true || valor === 5);
+    await enviarVotoFeria(esPositivo);
+}
+
 
 async function verificarAccesoVoto() {
     try {

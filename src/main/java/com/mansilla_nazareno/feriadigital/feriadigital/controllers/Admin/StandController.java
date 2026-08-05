@@ -13,7 +13,7 @@ import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.Edicio
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.ParticipacionRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Admin.StandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.Feriante.FerianteRepository;
-import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.ResenaRepository;
+import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.ResenaStandRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.repositories.UsuarioComun.UsuarioRepository;
 import com.mansilla_nazareno.feriadigital.feriadigital.services.CloudinaryService;
 
@@ -47,7 +47,7 @@ public class StandController {
     private CloudinaryService cloudinaryService;
 
     @Autowired
-    private ResenaRepository resenaRepository;
+    private ResenaStandRepository resenaStandRepository;
 
     @Autowired
     private ParticipacionRepository participacionRepository;
@@ -80,14 +80,16 @@ public class StandController {
     public StandDTO getStandDTO(@PathVariable Integer id) {
         return standRepository.findById(id)
                 .map(stand -> {
-                    Double promedio = resenaRepository.getPromedioPorStand(id);
-                    Long cantidad = resenaRepository.getCantidadResenasPorStand(id);
+                    Double promedio = resenaStandRepository.getPromedioPorStand(id);
+                    Long cantidad = resenaStandRepository.getCantidadResenasPorStand(id);
 
                     StandDTO dto = new StandDTO(stand);
                     dto.setPromedioEstrellas(promedio != null ? promedio : 0.0);
                     dto.setCantidadResenas(cantidad != null ? cantidad.intValue() : 0);
                     return dto;
                 })
+
+
                 .orElse(null);
     }
 
