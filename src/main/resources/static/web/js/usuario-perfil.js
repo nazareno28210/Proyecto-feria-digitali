@@ -207,11 +207,11 @@ async function verificarSolicitudFeriante(emailUsuario) {
         const tienePendiente = res.data.some(s => s.emailUsuario === emailUsuario);
         
         container.innerHTML = tienePendiente 
-            ? `<div class="mensaje-pendiente">Tu solicitud para ser feriante esta pendiente.</div>`
+            ? `<div class="mensaje-pendiente">Tu solicitud para ser Feriante se encuentra en revisión por la administración.</div>`
             : `<a href="/web/solicitud-feriante.html" class="accion-card accion-card--green">
                   <div class="icon"><i class="bi bi-rocket-takeoff-fill"></i></div>
                   <h3>Quiero ser Feriante</h3>
-                  <p>Envia tu solicitud para crear un stand.</p>
+                  <p>Envía tu postulación para administrar tu puesto comercial y solicitar lugares en las ferias.</p>
                </a>`;
     } catch (e) { console.error(e); }
 }
@@ -219,10 +219,11 @@ async function verificarSolicitudFeriante(emailUsuario) {
 function cerrarSesion() {
     axios.post(LOGOUT_URL, {}, { withCredentials: true })
         .then(() => {
-            mostrarNotificacion("Sesion cerrada correctamente.", "success");
+            mostrarNotificacion("Sesión cerrada correctamente.", "success");
             setTimeout(() => window.location.href = "/web/login.html", 1000);
         });
 }
+
 
 function setText(id, texto) {
     const el = document.getElementById(id);

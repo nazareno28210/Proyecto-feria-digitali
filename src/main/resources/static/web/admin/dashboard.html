@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - Feria Digital</title>
     <link rel="icon" href="/web/assets/logo.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/dashboard.css">
     
@@ -23,37 +24,91 @@
             <h1>Panel de Administración</h1>
         </div>
         
-            <div class="header-right">
-                <a href="/web/ferias.html" class="btn btn-ver-ferias">Ver Ferias</a>
-                <a href="/web/usuario-perfil.html" class="btn btn-perfil-admin">Mi Perfil</a>
-                <button id="btn-logout" class="btn btn-logout">Cerrar sesión</button>
+        <div class="header-right">
+            <a href="/web/ferias.html" class="btn btn-ver-ferias">
+                <i class="fa-solid fa-eye"></i> Ver Ferias
+            </a>
+
+            <!-- Menú Desplegable de Perfil de Administrador -->
+            <div class="profile-dropdown-container">
+                <button id="btn-profile-menu" class="profile-avatar-btn" aria-haspopup="true" aria-expanded="false" title="Opciones de perfil">
+                    <img id="header-user-avatar" src="/web/assets/logo.png" alt="Foto de perfil" class="avatar-img" />
+                    <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                </button>
+
+                <div id="profile-dropdown" class="profile-dropdown-menu hidden">
+                    <div class="dropdown-header">
+                        <span id="dropdown-user-name" class="user-name">Administrador</span>
+                        <span class="user-role"><i class="fa-solid fa-shield-halved"></i> Administrador de Feria</span>
+                    </div>
+                    <hr class="dropdown-divider">
+                    <a href="/web/usuario-perfil.html" class="dropdown-item">
+                        <i class="fa-solid fa-user-gear"></i> Mi Perfil
+                    </a>
+                    <button id="btn-logout" class="dropdown-item logout-item">
+                        <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+                    </button>
+                </div>
             </div>
+        </div>
     </div>
 </header>
 
 <main>
-    <h2 id="bienvenida">Cargando panel...</h2>
-    <p class="subtitle">Selecciona una opción para gestionar la plataforma.</p>
+    <div class="dashboard-hero">
+        <div class="welcome-row">
+            <h2 id="bienvenida">Cargando panel...</h2>
+            <span class="role-badge"><i class="fa-solid fa-shield-halved"></i> Administrador</span>
+        </div>
+        <p class="subtitle">Selecciona una opción para gestionar la plataforma.</p>
+    </div>
 
     <div class="dashboard-grid">
-        <a href="/web/admin/solicitudes.html" class="dashboard-card">
-            <div class="icon">📋</div>
+        <a href="/web/admin/solicitudes.html" class="dashboard-card card-solicitudes">
+            <div class="card-top-row">
+                <div class="icon-wrapper solicitudes">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <span class="card-badge badge-solicitudes">Solicitudes</span>
+            </div>
             <h3>Ver Solicitudes</h3>
-            <p>Administrar peticiones de nuevos feriantes.</p>
+            <p>Administrar peticiones y altas de nuevos feriantes.</p>
+            <div class="card-action">
+                <span>Ingresar</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
         </a>
 
-        <a href="/web/admin/ferias-control.html" class="dashboard-card">
-            <div class="icon">🎪</div>
+        <a href="/web/admin/ferias-control.html" class="dashboard-card card-ferias">
+            <div class="card-top-row">
+                <div class="icon-wrapper ferias">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <span class="card-badge badge-ferias">Gestión</span>
+            </div>
             <h3>Gestionar Ferias</h3>
-            <p>Crear, editar o dar de baja ferias.</p>
+            <p>Crear, editar, configurar o dar de baja ferias.</p>
+            <div class="card-action">
+                <span>Ingresar</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
         </a>
         
-        <a href="/web/admin/asignar-stands.html" class="dashboard-card">
-            <div class="icon">📍</div>
+        <a href="/web/admin/asignar-stands.html" class="dashboard-card card-stands">
+            <div class="card-top-row">
+                <div class="icon-wrapper stands">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <span class="card-badge badge-stands">Asignación</span>
+            </div>
             <h3>Asignar Stands</h3>
-            <p>Asignar stands de feriantes a una feria activa.</p>
+            <p>Asignar puestos de feriantes a ferias activas.</p>
+            <div class="card-action">
+                <span>Ingresar</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
         </a>
-        </div> 
+    </div> 
 
 </main>
 

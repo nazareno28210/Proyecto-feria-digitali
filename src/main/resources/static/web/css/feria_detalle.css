@@ -1,243 +1,527 @@
 /*
  * ====================================
- * FERIA-DETALLE.CSS (Rediseñado)
+ * FERIA_DETALLE.CSS (Rediseño Institucional)
  * ====================================
  */
 
+:root {
+  --color-dark-blue: #1a3a5a;
+  --color-medium-blue: #3b82f6;
+  --color-light-accent: #67e8f9;
+  --color-background: #eef6ff;
+  --color-card: #ffffff;
+  --color-text-dark: #1f2937;
+  --color-text-light: #6b7280;
+}
+
+body {
+  font-family: "Poppins", Arial, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
 /* ====================================
-   1. HEADER (Igual a ferias.css)
+   1. HEADER INSTITUCIONAL
    ==================================== */
+header {
+  background: linear-gradient(135deg, #1a3a5a 0%, #0f253d 100%);
+  padding: 0.8rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 
 .header-top {
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
   align-items: center;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 1.5rem;
 }
+
 .header-left {
   display: flex;
   align-items: center;
-  gap: 15px; 
+  gap: 14px;
 }
+
+.header-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
 .header-logo {
-  width: 55px;
-  height: 55px;
-  background-color: white; 
+  width: 52px;
+  height: 52px;
+  background-color: white;
   border-radius: 50%;
-  padding: 4px;
-  border: 1px solid var(--color-light-accent);
+  padding: 3px;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s ease;
 }
+
 .header-logo:hover {
-  transform: scale(1.1) rotate(15deg);
+  transform: scale(1.08) rotate(10deg);
 }
-.header-right {
-  /* No necesita estilos extra */
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+header h1 span {
+  font-size: 0.85rem;
+  color: #67e8f9;
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.aprobacion-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-header {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.btn-header:hover {
+  background: white;
+  color: #1a3a5a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* ====================================
-   2. SECCIÓN DE INFORMACIÓN (Rediseño)
+   2. MAIN & SECCIÓN INFORMATIVA
    ==================================== */
+.main-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1;
+}
 
 .info-container {
-    margin-bottom: 40px;
+  margin-bottom: 2.5rem;
 }
 
-/* Grid para Lugar, Inicio, Fin */
-#info-feria-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
-/* Tarjeta para cada item de info */
 .info-item {
-    background: var(--color-card);
-    border-radius: 12px;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
+
+.info-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
 .info-item i {
-    font-size: 1.5rem;
-    color: var(--color-medium-blue);
-    width: 30px;
-    text-align: center;
+  font-size: 1.6rem;
+  color: #3b82f6;
+  background: #eff6ff;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
+
 .info-item-content {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
+
 .info-item-content strong {
-    color: var(--color-dark-blue);
-    font-size: 1rem;
-    margin-bottom: 3px;
+  color: #1a3a5a;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 700;
 }
+
 .info-item-content span {
-    color: var(--color-text-light);
-    font-size: 0.95rem;
+  color: #334155;
+  font-size: 0.98rem;
+  font-weight: 600;
+  margin-top: 2px;
 }
 
-/* Tarjeta para la descripción */
-#info-feria-desc {
-    background: var(--color-card);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-}
-#info-feria-desc p {
-    margin: 0;
-    line-height: 1.6;
-    color: var(--color-text-light);
-}
-#info-feria-desc p strong {
-    color: var(--color-dark-blue);
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-    display: block;
+.info-desc-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+  border: 1px solid #e2e8f0;
 }
 
+.info-desc-card p {
+  margin: 0;
+  line-height: 1.6;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.info-desc-card p strong {
+  color: #1a3a5a;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  display: block;
+}
 
 /* ====================================
-   3. SECCIÓN DE STANDS
+   3. SECCIÓN DE RECOMENDACIÓN / VOTO
    ==================================== */
-h2 {
-    color: var(--color-dark-blue);
-    margin-bottom: 20px;
-    font-size: 1.8rem;
-    border-bottom: 2px solid var(--color-medium-blue);
-    padding-bottom: 5px;
+.voto-container-horizontal {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+  margin: 1.5rem 0 2.5rem 0;
+  padding: 1.25rem 2rem;
+  border-left: 6px solid #3b82f6;
+  border-top: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-/* Contenedor de stands */
-#stands-container {
-    display: grid;
-    /* CAMBIO: Tarjetas más grandes (minmax 300px) */
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+.voto-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
 }
 
-/* Tarjeta de stand (Rediseñada) */
+.voto-texto h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voto-texto small {
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.voto-acciones {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-voto {
+  border: 1.5px solid #cbd5e1;
+  background: white;
+  padding: 10px 22px;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-voto-si {
+  color: #059669;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+.btn-voto-si:hover {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+}
+
+.btn-voto-no {
+  color: #dc2626;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.btn-voto-no:hover {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+/* ====================================
+   4. ENCABEZADO Y GRILLA DE STANDS
+   ==================================== */
+.section-title-wrapper {
+  margin-bottom: 1.5rem;
+}
+
+.section-title-wrapper h2 {
+  color: #1a3a5a;
+  margin: 0 0 4px 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title-wrapper h2 i {
+  color: #3b82f6;
+}
+
+.section-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.stands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.75rem;
+}
+
+/* Tarjeta de Stand Premium */
 .stand-card {
-    background-color: var(--color-card);
-    border-radius: 16px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    /* CAMBIO: Bordes de la paleta */
-    border-top: 4px solid var(--color-dark-blue);
+  background-color: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid #3b82f6;
+  position: relative;
 }
 
 .stand-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+  border-color: #cbd5e1;
 }
 
-/* Imagen del stand */
+/* Contenedor de Imagen de Marca */
 .stand-image-container {
-    width: 100%;
-    height: 180px; /* Un poco más alta */
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f9faff;
-}
-.stand-image-container img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
+  width: 100%;
+  height: 190px;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #f1f5f9;
+  box-sizing: border-box;
 }
 
-/* Contenido de la tarjeta */
+.stand-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Fallback de logo si el stand no posee imagen */
+.stand-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #94a3b8;
+  background: linear-gradient(135deg, #eef6ff 0%, #e2e8f0 100%);
+  border-radius: 8px;
+}
+
+.stand-image-placeholder i {
+  font-size: 2.8rem;
+  color: #3b82f6;
+  opacity: 0.8;
+}
+
+.stand-image-placeholder span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Contenido Interno */
 .stand-content {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1; /* Ocupa el espacio restante */
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
+
 .stand-card h3 {
-    color: var(--color-dark-blue);
-    font-size: 1.3rem;
-    margin: 0 0 10px 0;
+  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
 }
-.stand-card p {
-    margin: 4px 0;
-    font-size: 0.95rem;
-    color: var(--color-text-light);
-    line-height: 1.5;
+
+.stand-desc {
+  font-size: 0.88rem;
+  color: #64748b;
+  line-height: 1.45;
+  margin: 0 0 1rem 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
-.stand-card p strong {
-    color: var(--color-text-dark);
+
+.stand-feriante-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin-bottom: 1.25rem;
+  width: fit-content;
+}
+
+.stand-feriante-badge i {
+  color: #3b82f6;
 }
 
 /* Botón "Ver productos" */
 .btn-stand {
-    background-color: var(--color-dark-blue);
-    color: white;
-    border: none;
-    padding: 10px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    width: 100%; /* Ocupa todo el ancho */
-    font-weight: 600;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-    /* CAMBIO: Se pega al fondo de la tarjeta */
-    margin-top: auto; 
-    margin-bottom: 0;
-    padding-top: 1rem; /* Padding superior para separarlo */
-}
-.btn-stand:hover {
-    background-color: var(--color-medium-blue);
+  background: linear-gradient(135deg, #1a3a5a 0%, #0f253d 100%);
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: all 0.25s ease;
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-/* Mensaje si no hay stands */
+.btn-stand:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+  transform: translateY(-2px);
+}
+
 .no-stands-msg {
-  color: var(--color-text-light);
-  font-size: 1.1rem;
+  color: #64748b;
+  font-size: 1.05rem;
   text-align: center;
   width: 100%;
-  grid-column: 1 / -1; 
-  padding: 3rem 0;
-}
-.voto-container-horizontal {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    margin: 20px 0 40px 0;
-    padding: 15px 25px;
-    border-left: 5px solid #1a3a5a;
+  grid-column: 1 / -1;
+  padding: 4rem 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px dashed #cbd5e1;
 }
 
-.voto-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 15px;
+/* ====================================
+   5. FOOTER UNIFICADO
+   ==================================== */
+footer {
+  width: 100%;
+  background-color: var(--color-dark-blue);
+  color: white;
+  text-align: center;
+  padding: 1.2rem 1rem;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+  margin-top: auto;
 }
 
-.btn-voto {
-    border: 2px solid #ddd;
-    background: white;
-    padding: 8px 20px;
-    border-radius: 25px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    cursor: pointer;
+footer p {
+  margin: 0 auto;
+  max-width: 800px;
+  line-height: 1.5;
 }
 
-.btn-voto-si:hover { background: #d1e7dd; border-color: #198754; color: #198754; }
-.btn-voto-no:hover { background: #f8d7da; border-color: #dc3545; color: #dc3545; }
-
-#aprobacion-header .badge {
-    font-size: 0.85rem;
-    padding: 5px 12px;
+/* Media Queries Responsivas */
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .header-right {
+    width: 100%;
+  }
+  .btn-header {
+    width: 100%;
+    justify-content: center;
+  }
+  .stands-grid {
+    grid-template-columns: 1fr;
+  }
 }

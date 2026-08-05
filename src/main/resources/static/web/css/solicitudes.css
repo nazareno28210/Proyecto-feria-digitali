@@ -1,134 +1,929 @@
 /*
  * ====================================
- * SOLICITUDES.CSS (Botones y Texto Corregido)
+ * SOLICITUDES.CSS (Diseño Responsive, Explicativo y Moderno)
  * ====================================
  */
 
 /* ====================================
-   1. HEADER (Sin cambios)
+   1. HEADER MEJORADO
    ==================================== */
-
 .header-top {
   display: flex;
   justify-content: space-between; 
   align-items: center;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 1.5rem;
 }
+
 .header-left {
   display: flex;
   align-items: center;
   gap: 15px; 
 }
+
+.header-titles h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-weight: 400;
+  display: block;
+}
+
 .header-logo {
-  width: 55px;
-  height: 55px;
+  width: 50px;
+  height: 50px;
   background-color: white; 
   border-radius: 50%;
   padding: 4px;
-  border: 1px solid var(--color-light-accent);
+  border: 2px solid var(--color-light-accent);
   transition: transform 0.3s ease;
-}
-.header-logo:hover {
-  transform: scale(1.1) rotate(15deg);
-}
-.header-right {
-  /* No necesita estilos extra */
+  object-fit: contain;
 }
 
+.header-logo:hover {
+  transform: scale(1.08) rotate(8deg);
+}
+
+.btn-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s ease;
+}
+
+.btn-header:hover {
+  background-color: white;
+  color: var(--color-dark-blue);
+  transform: translateY(-2px);
+}
 
 /* ====================================
-   2. MAIN Y TABLA
+   2. CONTENEDOR PRINCIPAL
    ==================================== */
-main {
+.solicitudes-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding-top: 2rem;
+  gap: 1.8rem;
+  width: 100%;
 }
 
-table {
-  width: 100%; 
-  border-collapse: collapse;
-  background: var(--color-card);
+/* ====================================
+   3. BANNER GUÍA DE INSTRUCCIONES
+   ==================================== */
+.info-guide-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+  border: 1px solid #d0e3ff;
+  border-left: 6px solid var(--color-medium-blue);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  box-shadow: 0 4px 18px rgba(26, 58, 90, 0.06);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.banner-icon-col {
+  display: flex;
+  align-items: flex-start;
+}
+
+.banner-icon-badge {
+  width: 52px;
+  height: 52px;
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--color-medium-blue);
   border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
 }
 
-thead {
+.banner-content-col h2 {
+  font-size: 1.15rem;
+  color: var(--color-dark-blue);
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+
+.banner-content-col p {
+  font-size: 0.92rem;
+  color: var(--color-text-dark);
+  line-height: 1.45;
+  margin-bottom: 1rem;
+}
+
+.action-explain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.explain-card {
+  background: white;
+  padding: 1rem 1.2rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.explain-card p {
+  margin-bottom: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+}
+
+.explain-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.explain-header strong {
+  font-size: 0.9rem;
+  color: var(--color-text-dark);
+}
+
+.badge-explain {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-approve {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge-reject {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* ====================================
+   4. TOOLBAR Y METRICAS
+   ==================================== */
+.toolbar-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.kpi-card {
+  background: white;
+  border-radius: 12px;
+  padding: 0.85rem 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.kpi-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background-color: #e0f2fe;
+  color: #0284c7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.kpi-value {
+  font-size: 1.5rem;
+  color: var(--color-dark-blue);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.search-box-wrapper {
+  position: relative;
+  flex-grow: 1;
+  max-width: 450px;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-light);
+  font-size: 0.95rem;
+}
+
+#input-buscar {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 2.6rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  background-color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+#input-buscar:focus {
+  outline: none;
+  border-color: var(--color-medium-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 12px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-light);
+  cursor: pointer;
+  padding: 4px;
+  font-size: 0.9rem;
+  border-radius: 50%;
+}
+
+.btn-clear-search:hover {
+  color: var(--color-error);
+}
+
+/* ====================================
+   5. VISTA ESCRITORIO (TABLA)
+   ==================================== */
+.table-view-container {
+  width: 100%;
+}
+
+.table-scroll-wrapper {
+  background: white;
+  border-radius: 14px;
+  overflow-x: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.tabla-solicitudes {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  min-width: 900px; /* Asegura un ancho mínimo apropiado para evitar amontonamiento */
+}
+
+.tabla-solicitudes thead {
   background-color: var(--color-dark-blue);
   color: white;
 }
 
-th, td {
-  padding: 14px 18px; 
-  text-align: left;
-  border-bottom: 1px solid #eef0f3; /* Borde más suave */
-  vertical-align: middle; 
+.tabla-solicitudes th {
+  padding: 1rem 1.2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 
-/* Filas de la tabla */
-tbody tr:hover {
-  background-color: #f9faff;
+.tabla-solicitudes th:last-child,
+.tabla-solicitudes td:last-child {
+  min-width: 240px;
+  text-align: center;
 }
 
-/* Celdas de la tabla */
-td {
-  /* CAMBIO 2: Color de texto oscuro para TODAS las celdas */
+.tabla-solicitudes th i {
+  margin-right: 6px;
+  opacity: 0.8;
+}
+
+.tabla-solicitudes td {
+  padding: 1.1rem 1.2rem;
+  font-size: 0.92rem;
   color: var(--color-text-dark);
-  font-size: 0.95rem;
-  font-weight: 500; /* Peso de fuente uniforme */
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
 }
 
-/* CAMBIO 1: Forzar a que la celda de acciones no divida los botones */
-td:last-child {
-  white-space: nowrap; 
+.tabla-solicitudes tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.tabla-solicitudes tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+.tabla-solicitudes tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Celdas específicas */
+.solicitante-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name-text {
+  font-weight: 700;
+  color: var(--color-dark-blue);
+}
+
+.user-email-text {
+  font-size: 0.82rem;
+  color: var(--color-text-light);
+}
+
+.badge-emprendimiento {
+  background-color: #eff6ff;
+  color: #1e40af;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  display: inline-block;
+  border: 1px solid #dbeafe;
+}
+
+.contacto-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.contact-link {
+  color: var(--color-medium-blue);
+  text-decoration: none;
+  font-size: 0.84rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s ease;
+}
+
+.contact-link:hover {
+  color: var(--color-dark-blue);
+  text-decoration: underline;
+}
+
+.desc-preview {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+.btn-ver-mas {
+  background: none;
+  border: none;
+  color: var(--color-medium-blue);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0;
+  margin-left: 5px;
+  text-decoration: underline;
+}
+
+.actions-cell {
+  white-space: nowrap;
+  text-align: center;
+}
+
+.actions-group {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 /* ====================================
-   3. BOTONES DE ACCIÓN (Sin cambios)
+   6. VISTA MÓVIL (CARDS)
+   ==================================== */
+.cards-view-container {
+  display: none; /* Se activa mediante media queries */
+  flex-direction: column;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.solicitud-card {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  padding: 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.solicitud-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.card-top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.8rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.8rem;
+}
+
+.card-id-badge {
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.card-applicant-title h3 {
+  font-size: 1.05rem;
+  color: var(--color-dark-blue);
+  font-weight: 700;
+  margin: 0;
+}
+
+.card-business-name {
+  font-size: 1rem;
+  color: var(--color-medium-blue);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.card-detail-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--color-text-dark);
+}
+
+.card-detail-item i {
+  color: var(--color-text-light);
+  width: 16px;
+  margin-top: 3px;
+}
+
+.card-actions-row {
+  display: flex;
+  gap: 10px;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.card-actions-row button {
+  flex: 1;
+}
+
+/* ====================================
+   7. BOTONES DE ACCION MODERNOS
    ==================================== */
 .btn-aprobar,
-.btn-rechazar {
-  padding: 8px 14px;
+.btn-rechazar,
+.btn-detalle-card {
+  padding: 9px 16px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
-  font-size: 0.9rem;
-  text-decoration: none;
+  font-size: 0.88rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   transition: all 0.2s ease-in-out;
-  white-space: nowrap;
+  text-decoration: none;
 }
 
-/* Botón Aprobar */
 .btn-aprobar {
-  background-color: var(--color-success); 
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
+
 .btn-aprobar:hover {
-  background-color: #218838; 
-  transform: scale(1.05);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
-/* Botón Rechazar */
 .btn-rechazar {
-  background-color: var(--color-error); 
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  margin-left: 8px;
-}
-.btn-rechazar:hover {
-  background-color: #c82333; 
-  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
 }
 
-/* ============================
-   4. Mensaje inferior (Sin cambios)
-============================ */
-.mensaje {
-  margin-top: 25px;
-  font-size: 1.1rem;
+.btn-rechazar:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.btn-detalle-card {
+  background-color: #f1f5f9;
+  color: var(--color-dark-blue);
+  border: 1px solid #cbd5e1;
+}
+
+.btn-detalle-card:hover {
+  background-color: #e2e8f0;
+}
+
+/* ====================================
+   8. ESTADO VACÍO (EMPTY STATE)
+   ==================================== */
+.empty-state-card {
+  background: white;
+  border-radius: 16px;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  border: 2px dashed #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.empty-state-icon {
+  width: 70px;
+  height: 70px;
+  background-color: #eff6ff;
+  color: var(--color-medium-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin-bottom: 1.2rem;
+}
+
+.empty-state-card h3 {
+  font-size: 1.3rem;
+  color: var(--color-dark-blue);
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+
+.empty-state-card p {
   color: var(--color-text-light);
+  font-size: 0.95rem;
+  max-width: 420px;
+}
+
+/* ====================================
+   9. MODAL DETALLE & MODAL CONFIRMACION
+   ==================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.modal-card {
+  background: white;
+  width: 100%;
+  max-width: 580px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-confirm-card {
+  max-width: 440px;
   text-align: center;
 }
+
+.modal-confirm-header {
+  padding: 1.8rem 1.5rem 0.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.modal-confirm-header h3 {
+  font-size: 1.25rem;
+  color: var(--color-dark-blue);
+  font-weight: 700;
+  margin: 0;
+}
+
+.confirm-icon-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.confirm-icon-badge.aprobar {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.confirm-icon-badge.rechazar {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.modal-confirm-footer {
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Grupo de Motivo de Rechazo en Modal */
+.motivo-rechazo-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.label-motivo {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.required-asterisk {
+  color: var(--color-error);
+}
+
+.input-motivo-rechazo {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition: all 0.2s ease;
+}
+
+.input-motivo-rechazo:focus {
+  outline: none;
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+}
+
+.error-msg {
+  color: var(--color-error);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.btn-cancelar-modal {
+  background-color: #f1f5f9;
+  color: var(--color-text-dark);
+  border: 1px solid #cbd5e1;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancelar-modal:hover {
+  background-color: #e2e8f0;
+}
+
+.modal-header {
+  background-color: var(--color-dark-blue);
+  color: white;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-title-group i {
+  font-size: 1.2rem;
+  color: var(--color-light-accent);
+}
+
+.modal-title-group h3 {
+  font-size: 1.15rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.btn-close-modal {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: color 0.2s;
+}
+
+.btn-close-modal:hover {
+  color: white;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modal-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.modal-detail-row label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text-light);
+  letter-spacing: 0.5px;
+}
+
+.modal-detail-value {
+  font-size: 0.95rem;
+  color: var(--color-text-dark);
+  font-weight: 500;
+}
+
+.modal-description-box {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: #334155;
+  white-space: pre-line;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Helper Class */
+.hidden {
+  display: none !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ====================================
+   10. MEDIA QUERIES (RESPONSIVE DESIGN)
+   ==================================== */
+@media (max-width: 900px) {
+  .info-guide-banner {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .solicitudes-container {
+    padding: 1rem;
+  }
+
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-right {
+    width: 100%;
+  }
+
+  .btn-header {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toolbar-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-box-wrapper {
+    max-width: 100%;
+  }
+
+  /* Ocultar tabla de escritorio y activar tarjetas */
+  .table-view-container {
+    display: none;
+  }
+
+  .cards-view-container {
+    display: flex;
+  }
+}
+

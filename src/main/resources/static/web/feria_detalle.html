@@ -1,76 +1,89 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Detalle de Feria - Feria Digital</title>
+    <title>Detalle de Feria — Feria Digital</title>
     <link rel="icon" href="/web/assets/logo.png" />
     
+    <!-- Fuentes e Iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+    <!-- Estilos de la aplicación -->
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/css/feria_detalle.css" />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <!-- Scripts de Terceros -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/web/js/notificaciones.js"></script>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
+    <script src="/web/js/notificaciones.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
+
 <header>
     <div class="header-top">
         <div class="header-left">
             <a href="/web/ferias.html" class="header-logo-link">
                 <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
             </a>
-            <div>
-                <h1 id="nombre-feria" style="margin-bottom: 5px;">Detalle de Feria</h1>
-                <div id="aprobacion-header">
-                    </div>
+            <div class="header-titles">
+                <h1 id="nombre-feria">Detalle de Feria</h1>
+                <div id="aprobacion-header" class="aprobacion-wrapper"></div>
             </div>
         </div>
         <div class="header-right">
-            <button class="btn btn-header" onclick="volver()">← Volver</button>
+            <button class="btn btn-header" onclick="volver()">
+                <i class="bi bi-arrow-left-circle-fill"></i> Volver a Ferias
+            </button>
         </div>
     </div>
 </header>
 
-<main>
+<main class="main-container">
+    <!-- Ficha e Información de la Feria -->
     <section class="info-container">
-        <div id="info-feria-grid">
-            </div>
-        <div id="info-feria-desc">
-            </div>
+        <div id="info-feria-grid" class="info-grid"></div>
+        <div id="info-feria-desc" class="info-desc-card"></div>
     </section>
 
+    <!-- Sección de Votación / Feedback -->
     <section id="seccion-voto-feria" class="voto-container-horizontal" style="display: none;">
         <div class="voto-content">
             <div class="voto-texto">
-                <h3 class="mb-0">¿Recomendás esta feria?</h3>
-                <small class="text-muted">Tu voto ayuda a la comunidad del CENT 35.</small>
+                <h3><i class="bi bi-star-fill text-warning"></i> ¿Recomendás esta feria?</h3>
+                <small>Tu opinión ayuda a los visitantes y emprendedores de la comunidad.</small>
             </div>
             <div class="voto-acciones">
                 <button class="btn-voto btn-voto-si" onclick="votarFeria(5)">
-                    <i class="bi bi-hand-thumbs-up-fill"></i> Sí
+                    <i class="bi bi-hand-thumbs-up-fill"></i> Sí, la recomiendo
                 </button>
                 <button class="btn-voto btn-voto-no" onclick="votarFeria(1)">
-                    <i class="bi bi-hand-thumbs-down-fill"></i> No
+                    <i class="bi bi-hand-thumbs-down-fill"></i> No la recomiendo
                 </button>
             </div>
         </div>
     </section>
 
-    <h2>Stands Participantes</h2>
-    <section id="stands-container">
-        </section>
+    <!-- Encabezado de Sección y Grilla de Stands -->
+    <div class="section-title-wrapper">
+        <h2><i class="bi bi-shop-window"></i> Puestos y Stands Participantes</h2>
+        <span class="section-subtitle">Explora los emprendimientos artesanales, gastronómicos y comerciales presentes</span>
+    </div>
+
+    <section id="stands-container" class="stands-grid">
+        <!-- Se cargan dinámicamente -->
+    </section>
 </main>
 
 <footer>
     <p id="creditos">
-        Proyecto Feria Digital — Desarrollado por <strong>Nazareno Guardia</strong> y <strong>Mansilla Denis</strong>.
+        Proyecto Feria Digital — Desarrollado por <strong>Nazareno Guardia</strong> y <strong>Mansilla Denis</strong>.<br>
+        Alumnos de la carrera de Tecnicatura Superior de Desarrollo de Software del CENT 35.
     </p>
 </footer>
 

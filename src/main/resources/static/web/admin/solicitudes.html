@@ -1,16 +1,26 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Solicitudes de Feriantes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solicitudes de Feriantes — Feria Digital</title>
   <link rel="icon" href="/web/assets/logo.png" />
+  
+  <!-- FontAwesome e Iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Estilos Globales y Específicos -->
   <link rel="stylesheet" href="/web/css/global.css">
   <link rel="stylesheet" href="/web/css/solicitudes.css">
 
-  
+  <!-- Notificaciones -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/web/js/notificaciones.js"></script>
+  <script src="/web/js/notificaciones.js"></script>
+
   
+  <!-- Axios -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
 <body>
@@ -18,39 +28,164 @@
 <header>
   <div class="header-top">
     <div class="header-left">
-      <a href="/web/ferias.html" class="header-logo-link">
+      <a href="/web/admin/dashboard.html" class="header-logo-link">
         <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
       </a>
-      <h1>Solicitudes para ser Feriante</h1>
+      <div class="header-titles">
+        <h1>Solicitudes para ser Feriante</h1>
+        <span class="header-subtitle">Panel de revisión y aprobación de nuevos feriantes</span>
+      </div>
     </div>
     <div class="header-right">
-      <a href="/web/admin/dashboard.html" class="btn btn-header">← Volver al panel</a>
+      <a href="/web/admin/dashboard.html" class="btn btn-header">
+        <i class="fa-solid fa-arrow-left"></i> Volver al panel
+      </a>
     </div>
   </div>
 </header>
 
-<main>
-  <table id="tabla-solicitudes">
-    <thead>
-    <tr>
-      <th>N° Solicitud</th> <th>Nombre</th>
-      <th>Apellido</th>
-      <th>Email Usuario</th>
-      <th>Emprendimiento</th>
-      <th>Descripción</th>
-      <th>Teléfono</th>
-      <th>Email Emprendimiento</th>
-      <th>Acciones</th>
-    </tr>
-    </thead>
-    <tbody id="tabla-body"></tbody>
-  </table>
+<main class="solicitudes-container">
 
-  <p class="mensaje" id="mensaje"></p> 
+  <!-- Banner de Instrucciones Explicativo -->
+  <section class="info-guide-banner">
+    <div class="banner-icon-col">
+      <div class="banner-icon-badge">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+    </div>
+    <div class="banner-content-col">
+      <h2>¿Cómo evaluar las solicitudes recibidas?</h2>
+      <p>Revisa la información del solicitante y su emprendimiento antes de tomar una decisión. Cada acción genera un cambio inmediato en la cuenta del usuario:</p>
+      
+      <div class="action-explain-grid">
+        <div class="explain-card approve-explain">
+          <div class="explain-header">
+            <span class="badge-explain badge-approve"><i class="fa-solid fa-circle-check"></i> Aprobar</span>
+            <strong>Otorga rol Feriante</strong>
+          </div>
+          <p>El usuario podrá acceder a la plataforma como feriante, gestionar su perfil comercial y solicitar puestos en ferias activas.</p>
+        </div>
+
+        <div class="explain-card reject-explain">
+          <div class="explain-header">
+            <span class="badge-explain badge-reject"><i class="fa-solid fa-circle-xmark"></i> Rechazar</span>
+            <strong>Desestima la postulación</strong>
+          </div>
+          <p>La solicitud quedará archivada como rechazada. La cuenta del usuario se mantendrá sin permisos de feriante.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Control Toolbar: Buscador y Contador KPI -->
+  <section class="toolbar-section">
+    <div class="kpi-card">
+      <div class="kpi-icon">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+      <div class="kpi-info">
+        <span class="kpi-label">Pendientes de Revisión</span>
+        <strong id="cant-pendientes" class="kpi-value">0</strong>
+      </div>
+    </div>
+
+    <div class="search-box-wrapper">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="input-buscar" placeholder="Buscar por emprendimiento, usuario o email..." autocomplete="off">
+      <button id="btn-limpiar-busqueda" class="btn-clear-search hidden" title="Limpiar búsqueda">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- Estado vacío (sin resultados o sin solicitudes) -->
+  <div id="mensaje-vacio" class="empty-state-card hidden">
+    <div class="empty-state-icon">
+      <i class="fa-solid fa-clipboard-check"></i>
+    </div>
+    <h3 id="empty-state-title">No hay solicitudes pendientes</h3>
+    <p id="empty-state-text">Actualmente no existen postulaciones a feriantes por revisar.</p>
+  </div>
+
+  <!-- Vista Desktop: Tabla Responsive -->
+  <section id="contenedor-tabla" class="table-view-container">
+    <div class="table-scroll-wrapper">
+      <table id="tabla-solicitudes" class="tabla-solicitudes">
+        <thead>
+          <tr>
+            <th><i class="fa-solid fa-hashtag"></i> N°</th>
+            <th><i class="fa-solid fa-user"></i> Solicitante</th>
+            <th><i class="fa-solid fa-store"></i> Emprendimiento</th>
+            <th><i class="fa-solid fa-envelope"></i> Contacto</th>
+            <th><i class="fa-solid fa-align-left"></i> Descripción</th>
+            <th class="text-center"><i class="fa-solid fa-gears"></i> Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-body">
+          <!-- Se completa dinámicamente -->
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Vista Mobile: Grid de Tarjetas -->
+  <section id="contenedor-cards" class="cards-view-container">
+    <!-- Se completa dinámicamente en responsive -->
+  </section>
+
 </main>
 
+<!-- Modal para ver el detalle completo de la solicitud -->
+<div id="modal-detalle" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div class="modal-title-group">
+        <i class="fa-solid fa-file-signature"></i>
+        <h3 id="modal-title">Detalle de Solicitud</h3>
+      </div>
+      <button id="btn-cerrar-modal" class="btn-close-modal" aria-label="Cerrar ventana">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body-content">
+      <!-- Contenido dinámico del modal -->
+    </div>
+    <div class="modal-footer" id="modal-footer-actions">
+      <!-- Botones de aprobación/rechazo dinámicos -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación Personalizado (reemplaza alert/confirm de localhost) -->
+<div id="modal-confirmacion" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="modal-card modal-confirm-card">
+    <div class="modal-confirm-header">
+      <div id="confirm-icon-badge" class="confirm-icon-badge aprobar">
+        <i id="confirm-icon" class="fa-solid fa-circle-question"></i>
+      </div>
+      <h3 id="confirm-title">Confirmar Acción</h3>
+    </div>
+    <div class="modal-body text-center">
+      <p id="confirm-message">¿Estás seguro de realizar esta acción?</p>
+
+      <!-- Campo para ingresar el motivo de rechazo si la acción es rechazar -->
+      <div id="wrapper-motivo-rechazo" class="motivo-rechazo-group hidden">
+        <label for="input-motivo-rechazo" class="label-motivo">
+          <i class="fa-solid fa-pen-to-square"></i> Motivo del Rechazo <span class="required-asterisk">*</span>
+        </label>
+        <textarea id="input-motivo-rechazo" class="input-motivo-rechazo" rows="3" placeholder="Ingresa la razón por la cual se desestima la postulación (ej: Rubro no disponible, falta información)..."></textarea>
+        <span id="error-motivo-rechazo" class="error-msg hidden">Debes ingresar al menos 5 caracteres justificando el rechazo.</span>
+      </div>
+    </div>
+    <div class="modal-footer modal-confirm-footer">
+      <button id="btn-confirm-cancelar" class="btn-cancelar-modal">Cancelar</button>
+      <button id="btn-confirm-aceptar" class="btn-aprobar">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <footer>
-    <p>Proyecto Feria Digital — Panel de Control</p>
+  <p>Proyecto Feria Digital — Panel de Control</p>
 </footer>
 
 <script defer src="/web/js/solicitudes.js"></script>

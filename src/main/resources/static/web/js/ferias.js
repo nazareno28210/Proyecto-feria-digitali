@@ -235,52 +235,123 @@ async function mostrarOpcionesUsuario(usuario) {
   const container = document.getElementById("user-actions");
   container.innerHTML = "";
 
+  // Botón Buscar Productos
   const btnBuscar = document.createElement("a");
   btnBuscar.href = "buscar.html";
   btnBuscar.className = "btn btn-header";
   btnBuscar.innerHTML = '<i class="bi bi-cart-fill"></i> Buscar Productos';
   container.appendChild(btnBuscar);
 
-  const btnLogout = document.createElement("button");
-  btnLogout.id = "btn-logout";
-  btnLogout.className = "btn btn-logout";
-  btnLogout.innerHTML = '<i class="bi bi-box-arrow-right"></i> Cerrar sesion';
-  btnLogout.addEventListener("click", cerrarSesion);
+  // Avatar e imagen precargada
+  const imagenUrl = (usuario.imagenUrl && usuario.imagenUrl.trim() !== "") 
+    ? usuario.imagenUrl 
+    : "/web/assets/logo.png";
+    
+  const nombreMostrar = usuario.nombre 
+    ? (usuario.nombre + " " + (usuario.apellido || ""))
+    : usuario.email;
 
-  if (usuario.tipoUsuario === "NORMAL") {
-    const btnPerfil = document.createElement("a");
-    btnPerfil.href = "/web/usuario-perfil.html";
-    btnPerfil.className = "btn btn-header";
-    btnPerfil.innerHTML = '<i class="bi bi-person-circle"></i> Mi Perfil';
-    container.appendChild(btnPerfil);
-  }
+  let roleLabel = '<i class="bi bi-person-fill"></i> Usuario General';
+  let profileLink = "/web/usuario-perfil.html";
 
   if (usuario.tipoUsuario === "FERIANTE") {
-    const btnPerfil = document.createElement("a");
-    btnPerfil.href = "/web/feriante/perfil.html";
-    btnPerfil.className = "btn btn-header";
-    btnPerfil.innerHTML = '<i class="bi bi-shop"></i> Mi Perfil';
-    container.appendChild(btnPerfil);
+    roleLabel = '<i class="bi bi-shop"></i> Feriante';
+    profileLink = "/web/feriante/perfil.html";
+  } else if (usuario.tipoUsuario === "ADMINISTRADOR") {
+    roleLabel = '<i class="bi bi-shield-lock-fill text-primary"></i> Administrador';
+    profileLink = "/web/usuario-perfil.html";
   }
 
-  if (usuario.tipoUsuario === "ADMINISTRADOR") {
-    const btnAdmin = document.createElement("a");
-    btnAdmin.href = "/web/admin/dashboard.html";
-    btnAdmin.className = "btn btn-admin";
-    btnAdmin.innerHTML = '<i class="bi bi-speedometer2"></i> Panel Admin';
-    container.appendChild(btnAdmin);
+  // Opción Panel Admin si es Administrador
+  const adminOptionHtml = (usuario.tipoUsuario === "ADMINISTRADOR")
+    ? `<a href="/web/admin/dashboard.html" class="dropdown-item">
+         <i class="bi bi-speedometer2 text-primary"></i> Panel de Administración
+       </a>`
+    : '';
+
+  // Menú Desplegable Completo
+  const dropdownContainer = document.createElement("div");
+  dropdownContainer.className = "profile-dropdown-container";
+  dropdownContainer.innerHTML = `
+    <button id="btn-profile-menu-ferias" class="profile-avatar-btn" aria-haspopup="true" aria-expanded="false" title="Opciones de perfil">
+      <img src="${escapeHtml(imagenUrl)}" alt="Foto de perfil" class="avatar-img" onerror="this.src='/web/assets/logo.png';" />
+      <i class="bi bi-chevron-down dropdown-arrow"></i>
+    </button>
+
+    <div id="profile-dropdown-ferias" class="profile-dropdown-menu hidden">
+      <div class="dropdown-header">
+        <span class="user-name">${escapeHtml(nombreMostrar)}</span>
+        <span class="user-role">${roleLabel}</span>
+      </div>
+      <hr class="dropdown-divider">
+      
+      <a href="${profileLink}" class="dropdown-item">
+        <i class="bi bi-person-gear"></i> Mi Perfil
+      </a>
+
+      ${adminOptionHtml}
+
+      <hr class="dropdown-divider">
+      
+      <button id="btn-dropdown-logout" class="dropdown-item logout-item">
+        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+      </button>
+    </div>
+  `;
+
+  container.appendChild(dropdownContainer);
+
+  // Event listeners para abrir/cerrar el desplegable
+  const profileBtn = document.getElementById("btn-profile-menu-ferias");
+  const profileDropdown = document.getElementById("profile-dropdown-ferias");
+
+  if (profileBtn && profileDropdown) {
+    profileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isHidden = profileDropdown.classList.contains("hidden");
+      if (isHidden) {
+        profileDropdown.classList.remove("hidden");
+        profileBtn.classList.add("active");
+        profileBtn.setAttribute("aria-expanded", "true");
+      } else {
+        profileDropdown.classList.add("hidden");
+        profileBtn.classList.remove("active");
+        profileBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileDropdown.classList.add("hidden");
+        profileBtn.classList.remove("active");
+        profileBtn.setAttribute("aria-expanded", "false");
+      }
+    });
   }
 
-  container.appendChild(btnLogout);
+  const btnLogoutDrop = document.getElementById("btn-dropdown-logout");
+  if (btnLogoutDrop) {
+    btnLogoutDrop.addEventListener("click", cerrarSesion);
+  }
 }
 
 async function cerrarSesion() {
   try {
     await axios.post(LOGOUT_URL, {}, { withCredentials: true });
-    mostrarNotificacion("Sesion cerrada correctamente.", "success");
+    mostrarNotificacion("Sesión cerrada correctamente.", "success");
     verificarSesion();
   } catch (error) {
-    console.error("Error al cerrar sesion:", error);
-    mostrarNotificacion("No se pudo cerrar la sesion.", "error");
+    console.error("Error al cerrar sesión:", error);
+    mostrarNotificacion("No se pudo cerrar la sesión.", "error");
   }
 }
+
+function escapeHtml(text) {
+    if (!text) return "";
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}

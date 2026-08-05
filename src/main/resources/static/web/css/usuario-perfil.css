@@ -1,342 +1,545 @@
-/* ====================================
-   ESTILOS DE PERFIL DE USUARIO
-   (Inspirado en perfil.css)
-   ==================================== */
+/*
+ * ====================================
+ * USUARIO-PERFIL.CSS (Rediseño Institucional)
+ * ====================================
+ */
 
-/* Contenedor principal blanco (tomado de perfil.css) */
+:root {
+  --color-dark-blue: #1a3a5a;
+  --color-medium-blue: #3b82f6;
+  --color-light-accent: #67e8f9;
+  --color-background: #eef6ff;
+  --color-card: #ffffff;
+  --color-text-dark: #1f2937;
+  --color-text-light: #6b7280;
+}
+
+body {
+  font-family: "Poppins", Arial, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+/* ====================================
+   1. HEADER INSTITUCIONAL
+   ==================================== */
+header {
+  background: linear-gradient(135deg, #1a3a5a 0%, #0f253d 100%);
+  padding: 0.8rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 1.5rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.header-logo {
+  width: 48px;
+  height: 48px;
+  background-color: white;
+  border-radius: 50%;
+  padding: 3px;
+  border: 2px solid #3b82f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.header-subtitle {
+  color: #67e8f9;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.btn-header {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+
+.btn-header:hover {
+  background: white;
+  color: #1a3a5a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ====================================
+   2. MAIN & CONTENEDOR DE PERFIL
+   ==================================== */
+.main-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  flex: 1;
+}
+
 .perfil-container {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    width: 100%;
-    max-width: 600px;
-    text-align: left;
-
-    /* 🟢 CAMBIO: Centrar el contenedor en la página 🟢 */
-    margin: 0 auto;
+  background: #ffffff;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-/* Título principal (tomado de perfil.css) */
-.perfil-container h1 {
-    color: #0078d4;
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    text-align: center;
+.page-title {
+  color: #1a3a5a;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
-h2 {
-    font-size: 1.25rem;
-    color: #2c3e50;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
+/* Foto de Perfil */
+.perfil-foto-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
 }
 
-/* Tarjeta de datos (tomado de perfil.css) */
-.perfil-card {
-    line-height: 1.7;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    background-color: #fcfcfc;
-    border: 1px solid #f0f0f0;
-    border-radius: 8px;
+.perfil-foto {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #3b82f6;
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+  transition: transform 0.3s ease;
 }
 
-.perfil-card p {
-    margin: 0.5rem 0;
-    display: flex;
-    flex-wrap: wrap;
+.perfil-foto:hover {
+  transform: scale(1.03);
 }
 
-.perfil-card p strong {
-    color: #555;
-    min-width: 180px;
-    display: inline-block;
+.perfil-foto-btn {
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s ease;
 }
 
-/* Contenedor del botón de logout (tomado de perfil.css) */
-.acciones {
-    margin-top: 2rem;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+.perfil-foto-btn:hover {
+  background-color: #2563eb;
+  color: white;
+  border-color: #2563eb;
+  transform: translateY(-2px);
 }
 
-/* El estilo de .btn-logout ya viene de global.css */
-
-
-/* ====================================
-   🟢 ESTILOS DE TARJETAS DE ACCIÓN (Actualizados) 🟢
-   ==================================== */
-
-/* Contenedor de las tarjetas de acción */
-#acciones-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px; /* Espacio entre tarjetas */
-}
-
-/* Estilo base para la tarjeta "Quiero ser feriante" */
-.accion-card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-    border: 1px solid #eee;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-}
-
-.accion-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-}
-
-.accion-card .icon {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-}
-
-.accion-card h3 {
-    margin: 0 0 10px 0;
-    color: #2c3e50;
-    transition: color 0.3s;
-}
-
-.accion-card p {
-    margin: 0;
-    color: #7f8c8d;
-    font-size: 0.9rem;
-}
-
-/* Versión VERDE (para "Ser Feriante") */
-.accion-card.accion-card--green {
-    border-color: #10b981;
-}
-.accion-card.accion-card--green:hover {
-    border-color: #059669;
-}
-.accion-card.accion-card--green h3 {
-    color: #10b981;
-}
-
-/* Versión AZUL (para "Cambiar Contraseña") */
-.accion-card.accion-card--blue {
-    border-color: #3498db;
-}
-.accion-card.accion-card--blue:hover {
-    border-color: #2980b9;
-}
-.accion-card.accion-card--blue h3 {
-    color: #3498db;
-}
-
-
-/* Estilo para el mensaje de "Solicitud pendiente" */
-.mensaje-pendiente {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #e67e22; /* Naranja */
-    padding: 20px;
-    background: #fffaf0;
-    border: 1px solid #f3d9b1;
-    border-radius: 8px;
-    text-align: center;
-}
-
-/* Utilidad para ocultar elementos */
-.hidden {
-    display: none !important;
-}
-
-/* Cabecera de sección con botón a la derecha */
+/* Secciones y Encabezados */
 .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-    margin-top: 1.5rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #f1f5f9;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
 }
 
 .section-header h2 {
-    border-bottom: none; /* Quitamos el borde del h2 porque lo tiene el contenedor */
-    margin: 0;
-    padding: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a3a5a;
+  margin: 0;
 }
 
-/* Botón de activar edición (contorno azul) */
+/* Botón Editar Perfil */
 .btn-edit-outline {
-    background: transparent;
-    border: 1px solid #3498db;
-    color: #3498db;
-    padding: 5px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  background: transparent;
+  border: 1.5px solid #3b82f6;
+  color: #3b82f6;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-edit-outline:hover {
-    background: #ebf5fb;
+  background: #3b82f6;
+  color: white;
+  transform: translateY(-2px);
 }
 
-/* Ajustes para la tarjeta cuando contiene el formulario */
+/* Tarjeta de Datos */
 .perfil-card {
-    position: relative; /* Para manejar transiciones si se desea a futuro */
+  line-height: 1.7;
+  padding: 1.25rem 1.5rem;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
 }
 
-/* Grupos del formulario de edición */
+.perfil-card p {
+  margin: 0.6rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.perfil-card p strong {
+  color: #475569;
+  min-width: 150px;
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.perfil-card p span {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* Formulario de edición */
 .form-group {
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 0.3rem;
-    font-weight: 600;
-    color: #555;
-    font-size: 0.9rem;
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.88rem;
 }
 
-/* Inputs del formulario */
 .form-input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 1rem;
-    color: #333;
-    background: #fff;
-    transition: border-color 0.3s;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  color: #0f172a;
+  background: #ffffff;
+  transition: border-color 0.25s ease;
+  box-sizing: border-box;
+  outline: none;
+  font-family: inherit;
 }
 
 .form-input:focus {
-    outline: none;
-    border-color: #3498db;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
 }
 
-/* Texto de solo lectura en modo edición */
-.read-only-text {
-    color: #7f8c8d;
-    font-size: 0.95rem;
-}
-
-/* Utilidad de margen superior */
-.mt-4 {
-    margin-top: 1.5rem !important;
-}
-
-/* Contenedor de botones de acción del formulario */
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
 }
 
-/* Botones del formulario */
 .btn-save, .btn-cancel {
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1rem;
-    cursor: pointer;
-    border: none;
-    transition: background 0.2s;
+  padding: 9px 20px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s ease;
 }
 
 .btn-save {
-    background: #2ecc71; /* Verde */
-    color: white;
+  background: #10b981;
+  color: white;
 }
-.btn-save:hover { background: #27ae60; }
+.btn-save:hover {
+  background: #059669;
+  transform: translateY(-2px);
+}
 
 .btn-cancel {
-    background: #e74c3c; /* Rojo */
-    color: white;
+  background: #ef4444;
+  color: white;
 }
-.btn-cancel:hover { background: #c0392b; }
-
-/* Contenedor que centra la foto y el botón */
-.perfil-foto-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
+.btn-cancel:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
 }
 
-/* 🔵 LA CLAVE: Forzar círculo y tamaño fijo */
-.perfil-foto {
-    width: 260px;   /* Tamaño fijo igual al feriante */
-    height: 260px;
-    border-radius: 50%; /* Hace la imagen circular */
-    object-fit: cover;  /* Evita que la foto se estire */
-    border: 3px solid #ddd;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+/* ====================================
+   3. TARJETAS DE ACCIÓN
+   ==================================== */
+#acciones-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 1rem;
 }
 
-/* Botón pequeño debajo de la foto */
-.perfil-foto-btn {
-    font-size: 14px;
-    padding: 6px 14px;
-    background-color: #e0e0e0;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+.accion-card {
+  background: #ffffff;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.25s ease;
+  border: 1.5px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-/* Estilos para el Modal de Recorte */
+.accion-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+}
+
+.accion-card .icon {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.accion-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.accion-card p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+/* Versión Verde (Ser Feriante) */
+.accion-card.accion-card--green {
+  border-color: #a7f3d0;
+  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+}
+
+.accion-card.accion-card--green .icon {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.accion-card.accion-card--green h3 {
+  color: #047857;
+}
+
+/* Versión Azul (Cambiar Contraseña) */
+.accion-card.accion-card--blue {
+  border-color: #bfdbfe;
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+}
+
+.accion-card.accion-card--blue .icon {
+  background: #dbeaff;
+  color: #2563eb;
+}
+
+.accion-card.accion-card--blue h3 {
+  color: #1d4ed8;
+}
+
+.mensaje-pendiente {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #d97706;
+  padding: 1rem 1.25rem;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mensaje-pendiente::before {
+  content: '\F28B';
+  font-family: 'bootstrap-icons';
+  font-size: 1.2rem;
+  color: #d97706;
+}
+
+/* Botón Cerrar Sesión */
+.acciones {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.btn-logout {
+  width: 100%;
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-logout:hover {
+  background: #dc2626;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+  transform: translateY(-2px);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Modal Cropper */
 .modal-cropper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
 }
 
 .modal-cropper-content {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 90%;
-    width: 500px;
-    text-align: center;
+  background: white;
+  padding: 24px;
+  border-radius: 18px;
+  max-width: 90%;
+  width: 480px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.modal-cropper-content h3 {
+  margin: 0 0 6px 0;
+  color: #1a3a5a;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.modal-cropper-content p {
+  color: #64748b;
+  font-size: 0.88rem;
+  margin: 0 0 1rem 0;
 }
 
 .img-cropper-container {
-    max-height: 400px;
-    margin: 20px 0;
-    overflow: hidden;
-    background: #f0f0f0;
+  max-height: 350px;
+  margin: 1rem 0;
+  overflow: hidden;
+  background: #f1f5f9;
+  border-radius: 12px;
 }
 
 .modal-cropper-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
 
-/* Forzar que el visor de Cropper sea circular */
+/* Cropper Circular */
 .cropper-view-box,
 .cropper-face {
-    border-radius: 50%;
+  border-radius: 50%;
+}
+
+/* FOOTER */
+footer {
+  width: 100%;
+  background-color: var(--color-dark-blue);
+  color: white;
+  text-align: center;
+  padding: 1.2rem 1rem;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+  margin-top: auto;
+}
+
+footer p {
+  margin: 0 auto;
+  max-width: 800px;
+  line-height: 1.5;
 }

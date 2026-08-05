@@ -73,27 +73,41 @@ async function cargarFeria() {
     standsContainer.innerHTML = "";
     
     try {
-        const participacionesRes = await axios.get(`http://localhost:8080/api/participaciones/edicion/${edicionId}`);
+        const participacionesRes = await axios.get(`/api/participaciones/edicion/${edicionId}`);
         const participacionesConfirmadas = participacionesRes.data.filter(p => p.estado === "CONFIRMADO");
 
         if (participacionesConfirmadas.length > 0) {
             participacionesConfirmadas.forEach((participacion) => {
-                const stand = participacion.stand;
-                if (stand && stand.activo) {
+                const standId = participacion.standId;
+                const standNombre = participacion.stand || "Emprendimiento / Stand";
+                const standDesc = participacion.standDescripcion || "Emprendimiento participante con variedad de productos de excelente calidad.";
+                const ferianteNombre = participacion.ferianteNombre || standNombre;
+                const imagenUrl = participacion.standImagenUrl;
+                const activo = participacion.standActivo !== false;
+
+                if (standId && activo) {
                     const div = document.createElement("div");
                     div.classList.add("stand-card");
-                    const imagenHtml = stand.imagenUrl
-                    ? `<div class="stand-image-container"><img src="${stand.imagenUrl}" alt="Logo de ${stand.nombre}"></div>`
-                    : ''; 
+                    
+                    const imagenHtml = (imagenUrl && imagenUrl.trim() !== "")
+                        ? `<div class="stand-image-container"><img src="${escapeHtml(imagenUrl)}" alt="Logo de ${escapeHtml(standNombre)}" loading="lazy"></div>`
+                        : `<div class="stand-image-container"><div class="stand-image-placeholder"><i class="bi bi-shop"></i><span>Stand Feriante</span></div></div>`;
 
                     div.innerHTML = `
-                    ${imagenHtml} 
-                    <div class="stand-content">
-                        <h3>${stand.nombre}</h3>
-                        <p>${stand.descripcion ?? "Sin descripción"}</p>
-                        <p><strong>Feriante:</strong> ${stand.feriante ? stand.feriante.nombreEmprendimiento : "No asignado"}</p>
-                    </div>
-                    <button type="button" class="btn-stand" onclick="verProductos(event, ${stand.id})">Ver productos</button>
+                        ${imagenHtml} 
+                        <div class="stand-content">
+                            <h3>${escapeHtml(standNombre)}</h3>
+                            <p class="stand-desc">${escapeHtml(standDesc)}</p>
+                            
+                            <div class="stand-feriante-badge">
+                                <i class="bi bi-person-badge-fill"></i>
+                                <span>${escapeHtml(ferianteNombre)}</span>
+                            </div>
+
+                            <button type="button" class="btn-stand" onclick="verProductos(event, ${standId})">
+                                <i class="bi bi-box-seam-fill"></i> Ver catálogo de productos
+                            </button>
+                        </div>
                     `; 
                     standsContainer.appendChild(div);
                 }
@@ -101,9 +115,12 @@ async function cargarFeria() {
         } else {
             standsContainer.innerHTML = "<p class='no-stands-msg'>Actualmente no hay stands disponibles para visitar en esta feria.</p>";
         }
+
     } catch(e) {
+        console.error("Error al obtener participaciones de la edición:", e);
         standsContainer.innerHTML = "<p class='no-stands-msg'>No se pudieron cargar los stands.</p>";
     }
+
   } catch (error) {
     console.error("Error al cargar la feria:", error);
     mostrarNotificacion("Error al cargar los datos.", "error"); 
@@ -176,3 +193,13 @@ function verProductos(event, standIdParam) {
     const standId = typeof event === 'number' ? event : standIdParam;
     window.location.href = `stand_detalle.html?idStand=${standId}`;
 }
+
+function escapeHtml(text) {
+    if (!text) return "";
+    return String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
