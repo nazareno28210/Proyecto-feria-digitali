@@ -6,9 +6,9 @@
 
 
 
-// Configuración de endpoints (sin cambios)
-const AUTH_URL = "http://localhost:8080/api/usuarios/current";
-const LOGOUT_URL = "http://localhost:8080/api/logout";
+// Configuración de endpoints (relativos)
+const AUTH_URL = "/api/usuarios/current";
+const LOGOUT_URL = "/api/logout";
 
 document.addEventListener("DOMContentLoaded", () => {
     verificarAdmin();

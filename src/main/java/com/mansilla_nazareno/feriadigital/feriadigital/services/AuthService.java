@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Service
@@ -20,6 +20,9 @@ public class AuthService {
     private final UsuarioTokenService usuarioTokenService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     public AuthService(UsuarioRepository usuarioRepository,
                        UsuarioTokenService usuarioTokenService,
@@ -80,7 +83,7 @@ public class AuthService {
                 usuario.getEmail(),
                 "Recuperación de contraseña - Feria Digital",
                 "Haz clic en el siguiente enlace para cambiar tu contraseña (válido por 15 minutos):\n" +
-                        "http://localhost:8080/web/reset-password.html?token=" + token.getToken()
+                        baseUrl + "/web/reset-password.html?token=" + token.getToken()
         );
     }
 

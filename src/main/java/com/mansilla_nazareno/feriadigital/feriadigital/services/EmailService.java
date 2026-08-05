@@ -1,6 +1,7 @@
 package com.mansilla_nazareno.feriadigital.feriadigital.services;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,6 +13,9 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
+
     public void enviar(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
@@ -22,7 +26,7 @@ public class EmailService {
 
 
     public void enviarEmail(String to, String token) {
-        String link = "http://localhost:8080/auth/verificar?token=" + token;
+        String link = baseUrl + "/auth/verificar?token=" + token;
 
         SimpleMailMessage mensaje = new SimpleMailMessage();
         mensaje.setTo(to);

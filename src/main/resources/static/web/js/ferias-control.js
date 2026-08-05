@@ -65,8 +65,8 @@ function validarLongitudTexto(nombre, descripcion) {
 document.addEventListener("DOMContentLoaded", () => {
     const formCrear = document.getElementById("form-feria");
     const tbody = document.querySelector("#tabla-ferias tbody");
-    const API_FERIAS_URL = "http://localhost:8080/api/ferias";
-    const API_EDICIONES_URL = "http://localhost:8080/api/ediciones";
+    const API_FERIAS_URL = "/api/ferias";
+    const API_EDICIONES_URL = "/api/ediciones";
 
     const hoyInput = new Date().toISOString().split('T')[0];
     const dateInputs = ["fechaInicio", "fechaFinal", "edit-fechaInicio", "edit-fechaFinal"];
@@ -580,7 +580,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // ============================================================
 // GESTIÓN DE ESPACIOS / LOTES (fuera del DOMContentLoaded)
 // ============================================================
-const API_ESPACIOS_URL = "http://localhost:8080/api/espacios";
+const API_ESPACIOS_URL = "/api/espacios";
 let _edicionIdActiva = null;
 
 window.abrirModalEspacios = async (edicionId, nombreEdicion) => {

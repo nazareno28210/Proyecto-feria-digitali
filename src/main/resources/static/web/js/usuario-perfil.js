@@ -1,9 +1,9 @@
 // URLs del API
-const API_URL = "http://localhost:8080/api/usuarios/current";
-const LOGOUT_URL = "http://localhost:8080/api/logout";
-const SOLICITUD_URL = "http://localhost:8080/api/solicitudes";
-const UPDATE_URL = "http://localhost:8080/api/usuarios/current";
-const IMAGE_UPLOAD_URL = "http://localhost:8080/api/usuarios/current/imagen";
+const API_URL = "/api/usuarios/current";
+const LOGOUT_URL = "/api/logout";
+const SOLICITUD_URL = "/api/solicitudes";
+const UPDATE_URL = "/api/usuarios/current";
+const IMAGE_UPLOAD_URL = "/api/usuarios/current/imagen";
 
 const DEFAULT_IMAGE = "https://res.cloudinary.com/demo/image/upload/d_avatar.png/non_existing_id.png";
 

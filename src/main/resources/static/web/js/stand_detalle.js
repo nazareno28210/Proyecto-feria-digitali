@@ -6,7 +6,7 @@
 
 let puntajeStand = 0; // Variable global para el selector de estrellas
 
-const API_URL = "http://localhost:8080/api/stands"; 
+const API_URL = "/api/stands"; 
 const params = new URLSearchParams(window.location.search); 
 const standId = params.get("idStand"); 
 

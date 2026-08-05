@@ -7,7 +7,7 @@
 
 
 // 🟢 1. Apuntamos al nuevo endpoint de ediciones
-const API_URL = "http://localhost:8080/api/ediciones";
+const API_URL = "/api/ediciones";
 const params = new URLSearchParams(window.location.search);
 const edicionId = params.get("id"); 
 
@@ -133,7 +133,7 @@ async function renderizarAprobacionFeria(feriaId) {
     if (!contenedor || !feriaId) return;
 
     try {
-        const res = await axios.get(`http://localhost:8080/api/ferias/${feriaId}`);
+        const res = await axios.get(`/api/ferias/${feriaId}`);
         const porcentaje = res.data.porcentajeAprobacion;
         const total = res.data.totalVotos;
 

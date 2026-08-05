@@ -1,9 +1,16 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Feria Digital</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Estilos base e individuales -->
     <link rel="stylesheet" href="/web/css/global.css">
     <link rel="stylesheet" href="/web/feriante/perfil.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -11,141 +18,264 @@
 </head>
 <body>
 
-<header>
+<header class="app-header">
     <div class="header-content">
-        <h1>Feria Digital</h1>
-        <a href="/web/ferias.html" class="btn btn-header">Ver Ferias</a>
+        <div class="brand">
+            <i class="bi bi-shop-window brand-icon"></i>
+            <span class="brand-name">Feria Digital</span>
+        </div>
+        <a href="/web/ferias.html" class="btn btn-header">
+            <i class="bi bi-grid-fill"></i> Ver Ferias
+        </a>
     </div>
 </header>
 
-<main>
+<main class="main-content">
     <div class="perfil-layout">
+        <!-- Columna Izquierda: Información de Perfil -->
         <div class="perfil-container">
-            <div class="perfil-foto-container">
-                <img src="/img/default-user.png" alt="Foto de perfil" class="perfil-foto" id="fotoPerfil">
-                <input type="file" id="inputFotoPerfil" accept="image/*" hidden>
-                <button class="btn btn-edit perfil-foto-btn" onclick="document.getElementById('inputFotoPerfil').click()">
-                    Cambiar foto
-                </button>
+            <div class="perfil-hero">
+                <div class="perfil-foto-container">
+                    <img src="/img/default-user.png" alt="Foto de perfil" class="perfil-foto" id="fotoPerfil">
+                    <input type="file" id="inputFotoPerfil" accept="image/*" hidden>
+                    <button class="btn btn-foto-edit" onclick="document.getElementById('inputFotoPerfil').click()">
+                        <i class="bi bi-camera-fill"></i> Cambiar Foto
+                    </button>
+                </div>
+                <h1 class="page-title">Mi Perfil de Feriante</h1>
+                <p class="page-subtitle">Gestiona tu información personal, datos de contacto y el estado comercial de tu emprendimiento.</p>
             </div>
-            
-            <h1>Mi Perfil de Feriante</h1>
 
-            <div class="header-card">
-                <h2>Datos de Usuario</h2>
-                <button id="btn-edit-usuario" class="btn btn-edit">Editar Datos Personales</button>
-            </div>
-            <div class="perfil-card" id="usuario-view">
-                <p><strong>Email:</strong> <span id="usuario-email"></span></p>
-                <p><strong>Nombre:</strong> <span id="usuario-nombre"></span></p>
-                <p><strong>Apellido:</strong> <span id="usuario-apellido"></span></p>
-                <p><strong>Fecha de Registro:</strong> <span id="usuario-fecha"></span></p>
-            </div>
-            <div class="perfil-card edit-mode" id="usuario-edit" style="display:none;">
-                <div class="form-group"><label>Nombre</label><input type="text" id="edit-usuario-nombre"></div>
-                <div class="form-group"><label>Apellido</label><input type="text" id="edit-usuario-apellido"></div>
-                <div class="form-group"><label>Email de acceso</label><input type="email" id="edit-usuario-email"></div>
-                <div class="form-actions">
-                    <button id="btn-cancel-usuario" class="btn btn-cancel">Cancelar</button>
-                    <button id="btn-save-usuario" class="btn btn-save">Guardar Cambios</button>
+            <!-- Sección: Datos de Usuario -->
+            <div class="perfil-section">
+                <div class="header-card">
+                    <div class="section-title">
+                        <i class="bi bi-person-vcard-fill section-icon"></i>
+                        <h2>Datos Personales</h2>
+                    </div>
+                    <button id="btn-edit-usuario" class="btn btn-edit">
+                        <i class="bi bi-pencil-fill"></i> Editar
+                    </button>
+                </div>
+                <div class="perfil-card" id="usuario-view">
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-envelope-fill"></i> Email:</span>
+                        <span class="info-value" id="usuario-email"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-person-fill"></i> Nombre:</span>
+                        <span class="info-value" id="usuario-nombre"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-person-fill"></i> Apellido:</span>
+                        <span class="info-value" id="usuario-apellido"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-calendar-check-fill"></i> Fecha Registro:</span>
+                        <span class="info-value" id="usuario-fecha"></span>
+                    </div>
+                </div>
+                <div class="perfil-card edit-mode" id="usuario-edit" style="display:none;">
+                    <div class="form-group">
+                        <label for="edit-usuario-nombre">Nombre</label>
+                        <input type="text" id="edit-usuario-nombre" placeholder="Tu nombre">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-usuario-apellido">Apellido</label>
+                        <input type="text" id="edit-usuario-apellido" placeholder="Tu apellido">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-usuario-email">Email de acceso</label>
+                        <input type="email" id="edit-usuario-email" placeholder="correo@ejemplo.com">
+                    </div>
+                    <div class="form-actions">
+                        <button id="btn-cancel-usuario" class="btn btn-cancel">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </button>
+                        <button id="btn-save-usuario" class="btn btn-save">
+                            <i class="bi bi-check-lg"></i> Guardar Cambios
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="header-card">
-                <h2>Datos de Contacto</h2>
-                <button id="btn-edit-feriante" class="btn btn-edit">Editar</button>
-            </div>
-            <div class="perfil-card" id="feriante-view">
-                <p><strong>Teléfono:</strong> <span id="feriante-tel"></span></p>
-                <p><strong>Email Emprendimiento:</strong> <span id="feriante-email"></span></p>
-            </div>
-            <div class="perfil-card edit-mode" id="feriante-edit" style="display:none;">
-                <div class="form-group"><label>Teléfono</label><input type="text" id="edit-feriante-tel"></div>
-                <div class="form-group"><label>Email Emprendimiento</label><input type="email" id="edit-feriante-email"></div>
-                <div class="form-actions">
-                    <button id="btn-cancel-feriante" class="btn btn-cancel">Cancelar</button>
-                    <button id="btn-save-feriante" class="btn btn-save">Guardar Cambios</button>
+            <!-- Sección: Datos de Contacto -->
+            <div class="perfil-section">
+                <div class="header-card">
+                    <div class="section-title">
+                        <i class="bi bi-telephone-fill section-icon"></i>
+                        <h2>Datos de Contacto</h2>
+                    </div>
+                    <button id="btn-edit-feriante" class="btn btn-edit">
+                        <i class="bi bi-pencil-fill"></i> Editar
+                    </button>
+                </div>
+                <div class="perfil-card" id="feriante-view">
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-telephone"></i> Teléfono:</span>
+                        <span class="info-value" id="feriante-tel"></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-briefcase-fill"></i> Email Emprendimiento:</span>
+                        <span class="info-value" id="feriante-email"></span>
+                    </div>
+                </div>
+                <div class="perfil-card edit-mode" id="feriante-edit" style="display:none;">
+                    <div class="form-group">
+                        <label for="edit-feriante-tel">Teléfono de contacto</label>
+                        <input type="text" id="edit-feriante-tel" placeholder="2964-123456">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-feriante-email">Email del Emprendimiento</label>
+                        <input type="email" id="edit-feriante-email" placeholder="contacto@emprendimiento.com">
+                    </div>
+                    <div class="form-actions">
+                        <button id="btn-cancel-feriante" class="btn btn-cancel">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </button>
+                        <button id="btn-save-feriante" class="btn btn-save">
+                            <i class="bi bi-check-lg"></i> Guardar Cambios
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="header-card">
-                <h2>Datos del Emprendimiento (Stand)</h2>
-                <div class="stand-toggle-container">
-                    <span id="stand-status-label" class="status-badge">Cargando...</span>
-                    <label class="switch">
-                        <input type="checkbox" id="toggle-stand-activo">
-                        <span class="slider round"></span>
-                    </label>
+            <!-- Sección: Datos del Emprendimiento / Stand -->
+            <div class="perfil-section">
+                <div class="header-card">
+                    <div class="section-title">
+                        <i class="bi bi-shop section-icon"></i>
+                        <h2>Mi Stand Commercial</h2>
+                    </div>
+                    <div class="header-actions">
+                        <div class="stand-toggle-container">
+                            <span id="stand-status-label" class="status-badge">Cargando...</span>
+                            <label class="switch" title="Activar/Desactivar visibilidad del stand">
+                                <input type="checkbox" id="toggle-stand-activo">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <button id="btn-edit-stand" class="btn btn-edit">
+                            <i class="bi bi-pencil-fill"></i> Editar
+                        </button>
+                    </div>
                 </div>
-                <button id="btn-edit-stand" class="btn btn-edit">Editar</button>
-            </div>
-            <div class="perfil-card" id="stand-view"></div>
-            <div class="perfil-card edit-mode" id="stand-edit" style="display:none;">
-                <div class="form-group"><label>Nombre del Stand</label><input type="text" id="edit-stand-nombre"></div>
-                <div class="form-group"><label>Descripción del Stand</label><textarea id="edit-stand-desc" rows="3"></textarea></div>
-                <div class="form-actions">
-                    <button id="btn-cancel-stand" class="btn btn-cancel">Cancelar</button>
-                    <button id="btn-save-stand" class="btn btn-save">Guardar Cambios</button>
+                <div class="perfil-card" id="stand-view"></div>
+                <div class="perfil-card edit-mode" id="stand-edit" style="display:none;">
+                    <div class="form-group">
+                        <label for="edit-stand-nombre">Nombre del Stand</label>
+                        <input type="text" id="edit-stand-nombre" placeholder="Nombre comercial de tu emprendimiento">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-stand-desc">Descripción del Stand</label>
+                        <textarea id="edit-stand-desc" rows="3" placeholder="Describe los productos y servicios que ofreces..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button id="btn-cancel-stand" class="btn btn-cancel">
+                            <i class="bi bi-x-lg"></i> Cancelar
+                        </button>
+                        <button id="btn-save-stand" class="btn btn-save">
+                            <i class="bi bi-check-lg"></i> Guardar Cambios
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="acciones">
-                <button id="cerrarSesion" class="btn-logout">Cerrar sesión</button>
+                <button id="cerrarSesion" class="btn-logout">
+                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                </button>
             </div>
         </div>
 
+        <!-- Columna Derecha: Tarjetas de Acciones Rápidas -->
         <div class="perfil-acciones">
-            <a href="/web/feriante/misproductos.html" class="dashboard-card">
-                <div class="icon">🛍️</div>
-                <h3>Gestionar Mis Productos</h3>
-                <p>Agrega o edita los productos de tu stand.</p>
+            <a href="/web/feriante/misproductos.html" class="dashboard-card action-card-purple">
+                <div class="card-icon">
+                    <i class="bi bi-bag-check-fill"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Gestionar Mis Productos</h3>
+                    <p>Agrega, actualiza o remueve los productos visibles de tu stand.</p>
+                </div>
             </a>
-            <a id="card-mis-ferias" class="dashboard-card" href="#">
-                <div class="icon">🎪</div>
-                <h3>Mis Ferias Asignadas</h3>
-                <div id="ferias-card-body"><p>Cargando información...</p></div>
+
+            <a id="card-mis-ferias" class="dashboard-card action-card-emerald" href="#">
+                <div class="card-icon">
+                    <i class="bi bi-calendar-event-fill"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Mis Ferias Asignadas</h3>
+                    <div id="ferias-card-body">
+                        <p class="text-muted">Cargando información...</p>
+                    </div>
+                </div>
             </a>
-            <a href="/web/cambiar-contrasena.html" class="dashboard-card action-blue">
-                <div class="icon">🔒</div>
-                <h3>Cambiar Contraseña</h3>
-                <p>Actualiza tu clave de acceso de forma segura.</p>
+
+            <a href="javascript:void(0)" class="dashboard-card action-card-blue" onclick="abrirModalPostulacion()">
+                <div class="card-icon">
+                    <i class="bi bi-ticket-perforated-fill"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Postularme a Feria</h3>
+                    <p>Busca ediciones abiertas y postula tu stand para un puesto.</p>
+                </div>
             </a>
-            <a href="javascript:void(0)" class="dashboard-card action-green" onclick="abrirModalPostulacion()">
-                <div class="icon">🎡</div>
-                <h3>Postularme a Feria</h3>
-                <p>Busca ferias abiertas y solicita un lugar para tu stand.</p>
+
+            <a href="/web/cambiar-contrasena.html" class="dashboard-card action-card-gray">
+                <div class="card-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Cambiar Contraseña</h3>
+                    <p>Actualiza la clave de acceso a tu cuenta de forma segura.</p>
+                </div>
             </a>
         </div>
     </div>
 </main>
 
+<!-- Modal Cropper (Recorte de Foto) -->
 <div id="modal-cropper" class="modal-overlay hidden">
     <div class="modal-content">
-        <h2>Ajustar Foto de Perfil</h2>
-        <p>Arrastra y ajusta tu foto dentro del círculo</p> <div class="cropper-wrapper">
-            <img id="image-to-crop" src="">
+        <div class="modal-header">
+            <h3><i class="bi bi-crop"></i> Ajustar Foto de Perfil</h3>
+            <p>Arrastra y ajusta tu foto dentro del círculo</p>
+        </div>
+        <div class="cropper-wrapper">
+            <img id="image-to-crop" src="" alt="Imagen a recortar">
         </div>
         <div class="modal-actions">
-            <button id="btn-cancel-crop" class="btn" style="background-color: #e74c3c; color: white;">Cancelar</button>
-            <button id="btn-confirm-crop" class="btn" style="background-color: #2ecc71; color: white;">Guardar Cambios</button>
+            <button id="btn-cancel-crop" class="btn btn-cancel">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </button>
+            <button id="btn-confirm-crop" class="btn btn-save">
+                <i class="bi bi-check-lg"></i> Guardar Cambios
+            </button>
         </div>
     </div>
 </div>
 
+<!-- Modal Postulación a Ferias -->
 <div id="modal-postulacion" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 600px;">
-        <span class="close-button" onclick="cerrarModalPostulacion()">&times;</span>
-        <h2><i class="fas fa-magic"></i> Ferias Disponibles</h2>
-        <p>Selecciona una feria para enviar tu solicitud de participación.</p>
+    <div class="modal-content modal-large">
+        <span class="close-button" onclick="cerrarModalPostulacion()" title="Cerrar modal">&times;</span>
+        <div class="modal-header">
+            <h3><i class="bi bi-building-add"></i> Ferias Disponibles</h3>
+            <p>Selecciona una edición activa para enviar la postulación de tu stand.</p>
+        </div>
         
         <div id="lista-ferias-disponibles" class="modal-lista-ferias">
-            <p>Cargando ferias...</p>
+            <p class="text-muted">Cargando ferias...</p>
         </div>
     </div>
 </div>
 
-<footer><p>Proyecto Feria Digital — CENT 35</p></footer>
+<footer class="app-footer">
+    <p>Proyecto Feria Digital — CENT 35</p>
+</footer>
 
+<!-- Scripts requeridos -->
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/web/js/notificaciones.js"></script> 
