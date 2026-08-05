@@ -33,67 +33,97 @@ body {
     line-height: 1.6;
 }
 
-/* Header */
-.app-header {
+/* Header Consistente con las demás vistas de la app */
+header {
     background: #ffffff;
     border-bottom: 1px solid var(--border-color);
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.5rem;
     position: sticky;
     top: 0;
     z-index: 1000;
     box-shadow: var(--shadow-sm);
 }
 
-.header-content {
+.header-top {
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
 }
 
-.brand {
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.header-logo-link {
+    display: inline-flex;
+    align-items: center;
+}
+
+.header-logo {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+}
+
+.header-titles {
+    display: flex;
+    flex-direction: column;
+}
+
+.header-titles h1 {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--secondary-color);
+    margin: 0;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.header-right {
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
 
-.brand-icon {
-    font-size: 1.75rem;
-    color: var(--primary-color);
-}
-
-.brand-name {
-    font-weight: 800;
-    font-size: 1.35rem;
-    color: var(--secondary-color);
-    letter-spacing: -0.5px;
-}
-
 .btn-header {
     background-color: var(--primary-light);
     color: var(--primary-color);
-    padding: 0.6rem 1.25rem;
+    padding: 0.55rem 1.2rem;
     border-radius: 30px;
     text-decoration: none;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.875rem;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s ease;
+    border: 1px solid transparent;
 }
 
 .btn-header:hover {
     background-color: var(--primary-color);
     color: #ffffff;
     transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
 }
 
 /* Contenido Principal */
-.main-content {
+.main-container {
     max-width: 1200px;
-    margin: 2.5rem auto;
+    margin: 2rem auto;
     padding: 0 1.5rem;
 }
 
@@ -114,7 +144,7 @@ body {
 .perfil-container {
     background: var(--card-bg);
     border-radius: var(--radius-lg);
-    padding: 2.5rem;
+    padding: 2.25rem;
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-md);
 }
@@ -127,10 +157,15 @@ body {
     border-bottom: 1px solid var(--border-color);
 }
 
+/* FOTO DE PERFIL Y BOTÓN ESTRICTAMENTE DEBAJO */
 .perfil-foto-container {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    margin: 0 auto 1.25rem auto;
+    width: fit-content;
 }
 
 .perfil-foto {
@@ -151,22 +186,24 @@ body {
     background-color: var(--secondary-color);
     color: #ffffff;
     border: none;
-    padding: 0.5rem 1.1rem;
+    padding: 0.55rem 1.25rem;
     border-radius: 20px;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    margin-top: 0.75rem;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.4rem;
     box-shadow: var(--shadow-sm);
     transition: all 0.2s ease;
+    width: max-content;
 }
 
 .btn-foto-edit:hover {
     background-color: var(--primary-color);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
 }
 
 .page-title {
@@ -179,9 +216,8 @@ body {
 .page-subtitle {
     font-size: 0.95rem;
     color: var(--text-secondary);
-    margin: 0;
-    max-width: 600px;
     margin: 0 auto;
+    max-width: 600px;
 }
 
 /* Secciones de Información */
@@ -613,19 +649,20 @@ input:checked + .slider:before {
     color: var(--text-muted);
 }
 
-/* Footer */
-.app-footer {
+/* Footer Consistente */
+footer {
     text-align: center;
     padding: 2rem 1rem;
     color: var(--text-muted);
     font-size: 0.875rem;
     border-top: 1px solid var(--border-color);
     margin-top: 4rem;
+    background: #ffffff;
 }
 
 /* Adaptación Responsiva (Móviles) */
 @media (max-width: 768px) {
-    .main-content {
+    .main-container {
         margin: 1.5rem auto;
         padding: 0 1rem;
     }

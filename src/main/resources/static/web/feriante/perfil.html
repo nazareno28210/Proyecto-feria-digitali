@@ -3,50 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Perfil - Feria Digital</title>
-    <!-- Google Fonts -->
+    <title>Mi Perfil de Feriante — Feria Digital</title>
+    <link rel="icon" href="/web/assets/logo.png" />
+
+    <!-- Google Fonts & Bootstrap Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- Estilos base e individuales -->
-    <link rel="stylesheet" href="/web/css/global.css">
-    <link rel="stylesheet" href="/web/feriante/perfil.css">
+    
+    <!-- Librerías de CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+
+    <!-- Estilos de la aplicación -->
+    <link rel="stylesheet" href="/web/css/global.css">
+    <link rel="stylesheet" href="/web/feriante/perfil.css">
 </head>
 <body>
 
-<header class="app-header">
-    <div class="header-content">
-        <div class="brand">
-            <i class="bi bi-shop-window brand-icon"></i>
-            <span class="brand-name">Feria Digital</span>
+<!-- Header Consistente con la aplicación -->
+<header>
+    <div class="header-top">
+        <div class="header-left">
+            <a href="/web/ferias.html" class="header-logo-link">
+                <img src="/web/assets/logo.png" alt="Logo Feria Digital" class="header-logo" />
+            </a>
+            <div class="header-titles">
+                <h1>Feria Digital</h1>
+                <span class="header-subtitle">Mi Perfil de Feriante</span>
+            </div>
         </div>
-        <a href="/web/ferias.html" class="btn btn-header">
-            <i class="bi bi-grid-fill"></i> Ver Ferias
-        </a>
+        <div class="header-right">
+            <a href="/web/ferias.html" class="btn btn-header">
+                <i class="bi bi-arrow-left-circle-fill"></i> Volver a Ferias
+            </a>
+        </div>
     </div>
 </header>
 
-<main class="main-content">
+<main class="main-container">
     <div class="perfil-layout">
         <!-- Columna Izquierda: Información de Perfil -->
         <div class="perfil-container">
             <div class="perfil-hero">
+                <!-- Foto de perfil y botón estricto DEBAJO -->
                 <div class="perfil-foto-container">
                     <img src="https://res.cloudinary.com/demo/image/upload/d_avatar.png/non_existing_id.png" alt="Foto de perfil" class="perfil-foto" id="fotoPerfil">
                     <input type="file" id="inputFotoPerfil" accept="image/*" hidden>
                     <button class="btn btn-foto-edit" onclick="document.getElementById('inputFotoPerfil').click()">
-                        <i class="bi bi-camera-fill"></i> Cambiar Foto
+                        <i class="bi bi-camera-fill"></i> Cambiar foto
                     </button>
                 </div>
                 <h1 class="page-title">Mi Perfil de Feriante</h1>
                 <p class="page-subtitle">Gestiona tu información personal, datos de contacto y el estado comercial de tu emprendimiento.</p>
             </div>
 
-            <!-- Sección: Datos de Usuario -->
+            <!-- Sección: Datos Personales -->
             <div class="perfil-section">
                 <div class="header-card">
                     <div class="section-title">
@@ -60,19 +73,19 @@
                 <div class="perfil-card" id="usuario-view">
                     <div class="info-row">
                         <span class="info-label"><i class="bi bi-envelope-fill"></i> Email:</span>
-                        <span class="info-value" id="usuario-email"></span>
+                        <span class="info-value" id="usuario-email">Cargando...</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label"><i class="bi bi-person-fill"></i> Nombre:</span>
-                        <span class="info-value" id="usuario-nombre"></span>
+                        <span class="info-value" id="usuario-nombre">Cargando...</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label"><i class="bi bi-person-fill"></i> Apellido:</span>
-                        <span class="info-value" id="usuario-apellido"></span>
+                        <span class="info-value" id="usuario-apellido">Cargando...</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label"><i class="bi bi-calendar-check-fill"></i> Fecha Registro:</span>
-                        <span class="info-value" id="usuario-fecha"></span>
+                        <span class="info-value" id="usuario-fecha">Cargando...</span>
                     </div>
                 </div>
                 <div class="perfil-card edit-mode" id="usuario-edit" style="display:none;">
@@ -113,11 +126,11 @@
                 <div class="perfil-card" id="feriante-view">
                     <div class="info-row">
                         <span class="info-label"><i class="bi bi-telephone"></i> Teléfono:</span>
-                        <span class="info-value" id="feriante-tel"></span>
+                        <span class="info-value" id="feriante-tel">Cargando...</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label"><i class="bi bi-briefcase-fill"></i> Email Emprendimiento:</span>
-                        <span class="info-value" id="feriante-email"></span>
+                        <span class="info-value" id="feriante-email">Cargando...</span>
                     </div>
                 </div>
                 <div class="perfil-card edit-mode" id="feriante-edit" style="display:none;">
@@ -145,7 +158,7 @@
                 <div class="header-card">
                     <div class="section-title">
                         <i class="bi bi-shop section-icon"></i>
-                        <h2>Mi Stand Commercial</h2>
+                        <h2>Mi Stand Comercial</h2>
                     </div>
                     <div class="header-actions">
                         <div class="stand-toggle-container">
@@ -235,7 +248,7 @@
     </div>
 </main>
 
-<!-- Modal Cropper (Recorte de Foto) -->
+<!-- Modal Cropper -->
 <div id="modal-cropper" class="modal-overlay hidden">
     <div class="modal-content">
         <div class="modal-header">
@@ -256,7 +269,7 @@
     </div>
 </div>
 
-<!-- Modal Postulación a Ferias -->
+<!-- Modal Postulación -->
 <div id="modal-postulacion" class="modal-overlay hidden">
     <div class="modal-content modal-large">
         <span class="close-button" onclick="cerrarModalPostulacion()" title="Cerrar modal">&times;</span>
@@ -271,7 +284,8 @@
     </div>
 </div>
 
-<footer class="app-footer">
+<!-- Footer Consistente -->
+<footer>
     <p>Proyecto Feria Digital — CENT 35</p>
 </footer>
 
