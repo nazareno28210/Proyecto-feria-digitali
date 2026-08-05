@@ -6,11 +6,11 @@
     --primary-color: #2563eb;
     --primary-hover: #1d4ed8;
     --primary-light: #eff6ff;
-    --secondary-color: #0f172a;
+    --secondary-color: #1a3a5a; /* Azul oscuro oficial de la app */
     --accent-emerald: #10b981;
     --accent-emerald-hover: #059669;
     --accent-purple: #8b5cf6;
-    --bg-main: #f8fafc;
+    --bg-main: #eef6ff;
     --card-bg: #ffffff;
     --border-color: #e2e8f0;
     --text-primary: #1e293b;
@@ -33,15 +33,16 @@ body {
     line-height: 1.6;
 }
 
-/* Header Consistente con las demás vistas de la app */
+/* Header Consistente en Color Azul Oscuro Oficial (#1a3a5a) */
 header {
-    background: #ffffff;
-    border-bottom: 1px solid var(--border-color);
-    padding: 0.75rem 1.5rem;
+    background-color: var(--secondary-color);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.85rem 1.5rem;
     position: sticky;
     top: 0;
     z-index: 1000;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .header-top {
@@ -78,7 +79,7 @@ header {
 .header-titles h1 {
     font-size: 1.35rem;
     font-weight: 800;
-    color: var(--secondary-color);
+    color: #ffffff;
     margin: 0;
     line-height: 1.2;
     letter-spacing: -0.5px;
@@ -87,7 +88,7 @@ header {
 .header-subtitle {
     font-size: 0.78rem;
     font-weight: 600;
-    color: var(--primary-color);
+    color: #93c5fd; /* Azul claro brillante para contraste */
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -99,8 +100,8 @@ header {
 }
 
 .btn-header {
-    background-color: var(--primary-light);
-    color: var(--primary-color);
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
     padding: 0.55rem 1.2rem;
     border-radius: 30px;
     text-decoration: none;
@@ -110,14 +111,15 @@ header {
     align-items: center;
     gap: 0.5rem;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
 }
 
 .btn-header:hover {
-    background-color: var(--primary-color);
-    color: #ffffff;
+    background-color: #ffffff;
+    color: var(--secondary-color);
     transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 /* Contenido Principal */
@@ -649,15 +651,20 @@ input:checked + .slider:before {
     color: var(--text-muted);
 }
 
-/* Footer Consistente */
+/* Footer Consistente en Color Azul Oscuro Oficial (#1a3a5a) */
 footer {
     text-align: center;
-    padding: 2rem 1rem;
-    color: var(--text-muted);
+    padding: 1.25rem 1rem;
+    color: #ffffff;
     font-size: 0.875rem;
-    border-top: 1px solid var(--border-color);
+    background-color: var(--secondary-color);
     margin-top: 4rem;
-    background: #ffffff;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.05);
+}
+
+footer p {
+    margin: 0;
+    color: #cbd5e1;
 }
 
 /* Adaptación Responsiva (Móviles) */
