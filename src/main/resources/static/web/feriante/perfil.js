@@ -437,11 +437,11 @@ async function abrirModalPostulacion() {
             const cupoLleno = capacidad !== null && cuposOcupados >= capacidad;
             const esListaEspera = cupoLleno || !hayEspaciosDisponibles;
 
-            const btnTexto = esListaEspera ? "Anotarse en Lista de Espera" : "Inscribirme y Reservar";
+            const btnTexto = esListaEspera ? "Anotarse en Lista de Espera" : "Inscribirme";
             const btnEstilo = esListaEspera
-                ? "margin-top: 15px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;"
-                : "margin-top: 15px;";
-            const btnClase = esListaEspera ? "" : "btn-solicitar";
+                ? "background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;"
+                : "background: var(--color-dark-blue, #0f172a); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;";
+            const btnClase = esListaEspera ? "btn btn-warning" : "btn btn-primary btn-solicitar";
 
             const alertaEspera = esListaEspera
                 ? `<div style="margin-top: 10px; padding: 10px 14px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; font-size: 0.88em; color: #92400e;">
@@ -469,8 +469,10 @@ async function abrirModalPostulacion() {
                         ${preferenciaHtml}
                     </div>
                 </div>
-                <button class="${btnClase}" onclick="enviarSolicitudConPreferencia(${e.id}, ${esListaEspera})" style="${btnEstilo}">${btnTexto}</button>
                 ${alertaEspera}
+                <div class="modal-footer" style="margin-top: 15px; display: flex; justify-content: flex-end; align-items: center; width: 100%; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                    <button class="${btnClase}" onclick="enviarSolicitudConPreferencia(${e.id}, ${esListaEspera})" style="${btnEstilo}">${btnTexto}</button>
+                </div>
             `;
 
             contenedor.appendChild(div);
@@ -491,16 +493,7 @@ async function enviarSolicitudConPreferencia(edicionId, esListaEspera = false) {
     const select = document.getElementById(`select-preferencia-${edicionId}`);
     const espacioId = select ? select.value : "";
 
-    // Bug #1: Si no es lista de espera, exigir lote seleccionado
-    if (!esListaEspera && (!espacioId || espacioId === "")) {
-        await Swal.fire({
-            title: "Lote requerido",
-            text: "Por favor, selecciona un lote válido antes de postularte.",
-            icon: "warning",
-            confirmButtonColor: "#f59e0b"
-        });
-        return;
-    }
+
 
     try {
         const payload = {

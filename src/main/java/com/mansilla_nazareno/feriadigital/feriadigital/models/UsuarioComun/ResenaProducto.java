@@ -26,11 +26,7 @@ public class ResenaProducto {
     @Column(columnDefinition = "TEXT")
     private String comentario;
 
-    private String respuesta;
-
     private LocalDateTime fechaCreacion = LocalDateTime.now();
-
-    private LocalDateTime fechaRespuesta;
 
     public ResenaProducto() {
     }
@@ -83,13 +79,7 @@ public class ResenaProducto {
         this.comentario = comentario;
     }
 
-    public String getRespuesta() {
-        return respuesta;
-    }
 
-    public void setRespuesta(String respuesta) {
-        this.respuesta = respuesta;
-    }
 
     public LocalDateTime getFechaCreacion() {
         return fechaCreacion;
@@ -99,11 +89,5 @@ public class ResenaProducto {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public LocalDateTime getFechaRespuesta() {
-        return fechaRespuesta;
-    }
 
-    public void setFechaRespuesta(LocalDateTime fechaRespuesta) {
-        this.fechaRespuesta = fechaRespuesta;
-    }
 }

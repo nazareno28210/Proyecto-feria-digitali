@@ -127,78 +127,7 @@ public class ResenaProductoController {
         return ResponseEntity.ok("Reseña de producto guardada con éxito");
     }
 
-    @PutMapping("/{id}/responder")
-    public ResponseEntity<?> responderResena(@PathVariable Integer id, @RequestBody String textoRespuesta, Authentication authentication) {
-        if (authentication == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
 
-        Usuario usuarioLogueado = usuarioRepository.findByEmail(authentication.getName());
-        if (usuarioLogueado == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        if (usuarioLogueado.getTipoUsuario() == TipoUsuario.ADMINISTRADOR) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Los administradores no pueden responder reseñas.");
-        }
-
-        ResenaProducto resena = resenaProductoRepository.findById(id).orElse(null);
-        if (resena == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reseña no encontrada.");
-        }
-
-        // Validación: Verifica que el usuario logueado SEA ESTRICTAMENTE el dueño del producto calificado
-        if (resena.getProducto() == null || resena.getProducto().getStand() == null || resena.getProducto().getStand().getFeriante() == null || resena.getProducto().getStand().getFeriante().getUsuario() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede verificar la propiedad del producto.");
-        }
-
-        int idDuenoProducto = resena.getProducto().getStand().getFeriante().getUsuario().getId();
-        if (usuarioLogueado.getId() != idDuenoProducto) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Solo el dueño del producto puede responder.");
-        }
-
-        resena.setRespuesta(textoRespuesta);
-        resena.setFechaRespuesta(LocalDateTime.now());
-        resenaProductoRepository.save(resena);
-
-        return ResponseEntity.ok("Respuesta guardada/actualizada correctamente");
-    }
-
-    @DeleteMapping("/{id}/respuesta")
-    public ResponseEntity<?> eliminarRespuesta(@PathVariable Integer id, Authentication authentication) {
-        if (authentication == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        Usuario usuarioLogueado = usuarioRepository.findByEmail(authentication.getName());
-        if (usuarioLogueado == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        if (usuarioLogueado.getTipoUsuario() == TipoUsuario.ADMINISTRADOR) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Los administradores no pueden borrar respuestas.");
-        }
-
-        ResenaProducto resena = resenaProductoRepository.findById(id).orElse(null);
-        if (resena == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Reseña no encontrada.");
-        }
-
-        if (resena.getProducto() == null || resena.getProducto().getStand() == null || resena.getProducto().getStand().getFeriante() == null || resena.getProducto().getStand().getFeriante().getUsuario() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se puede verificar la propiedad del producto.");
-        }
-
-        int idDuenoProducto = resena.getProducto().getStand().getFeriante().getUsuario().getId();
-        if (usuarioLogueado.getId() != idDuenoProducto) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Solo el dueño del producto puede eliminar la respuesta.");
-        }
-
-        resena.setRespuesta(null);
-        resena.setFechaRespuesta(null);
-        resenaProductoRepository.save(resena);
-
-        return ResponseEntity.ok("Respuesta eliminada correctamente");
-    }
 
     private boolean contieneGroserias(String texto) {
         if (texto == null) return false;

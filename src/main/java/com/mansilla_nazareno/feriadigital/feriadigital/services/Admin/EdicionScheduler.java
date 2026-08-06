@@ -38,7 +38,7 @@ public class EdicionScheduler {
     }
 
     // Ejecución cada minuto (cron = "0 * * * * *") para verificar estados y notificaciones pendientes
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     public void actualizarEstadosEdiciones() {
 
         logger.info("⏰ Cron Job: Iniciando actualización automática de estados de ediciones...");

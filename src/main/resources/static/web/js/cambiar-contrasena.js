@@ -1,11 +1,27 @@
 // cambiar-contrasena.js — usa mostrarNotificacion global (notificaciones.js)
 
 document.addEventListener("DOMContentLoaded", () => {
+    configurarBotonVolver();
     const formPassword = document.getElementById("form-password");
     if (formPassword) {
         formPassword.addEventListener("submit", cambiarPassword);
     }
 });
+
+async function configurarBotonVolver() {
+    const btnVolver = document.getElementById("btn-volver-perfil");
+    if (!btnVolver) return;
+    try {
+        const res = await axios.get("/api/usuarios/current", { withCredentials: true });
+        if (res.data && res.data.tipoUsuario === "FERIANTE") {
+            btnVolver.href = "/web/feriante/perfil.html";
+        } else {
+            btnVolver.href = "/web/usuario-perfil.html";
+        }
+    } catch (e) {
+        console.log("Modo visitante o no autenticado");
+    }
+}
 
 function switchMethod(method) {
     const tabManual = document.getElementById("tab-manual");
@@ -39,8 +55,8 @@ function cambiarPassword(e) {
     const nueva = nuevaInput.value;
     const repetir = repetirInput.value;
 
-    if (nueva.length < 6) {
-        mostrarNotificacion("La nueva contraseña debe tener al menos 6 caracteres.", "error");
+    if (nueva.length < 8) {
+        mostrarNotificacion("La nueva contraseña debe tener al menos 8 caracteres.", "error");
         return;
     }
 

@@ -237,7 +237,7 @@ async function cargarDatosProducto(id) {
                 formContainer.innerHTML = `
                     <div class="alert alert-info border-0 shadow-sm rounded-4 p-4 text-center">
                         <i class="bi bi-person-badge fs-2"></i>
-                        <p class="mt-2 mb-0 fw-bold">Estás viendo uno de tus productos. Respondé a tus clientes abajo.</p>
+                        <p class="mt-2 mb-0 fw-bold">Estás viendo uno de tus productos.</p>
                     </div>`;
             }
         }
@@ -303,31 +303,8 @@ async function cargarResenas(id) {
         }
 
         res.data.forEach(r => {
-            const esMiProducto = usuarioLogueadoId === dueñoProductoId;
             const estrellas = "★".repeat(r.puntaje) + "☆".repeat(5 - r.puntaje);
-            
-            // Fotos con fallback a imagen por defecto
             const fotoUsuarioUrl = r.fotoPerfil || '/img/default-user.png';
-            const fotoFerianteUrl = r.fotoFeriante || '/img/default-user.png';
-            
-            const labelRespuesta = esMiProducto ? "Tu respuesta:" : `Respuesta de ${nombreStandActual}:`;
-
-            const fechaRespHtml = r.fechaRespuesta 
-                ? `<div class="text-end opacity-50" style="font-size: 0.6rem; margin-top: -5px;">
-                     Respondido el ${new Date(r.fechaRespuesta).toLocaleString([], {year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute:'2-digit'})}
-                   </div>` 
-                : "";
-
-            const botonesDuenio = esMiProducto ? `
-                <div class="mt-2 d-flex gap-2 opacity-75 border-top pt-2">
-                    <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none small text-primary" onclick="abrirEditorRespuesta(event, ${r.id}, '${r.respuesta}')">
-                        <i class="bi bi-pencil"></i> Editar
-                    </button>
-                    <span class="text-muted">|</span>
-                    <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none small text-danger" onclick="eliminarRespuesta(event, ${r.id})">
-                        <i class="bi bi-trash"></i> Borrar
-                    </button>
-                </div>` : "";
 
             const resenaDiv = document.createElement("div");
             resenaDiv.className = "resena-card shadow-sm p-3 mb-3 bg-white rounded-3";
@@ -346,89 +323,13 @@ async function cargarResenas(id) {
                 </div>
 
                 <p class="my-2 small text-dark ps-1">${r.comentario || 'Sin comentarios.'}</p>
-                
-                <div id="contenedor-respuesta-${r.id}">
-                    ${r.respuesta 
-                        ? `<div class="ms-4 p-3 bg-light border-start border-4 border-primary rounded mt-2">
-                             <div class="d-flex align-items-center gap-2 mb-2">
-                                <img src="${fotoFerianteUrl}" class="resena-avatar-mini" style="width: 30px; height: 30px;" alt="Feriante">
-                                <small class="fw-bold text-primary">
-                                    <i class="bi bi-reply-fill"></i> ${labelRespuesta}
-                                </small>
-                             </div>
-                             <p class="mb-2 small fst-italic text-dark ps-1">${r.respuesta}</p>
-                             ${fechaRespHtml} ${botonesDuenio}
-                           </div>`
-                        : (esMiProducto ? `<button type="button" class="btn btn-sm btn-outline-primary mt-1 ms-4 rounded-pill px-3" onclick="abrirEditorRespuesta(event, ${r.id}, '')">Responder</button>` : "")
-                    }
-                </div>
             `;
             lista.appendChild(resenaDiv);
         });
     } catch (err) { lista.innerHTML = `<p class="text-danger small">Error de conexión.</p>`; }
 }
 
-// 3. Gestión de Respuestas (Responder, Editar, Eliminar)
-function abrirEditorRespuesta(event, resenaIdParam, textoPrevioParam) {
-    if (event && event.preventDefault) event.preventDefault();
-    const resenaId = typeof event === 'number' ? event : resenaIdParam;
-    const textoPrevio = typeof event === 'number' ? resenaIdParam : textoPrevioParam;
-    const contenedor = document.getElementById(`contenedor-respuesta-${resenaId}`);
-    contenedor.innerHTML = `
-        <div class="mt-2 ms-4 p-3 bg-light rounded border border-primary">
-            <label class="small fw-bold text-primary mb-2">Escribí tu respuesta:</label>
-            <textarea id="input-respuesta-${resenaId}" class="form-control form-control-sm mb-2" rows="3">${textoPrevio || ''}</textarea>
-            <div class="d-flex gap-2 justify-content-end">
-                <button type="button" class="btn btn-sm btn-light border" onclick="cargarResenas(parseInt(new URLSearchParams(window.location.search).get('id')))">Cancelar</button>
-                <button type="button" class="btn btn-sm btn-primary px-3 fw-bold" onclick="enviarRespuesta(event, ${resenaId})">Guardar</button>
-            </div>
-        </div>
-    `;
-}
 
-async function enviarRespuesta(event, resenaIdParam) {
-    if (event && event.preventDefault) event.preventDefault();
-    const resenaId = typeof event === 'number' ? event : resenaIdParam;
-    const texto = document.getElementById(`input-respuesta-${resenaId}`).value.trim();
-    if (!texto) {
-        mostrarNotificacion("Escribe algo antes de guardar.", "warning");
-        return;
-    }
-    try {
-        await axios.put(`/api/resenas-producto/${resenaId}/responder`, texto, {
-            headers: { 'Content-Type': 'text/plain' }, withCredentials: true
-        });
-        mostrarNotificacion("Respuesta guardada correctamente.", "success");
-        const prodId = parseInt(new URLSearchParams(window.location.search).get('id'));
-        cargarResenas(prodId);
-    } catch (err) {
-        mostrarNotificacion(obtenerMensajeError(err, "Error al guardar la respuesta."), "error");
-    }
-}
-
-async function eliminarRespuesta(event, resenaIdParam) {
-    if (event && event.preventDefault) event.preventDefault();
-    const resenaId = typeof event === 'number' ? event : resenaIdParam;
-    const resultado = await Swal.fire({
-        title: "Confirmar eliminación",
-        text: "¿Seguro que deseas eliminar tu respuesta?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Sí, eliminar",
-        cancelButtonText: "Cancelar",
-        confirmButtonColor: "#dc2626",
-        cancelButtonColor: "#6b7280",
-    });
-    if (!resultado.isConfirmed) return;
-    try {
-        await axios.delete(`/api/resenas-producto/${resenaId}/respuesta`, { withCredentials: true });
-        mostrarNotificacion("Respuesta eliminada correctamente.", "success");
-        const prodId = parseInt(new URLSearchParams(window.location.search).get('id'));
-        cargarResenas(prodId);
-    } catch (err) {
-        mostrarNotificacion(obtenerMensajeError(err, "No se pudo eliminar la respuesta."), "error");
-    }
-}
 
 // 4. Estrellas y Visuales
 function renderizarEstrellasCabecera(promedio, cantidad) {

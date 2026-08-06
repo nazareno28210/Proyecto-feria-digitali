@@ -224,6 +224,12 @@ async function verificarAccesoCalificacion(usuarioDueñoId) {
     }
 }
 
-function volver() { window.history.back(); }
+function volver() {
+    if (document.referrer && document.referrer.includes(window.location.host)) {
+        window.history.back();
+    } else {
+        window.location.href = "/web/ferias.html";
+    }
+}
 
 document.addEventListener("DOMContentLoaded", cargarStand);

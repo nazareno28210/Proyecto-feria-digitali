@@ -10,8 +10,6 @@ public class ResenaProductoDTO {
     private LocalDateTime fecha;
     private String nombreUsuario;
     private String fotoPerfil;
-    private String respuesta;
-    private LocalDateTime fechaRespuesta;
 
     public ResenaProductoDTO() {
     }
@@ -25,8 +23,6 @@ public class ResenaProductoDTO {
             this.nombreUsuario = resenaProducto.getUsuario().getNombre();
             this.fotoPerfil = resenaProducto.getUsuario().getImagenUrl();
         }
-        this.respuesta = resenaProducto.getRespuesta();
-        this.fechaRespuesta = resenaProducto.getFechaRespuesta();
     }
 
     public Integer getId() {
@@ -51,13 +47,5 @@ public class ResenaProductoDTO {
 
     public String getFotoPerfil() {
         return fotoPerfil;
-    }
-
-    public String getRespuesta() {
-        return respuesta;
-    }
-
-    public LocalDateTime getFechaRespuesta() {
-        return fechaRespuesta;
     }
 }

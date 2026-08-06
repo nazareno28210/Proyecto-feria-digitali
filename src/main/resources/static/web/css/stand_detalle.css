@@ -32,7 +32,13 @@
   transform: scale(1.1) rotate(15deg);
 }
 .header-right {
-  /* No necesita estilos extra */
+  margin-right: 20px;
+  padding-right: 15px;
+}
+.header-right .btn-header {
+  margin-left: 10px;
+  padding: 8px 16px;
+  border-radius: 8px;
 }
 
 /* ====================================
