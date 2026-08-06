@@ -398,22 +398,29 @@ async function abrirModalPostulacion() {
             console.log("Datos de la edición recibida:", e);
 
             let opcionesEspacios = '<option value="">-- Selecciona un lote --</option>';
+            let todosLosEspacios = [];
+            let espaciosDisponibles = [];
 
             try {
                 const resEspacios = await axios.get(`/api/espacios/edicion/${e.id}`);
-                const espaciosDisponibles = resEspacios.data.filter(esp => esp.estado === 'DISPONIBLE');
+                todosLosEspacios = resEspacios.data;
+                espaciosDisponibles = todosLosEspacios.filter(esp => esp.estado === 'DISPONIBLE');
 
-                if (espaciosDisponibles.length === 0) {
+                if (todosLosEspacios.length === 0) {
                     opcionesEspacios = '<option value="">-- Sin preferencias --</option><option value="" disabled>Agotado (Sin lugares)</option>';
                 } else {
-                    espaciosDisponibles.forEach(esp => {
-                        opcionesEspacios += `<option value="${esp.id}">${esp.nombre} - $${esp.precio}</option>`;
+                    todosLosEspacios.forEach(esp => {
+                        const disabledAttr = esp.estado !== 'DISPONIBLE' ? ' disabled' : '';
+                        opcionesEspacios += `<option value="${esp.id}"${disabledAttr}>${esp.nombre} - $${esp.precio} (${esp.estado})</option>`;
                     });
                 }
             } catch (error) {
                 console.error("Error cargando espacios:", error);
                 opcionesEspacios = '<option value="" disabled>Error al cargar lugares</option>';
             }
+
+            // Bug #1: Detectar si hay espacios disponibles
+            const hayEspaciosDisponibles = espaciosDisponibles.length > 0;
 
             // 3. CAPTURA DE IMAGEN MÁS ROBUSTA (Busca en camelCase y en snake_case)
             const urlDelMapa = e.mapaUrl || e.mapa_url;
@@ -424,22 +431,31 @@ async function abrirModalPostulacion() {
             const div = document.createElement("div");
             div.className = "feria-item-modal";
 
-            // 🟡 DETECCIÓN DE CUPO LLENO
+            // 🟡 DETECCIÓN DE CUPO LLENO O SIN ESPACIOS
             const capacidad = e.feriaCapacidad || null;
             const cuposOcupados = e.cuposOcupados || 0;
             const cupoLleno = capacidad !== null && cuposOcupados >= capacidad;
+            const esListaEspera = cupoLleno || !hayEspaciosDisponibles;
 
-            const btnTexto = cupoLleno ? "Anotarse en Lista de Espera" : "Inscribirme y Reservar";
-            const btnEstilo = cupoLleno
+            const btnTexto = esListaEspera ? "Anotarse en Lista de Espera" : "Inscribirme y Reservar";
+            const btnEstilo = esListaEspera
                 ? "margin-top: 15px; background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;"
                 : "margin-top: 15px;";
-            const btnClase = cupoLleno ? "" : "btn-solicitar";
+            const btnClase = esListaEspera ? "" : "btn-solicitar";
 
-            const alertaEspera = cupoLleno
+            const alertaEspera = esListaEspera
                 ? `<div style="margin-top: 10px; padding: 10px 14px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 6px; font-size: 0.88em; color: #92400e;">
                         ⚠️ <strong>Cupos agotados.</strong> Si te postulas, entrarás en la lista de espera por si se libera un espacio.
                    </div>`
                 : "";
+
+            // Bug #1: Ocultar select de ubicación si es lista de espera
+            const preferenciaHtml = esListaEspera
+                ? `<p style="font-size:0.85em; color:#92400e; font-style:italic;">Sin disponibilidad — se registrará en lista de espera.</p>`
+                : `<label style="display:block; font-size: 0.9em; color: #334155; margin-bottom: 5px;"><strong>Reserva tu ubicación:</strong></label>
+                   <select id="select-preferencia-${e.id}" class="input-select" style="width: 100%; padding: 8px;">
+                       ${opcionesEspacios}
+                   </select>`;
 
             div.innerHTML = `
                 <div class="feria-item-info">
@@ -450,13 +466,10 @@ async function abrirModalPostulacion() {
                     
                     <div class="preferencia-container" style="margin-top: 15px; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
                         ${mapaHtml}
-                        <label style="display:block; font-size: 0.9em; color: #334155; margin-bottom: 5px;"><strong>Reserva tu ubicación:</strong></label>
-                        <select id="select-preferencia-${e.id}" class="input-select" style="width: 100%; padding: 8px;">
-                            ${opcionesEspacios}
-                        </select>
+                        ${preferenciaHtml}
                     </div>
                 </div>
-                <button class="${btnClase}" onclick="enviarSolicitudConPreferencia(${e.id})" style="${btnEstilo}">${btnTexto}</button>
+                <button class="${btnClase}" onclick="enviarSolicitudConPreferencia(${e.id}, ${esListaEspera})" style="${btnEstilo}">${btnTexto}</button>
                 ${alertaEspera}
             `;
 
@@ -474,12 +487,12 @@ function cerrarModalPostulacion() {
     document.getElementById("modal-postulacion").classList.add("hidden");
 }
 
-async function enviarSolicitudConPreferencia(edicionId) {
+async function enviarSolicitudConPreferencia(edicionId, esListaEspera = false) {
     const select = document.getElementById(`select-preferencia-${edicionId}`);
     const espacioId = select ? select.value : "";
 
-    // 🛡️ VALIDACIÓN: no permitir envío sin lote seleccionado
-    if (!espacioId || espacioId === "") {
+    // Bug #1: Si no es lista de espera, exigir lote seleccionado
+    if (!esListaEspera && (!espacioId || espacioId === "")) {
         await Swal.fire({
             title: "Lote requerido",
             text: "Por favor, selecciona un lote válido antes de postularte.",
@@ -492,9 +505,12 @@ async function enviarSolicitudConPreferencia(edicionId) {
     try {
         const payload = {
             edicionId: edicionId,
-            standId: ferianteActual.stand.id,
-            espacioId: parseInt(espacioId)
+            standId: ferianteActual.stand.id
         };
+        // Solo enviar espacioId si el feriante seleccionó uno (no es lista de espera)
+        if (!esListaEspera && espacioId) {
+            payload.espacioId = parseInt(espacioId);
+        }
 
         const res = await axios.post(`${PARTICIPACIONES_URL}/inscribir`, payload);
 

@@ -164,19 +164,17 @@
             <label for="pago-monto" style="display:block; margin-bottom:5px; font-weight:bold;">Monto Abonado ($)</label>
             <input type="number" id="pago-monto" step="0.01" min="0" placeholder="Ej: 5000" required style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
 
-            <div id="grupo-ubicacion" style="display: none;">
-                <div id="mapa-asignacion-container" style="display:none; margin-bottom: 15px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:bold;">Mapa del predio</label>
-                    <img id="mapa-asignacion-img" src="" alt="Mapa del predio"
-                        style="width: 100%; max-height: 250px; object-fit: contain; border: 1px solid #ccc; border-radius: 8px; background-color: #f8fafc;">
-                </div>
-                <label for="pago-ubicacion" style="display:block; margin-bottom:5px; font-weight:bold;">Asignar Lote/Stand Físico</label>
-                <select id="pago-ubicacion" style="width:100%; padding:8px; margin-bottom:15px; border-radius:4px; border:1px solid #ccc;">
-                    <option value="">Cargando stands disponibles...</option>
-                </select>
-                <small id="ayuda-preferencia" style="color: #6366f1; font-weight: 500; display: block; margin-top: -10px; margin-bottom: 15px;"></small>
-
+            <div id="mapa-asignacion-container" style="display:none; margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:5px; font-weight:bold;">Mapa del predio</label>
+                <img id="mapa-asignacion-img" src="" alt="Mapa del predio"
+                    style="width: 100%; max-height: 250px; object-fit: contain; border: 1px solid #ccc; border-radius: 8px; background-color: #f8fafc;">
             </div>
+
+            <label for="pago-ubicacion" style="display:block; margin-bottom:5px; font-weight:bold;">Asignar Lote/Stand Físico</label>
+            <select id="pago-ubicacion" style="width:100%; padding:8px; margin-bottom:5px; border-radius:4px; border:1px solid #ccc;">
+                <option value="">-- Sin asignar --</option>
+            </select>
+            <small id="ayuda-preferencia" style="color: #6366f1; font-weight: 500; display: block; margin-bottom: 15px;"></small>
 
             <button type="submit" class="btn-submit" style="width:100%; padding:10px;">Guardar Cambios</button>
         </form>

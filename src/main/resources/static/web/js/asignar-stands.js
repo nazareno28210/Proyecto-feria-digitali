@@ -4,12 +4,16 @@
  * ====================================
  */
 
+// Cache de espacios disponibles por edicion (Bug #1: para resolver nombres de preferencia)
+let _espaciosCache = [];
+
 async function cargarEspaciosDisponibles(edicionId, espacioSeleccionadoId = null) {
     const selectUbicacion = document.getElementById("pago-ubicacion");
     selectUbicacion.innerHTML = '<option value="">Seleccione un stand (Opcional)...</option>';
     try {
         const res = await axios.get(`/api/espacios/edicion/${edicionId}`);
         const espacios = res.data.filter(e => e.estado !== 'ELIMINADO');
+        _espaciosCache = espacios; // guardar para resolver nombres de preferencia
         if (espacios.length === 0) {
             selectUbicacion.innerHTML = '<option value="">⚠️ No hay stands configurados</option>';
             return;
@@ -27,6 +31,14 @@ async function cargarEspaciosDisponibles(edicionId, espacioSeleccionadoId = null
         console.error("Error al cargar espacios:", error);
         selectUbicacion.innerHTML = '<option value="">Error al cargar stands</option>';
     }
+}
+
+// Bug #1: Resuelve el nombre del espacio preferido a partir del ID
+function resolverNombrePreferido(numeroStandPreferido, espacios) {
+    if (!numeroStandPreferido) return null;
+    // Buscar en el cache de espacios disponibles
+    const encontrado = espacios.find(e => e.id == numeroStandPreferido);
+    return encontrado ? encontrado.nombre : `ID #${numeroStandPreferido}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -60,12 +72,12 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Filtramos las eliminadas para que ni aparezcan
             const validas = res.data.filter(e => e.estado !== 'ELIMINADO');
-            
-            // Separamos las activas de las inactivas (historial)
-            const activas = validas.filter(e => e.estado === 'ACTIVA');
-            const inactivas = validas.filter(e => e.estado !== 'ACTIVA');
 
-            // Renderizamos el grupo de Activas primero
+            const activas  = validas.filter(e => e.estado === 'ACTIVA');
+            const proximas  = validas.filter(e => e.estado === 'PROXIMA');
+            const inactivas = validas.filter(e => e.estado !== 'ACTIVA' && e.estado !== 'PROXIMA');
+
+            // 1. Activas
             if (activas.length > 0) {
                 const groupActivas = document.createElement('optgroup');
                 groupActivas.label = "🟢 EDICIONES ACTIVAS (Moderar hoy)";
@@ -76,7 +88,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 feriaSelect.appendChild(groupActivas);
             }
 
-            // Renderizamos el grupo de Historial abajo
+            // 2. Próximas
+            if (proximas.length > 0) {
+                const groupProximas = document.createElement('optgroup');
+                groupProximas.label = "🔵 EDICIONES PRÓXIMAS (Por iniciar)";
+                proximas.forEach(edicion => {
+                    const nombreCompleto = `${edicion.feriaNombre} - ${edicion.nombreEdicion}`;
+                    groupProximas.innerHTML += `<option value="${edicion.id}">${nombreCompleto}</option>`;
+                });
+                feriaSelect.appendChild(groupProximas);
+            }
+
+            // 3. Historial
             if (inactivas.length > 0) {
                 const groupInactivas = document.createElement('optgroup');
                 groupInactivas.label = "🔴 HISTORIAL (Ediciones cerradas)";
@@ -104,6 +127,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
+            // Bug #1: Cargamos espacios primero para tener el cache de nombres
+            try {
+                const resEsp = await axios.get(`/api/espacios/edicion/${edicionId}`);
+                _espaciosCache = resEsp.data.filter(e => e.estado !== 'ELIMINADO');
+            } catch (e) {
+                _espaciosCache = [];
+            }
+
             const res = await axios.get(`/api/participaciones/edicion/${edicionId}`);
             
             const participaciones = res.data.filter(p => p.estado !== 'CANCELADO');
@@ -177,27 +208,27 @@ document.addEventListener("DOMContentLoaded", () => {
             const monto = p.montoAbonado || 0;
             totalRecaudado += monto;
 
-            // Detecta si tiene stand sin importar cómo venga estructurado el JSON
-            const tieneStand = p.espacioId || p.espacioNombre || p.numeroStand || (p.espacio && p.espacio.id);
+            // Detecta si tiene stand REAL asignado (solo espacioId/espacioNombre del DTO, nunca la preferencia)
+            const tieneStand = !!(p.espacioId || p.espacioNombre);
 
             if (tieneStand) {
                 standsOcupados++;
-
-                // Busca el precio del stand en el JSON
-                let precioStand = 0;
-                if (p.espacio && p.espacio.precio) {
-                    precioStand = p.espacio.precio;
-                } else if (p.espacioPrecio) {
-                    precioStand = p.espacioPrecio;
-                } else if (p.precio) {
-                    precioStand = p.precio; // Fallback por si el backend lo manda directo
-                }
-
-                if (precioStand > 0) {
-                    let deuda = precioStand - monto;
-                    if (deuda > 0) totalPorCobrar += deuda;
-                }
             }
+
+            // Bug #4: Siempre calculamos Por Cobrar dinámicamente (incluye SENADO)
+            let precioStand = 0;
+            if (p.espacio && p.espacio.precio) {
+                precioStand = p.espacio.precio;
+            } else if (p.espacioPrecio) {
+                precioStand = p.espacioPrecio;
+            } else if (p.precio) {
+                precioStand = p.precio;
+            }
+            if (precioStand > 0) {
+                let deuda = precioStand - monto;
+                if (deuda > 0) totalPorCobrar += deuda;
+            }
+
             const nombreStand = obtenerNombreStand(p);
 
             // 1. Lógica de Estados
@@ -213,35 +244,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 badgeClass = "badge-senado";
             }
 
-            // 2. Lógica de Ubicación
-            let ubicacionTexto = `<span style="color:#f59e0b;">Sin asignar</span>`;
-            if (p.espacio && p.espacio.nombre) {
-                ubicacionTexto = p.espacio.nombre;
-            } else if (p.espacioNombre) {
-                ubicacionTexto = p.espacioNombre;
-            } else if (p.numeroStand) {
-                ubicacionTexto = `Mesa ${p.numeroStand}`;
+            // 2. Lógica de Ubicación con Soft-Booking visual
+            let ubicacionTexto = `<span style="color:#94a3b8; font-style:italic;">Sin asignar</span>`;
+            if (p.espacioNombre) {
+                if (estadoDB === 'DEBE') {
+                    ubicacionTexto = `<span style="color:#64748b; font-style:italic;">${p.espacioNombre} (Pre-asignado)</span>`;
+                } else {
+                    ubicacionTexto = `<span style="font-weight:bold; color:#15803d;">${p.espacioNombre}</span>`;
+                }
             }
 
-            // 3. Lógica de Preferencia
-            const sugerencia = p.numeroStandPreferido ?
-                `<span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; font-weight: 500;">Mesa ${p.numeroStandPreferido}</span>` :
-                `<small style="color:gray;">Sin preferencia</small>`;
+            // Bug #1: Lógica de Preferencia — resuelve nombre real del espacio preferido
+            let nombrePreferido = null;
+            if (p.numeroStandPreferido) {
+                nombrePreferido = resolverNombrePreferido(p.numeroStandPreferido, _espaciosCache);
+            }
+            const sugerencia = nombrePreferido
+                ? `<span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; font-weight: 500;">${nombrePreferido}</span>`
+                : `<small style="color:gray;">Sin preferencia</small>`;
 
-            // 4. Renderizado de Fila
+            // 4. Renderizado de Fila — Bug #5: data-attributes en lugar de onclick inline con parámetros complejos
             tbodyGestion.innerHTML += `
                 <tr>
                     <td><strong>${nombreStand}</strong></td>
-                    <td><span class="${badgeClass}">${estadoMostrar} ($${p.montoAbonado || 0})</span></td>
+                    <td><span class="${badgeClass}">${estadoMostrar} ($${monto})</span></td>
                     <td>${sugerencia}</td>
                     <td>${ubicacionTexto}</td>
                     <td>
-                        <button type="button" class="btn-cobrar" onclick="abrirModalPago(event, ${p.id}, '${estadoDB}', ${p.montoAbonado || 0}, ${p.espacioId || 'null'})">
-                            <i class="fas fa-edit"></i> Gestionar
-                        </button>
-                        <button type="button" class="btn-rechazar" onclick="quitarDeDistribucion(event, ${p.id}, ${p.montoAbonado || 0})">
-                            <i class="fas fa-undo"></i> Quitar
-                        </button>
+                        <button type="button" class="btn-cobrar btn-gestionar"
+                            data-id="${p.id}" data-estado="${estadoDB}" data-monto="${monto}" data-espacio-id="${p.espacioId || ''}"
+                        ><i class="fas fa-edit"></i> Gestionar</button>
+                        <button type="button" class="btn-rechazar btn-quitar"
+                            data-id="${p.id}" data-monto="${monto}"
+                        ><i class="fas fa-undo"></i> Quitar</button>
                     </td>
                 </tr>
             `;
@@ -312,22 +347,56 @@ document.addEventListener("DOMContentLoaded", () => {
         if (tab) tab.classList.add('active');
     };
 
+    // Bug #5: Delegación de eventos desde el tbody estático para botones dinámicos
+    tbodyGestion.addEventListener('click', function(e) {
+        // Botón Gestionar
+        const btnGestionar = e.target.closest('.btn-gestionar');
+        if (btnGestionar) {
+            e.preventDefault();
+            const id = parseInt(btnGestionar.dataset.id);
+            const estado = btnGestionar.dataset.estado;
+            const monto = parseFloat(btnGestionar.dataset.monto) || 0;
+            const espacioId = btnGestionar.dataset.espacioId || null;
+            window.abrirModalPago(id, estado, monto, espacioId);
+            return;
+        }
+        // Botón Quitar
+        const btnQuitar = e.target.closest('.btn-quitar');
+        if (btnQuitar) {
+            e.preventDefault();
+            const id = parseInt(btnQuitar.dataset.id);
+            const monto = parseFloat(btnQuitar.dataset.monto) || 0;
+            window.quitarDeDistribucion(null, id, monto);
+            return;
+        }
+    });
+
+    // Bug #3: abrirModalPago acepta parámetros directos (sin event), llamado desde delegación de eventos
     window.abrirModalPago = async (id, estadoPago, monto, ubicacionId) => {
         document.getElementById("pago-participacion-id").value = id;
         
         const estadoSeguro = estadoPago ? estadoPago.toUpperCase() : "DEBE";
-        document.getElementById("pago-estado").value = estadoSeguro; 
-        document.getElementById("pago-estado").disabled = true;
-        document.getElementById("pago-monto").value = monto || 0;
-        
         const selectEstado = document.getElementById("pago-estado");
-        selectEstado.value = estadoPago || "DEBE";
+        selectEstado.value = estadoSeguro;
+        selectEstado.disabled = true;
+        document.getElementById("pago-monto").value = monto || 0;
 
-        const inputUbicacion = document.getElementById("pago-ubicacion");
-        inputUbicacion.value = (ubicacionId && ubicacionId !== 'null') ? ubicacionId : "";
-
+        // Cargar espacios disponibles (actualiza _espaciosCache)
         const edicionId = document.getElementById("feria-select").value;
-        await cargarEspaciosDisponibles(edicionId, ubicacionId);
+        await cargarEspaciosDisponibles(edicionId, (ubicacionId && ubicacionId !== 'null') ? ubicacionId : null);
+
+        // Poblar el select con _espaciosCache (incluyendo el espacio ya asignado aunque esté OCUPADO)
+        const selectUbicacion = document.getElementById("pago-ubicacion");
+        selectUbicacion.innerHTML = '<option value="">-- Sin asignar --</option>';
+        const espacioAsignadoId = (ubicacionId && ubicacionId !== 'null' && ubicacionId !== '') ? String(ubicacionId) : '';
+        _espaciosCache.forEach(esp => {
+            const selected = String(esp.id) === espacioAsignadoId ? 'selected' : '';
+            selectUbicacion.innerHTML += `<option value="${esp.id}" ${selected}>${esp.nombre} — $${esp.precio} (${esp.estado})</option>`;
+        });
+        // Si el espacio asignado no está en el cache (ej: OCUPADO por otro), igual lo mostramos
+        if (espacioAsignadoId && !_espaciosCache.find(e => String(e.id) === espacioAsignadoId)) {
+            selectUbicacion.innerHTML += `<option value="${espacioAsignadoId}" selected>Stand actual (ID ${espacioAsignadoId})</option>`;
+        }
 
         const mapaContainer = document.getElementById("mapa-asignacion-container");
         const mapaImg = document.getElementById("mapa-asignacion-img");
@@ -388,22 +457,35 @@ document.addEventListener("DOMContentLoaded", () => {
             return mostrarNotificacion("El monto no puede ser negativo.", "error");
         }
 
-        if (ubicacionValue === "") {
+        // Validación: si hay stand seleccionado, el monto debe ser > 0
+        if (ubicacionValue !== "" && monto <= 0) {
             await Swal.fire({
-                title: "Selección requerida",
-                text: "Por favor, selecciona un lote válido.",
-                icon: "warning",
-                confirmButtonColor: "#f59e0b"
+                title: "Monto requerido",
+                text: "Debes ingresar un monto mayor a $0 para confirmar un stand.",
+                icon: "error",
+                confirmButtonColor: "#ef4444"
             });
             return;
         }
 
-        // Parseo seguro para el backend (Integer)
-        const espacioId = parseInt(ubicacionValue, 10);
+        // Bug #4: Validar sobrepago contra el precio del stand seleccionado
+        if (ubicacionValue !== "" && monto > 0) {
+            const espacioSeleccionado = _espaciosCache.find(e => String(e.id) === ubicacionValue);
+            if (espacioSeleccionado && monto > espacioSeleccionado.precio) {
+                await Swal.fire({
+                    title: "Monto inválido",
+                    text: `El monto ($${monto}) no puede superar el valor del stand ($${espacioSeleccionado.precio}).`,
+                    icon: "error",
+                    confirmButtonColor: "#ef4444"
+                });
+                return;
+            }
+        }
 
+        // Construir payload: espacioId es null si no se seleccionó ninguno
         const payload = {
             montoAbonado: monto,
-            espacioId: espacioId
+            espacioId: ubicacionValue !== "" ? parseInt(ubicacionValue, 10) : null
         };
 
         try {

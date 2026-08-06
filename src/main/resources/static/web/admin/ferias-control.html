@@ -312,7 +312,7 @@
                 <label for="nuevo-espacio-hasta" style="font-size:0.82em; color:#64748b;">Hasta</label>
                 <input type="number" id="nuevo-espacio-hasta" placeholder="10" min="1" style="width:100%; padding:7px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box;">
             </div>
-            <button onclick="agregarEspacio()" style="background:#0ea5e9; color:white; border:none; padding:9px 16px; border-radius:6px; cursor:pointer; font-weight:bold; white-space:nowrap;">
+            <button type="button" onclick="agregarEspacio()" style="background:#0ea5e9; color:white; border:none; padding:9px 16px; border-radius:6px; cursor:pointer; font-weight:bold; white-space:nowrap;">
                 <i class="fas fa-plus"></i> Agregar
             </button>
         </div>
@@ -331,7 +331,7 @@
                     <label for="zona-actualizar-precio" style="font-size:0.8em; color:#64748b;">Nuevo Precio ($)</label>
                     <input type="number" id="zona-actualizar-precio" placeholder="0" min="0" step="0.01" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; box-sizing:border-box;">
                 </div>
-                <button onclick="actualizarPrecioZona()" style="background:#f59e0b; color:white; border:none; padding:7px 14px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.85em; white-space:nowrap;">
+                <button type="button" onclick="actualizarPrecioZona()" style="background:#f59e0b; color:white; border:none; padding:7px 14px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:0.85em; white-space:nowrap;">
                     Actualizar Zona
                 </button>
             </div>
@@ -340,7 +340,7 @@
 
         <!-- Botón Lote Individual -->
         <div style="margin-bottom: 12px; text-align: right;">
-            <button class="btn btn-success" onclick="crearLoteIndividual()">+ Nuevo Lote Individual</button>
+            <button type="button" class="btn btn-success" onclick="crearLoteIndividual()">+ Nuevo Lote Individual</button>
         </div>
 
         <!-- Lista de espacios existentes -->
@@ -375,7 +375,7 @@
         <input type="number" id="input-nuevo-precio" min="0" step="0.01" placeholder="0.00"
             style="width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:6px; box-sizing:border-box; font-size:1em; margin-bottom:16px;">
         <div style="text-align:right;">
-            <button onclick="guardarNuevoPrecio()" style="background:#f59e0b; color:white; border:none; padding:10px 22px; border-radius:6px; cursor:pointer; font-weight:bold;">
+            <button type="button" onclick="guardarNuevoPrecio()" style="background:#f59e0b; color:white; border:none; padding:10px 22px; border-radius:6px; cursor:pointer; font-weight:bold;">
                 <i class="fas fa-save"></i> Guardar
             </button>
         </div>

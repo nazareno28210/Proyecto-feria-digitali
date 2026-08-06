@@ -619,16 +619,17 @@ async function cargarEspacios() {
             const btnEditarStyle = bloqueado ? 'background:#94a3b8; cursor:not-allowed;' : 'background:#f59e0b; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:4px;';
             const btnEliminarStyle = bloqueado ? 'background:#94a3b8; cursor:not-allowed;' : 'background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:4px;';
 
+            // Bug #5: Usamos data-attributes en lugar de onclick inline
             let botonEstadoHtml = '';
             if (e.estado === 'DISPONIBLE') {
                 botonEstadoHtml = `
-                    <button type="button" onclick="enviarAMantenimiento(event, ${e.id})"
+                    <button type="button" class="btn-mantenimiento" data-id="${e.id}"
                         style="background:#ea580c; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:4px;" title="Enviar a Mantenimiento">
                         <i class="fas fa-wrench"></i>
                     </button>`;
             } else if (e.estado === 'MANTENIMIENTO') {
                 botonEstadoHtml = `
-                    <button type="button" onclick="liberarEspacio(event, ${e.id})"
+                    <button type="button" class="btn-liberar" data-id="${e.id}"
                         style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; margin-right:4px;" title="Liberar Espacio">
                         <i class="fas fa-check-circle"></i> Liberar
                     </button>`;
@@ -644,11 +645,13 @@ async function cargarEspacios() {
                 <td style="padding:10px 12px;"><span style="color:${estadoColor}; font-weight:600;">${e.estado}${infoMotivo}</span></td>
                 <td style="padding:10px 12px; text-align:center;">
                     ${botonEstadoHtml}
-                    <button type="button" ${disabledAttr} onclick="editarEspacio(${e.id}, this.dataset.nombre, ${e.precio})" data-nombre="${e.nombre.replace(/"/g, '&quot;')}"
+                    <button type="button" class="btn-editar-espacio" ${disabledAttr}
+                        data-id="${e.id}" data-nombre="${e.nombre.replace(/"/g, '&quot;')}" data-precio="${e.precio}"
                         style="${btnEditarStyle}" title="Editar">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button type="button" ${disabledAttr} onclick="eliminarEspacio(event, ${e.id})"
+                    <button type="button" class="btn-eliminar-espacio" ${disabledAttr}
+                        data-id="${e.id}"
                         style="${btnEliminarStyle}" title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -660,6 +663,39 @@ async function cargarEspacios() {
         console.error(err);
     }
 }
+
+// Bug #5: Delegación de eventos para tbody-espacios (evita doble clic y re-render)
+(function setupEspaciosDelegation() {
+    document.addEventListener('click', function(e) {
+        const tbody = document.getElementById('tbody-espacios');
+        if (!tbody) return;
+
+        const btnMant = e.target.closest('.btn-mantenimiento');
+        if (btnMant && tbody.contains(btnMant)) {
+            e.preventDefault();
+            window.enviarAMantenimiento(e, parseInt(btnMant.dataset.id));
+            return;
+        }
+        const btnLiberar = e.target.closest('.btn-liberar');
+        if (btnLiberar && tbody.contains(btnLiberar)) {
+            e.preventDefault();
+            window.liberarEspacio(e, parseInt(btnLiberar.dataset.id));
+            return;
+        }
+        const btnEditar = e.target.closest('.btn-editar-espacio');
+        if (btnEditar && tbody.contains(btnEditar) && !btnEditar.disabled) {
+            e.preventDefault();
+            window.editarEspacio(parseInt(btnEditar.dataset.id), btnEditar.dataset.nombre, parseFloat(btnEditar.dataset.precio));
+            return;
+        }
+        const btnEliminar = e.target.closest('.btn-eliminar-espacio');
+        if (btnEliminar && tbody.contains(btnEliminar) && !btnEliminar.disabled) {
+            e.preventDefault();
+            window.eliminarEspacio(e, parseInt(btnEliminar.dataset.id));
+            return;
+        }
+    });
+})();
 
 window.liberarEspacio = async (event, idParam) => {
     if (event && event.preventDefault) event.preventDefault();
@@ -687,7 +723,9 @@ window.liberarEspacio = async (event, idParam) => {
                 const estadoTd = tr.children[2];
                 if (estadoTd) estadoTd.innerHTML = `<span style="color:#10b981; font-weight:600;">DISPONIBLE</span>`;
                 if (btn) {
-                    btn.setAttribute("onclick", `enviarAMantenimiento(event, ${id})`);
+                    // Bug #5: Cambiamos clase y data-id en lugar de setAttribute("onclick")
+                    btn.className = btn.className.replace('btn-liberar', 'btn-mantenimiento');
+                    btn.dataset.id = id;
                     btn.style.background = "#ea580c";
                     btn.title = "Enviar a Mantenimiento";
                     btn.innerHTML = `<i class="fas fa-wrench"></i>`;
@@ -887,7 +925,9 @@ window.enviarAMantenimiento = async (event, espacioIdParam) => {
                 const estadoTd = tr.children[2];
                 if (estadoTd) estadoTd.innerHTML = `<span style="color:#f59e0b; font-weight:600;">MANTENIMIENTO${infoMotivo}</span>`;
                 if (btn) {
-                    btn.setAttribute("onclick", `liberarEspacio(event, ${espacioId})`);
+                    // Bug #5: Cambiamos clase y data-id en lugar de setAttribute("onclick")
+                    btn.className = btn.className.replace('btn-mantenimiento', 'btn-liberar');
+                    btn.dataset.id = espacioId;
                     btn.style.background = "#10b981";
                     btn.title = "Liberar Espacio";
                     btn.innerHTML = `<i class="fas fa-check-circle"></i> Liberar`;

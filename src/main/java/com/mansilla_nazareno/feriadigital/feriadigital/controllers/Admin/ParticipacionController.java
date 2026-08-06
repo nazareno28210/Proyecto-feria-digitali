@@ -112,19 +112,27 @@ public class ParticipacionController {
             EstadoParticipacion estadoAnterior = participacion.getEstado();
             participacion.setEstado(estado);
 
-            // Regla de Ocupación, Liberación y Rechazo
-            if (estado == EstadoParticipacion.CONFIRMADO) {
-                if (participacion.getEspacio() != null) {
-                    Espacio espacio = participacion.getEspacio();
-                    espacio.setEstado(EstadoEspacio.OCUPADO);
-                    espacioRepository.save(espacio);
+            // Al CONFIRMAR: auto-reserva si tiene preferencia y el espacio está disponible
+            if (estado == EstadoParticipacion.CONFIRMADO && participacion.getEspacio() == null) {
+                Integer prefId = participacion.getNumeroStandPreferido();
+                if (prefId != null) {
+                    espacioRepository.findById(prefId).ifPresent(espPref -> {
+                        if (espPref.getEstado() == EstadoEspacio.DISPONIBLE) {
+                            espPref.setEstado(EstadoEspacio.RESERVADO);
+                            espacioRepository.save(espPref);
+                            participacion.setEspacio(espPref);
+                        }
+                    });
                 }
-            } else if (estado == EstadoParticipacion.RECHAZADO || estado == EstadoParticipacion.CANCELADO) {
+            }
+
+            // Al RECHAZAR o CANCELAR, liberamos el espacio si tenía uno
+            if (estado == EstadoParticipacion.RECHAZADO || estado == EstadoParticipacion.CANCELADO) {
                 if (participacion.getEspacio() != null) {
                     Espacio espacio = participacion.getEspacio();
-                    espacio.setEstado(EstadoEspacio.DISPONIBLE); // Liberamos la mesa para otro feriante
+                    espacio.setEstado(EstadoEspacio.DISPONIBLE);
                     espacioRepository.save(espacio);
-                    participacion.setEspacio(null); // Cortamos el vínculo físico en la base de datos
+                    participacion.setEspacio(null);
                 }
             }
 
@@ -139,10 +147,10 @@ public class ParticipacionController {
     public ResponseEntity<?> actualizarPagoYUbicacion(@PathVariable Integer id, @RequestBody Map<String, Object> payload) {
         return participacionRepository.findById(id).map(participacion -> {
 
-            // VALIDACIÓN HISTÓRICA: Edición inactiva
+            // Bug #3: Permitir PROXIMA y ACTIVA. Solo bloquear si FINALIZADA o INACTIVA.
             if (participacion.getEdicion() != null && participacion.getEdicion().getEstado() != null) {
                 String estadoEdicion = participacion.getEdicion().getEstado().toString();
-                if (!estadoEdicion.equals("ACTIVA")) {
+                if (estadoEdicion.equals("FINALIZADA") || estadoEdicion.equals("INACTIVA")) {
                     return ResponseEntity.badRequest().body(Map.of("error", "No puedes modificar pagos ni ubicaciones de una edición que ya finalizó o se encuentra inactiva."));
                 }
             }
@@ -153,38 +161,67 @@ public class ParticipacionController {
                 return ResponseEntity.badRequest().body(Map.of("error", "El monto abonado no puede ser negativo."));
             }
 
+            // Validación: si se asigna un stand, el monto debe ser > 0
+            boolean enviaEspacioNuevoValidado = payload.containsKey("espacioId") && payload.get("espacioId") != null && !payload.get("espacioId").toString().isEmpty();
+            if (enviaEspacioNuevoValidado && monto <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Debes ingresar un monto mayor a $0 para confirmar un stand."));
+            }
+
             boolean tieneEspacioPrevio = participacion.getEspacio() != null;
             boolean enviaEspacioNuevo = payload.containsKey("espacioId") && payload.get("espacioId") != null && !payload.get("espacioId").toString().isEmpty();
+            boolean esDesasignacion = payload.containsKey("espacioId") && (payload.get("espacioId") == null || payload.get("espacioId").toString().isEmpty() || payload.get("espacioId").toString().equals("null"));
 
-            if (monto > 0 && !tieneEspacioPrevio && !enviaEspacioNuevo) {
+            if (monto > 0 && !tieneEspacioPrevio && !enviaEspacioNuevo && !esDesasignacion) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Debes asignar un lote/stand físico antes de poder registrar un pago."));
             }
 
-            // 1. Asignación o actualización de Espacio
+            // 1. Asignación, actualización o desasignación de Espacio
             Espacio espacioActual = participacion.getEspacio();
-            if (payload.containsKey("espacioId") && payload.get("espacioId") != null) {
-                Integer espacioId = Integer.valueOf(payload.get("espacioId").toString());
-                if (espacioActual == null || !espacioActual.getId().equals(espacioId)) {
-                    Espacio nuevoEspacio = espacioRepository.findById(espacioId).orElse(null);
-                    if (nuevoEspacio != null && nuevoEspacio.getEstado() == EstadoEspacio.OCUPADO) {
-                        return ResponseEntity.badRequest().body(Map.of("error", "El stand seleccionado acaba de ser ocupado."));
-                    }
-                    // CANDADO DE DEVOLUCIONES
-                    if (nuevoEspacio != null) {
-                        Double precioNuevoStand = nuevoEspacio.getPrecio();
-                        Double dineroAbonado = participacion.getMontoAbonado() != null ? participacion.getMontoAbonado() : 0.0;
-                        if (dineroAbonado > precioNuevoStand) {
-                            return ResponseEntity.badRequest().body(Map.of("error", "El feriante ya abonó $" + dineroAbonado + ", pero el nuevo stand vale $" + precioNuevoStand + ". Debes regularizar el saldo a favor (devolución) antes de reasignarlo a un lote más barato."));
-                        }
-                    }
+            if (payload.containsKey("espacioId")) {
+                Object rawEspacioId = payload.get("espacioId");
+                if (rawEspacioId == null || rawEspacioId.toString().trim().isEmpty() || rawEspacioId.toString().equals("null")) {
+                    // DESASIGNACIÓN EXPLÍCITA
                     if (espacioActual != null) {
                         espacioActual.setEstado(EstadoEspacio.DISPONIBLE);
                         espacioRepository.save(espacioActual);
+                        participacion.setEspacio(null);
+                        espacioActual = null;
                     }
-                    nuevoEspacio.setEstado(EstadoEspacio.OCUPADO);
-                    espacioRepository.save(nuevoEspacio);
-                    participacion.setEspacio(nuevoEspacio);
-                    espacioActual = nuevoEspacio;
+                } else {
+                    Integer espacioId = Integer.valueOf(rawEspacioId.toString());
+                    if (espacioActual == null || !espacioActual.getId().equals(espacioId)) {
+                        Espacio nuevoEspacio = espacioRepository.findById(espacioId).orElse(null);
+                        if (nuevoEspacio != null && nuevoEspacio.getEstado() == EstadoEspacio.OCUPADO) {
+                            return ResponseEntity.badRequest().body(Map.of("error", "El stand seleccionado acaba de ser ocupado."));
+                        }
+                        // CANDADO DE DEVOLUCIONES
+                        if (nuevoEspacio != null) {
+                            Double precioNuevoStand = nuevoEspacio.getPrecio();
+                            Double dineroAbonado = participacion.getMontoAbonado() != null ? participacion.getMontoAbonado() : 0.0;
+                            if (dineroAbonado > precioNuevoStand) {
+                                return ResponseEntity.badRequest().body(Map.of("error", "El feriante ya abonó $" + dineroAbonado + ", pero el nuevo stand vale $" + precioNuevoStand + ". Debes regularizar el saldo a favor (devolución) antes de reasignarlo a un lote más barato."));
+                            }
+                            // Bug #4 Backend: Validar sobrepago
+                            if (monto > precioNuevoStand) {
+                                return ResponseEntity.badRequest().body(Map.of("error", "El monto abonado ($" + monto + ") supera el valor del stand ($" + precioNuevoStand + "). Reduce el monto antes de guardar."));
+                            }
+                        }
+                        if (espacioActual != null) {
+                            espacioActual.setEstado(EstadoEspacio.DISPONIBLE);
+                            espacioRepository.save(espacioActual);
+                        }
+                        if (nuevoEspacio != null) {
+                            nuevoEspacio.setEstado(EstadoEspacio.OCUPADO);
+                            espacioRepository.save(nuevoEspacio);
+                        }
+                        participacion.setEspacio(nuevoEspacio);
+                        espacioActual = nuevoEspacio;
+                    } else {
+                        // Mismo espacio: también validar sobrepago
+                        if (espacioActual != null && monto > espacioActual.getPrecio()) {
+                            return ResponseEntity.badRequest().body(Map.of("error", "El monto abonado ($" + monto + ") supera el valor del stand ($" + espacioActual.getPrecio() + "). Reduce el monto antes de guardar."));
+                        }
+                    }
                 }
             }
 
@@ -219,7 +256,7 @@ public class ParticipacionController {
             }
 
             participacionRepository.save(participacion);
-            return ResponseEntity.ok(Map.of("mensaje", "Datos actualizados correctamente"));
+            return ResponseEntity.ok(new ParticipacionDTO(participacion));
         }).orElse(new ResponseEntity<>(Map.of("error", "Participación no encontrada"), HttpStatus.NOT_FOUND));
     }
 
@@ -250,26 +287,13 @@ public class ParticipacionController {
             return ResponseEntity.badRequest().body(Map.of("error", "El organizador aún no ha configurado los stands."));
         }
 
-        // 3. CAPTURA Y VALIDACIÓN DEL LOTE ELEGIDO (Motor Financiero & REGLA 7: FIFO)
-        Espacio espacioElegido = null;
+        // 3. CAPTURA DE LA PREFERENCIA DEL LOTE (solo informativa, no se asigna automáticamente)
+        // El organizador asigna el stand manualmente desde el panel de Stands y Pagos.
         if (dto.getEspacioId() != null) {
-            espacioElegido = espacioRepository.findById(dto.getEspacioId()).orElse(null);
-            
-            if (espacioElegido != null) {
-                if (!espacioElegido.getEdicion().getId().equals(edicionId)) {
-                    logger.warn("Inscripción rechazada: El espacio {} no pertenece a la edición {}", dto.getEspacioId(), edicionId);
-                    return ResponseEntity.badRequest().body(Map.of("error", "El lote seleccionado no pertenece a esta edición de la feria."));
-                }
-                
-                // 🛡️ REGLA 7: RESERVA POR ORDEN DE LLEGADA (FIFO)
-                boolean yaReservado = participacionRepository.findAll().stream()
-                        .anyMatch(p -> p.getEspacio() != null && p.getEspacio().getId().equals(dto.getEspacioId())
-                                && (p.getEstado() == EstadoParticipacion.PENDIENTE || p.getEstado() == EstadoParticipacion.CONFIRMADO || p.getEstado() == EstadoParticipacion.EN_ESPERA));
-
-                if (espacioElegido.getEstado() != EstadoEspacio.DISPONIBLE || yaReservado) {
-                    logger.warn("Reserva FIFO rechazada: El stand id {} no está disponible o ya tiene solicitud pendiente/ocupada", dto.getEspacioId());
-                    return ResponseEntity.badRequest().body(Map.of("error", "Lo sentimos, este stand ya fue reservado o está ocupado."));
-                }
+            Espacio espacioElegido = espacioRepository.findById(dto.getEspacioId()).orElse(null);
+            if (espacioElegido != null && !espacioElegido.getEdicion().getId().equals(edicionId)) {
+                logger.warn("Inscripción rechazada: El espacio {} no pertenece a la edición {}", dto.getEspacioId(), edicionId);
+                return ResponseEntity.badRequest().body(Map.of("error", "El lote seleccionado no pertenece a esta edición de la feria."));
             }
         }
 
@@ -312,8 +336,8 @@ public class ParticipacionController {
             existente.setEstado(estadoInicial);
             existente.setEstadoPago(EstadoPago.DEBE);
             existente.setMontoAbonado(0.0);
-            existente.setEspacio(espacioElegido);
-            existente.setNumeroStandPreferido(dto.getEspacioId());
+            existente.setEspacio(null); // La asignación es SIEMPRE manual
+            existente.setNumeroStandPreferido(dto.getEspacioId()); // Solo como preferencia informativa
 
             participacionRepository.save(existente);
             logger.info("Re-postulación exitosa para edicionId {} y standId {}", edicionId, standId);
@@ -324,8 +348,8 @@ public class ParticipacionController {
         nueva.setEdicion(edicion);
         nueva.setStand(stand);
         nueva.setEstado(estadoInicial);
-        nueva.setEspacio(espacioElegido);
-        nueva.setNumeroStandPreferido(dto.getEspacioId());
+        nueva.setEspacio(null); // La asignación es SIEMPRE manual desde el panel de Stands y Pagos
+        nueva.setNumeroStandPreferido(dto.getEspacioId()); // Solo como preferencia informativa
 
         participacionRepository.save(nueva);
         logger.info("Inscripción exitosa registrada para edicionId {} y standId {} con estado {}", edicionId, standId, estadoInicial);
