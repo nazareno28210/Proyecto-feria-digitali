@@ -68,6 +68,17 @@ async function cargarFeria() {
     // Pasamos el ID del molde para los votos
     renderizarAprobacionFeria(edicion.feriaId);
 
+    // 🔔 Lógica de Recordatorio para ferias en estado PROXIMA
+    const seccionRecordatorio = document.getElementById("seccion-recordatorio-feria");
+    if (seccionRecordatorio) {
+        if (edicion.estado && edicion.estado.toUpperCase() === "PROXIMA") {
+            seccionRecordatorio.style.display = "block";
+            verificarEstadoRecordatorio(edicionId);
+        } else {
+            seccionRecordatorio.style.display = "none";
+        }
+    }
+
     // 🟢 3. Lógica de Stands: Ahora buscamos las participaciones de esta edición
     const standsContainer = document.getElementById("stands-container");
     standsContainer.innerHTML = "";
@@ -228,4 +239,90 @@ function escapeHtml(text) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
+}
+
+// 🔔 Verificar estado de recordatorio para esta edición
+async function verificarEstadoRecordatorio(idEdicion) {
+    const btn = document.getElementById("btn-recordatorio-feria");
+    if (!btn || !idEdicion) return;
+    try {
+        const response = await axios.get(`/api/recordatorios/edicion/${idEdicion}/estado`, { withCredentials: true });
+        if (response.data && response.data.activo) {
+            btn.classList.add("activo");
+            btn.innerHTML = `<i class="bi bi-bell-fill"></i> Recordatorio activado`;
+        } else {
+            btn.classList.remove("activo");
+            btn.innerHTML = `<i class="bi bi-bell"></i> Recordarme feria`;
+        }
+    } catch (e) {
+        console.log("No se pudo verificar estado de recordatorio:", e);
+    }
+}
+
+// 🔔 Alternar suscripción a recordatorio de feria próxima
+async function alternarRecordatorioFeria() {
+    const btn = document.getElementById("btn-recordatorio-feria");
+    if (!edicionId) return;
+
+    try {
+        const response = await axios.post(`/api/recordatorios/edicion/${edicionId}`, {}, { withCredentials: true });
+        const data = response.data;
+        if (data.activo) {
+            if (btn) {
+                btn.classList.add("activo");
+                btn.innerHTML = `<i class="bi bi-bell-fill"></i> Recordatorio activado`;
+            }
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Recordatorio Activado!',
+                    text: data.mensaje || 'Esta feria será notificada por correo antes de su apertura.',
+                    confirmButtonColor: '#f59e0b'
+                });
+            } else {
+                mostrarNotificacion(data.mensaje || "Esta feria será notificada por correo antes de su apertura.", "success");
+            }
+        } else {
+            if (btn) {
+                btn.classList.remove("activo");
+                btn.innerHTML = `<i class="bi bi-bell"></i> Recordarme feria`;
+            }
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Recordatorio Cancelado',
+                    text: data.mensaje || 'El recordatorio para esta feria ha sido cancelado.',
+                    confirmButtonColor: '#3b82f6'
+                });
+            } else {
+                mostrarNotificacion(data.mensaje || "El recordatorio para esta feria ha sido cancelado.", "info");
+            }
+        }
+    } catch (err) {
+        if (err.response && err.response.status === 401) {
+            const msg = "Debes iniciar sesión para activar el recordatorio por correo.";
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Iniciar Sesión Requerido',
+                    text: msg,
+                    confirmButtonText: 'Ir a Iniciar Sesión',
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonColor: '#3b82f6'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "login.html";
+                    }
+                });
+            } else {
+                mostrarNotificacion(msg, "warning");
+            }
+        } else {
+            const msg = (err.response && err.response.data) ? (typeof err.response.data === 'string' ? err.response.data : err.response.data.mensaje) : "Error al procesar el recordatorio.";
+            if (typeof Swal !== 'undefined') Swal.fire('Atención', msg || 'Error al procesar el recordatorio.', 'info');
+            else mostrarNotificacion(msg || 'Error al procesar el recordatorio.', 'info');
+        }
+    }
+}
+

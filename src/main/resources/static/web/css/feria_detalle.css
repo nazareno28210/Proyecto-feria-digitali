@@ -220,9 +220,79 @@ header h1 span {
 }
 
 /* ====================================
-   3. SECCIÓN DE RECOMENDACIÓN / VOTO
+   3. SECCIÓN DE RECOMENDACIÓN / VOTO Y RECORDATORIOS
    ==================================== */
+.recordatorio-container {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.12);
+  margin: 1.5rem 0 1.5rem 0;
+  padding: 1.25rem 2rem;
+  border-left: 6px solid #f59e0b;
+  border-top: 1px solid #fde68a;
+  border-right: 1px solid #fde68a;
+  border-bottom: 1px solid #fde68a;
+}
+
+.recordatorio-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.recordatorio-texto h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recordatorio-texto p {
+  color: #b45309;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.btn-recordatorio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f59e0b;
+  color: #ffffff;
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);
+  transition: all 0.25s ease;
+}
+
+.btn-recordatorio:hover {
+  background: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 14px rgba(245, 158, 11, 0.4);
+}
+
+.btn-recordatorio.activo {
+  background: #10b981;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+}
+
+.btn-recordatorio.activo:hover {
+  background: #059669;
+  box-shadow: 0 5px 14px rgba(16, 185, 129, 0.4);
+}
+
 .voto-container-horizontal {
+
   background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   border-radius: 16px;
   box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);

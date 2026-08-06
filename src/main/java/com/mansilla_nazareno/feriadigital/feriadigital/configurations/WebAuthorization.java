@@ -35,8 +35,8 @@ public class WebAuthorization {
                         // 🔒 Endpoint para CAMBIO DE CONTRASEÑA
                         .requestMatchers("/api/password/**").authenticated()
 
-                        // 🛡️ Endpoints de valoraciones y reseñas
-                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/votos-feria/**", "/api/resenas-stand/**", "/api/resenas-producto/**").authenticated()
+                        // 🛡️ Endpoints de valoraciones, reseñas y recordatorios
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/votos-feria/**", "/api/resenas-stand/**", "/api/resenas-producto/**", "/api/recordatorios/**").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/resenas-producto/**").authenticated()
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/resenas-producto/**").authenticated()
 

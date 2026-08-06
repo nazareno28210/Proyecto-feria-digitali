@@ -89,5 +89,41 @@ public class EmailService {
             System.err.println("⚠️ No se pudo enviar el correo de rechazo a " + destinatario + ": " + e.getMessage());
         }
     }
+
+    // 📩 Enviar email de recordatorio de inicio de feria
+    public void enviarEmailRecordatorioFeria(String destinatario, String nombreUsuario, String nombreFeria, String nombreEdicion, String fechaInicio, String horaInicio, String lugar, Integer edicionId) {
+        try {
+            String link = baseUrl + "/web/feria_detalle.html?id=" + edicionId;
+
+            SimpleMailMessage mensaje = new SimpleMailMessage();
+            mensaje.setTo(destinatario);
+            mensaje.setSubject("¡Recordatorio! Mañana comienza " + (nombreFeria != null ? nombreFeria : "Feria Digital") + " — " + (nombreEdicion != null ? nombreEdicion : "Próxima edición"));
+
+            String texto = String.format(
+                "Hola %s,\n\n" +
+                "Te escribimos para recordarte que la feria '%s' (%s) está a punto de comenzar.\n\n" +
+                "📍 Lugar: %s\n" +
+                "📅 Fecha de apertura: %s\n" +
+                "⏰ Horario: %s hs\n\n" +
+                "Puedes ver la información completa de la feria y los puestos/stands participantes en el siguiente enlace directo:\n%s\n\n" +
+                "¡Te esperamos!\n" +
+                "El equipo de Feria Digital",
+                nombreUsuario != null ? nombreUsuario : "Visitante",
+                nombreFeria != null ? nombreFeria : "Feria Digital",
+                nombreEdicion != null ? nombreEdicion : "Edición Especial",
+                lugar != null ? lugar : "Lugar a definir",
+                fechaInicio != null ? fechaInicio : "",
+                horaInicio != null ? horaInicio : "--:--",
+                link
+            );
+
+            mensaje.setText(texto);
+            mailSender.send(mensaje);
+            System.out.println("✅ Email de recordatorio enviado exitosamente a: " + destinatario);
+        } catch (Exception e) {
+            System.err.println("⚠️ No se pudo enviar el correo de recordatorio a " + destinatario + ": " + e.getMessage());
+        }
+    }
 }
+
 
